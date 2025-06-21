@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "NouTube",
+    "slug": "noutube",
+    "version": "0.1.0",
+    "icon": "./assets/images/icon.png",
+    "scheme": "noutube",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "jp.nonbili.noutube"
+    },
+    "android": {
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "jp.nonbili.noutube"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      "expo-asset",
+      "expo-share-intent"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
