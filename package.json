@@ -1,7 +1,7 @@
 {
   "name": "noutube",
   "main": "expo-router/entry",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "scripts": {
     "bundle": "bun build --target browser content/main.ts --outfile assets/scripts/main.bjs",
     "dev": "bun bundle --watch",
@@ -19,7 +19,6 @@
     "@react-navigation/native": "^7.1.6",
     "es-toolkit": "^1.39.3",
     "expo": "~53.0.9",
-    "expo-application": "~6.1.4",
     "expo-asset": "~11.1.5",
     "expo-blur": "~14.1.4",
     "expo-constants": "~17.1.6",

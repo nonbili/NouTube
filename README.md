@@ -11,7 +11,7 @@ YouTube and YouTube Music in a single app. No ads, plays in the background.
 ## Development
 
 ```
-bun
+bun install
 bun dev
 bun run android
 ```
