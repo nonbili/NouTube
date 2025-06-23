@@ -1,0 +1,9 @@
+YouTube and YouTube Music in a single app. No ads, plays in the background.
+
+Manage watchlist, music library without login.
+
+## How it works
+
+- Wrap https://m.youtube.com and https://music.youtube.com in Android webview
+- Inject code to block ads
+- Hook playback controls and support playing in background
