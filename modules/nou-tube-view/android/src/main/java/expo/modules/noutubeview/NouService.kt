@@ -178,9 +178,9 @@ class NouService : Service() {
 
   fun notifyProgress(playing: Boolean, pos: Long) {
     val statePlaying = mediaSession?.getController()?.getPlaybackState()?.state == PlaybackStateCompat.STATE_PLAYING
+    setPlaybackState(playing, pos)
     if (statePlaying != playing) {
       notificationManager?.notify(NOTIFICATION_ID, buildNotification())
     }
-    setPlaybackState(playing, pos)
   }
 }
