@@ -19,10 +19,10 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
   const allStarred = use$(watchlist$.urls)
   const [aboutModalShown, setAboutModalShown] = useState(false)
 
+  const pageType = getPageType(uiState.pageUrl)
   const starred = allStarred.has(uiState.pageUrl)
   const onToggleStar = async () => {
     const bookmark: Bookmark = { url: uiState.pageUrl, title: uiState.title }
-    const pageType = getPageType(uiState.pageUrl)
     if (!starred) {
       if (isYTMusic) {
         switch (pageType?.type) {
@@ -50,6 +50,7 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
             }
             break
           }
+          case 'podcast':
           case 'playlist': {
             const thumbnail = await noutube?.eval(
               `document.querySelector('ytmusic-responsive-header-renderer ytmusic-thumbnail-renderer.thumbnail img')?.src`,
@@ -58,12 +59,13 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
             const title = await noutube?.eval(
               `document.querySelector('ytmusic-responsive-header-renderer h1')?.innerText`,
             )
-            const author = await noutube?.eval(
-              `document.querySelector('ytmusic-responsive-header-renderer .strapline-text')?.innerText?.replaceAll('\n', '')`,
+            let author = await noutube?.eval(
+              `document.querySelector('ytmusic-responsive-header-renderer .strapline-text')?.innerText`,
             )
             if (title) {
               bookmark.title = title
               if (author && author != 'null') {
+                author = author.replaceAll('\n', '')
                 bookmark.title += ` - ${author}`
               }
             }
@@ -121,15 +123,17 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
           ),
           headerRight: () => (
             <View className="flex flex-row gap-3 pr-2">
-              <MaterialIcons.Button
-                color={starred ? 'gold' : colors.icon}
-                backgroundColor="transparent"
-                iconStyle={{ marginRight: 0 }}
-                name={starred ? 'star' : 'star-outline'}
-                size={24}
-                onPress={onToggleStar}
-                underlayColor={colors.underlay}
-              />
+              {pageType?.canStar && (
+                <MaterialIcons.Button
+                  color={starred ? 'gold' : colors.icon}
+                  backgroundColor="transparent"
+                  iconStyle={{ marginRight: 0 }}
+                  name={starred ? 'star' : 'star-outline'}
+                  size={24}
+                  onPress={onToggleStar}
+                  underlayColor={colors.underlay}
+                />
+              )}
               <ContextMenu color={colors.bg}>
                 {/* @ts-expect-error ?? */}
                 <ContextMenu.Items>

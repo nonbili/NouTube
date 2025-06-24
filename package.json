@@ -1,7 +1,7 @@
 {
   "name": "noutube",
   "main": "expo-router/entry",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "scripts": {
     "bundle": "bun build --target browser content/main.ts --outfile assets/scripts/main.bjs",
     "bundle:es": "esbuild --bundle content/main.ts --outfile=assets/scripts/main.bjs",

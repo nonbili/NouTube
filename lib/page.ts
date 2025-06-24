@@ -1,4 +1,9 @@
+const starrableTypes = ['channel', 'playlist', 'podcast', 'watch']
+
 export function getPageType(url: string) {
+  if (!url) {
+    return
+  }
   const { host, pathname } = new URL(url)
   let home
   if (host == 'music.youtube.com') {
@@ -13,7 +18,7 @@ export function getPageType(url: string) {
   if (type.startsWith('@')) {
     type = 'channel'
   }
-  return { home, type }
+  return { home, type, canStar: starrableTypes.includes(type) }
 }
 
 export function fixPageTitle(title: string) {

@@ -2,7 +2,7 @@
   "expo": {
     "name": "NouTube",
     "slug": "noutube",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "icon": "./assets/images/icon.png",
     "scheme": "noutube",
     "userInterfaceStyle": "automatic",
@@ -12,7 +12,7 @@
       "bundleIdentifier": "jp.nonbili.noutube"
     },
     "android": {
-      "versionCode": 5,
+      "versionCode": 6,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
