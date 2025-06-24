@@ -128,6 +128,8 @@ class NouService : Service() {
       PlaybackStateCompat.Builder()
         .setActions(
           PlaybackStateCompat.ACTION_PLAY_PAUSE
+            or PlaybackStateCompat.ACTION_PLAY
+            or PlaybackStateCompat.ACTION_PAUSE
             or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
             or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
         )

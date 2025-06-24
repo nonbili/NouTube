@@ -1,7 +1,7 @@
 import { emit } from './utils'
 
 export let player: any
-let videoId = ''
+let curVideoId = ''
 
 export function handleVideoPlayer(mutations: MutationRecord[]) {
   for (const mutation of mutations) {
@@ -26,11 +26,11 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
               })
             }
           }
-          const { title, author, thumbnail, lengthSeconds, video_id } = videoDetails
-          if (videoId != video_id) {
+          const { title, author, thumbnail, lengthSeconds, videoId } = videoDetails
+          if (curVideoId != videoId) {
             const thumb = thumbnail.thumbnails.at(-1)
             NouTubeI.notify(title, author, +lengthSeconds, thumb?.url || '')
-            videoId = video_id
+            curVideoId = videoId
           }
         })
       }
