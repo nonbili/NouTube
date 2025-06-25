@@ -1,0 +1,53 @@
+import 'ts-node/register'
+
+import { ExpoConfig } from 'expo/config'
+import { version, versionCode } from './package.json'
+
+module.exports = ({ config }: { config: ExpoConfig }) => {
+  return {
+    name: 'NouTube',
+    slug: 'noutube',
+    version,
+    icon: './assets/images/icon.png',
+    scheme: 'noutube',
+    userInterfaceStyle: 'automatic',
+    newArchEnabled: true,
+    ios: {
+      supportsTablet: true,
+      bundleIdentifier: 'jp.nonbili.noutube',
+    },
+    android: {
+      versionCode,
+      adaptiveIcon: {
+        foregroundImage: './assets/images/adaptive-icon.png',
+        backgroundColor: '#ffffff',
+      },
+      edgeToEdgeEnabled: true,
+      package: 'jp.nonbili.noutube',
+    },
+    web: {
+      bundler: 'metro',
+      output: 'static',
+      favicon: './assets/images/favicon.png',
+    },
+    plugins: [
+      'expo-router',
+      [
+        'expo-splash-screen',
+        {
+          image: './assets/images/splash-icon.png',
+          imageWidth: 200,
+          resizeMode: 'contain',
+          backgroundColor: '#ffffff',
+        },
+      ],
+      'expo-asset',
+      'expo-share-intent',
+      'expo-web-browser',
+      './plugins/withAndroidPlugin.ts',
+    ],
+    experiments: {
+      typedRoutes: true,
+    },
+  }
+}

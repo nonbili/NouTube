@@ -65,7 +65,7 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
             if (title) {
               bookmark.title = title
               if (author && author != 'null') {
-                author = author.replaceAll('\n', '')
+                author = author.replaceAll('\\n', '')
                 bookmark.title += ` - ${author}`
               }
             }

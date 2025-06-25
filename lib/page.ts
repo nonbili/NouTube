@@ -1,3 +1,5 @@
+import { trimEnd } from 'es-toolkit'
+
 const starrableTypes = ['channel', 'playlist', 'podcast', 'watch']
 
 export function getPageType(url: string) {
@@ -22,6 +24,5 @@ export function getPageType(url: string) {
 }
 
 export function fixPageTitle(title: string) {
-  const suffix = ' - YouTube'
-  return title.endsWith(suffix) ? title.slice(0, -suffix.length) : title
+  return trimEnd(title, ['- YouTube', '- YouTube Music'])
 }
