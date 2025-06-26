@@ -5,6 +5,7 @@ interface NouTubeI {
 }
 
 declare global {
+  var _lact: number
   var NouTubeI: NouTubeI
   var NouTube: any
 }

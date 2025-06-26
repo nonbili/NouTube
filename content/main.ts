@@ -11,6 +11,8 @@ try {
   blockAds()
 
   initObserver()
+
+  setInterval(() => (window._lact = Date.now()), 20 * 60 * 1000)
 } catch (e) {
   console.error('NouScript: ', e)
 }

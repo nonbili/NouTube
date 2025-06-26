@@ -8,6 +8,7 @@ function transformResponse(text: string) {
 
 export function blockAds() {
   const winFetch = fetch
+  // @ts-expect-error xx
   window.fetch = async (...args) => {
     const request = args[0]
     const url = request instanceof Request ? request.url : request.toString()
