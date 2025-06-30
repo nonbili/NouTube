@@ -6,5 +6,6 @@ export function initNouTube() {
     pause: () => player.pauseVideo(),
     prev: () => player.previousVideo(),
     next: () => player.nextVideo(),
+    seekBy: (delta: number) => player.seekBy(delta),
   }
 }

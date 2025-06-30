@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Binder
+import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -26,6 +27,7 @@ class NouService : Service() {
   private val binder = NouBinder()
   private var mediaSession: MediaSessionCompat? = null
   private var notificationManager: NotificationManager? = null
+  private var stateBuilder: PlaybackStateCompat.Builder? = null
   private var activity: Activity? = null
   private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
   private val NOTIFICATION_ID = 777
@@ -60,6 +62,13 @@ class NouService : Service() {
 
       override fun onSkipToNext() {
         webView?.evaluateJavascript("NouTube.next()", null)
+      }
+
+      override fun onCustomAction(action: String?, extras: Bundle?) {
+        when (action) {
+          "Rewind" -> webView?.evaluateJavascript("NouTube.seekBy(-10)", null)
+          "Forward" -> webView?.evaluateJavascript("NouTube.seekBy(30)", null)
+        }
       }
     }
     mediaSession?.setCallback(callback)
@@ -114,7 +123,7 @@ class NouService : Service() {
         "Pause",
         playActionIntent
       )
-      .addAction(android.R.drawable.ic_media_next, "Previous", nextActionIntent)
+      .addAction(android.R.drawable.ic_media_next, "Next", nextActionIntent)
       .setStyle(
         androidx.media.app.NotificationCompat.MediaStyle()
           .setMediaSession(mediaSession!!.getSessionToken())
@@ -124,8 +133,14 @@ class NouService : Service() {
   }
 
   fun setPlaybackState(playing: Boolean, pos: Long = 0) {
-    val state =
-      PlaybackStateCompat.Builder()
+    if (stateBuilder == null) {
+      stateBuilder = PlaybackStateCompat.Builder()
+        .addCustomAction(
+          PlaybackStateCompat.CustomAction.Builder("Rewind", "Rewind", R.drawable.rewind).build()
+        )
+        .addCustomAction(
+          PlaybackStateCompat.CustomAction.Builder("Forward", "Forward", R.drawable.forward).build()
+        )
         .setActions(
           PlaybackStateCompat.ACTION_PLAY_PAUSE
             or PlaybackStateCompat.ACTION_PLAY
@@ -133,12 +148,13 @@ class NouService : Service() {
             or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
             or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
         )
-        .setState(
-          if (playing) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED,
-          pos * 1000,
-          1.0f
-        )
-        .build()
+    }
+    val state = stateBuilder!!.setState(
+      if (playing) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED,
+      pos * 1000,
+      1.0f
+    )
+      .build()
     mediaSession?.setPlaybackState(state)
   }
 
