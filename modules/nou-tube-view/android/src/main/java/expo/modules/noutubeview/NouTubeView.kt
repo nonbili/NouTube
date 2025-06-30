@@ -3,6 +3,7 @@ package expo.modules.noutubeview
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.AttributeSet
+import android.view.View
 import android.webkit.CookieManager
 import android.webkit.JsResult
 import android.webkit.WebChromeClient
@@ -61,6 +62,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
   private var scriptOnStart = ""
   private var pageUrl = ""
+  private var customView: View? = null
 
   internal val webView =
     NouWebView(context).apply {
@@ -72,7 +74,6 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
             onLoad(
               mapOf(
                 "url" to pageUrl
-                // "title" to title
               )
             )
           }
@@ -94,7 +95,6 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
         override fun onReceivedTitle(view: WebView, title: String) {
           onLoad(
             mapOf(
-              // "url" to pageUrl,
               "title" to title
             )
           )
@@ -104,6 +104,15 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
           result.confirm()
           return true
         }
+
+        override fun onShowCustomView(view: View, cllback: CustomViewCallback) {
+          customView = view
+          nouController.showFullscreen(view)
+        }
+
+        override fun onHideCustomView() {
+          nouController.exitFullscreen(customView!!)
+        }
       }
     }
 
@@ -111,7 +120,6 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     nouController.setNouTubeView(this)
     nouController.initService()
 
-    // Adds the WebView to the view hierarchy.
     addView(webView)
   }
 
