@@ -10,14 +10,14 @@ import { Button, ContextMenu } from '@expo/ui/jetpack-compose'
 import { getPageType } from '@/lib/page'
 import { settings$ } from '@/states/settings'
 import { colors } from '@/lib/colors'
-import { AboutModal } from '../modal/AboutModal'
+import { SettingsModal } from '../modal/SettingsModal'
 
 export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
   const navigation = useNavigation()
   const uiState = use$(ui$)
   const isYTMusic = use$(settings$.isYTMusic)
   const allStarred = use$(watchlist$.urls)
-  const [aboutModalShown, setAboutModalShown] = useState(false)
+  const [settingsModalShown, setSettingsModalShown] = useState(false)
 
   const pageType = getPageType(uiState.pageUrl)
   const starred = allStarred.has(uiState.pageUrl)
@@ -160,9 +160,9 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
                       containerColor: colors.bg,
                       contentColor: colors.text,
                     }}
-                    onPress={() => setAboutModalShown(true)}
+                    onPress={() => setSettingsModalShown(true)}
                   >
-                    About
+                    Settings
                   </Button>
                 </ContextMenu.Items>
                 <ContextMenu.Trigger>
@@ -180,7 +180,7 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
           ),
         }}
       />
-      {aboutModalShown && <AboutModal onClose={() => setAboutModalShown(false)} />}
+      {settingsModalShown && <SettingsModal onClose={() => setSettingsModalShown(false)} />}
     </>
   )
 }

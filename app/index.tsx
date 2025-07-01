@@ -1,7 +1,7 @@
 import { View, Text, BackHandler } from 'react-native'
 import { NouTubeView } from '@/modules/nou-tube-view'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { use$, useObserve } from '@legendapp/state/react'
+import { use$, useObserve, useObserveEffect } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { DrawerActions, useNavigation } from '@react-navigation/native'
 import { fixPageTitle, getPageType } from '@/lib/page'
@@ -15,9 +15,18 @@ export default function HomeScreen() {
   const navigation = useNavigation()
   const uiState = use$(ui$)
   const isYTMusic = use$(settings$.isYTMusic)
+  const hideShorts = use$(settings$.hideShorts)
   const [scriptOnStart, setScriptOnStart] = useState('')
   const { hasShareIntent, shareIntent } = useShareIntent()
   const insets = useSafeAreaInsets()
+  const ref = useRef<any>(null)
+
+  const toggleShorts = useCallback(
+    (hide?: boolean) => {
+      ref.current?.eval(hide ? 'NouTube.hideShorts()' : 'NouTube.showShorts()')
+    },
+    [ref.current],
+  )
 
   useEffect(() => {
     if (hasShareIntent && shareIntent.webUrl) {
@@ -47,6 +56,8 @@ export default function HomeScreen() {
     return () => subscription.remove()
   }, [])
 
+  useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
+
   const onLoad = async (e: { nativeEvent: any }) => {
     const { url, title: _title } = e.nativeEvent
     const title = fixPageTitle(_title || '')
@@ -60,12 +71,11 @@ export default function HomeScreen() {
     }
     const webview = ref.current
     ref.current.eval("document.querySelector('video')?.muted=false")
+    toggleShorts(hideShorts)
     navigation.dispatch(DrawerActions.closeDrawer)
   }
 
   const onMessage = async (e: { nativeEvent: { payload: string } }) => {}
-
-  const ref = useRef<any>(null)
 
   return (
     <>

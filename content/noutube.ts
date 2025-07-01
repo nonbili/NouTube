@@ -1,3 +1,4 @@
+import { hideShorts, showShorts } from './css'
 import { player } from './player'
 
 export function initNouTube() {
@@ -7,5 +8,7 @@ export function initNouTube() {
     prev: () => player.previousVideo(),
     next: () => player.nextVideo(),
     seekBy: (delta: number) => player.seekBy(delta),
+    hideShorts,
+    showShorts,
   }
 }

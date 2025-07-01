@@ -15,3 +15,21 @@ export function injectCSS() {
   style.textContent = css
   document.head.appendChild(style)
 }
+
+export function hideShorts() {
+  const style = document.createElement('style')
+  style.id = 'noutube-shorts'
+  style.type = 'text/css'
+  style.textContent = `
+ytm-reel-shelf-renderer,
+ytd-rich-section-renderer,
+.ytGridShelfViewModelHost {
+  display: none !important;
+}
+`
+  document.head.appendChild(style)
+}
+
+export function showShorts() {
+  document.querySelector('style#noutube-shorts')?.remove()
+}
