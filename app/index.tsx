@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { use$, useObserve, useObserveEffect } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { DrawerActions, useNavigation } from '@react-navigation/native'
-import { fixPageTitle, getPageType } from '@/lib/page'
+import { fixPageTitle, fixSharingUrl, getPageType } from '@/lib/page'
 import { Asset } from 'expo-asset'
 import { settings$ } from '@/states/settings'
 import { useShareIntent } from 'expo-share-intent'
@@ -30,7 +30,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (hasShareIntent && shareIntent.webUrl) {
-      const { host } = new URL(shareIntent.webUrl)
+      const { host } = new URL(fixSharingUrl(shareIntent.webUrl))
       if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'music.youtube.com'].includes(host)) {
         ui$.url.set(shareIntent.webUrl)
       }

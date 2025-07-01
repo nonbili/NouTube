@@ -1,5 +1,3 @@
-import { trimEnd } from 'es-toolkit'
-
 const starrableTypes = ['channel', 'playlist', 'podcast', 'shorts', 'watch']
 
 export function getPageType(url: string) {
@@ -24,5 +22,11 @@ export function getPageType(url: string) {
 }
 
 export function fixPageTitle(title: string) {
-  return trimEnd(title, ['- YouTube', '- YouTube Music'])
+  return title.replace(/ - YouTube( Music)*$/, '')
+}
+
+export function fixSharingUrl(v: string) {
+  const url = new URL(v)
+  url.searchParams.delete('pp')
+  return url.href
 }

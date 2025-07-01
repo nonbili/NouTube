@@ -7,7 +7,7 @@ import { use$, useObserve } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { DrawerActions, useNavigation } from '@react-navigation/native'
 import { Button, ContextMenu } from '@expo/ui/jetpack-compose'
-import { getPageType } from '@/lib/page'
+import { fixSharingUrl, getPageType } from '@/lib/page'
 import { settings$ } from '@/states/settings'
 import { colors } from '@/lib/colors'
 import { SettingsModal } from '../modal/SettingsModal'
@@ -151,7 +151,7 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
                       containerColor: colors.bg,
                       contentColor: colors.text,
                     }}
-                    onPress={() => Share.share({ message: uiState.pageUrl })}
+                    onPress={() => Share.share({ message: fixSharingUrl(uiState.pageUrl) })}
                   >
                     Share
                   </Button>
