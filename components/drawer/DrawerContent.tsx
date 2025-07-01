@@ -19,7 +19,7 @@ export function DrawerContent(props: DrawerContentComponentProps) {
   const [tabIndex, setTabIndex] = useState(0)
 
   const filteredWatchlist = useMemo(() => {
-    const types = [['podcast', 'watch'], ['channel'], ['playlist']][tabIndex]
+    const types = [['podcast', 'shorts', 'watch'], ['channel'], ['playlist']][tabIndex]
     return watchlist.filter((x) => {
       const pageType = getPageType(x.url)
       return pageType?.home == home && types.includes(pageType?.type)

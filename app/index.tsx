@@ -22,7 +22,7 @@ export default function HomeScreen() {
   useEffect(() => {
     if (hasShareIntent && shareIntent.webUrl) {
       const { host } = new URL(shareIntent.webUrl)
-      if (['www.youtbue.com', 'm.youtube.com', 'music.youtube.com'].includes(host)) {
+      if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'music.youtube.com'].includes(host)) {
         ui$.url.set(shareIntent.webUrl)
       }
     }

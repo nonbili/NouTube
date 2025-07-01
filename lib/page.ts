@@ -1,6 +1,6 @@
 import { trimEnd } from 'es-toolkit'
 
-const starrableTypes = ['channel', 'playlist', 'podcast', 'watch']
+const starrableTypes = ['channel', 'playlist', 'podcast', 'shorts', 'watch']
 
 export function getPageType(url: string) {
   if (!url) {
@@ -10,7 +10,7 @@ export function getPageType(url: string) {
   let home
   if (host == 'music.youtube.com') {
     home = 'yt-music'
-  } else if (['www.youtube.com', 'm.youtube.com'].includes(host)) {
+  } else if (['youtube.com', 'www.youtube.com', 'm.youtube.com'].includes(host)) {
     home = 'yt'
   }
   if (!home) {
