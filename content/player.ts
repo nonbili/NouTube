@@ -35,6 +35,10 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
           if (!videoDetails) {
             return
           }
+          if (document.location.host == 'm.youtube.com' && document.location.pathname == '/') {
+            el.pauseVideo()
+            return
+          }
           if (!progressBinded) {
             const video = el.querySelector('video')
             if (video) {
