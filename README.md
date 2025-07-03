@@ -2,7 +2,8 @@
 
 YouTube and YouTube Music in a single app. No ads, plays in the background.
 
-Manage watchlist, music library without login.
+- Manage watchlist, music library without login
+- Hide shorts
 
 ## How it works
 
