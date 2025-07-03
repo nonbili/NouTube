@@ -26,7 +26,11 @@ export function fixPageTitle(title: string) {
 }
 
 export function fixSharingUrl(v: string) {
-  const url = new URL(v)
-  url.searchParams.delete('pp')
-  return url.href
+  try {
+    const url = new URL(v)
+    url.searchParams.delete('pp')
+    return url.href
+  } catch (e) {
+    return ''
+  }
 }
