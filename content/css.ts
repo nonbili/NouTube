@@ -1,4 +1,7 @@
 const css = `
+* {
+  user-select: none;
+}
 ad-slot-renderer,
 ytmusic-mealbar-promo-renderer,
 yt-mealbar-promo-renderer,

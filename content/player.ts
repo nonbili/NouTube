@@ -64,7 +64,7 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
               restoredProgress = true
               const watchProgress = parseJson(localStorage.getItem(keys.videos), [])
               watchProgress.push(curVideoId)
-              if (watchProgress.length > 25) {
+              if (watchProgress.length > 100) {
                 const id = watchProgress.pop()
                 localStorage.removeItem(keys.videoProgress(id))
               }
