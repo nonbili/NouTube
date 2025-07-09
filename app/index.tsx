@@ -10,6 +10,18 @@ import { settings$ } from '@/states/settings'
 import { useShareIntent } from 'expo-share-intent'
 import { DrawerScreen } from '@/components/drawer/DrawerScreen'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useURL } from 'expo-linking'
+
+function openSharedUrl(url: string) {
+  try {
+    const { host } = new URL(fixSharingUrl(url))
+    if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'music.youtube.com'].includes(host)) {
+      ui$.url.set(url)
+    }
+  } catch (e) {
+    console.error(e)
+  }
+}
 
 export default function HomeScreen() {
   const navigation = useNavigation()
@@ -20,6 +32,7 @@ export default function HomeScreen() {
   const { hasShareIntent, shareIntent } = useShareIntent()
   const insets = useSafeAreaInsets()
   const ref = useRef<any>(null)
+  const linkingUrl = useURL()
 
   const toggleShorts = useCallback(
     (hide?: boolean) => {
@@ -30,12 +43,15 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (hasShareIntent && shareIntent.webUrl) {
-      const { host } = new URL(fixSharingUrl(shareIntent.webUrl))
-      if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'music.youtube.com'].includes(host)) {
-        ui$.url.set(shareIntent.webUrl)
-      }
+      openSharedUrl(shareIntent.webUrl)
     }
   }, [hasShareIntent, shareIntent])
+
+  useEffect(() => {
+    if (linkingUrl) {
+      openSharedUrl(linkingUrl)
+    }
+  }, [linkingUrl])
 
   useEffect(() => {
     ;(async () => {

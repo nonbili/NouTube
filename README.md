@@ -1,5 +1,9 @@
 # NouTube
 
+[<img src="https://f-droid.org/badge/get-it-on.png"
+    alt="Get it on F-Droid"
+    height="80">](https://f-droid.org/packages/jp.nonbili.noutube)
+
 YouTube and YouTube Music in a single app. No ads, plays in the background.
 
 - Manage watchlist, music library without login

@@ -24,6 +24,17 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
       },
       edgeToEdgeEnabled: true,
       package: 'jp.nonbili.noutube',
+      intentFilters: [
+        {
+          autoVerify: false,
+          action: 'VIEW',
+          data: {
+            scheme: 'https',
+            host: '*youtube.com',
+          },
+          category: ['BROWSABLE', 'DEFAULT'],
+        },
+      ],
     },
     web: {
       bundler: 'metro',
