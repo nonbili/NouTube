@@ -4,6 +4,7 @@ import { initNouTube } from './noutube'
 import { handleVideoPlayer } from './player'
 import { retry } from 'es-toolkit'
 import { emit } from './utils'
+import { handleDialogs } from './dialogs'
 
 window.NouTube = initNouTube()
 
@@ -30,6 +31,7 @@ async function initObserver() {
 
   const observer = new MutationObserver((mutations) => {
     handleVideoPlayer(mutations)
+    handleDialogs()
   })
   observer.observe(target, {
     childList: true,

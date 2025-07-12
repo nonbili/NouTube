@@ -3,7 +3,6 @@ const css = `
   user-select: none;
 }
 ad-slot-renderer,
-ytmusic-mealbar-promo-renderer,
 yt-mealbar-promo-renderer,
 ytm-promoted-sparkles-web-renderer,
 .ytd-player-legacy-desktop-watch-ads-renderer,
