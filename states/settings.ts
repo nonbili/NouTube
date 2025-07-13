@@ -7,6 +7,7 @@ interface Store {
   isYTMusic: () => boolean
 
   hideShorts: boolean
+  theme: null | 'dark' | 'light'
 }
 
 export const settings$ = observable<Store>({
@@ -14,6 +15,7 @@ export const settings$ = observable<Store>({
   isYTMusic: (): boolean => settings$.home.get() == 'yt-music',
 
   hideShorts: true,
+  theme: null,
 })
 
 syncObservable(settings$, {

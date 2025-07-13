@@ -1,4 +1,4 @@
-import { View, Text, BackHandler } from 'react-native'
+import { View, Text, BackHandler, Appearance, ColorSchemeName } from 'react-native'
 import { NouTubeView } from '@/modules/nou-tube-view'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { use$, useObserve, useObserveEffect } from '@legendapp/state/react'
@@ -11,6 +11,7 @@ import { useShareIntent } from 'expo-share-intent'
 import { DrawerScreen } from '@/components/drawer/DrawerScreen'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useURL } from 'expo-linking'
+import { reloadAppAsync } from 'expo'
 
 function openSharedUrl(url: string) {
   try {
@@ -69,10 +70,13 @@ export default function HomeScreen() {
       return true
     })
 
+    Appearance.addChangeListener(() => reloadAppAsync())
     return () => subscription.remove()
   }, [])
 
   useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
+
+  useObserveEffect(settings$.theme, ({ value }) => Appearance.setColorScheme(value))
 
   const onLoad = async (e: { nativeEvent: any }) => {
     const { url, title: _title } = e.nativeEvent
