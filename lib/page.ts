@@ -34,3 +34,7 @@ export function fixSharingUrl(v: string) {
     return ''
   }
 }
+
+export function getVideoThumbnail(id: string) {
+  return `https://img.youtube.com/vi/${id}/hqdefault.jpg`
+}

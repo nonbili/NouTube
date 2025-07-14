@@ -12,6 +12,7 @@ interface Store {
   bookmarks: Bookmark[]
   urls: () => Set<string>
   toggleBookmark: (bookmark: Bookmark) => void
+  importBookmarks: (bookmarks: Bookmark[]) => void
 }
 
 export const watchlist$ = observable<Store>({
@@ -26,6 +27,11 @@ export const watchlist$ = observable<Store>({
     } else {
       watchlist$.bookmarks.unshift(bookmark)
     }
+  },
+  importBookmarks: (bookmarks) => {
+    const xs = bookmarks.filter((x) => !watchlist$.urls.has(x.url))
+    watchlist$.bookmarks.push(...xs)
+    return xs.length
   },
 })
 

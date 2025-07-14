@@ -8,12 +8,12 @@ import { Button, ContextMenu } from '@expo/ui/jetpack-compose'
 import { colors } from '@/lib/colors'
 import { NouText } from '../NouText'
 import { clsx } from '@/lib/utils'
-import { getPageType } from '@/lib/page'
+import { getPageType, getVideoThumbnail } from '@/lib/page'
 
 /* https://www.youtube.com/watch?v=<id> */
 function getThumbnail(url: string) {
   const id = new URL(url).searchParams.get('v')
-  return `https://img.youtube.com/vi/${id}/hqdefault.jpg`
+  return id ? getVideoThumbnail(id) : undefined
 }
 
 const blurhash =

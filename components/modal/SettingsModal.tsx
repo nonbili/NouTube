@@ -1,4 +1,4 @@
-import { Modal, Text, Pressable, View, Switch } from 'react-native'
+import { Button, Modal, Text, Pressable, View, Switch, TouchableOpacity, ActivityIndicator } from 'react-native'
 import { NouText } from '../NouText'
 import { NouLink } from '../NouLink'
 import { version } from '../../package.json'
@@ -9,6 +9,8 @@ import { clsx } from '@/lib/utils'
 import { use$ } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { Segemented } from '../picker/Segmented'
+import { getDocumentAsync } from 'expo-document-picker'
+import { importCsv } from '@/lib/import'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const tabs = ['Settings', 'About']
@@ -17,6 +19,24 @@ const themes = [null, 'dark', 'light'] as const
 export const SettingsModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [tabIndex, setTabIndex] = useState(0)
   const settings = use$(settings$)
+  const [importing, setImporting] = useState(false)
+
+  const onClickImport = async () => {
+    const res = await getDocumentAsync({ copyToCacheDirectory: true, type: 'text/*' })
+    setImporting(true)
+    try {
+      const csv = res.assets?.[0]
+      if (csv) {
+        const res = await fetch(csv.uri)
+        const text = await res.text()
+        await importCsv(text)
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setImporting(false)
+    }
+  }
 
   return (
     <Modal animationType="slide" transparent={true} visible={true} onRequestClose={onClose}>
@@ -53,6 +73,18 @@ export const SettingsModal: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                   Restart manually if change not reflected in webview.
                 </NouText>
               </View>
+              <View className="mt-8">
+                <TouchableOpacity
+                  className={clsx(
+                    'py-2 px-6 text-center bg-[#6366f1] rounded-full flex-row justify-center gap-2',
+                    importing && 'pointer-events-none',
+                  )}
+                  onPress={onClickImport}
+                >
+                  {importing && <ActivityIndicator color="white" />}
+                  <NouText className="">Import from YouTube Takeout</NouText>
+                </TouchableOpacity>
+              </View>
             </>
           )}
           {tabIndex == 1 && (
@@ -71,9 +103,9 @@ export const SettingsModal: React.FC<{ onClose: () => void }> = ({ onClose }) =>
           )}
         </View>
         <View className="items-center mt-12">
-          <Pressable onPress={onClose}>
-            <NouText className="text-lg py-2 px-6 text-center bg-gray-700 rounded-full">Close</NouText>
-          </Pressable>
+          <TouchableOpacity onPress={onClose}>
+            <NouText className="py-2 px-6 text-center bg-gray-700 rounded-full">Close</NouText>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
