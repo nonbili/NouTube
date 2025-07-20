@@ -1,5 +1,5 @@
-export function emit(payload: Record<string, any>) {
-  NouTubeI.onMessage(JSON.stringify(payload))
+export function emit(type: string, data?: any) {
+  NouTubeI.onMessage(JSON.stringify({ type, data }))
 }
 
 export function parseJson(v: string | null, fallback: any) {

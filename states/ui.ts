@@ -5,10 +5,12 @@ interface Store {
   url: string
   pageUrl: string
   title: string
+  queueModalShown: boolean
 }
 
 export const ui$ = observable<Store>({
   url: '',
   pageUrl: '',
   title: 'YouTube',
+  queueModalShown: false,
 })

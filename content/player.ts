@@ -35,6 +35,9 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
           if (!videoDetails) {
             return
           }
+          if (state == 0) {
+            emit('playback-end')
+          }
           if (document.location.host == 'm.youtube.com' && document.location.pathname == '/') {
             el.pauseVideo()
             return
@@ -45,6 +48,7 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
               ;['play', 'pause', 'timeupdate'].forEach((evt) => {
                 video.addEventListener(evt, notifyProgress)
               })
+              progressBinded = true
             }
           }
 

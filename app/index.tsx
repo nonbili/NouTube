@@ -1,10 +1,10 @@
-import { View, Text, BackHandler, Appearance, ColorSchemeName } from 'react-native'
+import { View, Text, BackHandler, Appearance, ColorSchemeName, ToastAndroid } from 'react-native'
 import { NouTubeView } from '@/modules/nou-tube-view'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { use$, useObserve, useObserveEffect } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { DrawerActions, useNavigation } from '@react-navigation/native'
-import { fixPageTitle, fixSharingUrl, getPageType } from '@/lib/page'
+import { fixPageTitle, fixSharingUrl, getPageType, getVideoId } from '@/lib/page'
 import { Asset } from 'expo-asset'
 import { settings$ } from '@/states/settings'
 import { useShareIntent } from 'expo-share-intent'
@@ -12,6 +12,9 @@ import { DrawerScreen } from '@/components/drawer/DrawerScreen'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useURL } from 'expo-linking'
 import { reloadAppAsync } from 'expo'
+import { QueueModal } from '@/components/modal/QueueModal'
+import { queue$ } from '@/states/queue'
+import { watchlist$ } from '@/states/watchlist'
 
 function openSharedUrl(url: string) {
   try {
@@ -78,6 +81,11 @@ export default function HomeScreen() {
 
   useObserveEffect(settings$.theme, ({ value }) => Appearance.setColorScheme(value))
 
+  useObserveEffect(ui$.url, () => {
+    navigation.dispatch(DrawerActions.closeDrawer)
+    ui$.queueModalShown.set(false)
+  })
+
   const onLoad = async (e: { nativeEvent: any }) => {
     const { url, title: _title } = e.nativeEvent
     const title = fixPageTitle(_title || '')
@@ -90,12 +98,33 @@ export default function HomeScreen() {
       ui$.title.set(title)
     }
     const webview = ref.current
-    ref.current.eval("document.querySelector('video')?.muted=false")
+    ref.current.eval("document.querySelector('#movie_player')?.unMute()")
     toggleShorts(hideShorts)
-    navigation.dispatch(DrawerActions.closeDrawer)
   }
 
-  const onMessage = async (e: { nativeEvent: { payload: string } }) => {}
+  const onMessage = async (e: { nativeEvent: { payload: string } }) => {
+    const { type, data } = JSON.parse(e.nativeEvent.payload)
+    switch (type) {
+      case 'add-queue':
+        queue$.addBookmark(data)
+        ToastAndroid.show(`🎉 Added to queue`, ToastAndroid.SHORT)
+        break
+      case 'star':
+        watchlist$.addBookmark(data)
+        ToastAndroid.show(`🎉 Saved to watchlist`, ToastAndroid.SHORT)
+        break
+      case 'playback-end':
+        const videoId = getVideoId(uiState.pageUrl)
+        if (videoId) {
+          const bookmarks = queue$.bookmarks.get()
+          const queueIndex = bookmarks.findIndex((x) => getVideoId(x.url) == videoId)
+          if (queueIndex != bookmarks.length - 1) {
+            ui$.url.set(bookmarks[queueIndex + 1].url)
+          }
+        }
+        break
+    }
+  }
 
   return (
     <>
@@ -114,6 +143,8 @@ export default function HomeScreen() {
           />
         )}
       </View>
+
+      {uiState.queueModalShown && <QueueModal onClose={() => ui$.queueModalShown.set(false)} />}
     </>
   )
 }

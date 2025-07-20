@@ -11,6 +11,7 @@ import { fixSharingUrl, getPageType } from '@/lib/page'
 import { settings$ } from '@/states/settings'
 import { colors } from '@/lib/colors'
 import { SettingsModal } from '../modal/SettingsModal'
+import { queue$ } from '@/states/queue'
 
 export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
   const navigation = useNavigation()
@@ -18,6 +19,7 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
   const isYTMusic = use$(settings$.isYTMusic)
   const allStarred = use$(watchlist$.urls)
   const [settingsModalShown, setSettingsModalShown] = useState(false)
+  const queueSize = use$(queue$.size)
 
   const pageType = getPageType(uiState.pageUrl)
   const starred = allStarred.has(uiState.pageUrl)
@@ -103,7 +105,7 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
             fontSize: 14,
           },
           headerTitleContainerStyle: {
-            maxWidth: isPortrait ? '60%' : '80%',
+            maxWidth: isPortrait && queueSize ? '40%' : '60%',
           },
           headerStyle: {
             height: 88,
@@ -123,6 +125,17 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
           ),
           headerRight: () => (
             <View className="flex flex-row gap-3 pr-2">
+              {queueSize > 0 && (
+                <MaterialIcons.Button
+                  color={colors.icon}
+                  backgroundColor="transparent"
+                  iconStyle={{ marginRight: 0 }}
+                  name="playlist-play"
+                  size={24}
+                  onPress={() => ui$.queueModalShown.set(!ui$.queueModalShown.get())}
+                  underlayColor={colors.underlay}
+                />
+              )}
               {pageType?.canStar && (
                 <MaterialIcons.Button
                   color={starred ? 'gold' : colors.icon}

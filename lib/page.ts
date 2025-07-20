@@ -38,3 +38,13 @@ export function fixSharingUrl(v: string) {
 export function getVideoThumbnail(id: string) {
   return `https://img.youtube.com/vi/${id}/hqdefault.jpg`
 }
+
+/* https://www.youtube.com/watch?v=<id> */
+export function getVideoId(url: string) {
+  return new URL(url).searchParams.get('v')
+}
+
+export function getThumbnail(url: string) {
+  const id = getVideoId(url)
+  return id ? getVideoThumbnail(id) : undefined
+}

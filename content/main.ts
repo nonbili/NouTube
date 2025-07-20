@@ -5,6 +5,7 @@ import { handleVideoPlayer } from './player'
 import { retry } from 'es-toolkit'
 import { emit } from './utils'
 import { handleDialogs } from './dialogs'
+import { handleMenu } from './menu'
 
 window.NouTube = initNouTube()
 
@@ -39,4 +40,5 @@ async function initObserver() {
   })
 
   injectCSS()
+  handleMenu()
 }
