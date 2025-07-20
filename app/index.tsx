@@ -115,8 +115,8 @@ export default function HomeScreen() {
         break
       case 'playback-end':
         const videoId = getVideoId(uiState.pageUrl)
-        if (videoId) {
-          const bookmarks = queue$.bookmarks.get()
+        const bookmarks = queue$.bookmarks.get()
+        if (videoId && bookmarks.length) {
           const queueIndex = bookmarks.findIndex((x) => getVideoId(x.url) == videoId)
           if (queueIndex != bookmarks.length - 1) {
             ui$.url.set(bookmarks[queueIndex + 1].url)
