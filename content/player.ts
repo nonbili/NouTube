@@ -1,5 +1,6 @@
 import { throttle } from 'es-toolkit'
 import { emit, parseJson } from './utils'
+import { hideLiveChat, showLiveChatButton } from './livechat'
 
 export let player: any
 let curVideoId = ''
@@ -25,14 +26,19 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
           }
         }, 5000)
         const notifyProgress = throttle(() => {
+          if (!el.getCurrentTime) {
+            hideLiveChat()
+            return
+          }
           const currentTime = el.getCurrentTime()
           NouTubeI.notifyProgress(el.getPlayerState() == 1, currentTime)
           saveProgress(currentTime)
         }, 1000)
         let progressBinded = false
         el.addEventListener('onStateChange', (state: number) => {
-          const videoDetails = el.getPlayerResponse()?.videoDetails
+          const { playabilityStatus, videoDetails } = el.getPlayerResponse() || {}
           if (!videoDetails) {
+            hideLiveChat()
             return
           }
           if (state == 0) {
@@ -73,6 +79,11 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
                 localStorage.removeItem(keys.videoProgress(id))
               }
               localStorage.setItem(keys.videos, JSON.stringify(watchProgress))
+            }
+
+            hideLiveChat()
+            if (playabilityStatus?.liveStreamability) {
+              showLiveChatButton(curVideoId)
             }
           }
         })

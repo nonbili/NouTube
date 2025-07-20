@@ -100,7 +100,8 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
       <Drawer.Screen
         options={{
           title: uiState.title,
-          headerTitleAlign: isPortrait ? 'left' : 'center',
+          /* headerTitleAlign: isPortrait ? 'left' : 'center', */
+          headerTitleAlign: 'left',
           headerTitleStyle: {
             fontSize: 14,
           },

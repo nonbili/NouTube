@@ -12,3 +12,7 @@ export function parseJson(v: string | null, fallback: any) {
     return fallback
   }
 }
+
+export const nouPolicy = trustedTypes.createPolicy('nouPolicy', {
+  createHTML: (x: string) => x,
+})

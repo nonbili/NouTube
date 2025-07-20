@@ -130,7 +130,7 @@ export default function HomeScreen() {
     <>
       <DrawerScreen noutube={ref.current} />
 
-      <View style={{ flex: 1, paddingBottom: insets.bottom }}>
+      <SafeAreaView style={{ flex: 1 }} edges={['right', 'bottom']}>
         {scriptOnStart && (
           <NouTubeView
             // @ts-expect-error ??
@@ -142,9 +142,9 @@ export default function HomeScreen() {
             onMessage={onMessage}
           />
         )}
-      </View>
 
-      {uiState.queueModalShown && <QueueModal onClose={() => ui$.queueModalShown.set(false)} />}
+        {uiState.queueModalShown && <QueueModal onClose={() => ui$.queueModalShown.set(false)} />}
+      </SafeAreaView>
     </>
   )
 }

@@ -1,9 +1,5 @@
 import { retry } from 'es-toolkit'
-import { emit } from './utils'
-
-const nouPolicy = trustedTypes.createPolicy('nouPolicy', {
-  createHTML: (x: string) => x,
-})
+import { emit, nouPolicy } from './utils'
 
 const iconAddQueue = `<svg height="16" viewBox="0 0 24 24" width="16" focusable="false" aria-hidden="true" style="pointer-events: none; display: inherit; width: 100%; height: 100%;"><path d="M21 16h-7v-1h7v1zm0-5H9v1h12v-1zm0-4H3v1h18V7zm-11 8-7-4v8l7-4z"></path></svg>`
 
