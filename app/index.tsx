@@ -20,7 +20,7 @@ function openSharedUrl(url: string) {
   try {
     const { host } = new URL(fixSharingUrl(url))
     if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'music.youtube.com'].includes(host)) {
-      ui$.url.set(url)
+      ui$.url.set(url.replace('noutube://', 'https://'))
     }
   } catch (e) {
     console.error(e)

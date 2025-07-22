@@ -126,7 +126,7 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
           ),
           headerRight: () => (
             <View className="flex flex-row gap-3 pr-2">
-              {queueSize > 0 && (
+              {!isYTMusic && queueSize > 0 && (
                 <MaterialIcons.Button
                   color={colors.icon}
                   backgroundColor="transparent"

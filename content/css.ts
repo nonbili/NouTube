@@ -9,6 +9,7 @@ const cssContent = css`
   yt-mealbar-promo-renderer,
   ytm-promoted-sparkles-web-renderer,
   .ytd-player-legacy-desktop-watch-ads-renderer,
+  a.app-install-link,
   a.yt-spec-button-shape-next {
     display: none !important;
   }
