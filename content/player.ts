@@ -91,3 +91,21 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
     }
   }
 }
+
+screen.orientation.addEventListener('change', (event) => {
+  if (document.location.pathname != '/watch') {
+    return
+  }
+
+  const target = event.target as any
+  const type = target.type
+  if (type.includes('landscape')) {
+    if (!document.fullscreenElement && screen.availWidth < 1000) {
+      ;(document.querySelector('#player-control-container .fullscreen-icon') as HTMLButtonElement)?.click()
+    }
+  } else {
+    if (document.fullscreenElement) {
+      document.exitFullscreen()
+    }
+  }
+})

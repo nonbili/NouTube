@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.os.IBinder
+import android.view.OrientationEventListener
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -14,13 +15,21 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 
+class NouOrientationListener(context: Context) : OrientationEventListener(context) {
+  override fun onOrientationChanged(orientation: Int) {
+    nouController.onOrientationChanged(orientation)
+  }
+}
+
 class NouController {
   private var activity: Activity? = null
   private var nouTubeView: NouTubeView? = null
   private var service: NouService? = null
+  private var orientationListener: NouOrientationListener? = null
 
   fun setActivity(v: Activity) {
     activity = v
+    orientationListener = NouOrientationListener(v)
   }
 
   fun setNouTubeView(v: NouTubeView) {
@@ -78,6 +87,8 @@ class NouController {
     val controller = WindowCompat.getInsetsController(window, window.decorView)
     controller.hide(WindowInsetsCompat.Type.systemBars())
     controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+    orientationListener?.enable()
   }
 
   fun exitFullscreen(view: View) {
@@ -88,6 +99,17 @@ class NouController {
     WindowCompat.setDecorFitsSystemWindows(window, true)
     val controller = WindowCompat.getInsetsController(window, window.decorView)
     controller.show(WindowInsetsCompat.Type.systemBars())
+
+    orientationListener?.disable()
+  }
+
+  fun onOrientationChanged(orientation: Int) {
+    if (activity?.getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+      return
+    }
+    if (orientation in 70..110 || orientation in 250..290) {
+      activity!!.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER)
+    }
   }
 }
 
