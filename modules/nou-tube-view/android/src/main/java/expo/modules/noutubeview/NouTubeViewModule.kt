@@ -1,5 +1,6 @@
 package expo.modules.noutubeview
 
+import androidx.appcompat.app.AppCompatDelegate
 import expo.modules.kotlin.functions.Coroutine
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
@@ -7,6 +8,16 @@ import expo.modules.kotlin.modules.ModuleDefinition
 class NouTubeViewModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("NouTubeView")
+
+    Function("setTheme") { theme: String? ->
+      var mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+      if (theme == "dark") {
+        mode = AppCompatDelegate.MODE_NIGHT_YES
+      } else if (theme == "light") {
+        mode = AppCompatDelegate.MODE_NIGHT_NO
+      }
+      AppCompatDelegate.setDefaultNightMode(mode)
+    }
 
     View(NouTubeView::class) {
       Prop("url") { view: NouTubeView, url: String ->

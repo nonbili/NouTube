@@ -1,4 +1,4 @@
-import { View, Text, BackHandler, Appearance, ColorSchemeName, ToastAndroid } from 'react-native'
+import { View, Text, BackHandler, ColorSchemeName, ToastAndroid } from 'react-native'
 import { NouTubeView } from '@/modules/nou-tube-view'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { use$, useObserve, useObserveEffect } from '@legendapp/state/react'
@@ -73,13 +73,10 @@ export default function HomeScreen() {
       return true
     })
 
-    Appearance.addChangeListener(() => reloadAppAsync())
     return () => subscription.remove()
   }, [])
 
   useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
-
-  useObserveEffect(settings$.theme, ({ value }) => Appearance.setColorScheme(value))
 
   useObserveEffect(ui$.url, () => {
     navigation.dispatch(DrawerActions.closeDrawer)
