@@ -19,7 +19,7 @@ import { watchlist$ } from '@/states/watchlist'
 function openSharedUrl(url: string) {
   try {
     const { host } = new URL(fixSharingUrl(url))
-    if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'music.youtube.com'].includes(host)) {
+    if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'music.youtube.com', 'youtu.be'].includes(host)) {
       ui$.url.set(url.replace('noutube://', 'https://'))
     }
   } catch (e) {

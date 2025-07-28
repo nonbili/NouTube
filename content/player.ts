@@ -41,7 +41,7 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
             hideLiveChat()
             return
           }
-          if (state == 0) {
+          if (state == 0 && document.location.host != 'music.youtube.com') {
             emit('playback-end')
           }
           if (document.location.host == 'm.youtube.com' && document.location.pathname == '/') {
