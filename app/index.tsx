@@ -9,7 +9,7 @@ import { Asset } from 'expo-asset'
 import { settings$ } from '@/states/settings'
 import { useShareIntent } from 'expo-share-intent'
 import { DrawerScreen } from '@/components/drawer/DrawerScreen'
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useURL } from 'expo-linking'
 import { reloadAppAsync } from 'expo'
 import { QueueModal } from '@/components/modal/QueueModal'
@@ -34,7 +34,6 @@ export default function HomeScreen() {
   const hideShorts = use$(settings$.hideShorts)
   const [scriptOnStart, setScriptOnStart] = useState('')
   const { hasShareIntent, shareIntent } = useShareIntent()
-  const insets = useSafeAreaInsets()
   const ref = useRef<any>(null)
   const linkingUrl = useURL()
 

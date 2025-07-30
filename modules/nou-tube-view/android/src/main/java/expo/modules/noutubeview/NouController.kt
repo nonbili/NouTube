@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.os.IBinder
+import android.provider.Settings
 import android.view.OrientationEventListener
 import android.view.View
 import android.view.ViewGroup
@@ -88,7 +89,9 @@ class NouController {
     controller.hide(WindowInsetsCompat.Type.systemBars())
     controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
-    orientationListener?.enable()
+    if (Settings.System.getInt(activity!!.contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0) == 1) {
+      orientationListener?.enable()
+    }
   }
 
   fun exitFullscreen(view: View) {
