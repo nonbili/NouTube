@@ -39,6 +39,13 @@ class NouService : Service() {
 
   override fun onBind(intent: Intent): IBinder = binder
 
+  override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    if (intent != null) {
+      MediaButtonReceiver.handleIntent(mediaSession, intent)
+    }
+    return super.onStartCommand(intent, flags, startId)
+  }
+
   fun initialize(view: NouWebView, _activity: Activity) {
     activity = _activity
     webView = view
