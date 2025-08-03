@@ -15,6 +15,7 @@ import { reloadAppAsync } from 'expo'
 import { QueueModal } from '@/components/modal/QueueModal'
 import { queue$ } from '@/states/queue'
 import { watchlist$ } from '@/states/watchlist'
+import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
 
 function openSharedUrl(url: string) {
   try {
@@ -120,6 +121,9 @@ export default function HomeScreen() {
           }
         }
         break
+      case 'embed':
+        ui$.embedVideoId.set(data)
+        break
     }
   }
 
@@ -141,6 +145,13 @@ export default function HomeScreen() {
         )}
 
         {uiState.queueModalShown && <QueueModal onClose={() => ui$.queueModalShown.set(false)} />}
+        {uiState.embedVideoId && (
+          <EmbedVideoModal
+            videoId={uiState.embedVideoId}
+            scriptOnStart={scriptOnStart}
+            onClose={() => ui$.embedVideoId.set('')}
+          />
+        )}
       </SafeAreaView>
     </>
   )

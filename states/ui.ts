@@ -6,6 +6,7 @@ interface Store {
   pageUrl: string
   title: string
   queueModalShown: boolean
+  embedVideoId: string
 }
 
 export const ui$ = observable<Store>({
@@ -13,4 +14,5 @@ export const ui$ = observable<Store>({
   pageUrl: '',
   title: 'YouTube',
   queueModalShown: false,
+  embedVideoId: '',
 })

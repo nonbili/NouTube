@@ -1,5 +1,5 @@
 import { hideShorts, showShorts } from './css'
-import { player } from './player'
+import { playDefaultAudio, player } from './player'
 
 export function initNouTube() {
   return {
@@ -10,5 +10,6 @@ export function initNouTube() {
     seekBy: (delta: number) => player.seekBy(delta),
     hideShorts,
     showShorts,
+    playDefaultAudio,
   }
 }

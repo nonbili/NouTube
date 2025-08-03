@@ -68,6 +68,31 @@ const cssContent = css`
     gap: 0.5rem;
     font-size: 16px;
   }
+
+  .quick-actions-wrapper.enable-rtl-mirroring {
+    display: none !important;
+  }
+
+  #_inks_audio_btn {
+    display: flex;
+    align-items: center;
+    background: #34d399;
+    padding: 0 4px;
+    color: #44403c;
+    border-radius: 4px;
+    margin-left: 8px;
+  }
+  #_inks_audio_picker {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+  }
+  #_inks_audio_picker select {
+    border: none;
+    background: #a7f3d0;
+    color: #44403c;
+    padding: 1px;
+  }
 `
 
 export function injectCSS() {

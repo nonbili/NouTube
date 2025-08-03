@@ -1,6 +1,7 @@
-import { throttle } from 'es-toolkit'
-import { emit, parseJson } from './utils'
+import { retry, throttle } from 'es-toolkit'
+import { emit, nouPolicy, parseJson } from './utils'
 import { hideLiveChat, showLiveChatButton } from './livechat'
+import { originalLabels } from './audio'
 
 export let player: any
 let curVideoId = ''
@@ -81,6 +82,8 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
               localStorage.setItem(keys.videos, JSON.stringify(watchProgress))
             }
 
+            renderAudioTracks()
+
             hideLiveChat()
             if (playabilityStatus?.liveStreamability) {
               showLiveChatButton(curVideoId)
@@ -109,3 +112,79 @@ screen.orientation.addEventListener('change', (event) => {
     }
   }
 })
+
+export function playDefaultAudio() {
+  const audioTracks = player.getAvailableAudioTracks()
+  let options = ''
+  let selected
+  let i = 0
+  for (const track of audioTracks) {
+    for (let v of Object.values(track)) {
+      const value = v as any
+      if (value && typeof value == 'object' && 'isDefault' in value && value.name) {
+        if (originalLabels.some((x) => value.name.includes(x))) {
+          selected = i.toString()
+          player.setAudioTrack(track)
+        }
+        options += `<option value="${i}">${value.name}</option>`
+      }
+    }
+    i++
+  }
+
+  let container = document.querySelector('div#_inks_audio_picker')
+  if (!container) {
+    container = document.createElement('div')
+    container.id = '_inks_audio_picker'
+    document.body.append(container)
+  }
+  container.innerHTML = nouPolicy.createHTML(
+    /* HTML */ `<select>
+      ${options}
+    </select>`,
+  )
+  const select = container.querySelector('select')
+  if (select) {
+    if (selected) {
+      select.value = selected
+    }
+    select.onchange = (e) => {
+      const i = (e.target as HTMLSelectElement).value
+      if (i != null) {
+        player.setAudioTrack(audioTracks[i])
+      }
+    }
+  }
+}
+
+async function renderAudioTracks() {
+  if (document.location.pathname != '/watch') {
+    return
+  }
+
+  const badgeRenderer = await retry(
+    async () => {
+      const badgeRenderer = document.querySelector('ytm-badge-supported-renderer')
+      if (!badgeRenderer) {
+        throw 'badge not ready'
+      }
+      return badgeRenderer
+    },
+    { retries: 30, delay: 100 },
+  )
+
+  if (!badgeRenderer) {
+    return
+  }
+
+  const container = document.createElement('div')
+  container.id = '_inks_audio_btn'
+  container.innerHTML = nouPolicy.createHTML(/* HTML */ `Play original audio 🦦`)
+  container.onclick = (e) => {
+    e.stopPropagation()
+    player.pauseVideo()
+    emit('embed', curVideoId)
+  }
+
+  badgeRenderer.append(container)
+}
