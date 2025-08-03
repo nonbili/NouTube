@@ -45,8 +45,9 @@ export default function HomeScreen() {
   )
 
   useEffect(() => {
-    if (hasShareIntent && shareIntent.webUrl) {
-      openSharedUrl(shareIntent.webUrl)
+    const url = shareIntent.webUrl || shareIntent.text
+    if (hasShareIntent && url) {
+      openSharedUrl(url)
     }
   }, [hasShareIntent, shareIntent])
 
