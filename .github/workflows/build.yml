@@ -48,9 +48,12 @@ jobs:
           BUILD_TOOLS_VERSION: ${{ env.BUILD_TOOL_VERSION }}
 
       - name: rename apk
-        run: mv ${{ steps.sign_apk.outputs.signedReleaseFile }} app-release.apk
+        run: |
+          mv ${{ steps.sign_apk.outputs.signedReleaseFile }} app-release.apk
+          echo "VERSION_CODE=$(jq -r '.versionCode' package.json)" >> $GITHUB_ENV
 
       - uses: softprops/action-gh-release@v2
         name: upload apk
         with:
+          body_path: metadata/en-US/changelogs/${{ env.VERSION_CODE }}.txt
           files: app-release.apk
