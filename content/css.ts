@@ -84,14 +84,14 @@ const cssContent = css`
   }
   #_inks_audio_picker {
     position: absolute;
-    bottom: 1rem;
-    right: 1rem;
+    top: 1rem;
+    left: 1rem;
   }
   #_inks_audio_picker select {
     border: none;
     background: #a7f3d0;
     color: #44403c;
-    padding: 1px;
+    padding: 2px;
   }
 `
 

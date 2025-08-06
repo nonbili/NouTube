@@ -1,5 +1,5 @@
 import { retry, throttle } from 'es-toolkit'
-import { emit, nouPolicy, parseJson } from './utils'
+import { emit, isYTMusic, nouPolicy, parseJson } from './utils'
 import { hideLiveChat, showLiveChatButton } from './livechat'
 import { originalLabels } from './audio'
 
@@ -42,7 +42,7 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
             hideLiveChat()
             return
           }
-          if (state == 0 && document.location.host != 'music.youtube.com') {
+          if (state == 0 && !isYTMusic) {
             emit('playback-end')
           }
           if (document.location.host == 'm.youtube.com' && document.location.pathname == '/') {
@@ -113,8 +113,17 @@ screen.orientation.addEventListener('change', (event) => {
   }
 })
 
-export function playDefaultAudio() {
-  const audioTracks = player.getAvailableAudioTracks()
+export async function playDefaultAudio() {
+  const audioTracks: any[] = await retry(
+    () => {
+      const tracks = player.getAvailableAudioTracks()
+      if (!tracks.length) {
+        throw 'tracks not ready'
+      }
+      return tracks
+    },
+    { retries: 30, delay: 100 },
+  )
   let options = ''
   let selected
   let i = 0
@@ -151,20 +160,20 @@ export function playDefaultAudio() {
     select.onchange = (e) => {
       const i = (e.target as HTMLSelectElement).value
       if (i != null) {
-        player.setAudioTrack(audioTracks[i])
+        player.setAudioTrack(audioTracks[+i])
       }
     }
   }
 }
 
 async function renderAudioTracks() {
-  if (document.location.pathname != '/watch') {
+  if (document.location.pathname != '/watch' || isYTMusic) {
     return
   }
 
   const badgeRenderer = await retry(
     async () => {
-      const badgeRenderer = document.querySelector('ytm-badge-supported-renderer')
+      const badgeRenderer = document.querySelector('ytm-slim-video-information-renderer ytm-badge-supported-renderer')
       if (!badgeRenderer) {
         throw 'badge not ready'
       }

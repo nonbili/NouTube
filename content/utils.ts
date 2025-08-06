@@ -16,3 +16,5 @@ export function parseJson(v: string | null, fallback: any) {
 export const nouPolicy = trustedTypes.createPolicy('nouPolicy', {
   createHTML: (x: string) => x,
 })
+
+export const isYTMusic = document.location.host == 'music.youtube.com'

@@ -51,7 +51,6 @@ export const EmbedVideoModal: React.FC<{ videoId: string; scriptOnStart: string;
           onLoad={onLoad}
           onMessage={onMessage}
         />
-        <ScrollView className="flex-1"></ScrollView>
         <View className="items-center mt-8 mb-4">
           <TouchableOpacity onPress={onClose}>
             <NouText className="py-2 px-6 text-center bg-gray-700 rounded-full">Close</NouText>
