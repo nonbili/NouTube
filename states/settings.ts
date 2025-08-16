@@ -1,6 +1,8 @@
 import { observable } from '@legendapp/state'
 import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
+import { ObservablePersistLocalStorage } from '@legendapp/state/persist-plugins/local-storage'
+import { isWeb } from '@/lib/utils'
 
 interface Store {
   home: 'yt' | 'yt-music'
@@ -21,6 +23,6 @@ export const settings$ = observable<Store>({
 syncObservable(settings$, {
   persist: {
     name: 'settings',
-    plugin: ObservablePersistMMKV,
+    plugin: isWeb ? ObservablePersistLocalStorage : ObservablePersistMMKV,
   },
 })

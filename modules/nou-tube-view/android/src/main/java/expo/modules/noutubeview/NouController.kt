@@ -27,6 +27,7 @@ class NouController {
   private var nouTubeView: NouTubeView? = null
   private var service: NouService? = null
   private var orientationListener: NouOrientationListener? = null
+  internal var inited = false
 
   fun setActivity(v: Activity) {
     activity = v
@@ -51,6 +52,8 @@ class NouController {
       }
       val intent = Intent(activity, NouService::class.java)
       activity!!.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+
+      inited = true
     }
   }
 

@@ -1,5 +1,5 @@
 {
-  "platforms": ["android"],
+  "platforms": ["android", "web"],
   "android": {
     "modules": ["expo.modules.noutubeview.NouTubeViewModule"]
   }

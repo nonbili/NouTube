@@ -92,14 +92,6 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
         }
 
       webChromeClient = object : WebChromeClient() {
-        override fun onReceivedTitle(view: WebView, title: String) {
-          onLoad(
-            mapOf(
-              "title" to title
-            )
-          )
-        }
-
         override fun onJsBeforeUnload(view: WebView, url: String, message: String, result: JsResult): Boolean {
           result.confirm()
           return true
@@ -117,8 +109,10 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     }
 
   init {
-    nouController.setNouTubeView(this)
-    nouController.initService()
+    if (!nouController.inited) {
+      nouController.setNouTubeView(this)
+      nouController.initService()
+    }
 
     addView(webView)
   }

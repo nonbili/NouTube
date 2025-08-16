@@ -1,6 +1,8 @@
 import { observable } from '@legendapp/state'
 import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
+import { isWeb } from '@/lib/utils'
+import { getIndexedDBPlugin } from './indexeddb'
 
 export interface Bookmark {
   url: string
@@ -41,9 +43,21 @@ export const watchlist$ = observable<Store>({
   },
 })
 
-syncObservable(watchlist$, {
-  persist: {
-    name: 'watchlist',
-    plugin: ObservablePersistMMKV,
-  },
-})
+if (isWeb) {
+  syncObservable(watchlist$, {
+    persist: {
+      plugin: getIndexedDBPlugin(),
+      name: 'store',
+      indexedDB: {
+        itemID: 'watchlist',
+      },
+    },
+  })
+} else {
+  syncObservable(watchlist$, {
+    persist: {
+      name: 'watchlist',
+      plugin: ObservablePersistMMKV,
+    },
+  })
+}

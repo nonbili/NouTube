@@ -1,0 +1,48 @@
+{
+  "name": "noutube-desktop",
+  "productName": "NouTube",
+  "version": "0.1.0",
+  "description": "YouTube and YouTube Music in a single app",
+  "main": "./out/main/index.js",
+  "author": "Nonbili Inc.",
+  "homepage": "https://github.com/nonbili/NouTube",
+  "scripts": {
+    "preinstall": "touch ../node_modules/noutube",
+    "format": "prettier --write .",
+    "lint": "eslint --cache .",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false -w",
+    "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false -w",
+    "typecheck": "npm run typecheck:node & npm run typecheck:web",
+    "start": "electron-vite preview",
+    "dev": "electron-vite dev -w",
+    "build": "electron-vite build",
+    "postinstall": "electron-builder install-app-deps",
+    "build:unpack": "npm run build && electron-builder --dir",
+    "build:win": "npm run build && electron-builder --win",
+    "build:mac": "electron-vite build && electron-builder --mac",
+    "build:linux": "electron-vite build && electron-builder --linux"
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^3.0.2",
+    "@electron-toolkit/utils": "^4.0.0",
+    "@radix-ui/themes": "^3.2.1",
+    "electron-updater": "^6.6.2",
+    "noutube": "link:noutube",
+    "react-hot-toast": "^2.5.2"
+  },
+  "devDependencies": {
+    "@electron-toolkit/eslint-config-prettier": "^3.0.0",
+    "@electron-toolkit/eslint-config-ts": "^3.1.0",
+    "@types/node": "^24.1.0",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "electron": "37.2.5",
+    "electron-builder": "^26.0.12",
+    "electron-vite": "^4.0.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "vite": "^7.0.6",
+    "vite-plugin-react-native-web": "^2.2.1"
+  }
+}

@@ -1,8 +1,8 @@
-import { Bookmark, watchlist$ } from '@/states/watchlist'
+import { Bookmark, bookmarks$, newBookmark } from '@/states/bookmarks'
 import pp from 'papaparse'
-import { ToastAndroid } from 'react-native'
 import * as cheerio from 'cheerio/slim'
 import { getVideoThumbnail } from './page'
+import { showToast } from './toast'
 
 async function getOg(url: string, type: string, videoId?: string): Promise<{ thumbnail?: string; title?: string }> {
   try {
@@ -43,7 +43,7 @@ export async function importCsv(csv: string) {
         // subscriptions.csv
         for (const [id, url, title] of items) {
           const { thumbnail } = await getOg(url, 'yt-channel')
-          bookmarks.push({ url, title, thumbnail })
+          bookmarks.push(newBookmark({ url, title, json: { thumbnail } }))
         }
       }
       break
@@ -53,20 +53,20 @@ export async function importCsv(csv: string) {
         for (const [id] of items) {
           const url = `https://m.youtube.com/watch?v=${id}`
           const { thumbnail, title } = await getOg(url, 'yt-video')
-          bookmarks.push({ url, title: title || '' })
+          bookmarks.push(newBookmark({ url, title: title || '' }))
         }
       } else if (col1 == 'Song Title') {
         // "music library songs.csv"
         for (const [id, title] of items) {
           const url = `https://music.youtube.com/watch?v=${id}`
-          bookmarks.push({ url, title })
+          bookmarks.push(newBookmark({ url, title }))
         }
       }
       break
   }
 
   if (bookmarks.length) {
-    const count = watchlist$.importBookmarks(bookmarks)
-    ToastAndroid.show(`🎉 Imported ${count} pages`, ToastAndroid.SHORT)
+    const count = bookmarks$.importBookmarks(bookmarks)
+    showToast(`🎉 Imported ${count} pages`)
   }
 }

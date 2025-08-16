@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.json",
+  "include": ["src/types.ts", "src/renderer/**/*", "src/preload/*.d.ts", "../nativewind-env.d.ts"],
+  "exclude": [],
+  "compilerOptions": {
+    "composite": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["../*"],
+      "@renderer/*": ["src/renderer/*"],
+      "main/*": ["./src/main/*"]
+    }
+  }
+}

@@ -1,14 +1,15 @@
 import { View, Text, Pressable, ScrollView } from 'react-native'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { observer, use$, useObservable } from '@legendapp/state/react'
-import { Bookmark, watchlist$ } from '@/states/watchlist'
+import { Bookmark, bookmarks$ } from '@/states/bookmarks'
 import { Image } from 'expo-image'
-import { ui$ } from '@/states/ui'
+import { ui$, updateUrl } from '@/states/ui'
 import { Button, ContextMenu } from '@expo/ui/jetpack-compose'
 import { colors } from '@/lib/colors'
 import { NouText } from '../NouText'
 import { clsx } from '@/lib/utils'
 import { getPageType, getVideoThumbnail } from '@/lib/page'
+import { NouMenu } from '../menu/NouMenu'
 
 /* https://www.youtube.com/watch?v=<id> */
 function getThumbnail(url: string) {
@@ -21,7 +22,8 @@ const blurhash =
 
 export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = ({ bookmark }) => {
   const onPress = () => {
-    ui$.url.set(bookmark.url)
+    updateUrl(bookmark.url)
+    ui$.assign({ libraryModalOpen: false })
   }
 
   const pageType = getPageType(bookmark.url)
@@ -32,7 +34,7 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = ({ bookmark }) => 
     <View className="flex flex-row my-2 overflow-hidden">
       <Pressable className={clsx(square ? 'w-[90px]' : 'w-[160px]')} onPress={onPress}>
         <Image
-          source={bookmark.thumbnail || getThumbnail(bookmark.url)}
+          source={bookmark.json?.thumbnail || getThumbnail(bookmark.url)}
           contentFit="cover"
           placeholder={{ blurhash }}
           style={{ height: 90, borderRadius: round ? 45 : 8 }}
@@ -43,29 +45,20 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = ({ bookmark }) => 
           {bookmark.title}
         </NouText>
       </Pressable>
-      <ContextMenu color={colors.bg} style={{ height: 36, width: 36 }}>
-        {/* @ts-expect-error ?? */}
-        <ContextMenu.Items>
-          <Button
-            elementColors={{
-              containerColor: colors.bg,
-              contentColor: colors.text,
-            }}
-            onPress={() => watchlist$.toggleBookmark(bookmark)}
-          >
-            Remove
-          </Button>
-        </ContextMenu.Items>
-        <ContextMenu.Trigger>
-          <MaterialIcons.Button
-            color={colors.icon}
-            backgroundColor="transparent"
-            iconStyle={{ marginRight: 0 }}
-            name="more-vert"
-            size={20}
-          />
-        </ContextMenu.Trigger>
-      </ContextMenu>
+      <View>
+        <NouMenu
+          trigger={
+            <MaterialIcons.Button
+              color={colors.icon}
+              backgroundColor="transparent"
+              iconStyle={{ marginRight: 0 }}
+              name="more-vert"
+              size={20}
+            />
+          }
+          items={[{ label: 'Remove', handler: () => bookmarks$.toggleBookmark(bookmark) }]}
+        />
+      </View>
     </View>
   )
 }

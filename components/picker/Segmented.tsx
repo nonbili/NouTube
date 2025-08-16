@@ -18,7 +18,7 @@ export const Segemented: React.FC<{
             onPress={() => onChange(index)}
             className={clsx(
               size == 1 ? 'px-3 py-1' : 'px-4 py-2',
-              active ? 'bg-gray-100' : 'bg-[#3c3c3c]',
+              active ? 'bg-zinc-100' : 'bg-zinc-700',
               index == 0 && 'rounded-l-md',
               index < options.length - 1 && 'border-r',
               index == options.length - 1 && 'rounded-r-md',

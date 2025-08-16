@@ -1,3 +1,4 @@
+root = true
 [*.{kt,kts}]
 end_of_line = lf
 ij_kotlin_allow_trailing_comma = false

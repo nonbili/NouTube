@@ -1,10 +1,14 @@
 const css = (strings: string[] | ArrayLike<string>, ...values: any[]) => String.raw({ raw: strings }, ...values)
 
-const cssContent = css`
+const cssContentMobile = css`
   * {
     user-select: none;
   }
+`
 
+const cssContent = css`
+  ytd-page-top-ad-layout-renderer,
+  ytd-in-feed-ad-layout-renderer,
   ad-slot-renderer,
   yt-mealbar-promo-renderer,
   ytm-promoted-sparkles-web-renderer,
@@ -99,6 +103,9 @@ export function injectCSS() {
   const style = document.createElement('style')
   style.type = 'text/css'
   style.textContent = cssContent
+  if (window.NouTubeI) {
+    style.textContent += cssContentMobile
+  }
   document.head.appendChild(style)
 }
 

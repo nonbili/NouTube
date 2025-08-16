@@ -1,5 +1,9 @@
 {
+  "workspaces": [
+    "desktop"
+  ],
   "name": "noutube",
+  "private": true,
   "main": "expo-router/entry",
   "version": "0.2.4",
   "versionCode": 22,
@@ -17,8 +21,12 @@
     "@expo/ui": "~0.1.1-alpha.10",
     "@expo/vector-icons": "^14.1.0",
     "@legendapp/state": "^3.0.0-beta.30",
+    "@react-native-async-storage/async-storage": "2.1.2",
+    "@react-native-google-signin/google-signin": "^15.0.0",
     "@react-navigation/drawer": "^7.3.9",
     "@react-navigation/native": "^7.1.6",
+    "@supabase/supabase-js": "^2.54.0",
+    "@tanstack/react-query": "^5.84.2",
     "cheerio": "^1.1.0",
     "es-toolkit": "^1.39.3",
     "expo": "53.0.19",
@@ -41,10 +49,12 @@
     "react-dom": "19.0.0",
     "react-native": "0.79.5",
     "react-native-gesture-handler": "~2.24.0",
+    "react-native-get-random-values": "~1.11.0",
     "react-native-mmkv": "^3.2.0",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
+    "react-native-svg": "^15.12.1",
     "react-native-web": "^0.21.0",
     "tailwindcss": "^3"
   },
@@ -58,5 +68,8 @@
     "eslint-config-expo": "~9.2.0",
     "ts-node": "^10.9.2",
     "typescript": "~5.8.3"
+  },
+  "patchedDependencies": {
+    "react-native-css-interop@0.1.22": "patches/react-native-css-interop@0.1.22.patch"
   }
 }

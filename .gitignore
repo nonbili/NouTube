@@ -35,3 +35,5 @@ modules/*/android/build/
 modules/*/ios
 
 *-env.d.ts
+
+desktop/out

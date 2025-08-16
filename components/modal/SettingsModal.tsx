@@ -1,93 +1,34 @@
-import { Button, Modal, Text, Pressable, View, Switch, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { Button, View } from 'react-native'
 import { NouText } from '../NouText'
-import { NouLink } from '../NouLink'
+import { NouLink } from '../link/NouLink'
 import { version } from '../../package.json'
 import { useState } from 'react'
-/* import { Picker, Switch } from '@expo/ui/jetpack-compose' */
-import { colors } from '@/lib/colors'
-import { clsx } from '@/lib/utils'
+import { clsx, isWeb } from '@/lib/utils'
 import { use$ } from '@legendapp/state/react'
-import { settings$ } from '@/states/settings'
 import { Segemented } from '../picker/Segmented'
-import { getDocumentAsync } from 'expo-document-picker'
-import { importCsv } from '@/lib/import'
+import { BaseModal } from './BaseModal'
+import { ui$ } from '@/states/ui'
+import { SettingsModalTabSync } from './SettingsModalTabSync'
+import { SettingsModalTabSettings } from './SettingsModalTabSettings'
 
 const repo = 'https://github.com/nonbili/NouTube'
-const tabs = ['Settings', 'About']
+const tabs = ['Settings', 'Sync', 'About']
 const themes = [null, 'dark', 'light'] as const
 
-export const SettingsModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+export const SettingsModal = () => {
+  const settingsModalOpen = use$(ui$.settingsModalOpen)
   const [tabIndex, setTabIndex] = useState(0)
-  const settings = use$(settings$)
-  const [importing, setImporting] = useState(false)
-
-  const onClickImport = async () => {
-    const res = await getDocumentAsync({ copyToCacheDirectory: true, type: 'text/*' })
-    setImporting(true)
-    try {
-      const csv = res.assets?.[0]
-      if (csv) {
-        const res = await fetch(csv.uri)
-        const text = await res.text()
-        await importCsv(text)
-      }
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setImporting(false)
-    }
-  }
 
   return (
-    <Modal animationType="slide" transparent={true} visible={true} onRequestClose={onClose}>
-      <View className="flex-1 bg-[#222] py-6 px-4">
-        <View className="items-center">
+    settingsModalOpen && (
+      <BaseModal onClose={() => ui$.settingsModalOpen.set(false)}>
+        <View className="items-center mt-4">
           <Segemented options={tabs} selectedIndex={tabIndex} onChange={setTabIndex} />
         </View>
-        <View className="flex-1">
-          {tabIndex == 0 && (
-            <>
-              <View className="items-center mt-10 flex-row justify-between">
-                <Pressable className="flex-1" onPress={() => settings$.hideShorts.set(!settings.hideShorts)}>
-                  <NouText className="font-medium">Hide shorts</NouText>
-                </Pressable>
-                <Switch
-                  style={{ transform: [{ scaleX: 1.15 }, { scaleY: 1.15 }] }}
-                  value={settings.hideShorts}
-                  onValueChange={(v) => settings$.hideShorts.set(v)}
-                  trackColor={{ false: '#767577', true: '#e9d5ff' }}
-                  thumbColor={settings.hideShorts ? '#6366f1' : '#f4f3f4'}
-                />
-              </View>
-              <View className="my-6">
-                <View className="items-center flex-row justify-between">
-                  <NouText className="font-medium">YouTube Theme</NouText>
-                  <Segemented
-                    options={['System', 'Dark', 'Light']}
-                    selectedIndex={themes.indexOf(settings.theme)}
-                    size={1}
-                    onChange={(index) => settings$.theme.set(themes[index])}
-                  />
-                </View>
-                <NouText className="mt-2 text-sm text-gray-400 text-right">
-                  Restart manually if change not reflected in webview.
-                </NouText>
-              </View>
-              <View className="mt-8">
-                <TouchableOpacity
-                  className={clsx(
-                    'py-2 px-6 text-center bg-[#6366f1] rounded-full flex-row justify-center gap-2',
-                    importing && 'pointer-events-none',
-                  )}
-                  onPress={onClickImport}
-                >
-                  {importing && <ActivityIndicator color="white" />}
-                  <NouText className="">Import from YouTube Takeout</NouText>
-                </TouchableOpacity>
-              </View>
-            </>
-          )}
-          {tabIndex == 1 && (
+        <View className="px-4">
+          {tabIndex == 0 && <SettingsModalTabSettings />}
+          {tabIndex == 1 && <SettingsModalTabSync />}
+          {tabIndex == 2 && (
             <>
               <View className="items-center my-8">
                 <NouText className="text-lg font-medium">NouTube</NouText>
@@ -95,19 +36,14 @@ export const SettingsModal: React.FC<{ onClose: () => void }> = ({ onClose }) =>
               </View>
               <View className="">
                 <NouText className="font-medium">Source code</NouText>
-                <NouLink className="text-blue-300" href={repo}>
+                <NouLink className="text-indigo-400 text-sm" href={repo}>
                   {repo}
                 </NouLink>
               </View>
             </>
           )}
         </View>
-        <View className="items-center mt-12">
-          <TouchableOpacity onPress={onClose}>
-            <NouText className="py-2 px-6 text-center bg-gray-700 rounded-full">Close</NouText>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
+      </BaseModal>
+    )
   )
 }

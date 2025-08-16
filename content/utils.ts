@@ -1,5 +1,9 @@
 export function emit(type: string, data?: any) {
-  NouTubeI.onMessage(JSON.stringify({ type, data }))
+  if (window.NouTubeI) {
+    window.NouTubeI.onMessage(JSON.stringify({ type, data }))
+  } else if (window.electron) {
+    window.electron.ipcRenderer.sendToHost(type, data)
+  }
 }
 
 export function parseJson(v: string | null, fallback: any) {
@@ -13,7 +17,7 @@ export function parseJson(v: string | null, fallback: any) {
   }
 }
 
-export const nouPolicy = trustedTypes.createPolicy('nouPolicy', {
+export const nouPolicy = window.trustedTypes.createPolicy('nouPolicy', {
   createHTML: (x: string) => x,
 })
 

@@ -32,7 +32,7 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
             return
           }
           const currentTime = el.getCurrentTime()
-          NouTubeI.notifyProgress(el.getPlayerState() == 1, currentTime)
+          window.NouTubeI?.notifyProgress(el.getPlayerState() == 1, currentTime)
           saveProgress(currentTime)
         }, 1000)
         let progressBinded = false
@@ -63,7 +63,7 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
           if (curVideoId != videoId) {
             const thumb = thumbnail.thumbnails.at(-1)
             const duration = +lengthSeconds
-            NouTubeI.notify(title, author, duration, thumb?.url || '')
+            window.NouTubeI?.notify(title, author, duration, thumb?.url || '')
             curVideoId = videoId
             restoredProgress = false
             shouldSaveProgress = duration > 60 * 10
@@ -82,11 +82,13 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
               localStorage.setItem(keys.videos, JSON.stringify(watchProgress))
             }
 
-            renderAudioTracks()
+            if (window.NouTubeI) {
+              renderPlayOriginalAudioBtn()
 
-            hideLiveChat()
-            if (playabilityStatus?.liveStreamability) {
-              showLiveChatButton(curVideoId)
+              hideLiveChat()
+              if (playabilityStatus?.liveStreamability) {
+                showLiveChatButton(curVideoId)
+              }
             }
           }
         })
@@ -114,6 +116,16 @@ screen.orientation.addEventListener('change', (event) => {
 })
 
 export async function playDefaultAudio() {
+  await retry(
+    () => {
+      if (!player) {
+        throw 'player not ready'
+      }
+      return player
+    },
+    { retries: 30, delay: 100 },
+  )
+  player?.playVideo()
   const audioTracks: any[] = await retry(
     () => {
       const tracks = player.getAvailableAudioTracks()
@@ -146,12 +158,13 @@ export async function playDefaultAudio() {
     container = document.createElement('div')
     container.id = '_inks_audio_picker'
     document.body.append(container)
+    console.log('-- appended picker')
   }
-  container.innerHTML = nouPolicy.createHTML(
-    /* HTML */ `<select>
+  container.innerHTML = nouPolicy.createHTML(/* HTML */ `
+    <select>
       ${options}
-    </select>`,
-  )
+    </select>
+  `)
   const select = container.querySelector('select')
   if (select) {
     if (selected) {
@@ -166,7 +179,7 @@ export async function playDefaultAudio() {
   }
 }
 
-async function renderAudioTracks() {
+async function renderPlayOriginalAudioBtn() {
   if (document.location.pathname != '/watch' || isYTMusic) {
     return
   }
@@ -188,7 +201,9 @@ async function renderAudioTracks() {
 
   const container = document.createElement('div')
   container.id = '_inks_audio_btn'
-  container.innerHTML = nouPolicy.createHTML(/* HTML */ `Play original audio 🦦`)
+  container.innerHTML = nouPolicy.createHTML(/* HTML */ `
+    Play original audio 🦦
+  `)
   container.onclick = (e) => {
     e.stopPropagation()
     player.pauseVideo()

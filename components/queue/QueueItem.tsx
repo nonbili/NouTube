@@ -3,20 +3,20 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { observer, use$, useObservable } from '@legendapp/state/react'
 import { Bookmark } from '@/states/watchlist'
 import { Image } from 'expo-image'
-import { ui$ } from '@/states/ui'
-import { Button, ContextMenu } from '@expo/ui/jetpack-compose'
+import { updateUrl, ui$ } from '@/states/ui'
 import { colors } from '@/lib/colors'
 import { NouText } from '../NouText'
 import { clsx } from '@/lib/utils'
 import { getPageType, getThumbnail, getVideoThumbnail } from '@/lib/page'
 import { queue$ } from '@/states/queue'
+import { NouMenu } from '../menu/NouMenu'
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
 
 export const QueueItem: React.FC<{ bookmark: Bookmark; playing: boolean }> = ({ bookmark, playing }) => {
   const onPress = () => {
-    ui$.url.set(bookmark.url)
+    updateUrl(bookmark.url)
   }
 
   const pageType = getPageType(bookmark.url)
@@ -41,20 +41,8 @@ export const QueueItem: React.FC<{ bookmark: Bookmark; playing: boolean }> = ({ 
           {bookmark.title}
         </NouText>
       </Pressable>
-      <ContextMenu color={colors.bg} style={{ height: 36, width: 36 }}>
-        {/* @ts-expect-error ?? */}
-        <ContextMenu.Items>
-          <Button
-            elementColors={{
-              containerColor: colors.bg,
-              contentColor: colors.text,
-            }}
-            onPress={() => queue$.toggleBookmark(bookmark)}
-          >
-            Remove
-          </Button>
-        </ContextMenu.Items>
-        <ContextMenu.Trigger>
+      <NouMenu
+        trigger={
           <MaterialIcons.Button
             color={colors.icon}
             backgroundColor="transparent"
@@ -62,8 +50,9 @@ export const QueueItem: React.FC<{ bookmark: Bookmark; playing: boolean }> = ({ 
             name="more-vert"
             size={20}
           />
-        </ContextMenu.Trigger>
-      </ContextMenu>
+        }
+        items={[{ label: 'Remove', handler: () => queue$.toggleBookmark(bookmark) }]}
+      />
     </View>
   )
 }

@@ -20,15 +20,16 @@ class NouTubeViewModule : Module() {
     }
 
     View(NouTubeView::class) {
-      Prop("url") { view: NouTubeView, url: String ->
-        view.webView.loadUrl(url)
-      }
       Prop("scriptOnStart") { view: NouTubeView, script: String ->
         view.setScriptOnStart(script)
       }
       Events("onLoad", "onMessage")
 
-      AsyncFunction("eval") Coroutine { view: NouTubeView, script: String ->
+      AsyncFunction("loadUrl") { view: NouTubeView, url: String ->
+        view.webView.loadUrl(url)
+      }
+
+      AsyncFunction("executeJavaScript") Coroutine { view: NouTubeView, script: String ->
         return@Coroutine view.webView.eval(script)
       }
     }

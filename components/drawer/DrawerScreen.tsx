@@ -24,12 +24,12 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
   const pageType = getPageType(uiState.pageUrl)
   const starred = allStarred.has(uiState.pageUrl)
   const onToggleStar = async () => {
-    const bookmark: Bookmark = { url: uiState.pageUrl, title: uiState.title }
+    const bookmark: Bookmark = { url: uiState.pageUrl, title: '' }
     if (!starred) {
       if (isYTMusic) {
         switch (pageType?.type) {
           case 'watch': {
-            const data = await noutube?.eval(
+            const data = await noutube?.executeJavaScript(
               `document.querySelector('#movie_player').getPlayerResponse()?.videoDetails`,
             )
             const { author, title, thumbnail } = JSON.parse(data)
@@ -40,10 +40,10 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
             break
           }
           case 'channel': {
-            const title = await noutube?.eval(
+            const title = await noutube?.executeJavaScript(
               `document.querySelector('ytmusic-immersive-header-renderer h1')?.innerText`,
             )
-            const thumbnail = await noutube?.eval(
+            const thumbnail = await noutube?.executeJavaScript(
               `document.querySelector('ytmusic-immersive-header-renderer img')?.src`,
             )
             if (title && title != 'null') {
@@ -54,14 +54,14 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
           }
           case 'podcast':
           case 'playlist': {
-            const thumbnail = await noutube?.eval(
+            const thumbnail = await noutube?.executeJavaScript(
               `document.querySelector('ytmusic-responsive-header-renderer ytmusic-thumbnail-renderer.thumbnail img')?.src`,
             )
             bookmark.thumbnail = thumbnail
-            const title = await noutube?.eval(
+            const title = await noutube?.executeJavaScript(
               `document.querySelector('ytmusic-responsive-header-renderer h1')?.innerText`,
             )
-            let author = await noutube?.eval(
+            let author = await noutube?.executeJavaScript(
               `document.querySelector('ytmusic-responsive-header-renderer .strapline-text')?.innerText`,
             )
             if (title) {
@@ -75,7 +75,7 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
           }
         }
       } else if (pageType?.type == 'channel') {
-        const thumbnail = await noutube?.eval(
+        const thumbnail = await noutube?.executeJavaScript(
           `document.querySelector('yt-page-header-view-model yt-avatar-shape img')?.src`,
         )
         bookmark.thumbnail = thumbnail
@@ -99,7 +99,7 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
     <>
       <Drawer.Screen
         options={{
-          title: uiState.title,
+          title: '',
           /* headerTitleAlign: isPortrait ? 'left' : 'center', */
           headerTitleAlign: 'left',
           headerTitleStyle: {
@@ -133,7 +133,7 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
                   iconStyle={{ marginRight: 0 }}
                   name="playlist-play"
                   size={24}
-                  onPress={() => ui$.queueModalShown.set(!ui$.queueModalShown.get())}
+                  onPress={() => ui$.queueModalOpen.set(!ui$.queueModalOpen.get())}
                   underlayColor={colors.underlay}
                 />
               )}
@@ -194,7 +194,6 @@ export const DrawerScreen: React.FC<{ noutube: any }> = ({ noutube }) => {
           ),
         }}
       />
-      {settingsModalShown && <SettingsModal onClose={() => setSettingsModalShown(false)} />}
     </>
   )
 }

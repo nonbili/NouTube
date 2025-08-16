@@ -2,17 +2,26 @@ import { blockAds } from './ad'
 import { injectCSS } from './css'
 import { initNouTube } from './noutube'
 import { handleVideoPlayer } from './player'
-import { retry } from 'es-toolkit'
 import { emit } from './utils'
 import { handleDialogs } from './dialogs'
 import { handleMenu } from './menu'
-
-window.NouTube = initNouTube()
+import { preload } from './preload'
 
 try {
-  blockAds()
-
-  initObserver()
+  if (!window.electron) {
+    preload()
+  }
+  if (window.electron) {
+    blockAds()
+  }
+  window.NouTube = initNouTube()
+  if (document.documentElement) {
+    initObserver()
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      initObserver()
+    })
+  }
 
   setInterval(() => (window._lact = Date.now()), 20 * 60 * 1000)
 } catch (e) {
@@ -20,25 +29,14 @@ try {
 }
 
 async function initObserver() {
-  const target = await retry(
-    async () => {
-      if (!document.documentElement) {
-        throw 'documentElement not ready'
-      }
-      return document.documentElement
-    },
-    { retries: 50, delay: 100 },
-  )
-
   const observer = new MutationObserver((mutations) => {
     handleVideoPlayer(mutations)
     handleDialogs()
   })
-  observer.observe(target, {
+  observer.observe(document.documentElement, {
     childList: true,
     subtree: true,
   })
 
-  injectCSS()
   handleMenu()
 }

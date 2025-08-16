@@ -8,24 +8,62 @@ const iconStar = `<svg height="24" viewBox="0 -960 960 960" width="24" style="tr
 const makeMenuItem = ({ icon, label }: { icon: string; label: string }) =>
   nouPolicy.createHTML(/* HTML */ `
     <button class="menu-item-button">
-      <c3-icon fill-icon="false"
-        ><span class="yt-icon-shape yt-spec-icon-shape"
-          ><div style="width: 100%; height: 100%; display: block; fill: currentcolor;">${icon}</div></span
-        ></c3-icon
-      ><span class="yt-core-attributed-string" role="text">${label} 🦦</span>
+      <c3-icon fill-icon="false">
+        <span class="yt-icon-shape yt-spec-icon-shape">
+          <div style="width: 100%; height: 100%; display: block; fill: currentcolor;">${icon}</div>
+        </span>
+      </c3-icon>
+      <span class="yt-core-attributed-string" role="text">${label} 🦦</span>
     </button>
   `)
+
+const makeListItem = ({ icon, label }: { icon: string; label: string }) =>
+  nouPolicy.createHTML(/* HTML */ `
+    <yt-list-item-view-model class="yt-list-item-view-model-wiz" role="menuitem" tabindex="0">
+      <div
+        class="yt-list-item-view-model-wiz__label yt-list-item-view-model-wiz__container yt-list-item-view-model-wiz__container--compact yt-list-item-view-model-wiz__container--tappable yt-list-item-view-model-wiz__container--in-popup"
+      >
+        <div
+          aria-hidden="true"
+          class="yt-list-item-view-model-wiz__image-container yt-list-item-view-model-wiz__leading"
+        >
+          <span
+            class="ytIconWrapperHost yt-list-item-view-model-wiz__accessory yt-list-item-view-model-wiz__image"
+            role="img"
+            aria-label=""
+            aria-hidden="true"
+            style=""
+          >
+            <span class="yt-icon-shape">${icon}</span>
+          </span>
+        </div>
+        <div class="yt-list-item-view-model-wiz__text-wrapper">
+          <div class="yt-list-item-view-model-wiz__title-wrapper">
+            <span
+              class="yt-core-attributed-string yt-list-item-view-model-wiz__title yt-core-attributed-string--white-space-pre-wrap"
+              role="text"
+            >
+              ${label} 🦦
+            </span>
+          </div>
+        </div>
+      </div>
+    </yt-list-item-view-model>
+  `)
+
 const htmlMenuStar = makeMenuItem({ icon: iconStar, label: 'Star' })
 const htmlMenuQueue = makeMenuItem({ icon: iconAddQueue, label: 'Add to queue' })
 
 export function handleMenu() {
   document.addEventListener('click', async (e) => {
     const el = e.target as HTMLElement
-    const videoItem = el.closest('ytm-media-item')
+    const videoItem = el.closest('ytm-media-item,yt-lockup-metadata-view-model')
     if (videoItem) {
       const menu = await retry(
         async () => {
-          const menu = document.querySelector('ytm-menu-service-item-renderer,ytm-menu-navigation-item-renderer')
+          const menu = document.querySelector(
+            'ytm-menu-service-item-renderer,ytm-menu-navigation-item-renderer,yt-list-view-model',
+          )
           if (!menu) {
             throw 'menu not ready'
           }
@@ -35,21 +73,28 @@ export function handleMenu() {
       )
       const title = videoItem.querySelector('h3')?.innerText
       const url = videoItem.querySelector('a')?.href
-      let menuItem = document.createElement('ytm-menu-item')
-      menuItem.innerHTML = htmlMenuQueue
-      menuItem.onclick = () => {
-        if (url) {
-          emit('add-queue', { title, url })
+      let menuItem: HTMLElement
+
+      if (window.NouTubeI) {
+        menuItem = document.createElement('ytm-menu-item')
+        menuItem.innerHTML = htmlMenuQueue
+        menuItem.onclick = () => {
+          if (url) {
+            emit('add-queue', { title, url })
+          }
+          menuItem.remove()
         }
+        menu.prepend(menuItem)
       }
-      menu.prepend(menuItem)
 
       menuItem = document.createElement('ytm-menu-item')
-      menuItem.innerHTML = htmlMenuStar
+      const fn = menu.tagName.toLowerCase() == 'yt-list-view-model' ? makeListItem : makeMenuItem
+      menuItem.innerHTML = fn({ icon: iconStar, label: 'Star' })
       menuItem.onclick = () => {
         if (url) {
           emit('star', { title, url })
         }
+        menuItem.remove()
       }
       menu.prepend(menuItem)
     }

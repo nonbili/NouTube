@@ -4,15 +4,22 @@ import { settings$ } from './settings'
 interface Store {
   url: string
   pageUrl: string
-  title: string
-  queueModalShown: boolean
+  settingsModalOpen: boolean
+  queueModalOpen: boolean
   embedVideoId: string
+  libraryModalOpen: boolean
 }
 
 export const ui$ = observable<Store>({
   url: '',
   pageUrl: '',
-  title: 'YouTube',
-  queueModalShown: false,
+  settingsModalOpen: false,
+  queueModalOpen: false,
   embedVideoId: '',
+  libraryModalOpen: false,
 })
+
+export function updateUrl(url: string) {
+  ui$.url.set('')
+  ui$.url.set(url)
+}

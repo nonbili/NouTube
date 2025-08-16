@@ -56,6 +56,7 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
       'expo-font',
       'expo-share-intent',
       'expo-web-browser',
+      '@react-native-google-signin/google-signin',
       './plugins/withAndroidPlugin.ts',
     ],
     experiments: {

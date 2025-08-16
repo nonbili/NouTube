@@ -1,0 +1,4 @@
+provider: github
+owner: nonbili
+repo: NouTube-Desktop
+updaterCacheDirName: noutube-desktop-updater

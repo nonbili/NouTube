@@ -1,0 +1,15 @@
+diff --git a/package.json b/package.json
+index d53cba1fe5a1bcdd570bacc7a9bc99a0d71ecea0..7b0c6093b6583527cc86a6182746255c76fd78a6 100644
+--- a/package.json
++++ b/package.json
+@@ -4,7 +4,9 @@
+   "description": "",
+   "main": "dist/index",
+   "types": "dist/index.d.ts",
+-  "sideEffects": false,
++  "sideEffects": [
++    "dist/runtime/components.js"
++  ],
+   "keywords": [
+     "react-native",
+     "react",

@@ -1,3 +1,5 @@
+import { ui$ } from '@/states/ui'
+
 const starrableTypes = ['channel', 'playlist', 'podcast', 'shorts', 'watch']
 
 export function getPageType(url: string) {
@@ -41,10 +43,37 @@ export function getVideoThumbnail(id: string) {
 
 /* https://www.youtube.com/watch?v=<id> */
 export function getVideoId(url: string) {
-  return new URL(url).searchParams.get('v')
+  try {
+    return new URL(url).searchParams.get('v')
+  } catch (e) {
+    return ''
+  }
 }
 
 export function getThumbnail(url: string) {
   const id = getVideoId(url)
   return id ? getVideoThumbnail(id) : undefined
+}
+
+export function openSharedUrl(url: string) {
+  try {
+    const { host } = new URL(fixSharingUrl(url))
+    if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'music.youtube.com', 'youtu.be'].includes(host)) {
+      ui$.url.set(url.replace('noutube://', 'https://'))
+    }
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+export function normalizeUrl(url: string) {
+  if (!url) {
+    return url
+  }
+  const newURL = new URL(url)
+  if (!['m.youtube.com', 'music.youtube.com'].includes(newURL.host)) {
+    newURL.host = 'm.youtube.com'
+  }
+  newURL.searchParams.delete('app')
+  return newURL.href
 }
