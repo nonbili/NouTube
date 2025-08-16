@@ -4,7 +4,9 @@ import { supabase } from './client'
 export const signOut = () => supabase.auth.signOut({ scope: 'local' })
 
 GoogleSignin.configure({
-  webClientId: process.env.EXPO_PUBLIC_GOOGLE_OAUTH_CLIENT_ID,
+  webClientId:
+    process.env.EXPO_PUBLIC_GOOGLE_OAUTH_CLIENT_ID ||
+    '696868359033-gi0alu5ohkodr511d7md3kc1u60v5u8r.apps.googleusercontent.com',
 })
 
 export const signInWithGoogle = async () => {

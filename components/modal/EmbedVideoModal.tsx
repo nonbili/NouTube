@@ -1,6 +1,6 @@
 import { Modal, Text, Pressable, View, Switch, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native'
 import { NouText } from '../NouText'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NouTubeView } from '@/modules/nou-tube-view'
 
 const repo = 'https://github.com/nonbili/NouTube'
@@ -12,13 +12,16 @@ export const EmbedVideoModal: React.FC<{ videoId: string; scriptOnStart: string;
   scriptOnStart,
   onClose,
 }) => {
+  const url = `https://www.youtube.com/embed/${videoId}`
   const ref = useRef<any>(null)
+  useEffect(() => {
+    ref.current?.loadUrl(url)
+  }, [ref])
+
   const onLoad = () => {
     ref.current?.executeJavaScript('NouTube.playDefaultAudio()')
   }
   const onMessage = async (e: { nativeEvent: { payload: string } }) => {}
-
-  const url = `https://www.youtube.com/embed/${videoId}`
 
   return (
     <View className="absolute inset-0">
@@ -27,7 +30,6 @@ export const EmbedVideoModal: React.FC<{ videoId: string; scriptOnStart: string;
           // @ts-expect-error ??
           ref={ref}
           style={{ flex: 1 }}
-          url={url}
           scriptOnStart={scriptOnStart}
           onLoad={onLoad}
           onMessage={onMessage}

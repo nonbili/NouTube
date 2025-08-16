@@ -81,6 +81,8 @@ def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInRelea
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+ext.abiCodes = [x86:1, x86_64:2, 'armeabi-v7a':3, 'arm64-v8a': 4]
+
 android {
     ndkVersion rootProject.ext.ndkVersion
 
@@ -125,6 +127,22 @@ android {
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
+    }
+    splits {
+        abi {
+            reset()
+            enable true
+            universalApk false
+            include project.ext.abiCodes.keySet() as String[]
+        }
+    }
+    android.applicationVariants.configureEach { variant ->
+        variant.outputs.each { output ->
+            def baseAbiVersionCode = project.ext.abiCodes.get(output.getFilter(com.android.build.OutputFile.ABI))
+            if (baseAbiVersionCode != null) {
+                output.versionCodeOverride = (100 * project.android.defaultConfig.versionCode) + baseAbiVersionCode
+            }
+        }
     }
 }
 
