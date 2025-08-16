@@ -1,0 +1,92 @@
+name: Build desktop
+
+on:
+  push:
+    branches:
+      - release-desktop
+
+jobs:
+  build:
+    defaults:
+      run:
+        working-directory: desktop
+
+    strategy:
+      matrix:
+        os:
+          - macos-13
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: install
+        run: |
+          cd ..
+          rm yarn.lock
+          bun link
+          bun install
+          bun bundle
+
+      - name: build
+        run: bun electron-vite build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+      - name: pkg on mac
+        if: startsWith(matrix.os, 'mac')
+        run: |
+          echo -n "${{ secrets.INSTALLER_CERT }}" | base64 -d > installer.cer
+          echo -n "${{ secrets.APPLICATION_CERT }}" | base64 -d > application.cer
+          sudo security add-trusted-cert -d -r trustRoot -k ~/Library/Keychains/login.keychain installer.cer
+          sudo security add-trusted-cert -d -r trustRoot -k ~/Library/Keychains/login.keychain application.cer
+          bun electron-builder --publish never
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+
+      - name: pkg on ubuntu & windows
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'win')
+        run: bun electron-builder --publish never
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}
+          path: |
+            desktop/dist/latest.yml
+            desktop/dist/latest-*.yml
+            desktop/dist/*.AppImage
+            desktop/dist/*.blockmap
+            desktop/dist/*.dmg
+            desktop/dist/*.exe
+            desktop/dist/*.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: get version
+        run: |
+          echo "TAG=v$(jq -r '.version' desktop/package.json)" >> $GITHUB_ENV
+
+      - name: release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          repository: nonbili/NouTube-Desktop
+          token: ${{ secrets.GH_RELEASE_TOKEN }}
+          tag_name: ${{ env.TAG }}
