@@ -94,8 +94,8 @@ android {
         applicationId 'jp.nonbili.noutube'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 22
-        versionName "0.2.4"
+        versionCode 23
+        versionName "0.3.0"
     }
     signingConfigs {
         debug {

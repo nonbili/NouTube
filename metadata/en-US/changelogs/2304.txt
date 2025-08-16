@@ -1,0 +1,2 @@
+- Split APK files
+- Heavy refactoring to share code with desktop version

@@ -2,12 +2,19 @@
 
 YouTube and YouTube Music in a single app. No ads, plays in the background.
 
-- Manage watchlist, music library without login
+- Manage video/music library without login
 - Hide shorts
+- Live chat
+- Play original audio
 
 [<img src="https://f-droid.org/badge/get-it-on.png"
     alt="Get it on F-Droid"
     height="80">](https://f-droid.org/packages/jp.nonbili.noutube)
+
+## Desktop version
+
+Desktop version shares the same code base with mobile version.
+Download Linux/macOS/Windows version from [NouTube-Desktop](https://github.com/nonbili/NouTube-Desktop/releases).
 
 ## How it works
 

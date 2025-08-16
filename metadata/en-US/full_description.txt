@@ -1,10 +1,19 @@
 YouTube and YouTube Music in a single app. No ads, plays in the background.
 
-- Manage watchlist, music library without login
-- Hide shorts
+<ul>
+<li>Manage watchlist, music library without login</li>
+<li>Hide shorts</li>
+<li>Live chat</li>
+<li>Play original audio</li>
+</ul>
 
-## How it works
+<h2>How it works</h2>
 
-- Wrap https://m.youtube.com and https://music.youtube.com in Android webview
-- Inject code to block ads
-- Hook playback controls and support playing in background
+<li>Wrap https://m.youtube.com and https://music.youtube.com in Android webview</li>
+<li>Inject code to block ads</li>
+<li>Hook playback controls and support playing in background</li>
+
+<h2>Desktop version</h2>
+
+Desktop version shares the same code base with mobile version.
+Download Linux/macOS/Windows version from <a href="https://github.com/nonbili/NouTube-Desktop/releases">NouTube-Desktop</a>.
