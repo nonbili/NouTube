@@ -42,7 +42,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   )
 
   useEffect(() => {
-    ui$.url.set(isYTMusic ? 'https://music.youtube.com' : isWeb ? 'https://www.youtube.com' : 'https://m.youtube.com')
+    if (!ui$.url.get()) {
+      ui$.url.set(isYTMusic ? 'https://music.youtube.com' : isWeb ? 'https://www.youtube.com' : 'https://m.youtube.com')
+    }
 
     migrateWatchlist()
 
