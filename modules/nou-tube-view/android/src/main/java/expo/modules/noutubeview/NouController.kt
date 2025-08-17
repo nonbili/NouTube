@@ -87,7 +87,6 @@ class NouController {
     activity!!.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 
     // https://stackoverflow.com/a/64828067
-    WindowCompat.setDecorFitsSystemWindows(window, false)
     val controller = WindowCompat.getInsetsController(window, window.decorView)
     controller.hide(WindowInsetsCompat.Type.systemBars())
     controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -102,7 +101,6 @@ class NouController {
     (window.decorView as FrameLayout).removeView(view)
     activity!!.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER)
 
-    WindowCompat.setDecorFitsSystemWindows(window, true)
     val controller = WindowCompat.getInsetsController(window, window.decorView)
     controller.show(WindowInsetsCompat.Type.systemBars())
 
