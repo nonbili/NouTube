@@ -1,4 +1,5 @@
 import { ui$ } from '@/states/ui'
+import { onReceiveAuthUrl } from './supabase/auth'
 
 const starrableTypes = ['channel', 'playlist', 'podcast', 'shorts', 'watch']
 
@@ -56,6 +57,10 @@ export function getThumbnail(url: string) {
 }
 
 export function openSharedUrl(url: string) {
+  if (url.startsWith('noutube:auth')) {
+    onReceiveAuthUrl(url)
+    return
+  }
   try {
     const { host } = new URL(fixSharingUrl(url))
     if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'music.youtube.com', 'youtu.be'].includes(host)) {

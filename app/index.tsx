@@ -6,7 +6,7 @@ import { fixPageTitle, fixSharingUrl, getPageType, getVideoId, openSharedUrl } f
 import { Asset } from 'expo-asset'
 import { settings$ } from '@/states/settings'
 import { useShareIntent } from 'expo-share-intent'
-import { useURL } from 'expo-linking'
+import * as Linking from 'expo-linking'
 import { queue$ } from '@/states/queue'
 import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
 import { MainPage } from '@/components/page/MainPage'
@@ -14,7 +14,6 @@ import { MainPage } from '@/components/page/MainPage'
 export default function HomeScreen() {
   const [scriptOnStart, setScriptOnStart] = useState('')
   const { hasShareIntent, shareIntent } = useShareIntent()
-  const linkingUrl = useURL()
 
   useEffect(() => {
     const url = shareIntent.webUrl || shareIntent.text
@@ -22,12 +21,6 @@ export default function HomeScreen() {
       openSharedUrl(url)
     }
   }, [hasShareIntent, shareIntent])
-
-  useEffect(() => {
-    if (linkingUrl) {
-      openSharedUrl(linkingUrl)
-    }
-  }, [linkingUrl])
 
   useEffect(() => {
     ;(async () => {
@@ -43,6 +36,13 @@ export default function HomeScreen() {
       return true
     })
 
+    return () => subscription.remove()
+  }, [])
+
+  useEffect(() => {
+    const subscription = Linking.addEventListener('url', (e) => {
+      openSharedUrl(e.url)
+    })
     return () => subscription.remove()
   }, [])
 

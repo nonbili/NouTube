@@ -19,21 +19,21 @@ export const SettingsModalTabSync = () => {
           Sync bookmarks across your phones and computers as a premium user.
         </NouText>
         {!user &&
-          (isWeb ? (
-            <a
-              className="text-sm py-2 px-6 text-center bg-[#6366f1] rounded-full flex-row justify-center"
-              href="https://noutube.inks.page/auth/app"
-              target="_blank"
-            >
-              Sign in
-            </a>
-          ) : (
+          (process.env.EXPO_PUBLIC_GOOGLE_OAUTH_CLIENT_ID ? (
             <TouchableOpacity
               className="text-sm py-2 px-6 text-center bg-[#6366f1] rounded-full flex-row justify-center"
               onPress={signInWithGoogle}
             >
               <NouText>Sign in with Google</NouText>
             </TouchableOpacity>
+          ) : (
+            <NouLink
+              className="text-sm py-2 px-6 text-center bg-[#6366f1] rounded-full flex-row justify-center text-white"
+              href="https://noutube.inks.page/auth/app"
+              target="_blank"
+            >
+              Sign in
+            </NouLink>
           ))}
         {user && plan && (
           <>

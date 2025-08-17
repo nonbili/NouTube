@@ -1,0 +1,2 @@
+- Drop google signin from fdroid build
+- Fix handling noutube:*
