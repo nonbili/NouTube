@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { use$, useObserve, useObserveEffect } from '@legendapp/state/react'
-import { ui$ } from '@/states/ui'
+import { onClearData$, ui$ } from '@/states/ui'
 import { queue$ } from '@/states/queue'
 import { settings$ } from '@/states/settings'
 import { bookmarks$, migrateWatchlist, newBookmark } from '@/states/bookmarks'
@@ -45,6 +45,10 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     ui$.url.set(isYTMusic ? 'https://music.youtube.com' : isWeb ? 'https://www.youtube.com' : 'https://m.youtube.com')
 
     migrateWatchlist()
+
+    onClearData$.on(() => {
+      nativeRef.current?.clearData()
+    })
   }, [])
 
   useEffect(() => {

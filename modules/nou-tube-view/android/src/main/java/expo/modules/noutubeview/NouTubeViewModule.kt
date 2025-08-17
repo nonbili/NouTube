@@ -32,6 +32,10 @@ class NouTubeViewModule : Module() {
       AsyncFunction("executeJavaScript") Coroutine { view: NouTubeView, script: String ->
         return@Coroutine view.webView.eval(script)
       }
+
+      AsyncFunction("clearData") { view: NouTubeView ->
+        view.clearData()
+      }
     }
   }
 }

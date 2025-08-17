@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native'
 import { NouText } from '../NouText'
 import { NouLink } from '../link/NouLink'
@@ -19,7 +20,9 @@ import { settings$ } from '@/states/settings'
 import { Segemented } from '../picker/Segmented'
 import { getDocumentAsync } from 'expo-document-picker'
 import { importCsv } from '@/lib/import'
-import { ui$ } from '@/states/ui'
+import { onClearData$, ui$ } from '@/states/ui'
+import NouTubeViewModule from '@/modules/nou-tube-view/src/NouTubeViewModule'
+import { showToast } from '@/lib/toast'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const themes = [null, 'dark', 'light'] as const
@@ -43,6 +46,24 @@ export const SettingsModalTabSettings = () => {
     } finally {
       setImporting(false)
     }
+  }
+
+  const clearWebviewData = () => {
+    Alert.alert('Clear webview data', 'All cookies, browsing history will be removed.', [
+      {
+        text: 'Cancel',
+        onPress: () => {},
+        style: 'cancel',
+      },
+      {
+        text: 'Yes',
+        onPress: () => {
+          onClearData$.fire()
+          showToast('WebView data cleared')
+        },
+        style: 'default',
+      },
+    ])
   }
 
   return (
@@ -79,10 +100,22 @@ export const SettingsModalTabSettings = () => {
           </NouText>
         </View>
       )}
+      {!isWeb && (
+        <View className="mt-8 flex-row justify-center">
+          <TouchableOpacity
+            className={clsx(
+              'py-2 px-6 text-center border border-indigo-300 rounded-full flex-row justify-center gap-2',
+            )}
+            onPress={clearWebviewData}
+          >
+            <NouText className="">Clear webview data</NouText>
+          </TouchableOpacity>
+        </View>
+      )}
       <View className="mt-8 flex-row justify-center">
         <TouchableOpacity
           className={clsx(
-            'py-2 px-6 text-center bg-[#6366f1] rounded-full flex-row justify-center gap-2',
+            'py-2 px-6 text-center bg-indigo-500 rounded-full flex-row justify-center gap-2',
             importing && 'pointer-events-none',
           )}
           onPress={onClickImport}

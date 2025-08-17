@@ -120,4 +120,19 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   fun setScriptOnStart(script: String) {
     scriptOnStart = script
   }
+
+  fun clearData() {
+    val cookieManager = CookieManager.getInstance()
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+      cookieManager.removeAllCookies(null)
+    } else {
+      cookieManager.removeAllCookie()
+    }
+    cookieManager.flush()
+
+    webView.clearCache(true)
+    webView.clearHistory()
+    webView.clearFormData()
+    webView.reload()
+  }
 }

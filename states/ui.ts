@@ -1,4 +1,4 @@
-import { observable } from '@legendapp/state'
+import { event, observable } from '@legendapp/state'
 import { settings$ } from './settings'
 
 interface Store {
@@ -23,3 +23,5 @@ export function updateUrl(url: string) {
   ui$.url.set('')
   ui$.url.set(url)
 }
+
+export const onClearData$ = event()
