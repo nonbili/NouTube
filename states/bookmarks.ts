@@ -1,4 +1,4 @@
-import { Observable, observable, syncState, when } from '@legendapp/state'
+import { batch, Observable, observable, syncState, when } from '@legendapp/state'
 import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import { genId, isWeb } from '@/lib/utils'
@@ -15,6 +15,7 @@ export interface Bookmark {
   json: {
     thumbnail?: string
     deleted?: boolean
+    folder?: string
   }
 }
 
@@ -25,10 +26,14 @@ interface Store {
   getBookmarkByUrl: (url: string) => Observable<Bookmark> | undefined
   toggleBookmark: (bookmark: Bookmark) => void
   addBookmark: (bookmark: Bookmark) => void
+  saveBookmark: (bookmark: Bookmark) => void
   importBookmarks: (bookmarks: Bookmark[]) => void
+  removeByFolder: (folderId: string) => void
   setUpdatedTime: () => void
   setSyncedTime: () => void
 }
+
+const getBookmarkIndex = (bookmark: Bookmark) => bookmarks$.bookmarks.findIndex((x) => x.id.get() == bookmark.id)
 
 export const bookmarks$ = observable<Store>({
   bookmarks: [],
@@ -62,6 +67,16 @@ export const bookmarks$ = observable<Store>({
       bookmarks$.setUpdatedTime()
     }
   },
+  saveBookmark: (bookmark) => {
+    const index = getBookmarkIndex(bookmark)
+    if (index != -1) {
+      bookmark.updated_at = new Date()
+      bookmarks$.bookmarks[index].set(bookmark)
+    } else {
+      bookmarks$.bookmarks.unshift(bookmark)
+    }
+    bookmarks$.setUpdatedTime()
+  },
   importBookmarks: (bookmarks) => {
     if (!bookmarks.length) {
       return 0
@@ -76,6 +91,17 @@ export const bookmarks$ = observable<Store>({
     bookmarks$.bookmarks.push(...xs)
     bookmarks$.setUpdatedTime()
     return xs.length
+  },
+  removeByFolder: (folderId: string) => {
+    const bookmarks = bookmarks$.bookmarks.filter((x) => x.json.folder.get() == folderId)
+    const now = new Date()
+    batch(() => {
+      bookmarks.forEach((x) => {
+        x.updated_at.set(now)
+        x.json.deleted.set(true)
+      })
+      bookmarks$.setUpdatedTime()
+    })
   },
   setUpdatedTime() {
     bookmarks$.updatedAt.set(new Date())
@@ -117,9 +143,9 @@ export function newBookmark(bookmark?: Partial<Bookmark>): Bookmark {
 }
 
 export async function migrateWatchlist() {
-  const syncBookmarks$ = syncState(bookmarks$)
-  const syncWatchlist$ = syncState(watchlist$)
-  await when([syncBookmarks$.isPersistLoaded, syncWatchlist$.isPersistLoaded])
+  const bookmarksState$ = syncState(bookmarks$)
+  const watchlistState$ = syncState(watchlist$)
+  await when([bookmarksState$.isPersistLoaded, watchlistState$.isPersistLoaded])
   if (bookmarks$.bookmarks.length || !watchlist$.bookmarks.length) {
     return
   }

@@ -20,7 +20,6 @@ import { Segemented } from '../picker/Segmented'
 import { getDocumentAsync } from 'expo-document-picker'
 import { importCsv } from '@/lib/import'
 import { BookmarkItem } from '../bookmark/BookmarkItem'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { QueueItem } from '../queue/QueueItem'
 import { queue$ } from '@/states/queue'
 import { usePlayingQueueIndex } from '@/lib/queue'
@@ -31,7 +30,6 @@ export const QueueModal = () => {
   const queueModalOpen = use$(ui$.queueModalOpen)
   const { playingIndex, size } = usePlayingQueueIndex()
   const queue = use$(queue$.bookmarks)
-  const insets = useSafeAreaInsets()
 
   return (
     queueModalOpen && (
@@ -56,7 +54,6 @@ export const QueueModal = () => {
           data={queue}
           keyExtractor={(item) => item.url}
           renderItem={({ item, index }) => <QueueItem bookmark={item} playing={playingIndex == index} />}
-          ListFooterComponent={<View className="mb-2" style={{ paddingBottom: insets.bottom }} />}
         />
       </BaseModal>
     )

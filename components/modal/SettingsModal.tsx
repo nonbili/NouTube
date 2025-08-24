@@ -2,6 +2,7 @@ import { Button, View } from 'react-native'
 import { NouText } from '../NouText'
 import { NouLink } from '../link/NouLink'
 import { version } from '../../package.json'
+import { version as desktopVersion } from '../../desktop/package.json'
 import { useState } from 'react'
 import { clsx, isWeb } from '@/lib/utils'
 import { use$ } from '@legendapp/state/react'
@@ -32,7 +33,7 @@ export const SettingsModal = () => {
             <>
               <View className="items-center my-8">
                 <NouText className="text-lg font-medium">NouTube</NouText>
-                <NouText>v{version}</NouText>
+                <NouText>v{isWeb ? desktopVersion : version}</NouText>
               </View>
               <View className="">
                 <NouText className="font-medium">Source code</NouText>

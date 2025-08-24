@@ -18,7 +18,7 @@ export const NouMenu: React.FC<{ trigger: ReactNode; items: Item[] }> = ({ trigg
       <DropdownMenu.Trigger>
         <div>{trigger}</div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content>{menuItems}</DropdownMenu.Content>
+      <DropdownMenu.Content variant="soft">{menuItems}</DropdownMenu.Content>
     </DropdownMenu.Root>
   )
 }

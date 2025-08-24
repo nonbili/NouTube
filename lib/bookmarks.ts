@@ -65,6 +65,11 @@ export async function toggleStar(noutube: any, starred: boolean) {
         `document.querySelector('yt-page-header-view-model yt-avatar-shape img')?.src`,
       )
       bookmark.json.thumbnail = thumbnail
+    } else if (pageType?.type == 'playlist') {
+      const thumbnail = await noutube?.executeJavaScript(
+        `document.querySelector('yt-content-preview-image-view-model img.ytCoreImageLoaded')?.src`,
+      )
+      bookmark.json.thumbnail = thumbnail
     }
   }
   bookmarks$.toggleBookmark(bookmark)

@@ -15,11 +15,13 @@ import { NouHeader } from '../header/NouHeader'
 import { LibraryModal } from '../modal/LibraryModal'
 import { QueueModal } from '../modal/QueueModal'
 import { SettingsModal } from '../modal/SettingsModal'
-import { syncBookmarks } from '@/lib/supabase/sync'
+import { syncSupabase } from '@/lib/supabase/sync'
 import { useQuery, UseQueryResult } from '@tanstack/react-query'
 import { getMeQuery } from '@/lib/query'
 import { auth$ } from '@/states/auth'
 import { useMe } from '@/lib/hooks/useMe'
+import { FolderModal } from '../modal/FolderModal'
+import { BookmarkModal } from '../modal/BookmarkModal'
 
 export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   const uiState = use$(ui$)
@@ -55,11 +57,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   useEffect(() => {
     auth$.plan.set(me?.plan)
-    syncBookmarks()
     let timer: number
     if (userId && me?.plan && me.plan != 'free') {
+      syncSupabase()
       timer = setInterval(
-        () => syncBookmarks(),
+        () => syncSupabase(),
         30 * 60 * 1000, // 30 minutes
       )
     }
@@ -178,6 +180,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         )}
       </View>
       <LibraryModal />
+      <BookmarkModal />
+      <FolderModal />
       <QueueModal />
       <SettingsModal />
     </>

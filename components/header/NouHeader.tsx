@@ -12,7 +12,7 @@ import { getPageType, normalizeUrl } from '@/lib/page'
 import { toggleStar } from '@/lib/bookmarks'
 import { queue$ } from '@/states/queue'
 import { share } from '@/lib/share'
-import { MaterialButton } from '../button/MaterialButton'
+import { MaterialButton } from '../button/IconButtons'
 import { library$ } from '@/states/library'
 
 export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
@@ -21,6 +21,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const uiState = use$(ui$)
   const allStarred = use$(library$.urls)
   const starred = allStarred.has(normalizeUrl(uiState.pageUrl))
+  const bookmark = use$(bookmarks$.getBookmarkByUrl(normalizeUrl(uiState.pageUrl)))
   const queueSize = use$(queue$.size)
 
   const pageType = getPageType(uiState.pageUrl)
@@ -33,7 +34,13 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
     ui$.url.set(newUrl)
   }
 
-  const onToggleStar = () => toggleStar(noutube, starred)
+  const onToggleStar = () => {
+    if (starred && bookmark) {
+      ui$.bookmarkModalBookmark.set(bookmark)
+    } else {
+      toggleStar(noutube, starred)
+    }
+  }
 
   return (
     <>

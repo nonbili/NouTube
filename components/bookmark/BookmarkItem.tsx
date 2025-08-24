@@ -32,12 +32,12 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = ({ bookmark }) => 
 
   return (
     <View className="flex flex-row my-2 overflow-hidden">
-      <Pressable className={clsx(square ? 'w-[90px]' : 'w-[160px]')} onPress={onPress}>
+      <Pressable className={clsx(square ? 'w-[48px]' : 'w-[160px]')} onPress={onPress}>
         <Image
           source={bookmark.json?.thumbnail || getThumbnail(bookmark.url)}
           contentFit="cover"
           placeholder={{ blurhash }}
-          style={{ height: 90, borderRadius: round ? 45 : 8 }}
+          style={{ height: square ? 48 : 90, borderRadius: round ? 45 : 8 }}
         />
       </Pressable>
       <Pressable className="flex-1 ml-3" onPress={onPress}>
@@ -56,7 +56,10 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = ({ bookmark }) => 
               size={20}
             />
           }
-          items={[{ label: 'Remove', handler: () => bookmarks$.toggleBookmark(bookmark) }]}
+          items={[
+            { label: 'Edit', handler: () => ui$.bookmarkModalBookmark.set(bookmark) },
+            { label: 'Remove', handler: () => bookmarks$.toggleBookmark(bookmark) },
+          ]}
         />
       </View>
     </View>

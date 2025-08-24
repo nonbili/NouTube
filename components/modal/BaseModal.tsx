@@ -3,12 +3,15 @@ import { ReactNode } from 'react'
 import { Pressable, ScrollView, View } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
+/* <View className="h-screen" style={{ paddingTop: insets.top }}> */
 export const BaseModal: React.FC<{ className?: string; children: ReactNode; onClose: () => void }> = ({
   className,
   children,
   onClose,
 }) => {
-  const inner = isWeb ? children : <SafeAreaView>{children}</SafeAreaView>
+  const insets = useSafeAreaInsets()
+
+  const inner = isWeb ? children : <SafeAreaView className="max-h-full">{children}</SafeAreaView>
 
   return (
     <View className={clsx('absolute inset-0 z-10', className)}>
