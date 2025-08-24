@@ -1,5 +1,6 @@
 import { ui$ } from '@/states/ui'
 import { onReceiveAuthUrl } from './supabase/auth'
+import { isWeb } from './utils'
 
 const starrableTypes = ['channel', 'playlist', 'podcast', 'shorts', 'watch']
 
@@ -80,5 +81,16 @@ export function normalizeUrl(url: string) {
     newURL.host = 'm.youtube.com'
   }
   newURL.searchParams.delete('app')
+  return newURL.href
+}
+
+export function unnormalizeUrl(url: string) {
+  if (!isWeb || !url) {
+    return url
+  }
+  const newURL = new URL(url)
+  if ('m.youtube.com' == newURL.host) {
+    newURL.host = 'www.youtube.com'
+  }
   return newURL.href
 }
