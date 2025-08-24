@@ -1,10 +1,4 @@
-const keys = ['adBreakHeartbeatParams', 'adPlacements', 'adSlots', 'playerAds']
-
-function transformResponse(text: string) {
-  const data = JSON.parse(text)
-  keys.forEach((key) => delete data[key])
-  return JSON.stringify(data)
-}
+import { transformPlayerResponse } from '@/lib/ad'
 
 export function blockAds() {
   const winFetch = fetch
@@ -19,7 +13,7 @@ export function blockAds() {
           return res
         }
         const text = await res.text()
-        return new Response(transformResponse(text), {
+        return new Response(transformPlayerResponse(text), {
           status: res.status,
           headers: res.headers,
         })
@@ -37,7 +31,7 @@ export function blockAds() {
     url = url.toString()
     this.addEventListener('readystatechange', function () {
       if (url.includes('youtubei/v1/player') && this.readyState === 4) {
-        const text = transformResponse(this.responseText)
+        const text = transformPlayerResponse(this.responseText)
         Object.defineProperty(this, 'response', { writable: true })
         Object.defineProperty(this, 'responseText', { writable: true })
         // @ts-expect-error xx

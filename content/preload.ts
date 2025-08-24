@@ -3,7 +3,6 @@ import { injectCSS } from './css'
 
 export function preload() {
   document.addEventListener('DOMContentLoaded', () => {
-    blockAds()
     injectCSS()
   })
 }

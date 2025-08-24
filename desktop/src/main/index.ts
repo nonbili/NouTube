@@ -5,6 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import { setMainWindow } from './lib/main-window'
 import { bindDeeplink } from './lib/deeplink'
 import { genDesktopFile } from './lib/linux'
+import { interceptHttpRequest } from './lib/intercept'
 
 function createWindow(): void {
   // Create the browser window.
@@ -23,7 +24,7 @@ function createWindow(): void {
   setMainWindow(mainWindow)
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.maximize()
+    mainWindow.show()
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -55,6 +56,8 @@ function createWindow(): void {
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
+
+  interceptHttpRequest()
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.

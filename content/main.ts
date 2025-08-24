@@ -10,10 +10,9 @@ import { preload } from './preload'
 try {
   if (!window.electron) {
     preload()
-  }
-  if (window.electron) {
     blockAds()
   }
+
   window.NouTube = initNouTube()
   if (document.documentElement) {
     initObserver()

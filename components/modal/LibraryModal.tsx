@@ -32,13 +32,12 @@ const ungroupedFolder = newFolder('', { name: 'Ungrouped', id: '' })
 
 export const LibraryModal = () => {
   const libraryModalOpen = use$(ui$.libraryModalOpen)
-  const bookmarks = use$(bookmarks$.bookmarks)
-  const updatedAt = use$(bookmarks$.updatedAt)
+  const { bookmarks, updatedAt: bookmarksUpdatedAt } = use$(bookmarks$)
   const home = use$(settings$.home)
   const [tabIndex, setTabIndex] = useState(0)
   const isYTMusic = use$(settings$.isYTMusic)
   const tabs = isYTMusic ? tabsYTMusic : tabsYT
-  const folders = use$(folders$.folders)
+  const { folders, updatedAt: foldersUpdatedAt } = use$(folders$)
   const [currentFolder, setCurrentFolder] = useState<Folder>()
   const currentTab = tabs[tabIndex]
 
@@ -47,7 +46,7 @@ export const LibraryModal = () => {
       folders.filter((x) => !x.json.deleted && x.json.tab == currentTab.value),
       ['name'],
     )
-  }, [folders, folders.length, currentTab])
+  }, [folders, foldersUpdatedAt, currentTab])
 
   const filteredBookmarks = useMemo(() => {
     const types = [['podcast', 'shorts', 'watch'], ['channel'], ['playlist']][tabIndex]
@@ -58,7 +57,7 @@ export const LibraryModal = () => {
       const pageType = getPageType(x.url)
       return pageType?.home == home && types.includes(pageType?.type)
     })
-  }, [bookmarks, updatedAt, tabIndex, home, currentFolder])
+  }, [bookmarks, bookmarksUpdatedAt, tabIndex, home, currentFolder])
 
   useEffect(() => {
     setCurrentFolder(filteredFolders.length ? undefined : ungroupedFolder)
@@ -70,6 +69,7 @@ export const LibraryModal = () => {
   return (
     <BaseModal className={libraryModalOpen ? 'block' : 'hidden'} onClose={() => ui$.libraryModalOpen.set(false)}>
       <View className={clsx('px-1 flex-row justify-between items-center mb-4', isWeb && 'mt-4')}>
+        {isWeb ? <NouText /> : null}
         <Segemented options={tabs.map((x) => x.label)} selectedIndex={tabIndex} onChange={setTabIndex} />
         <AntButton name="addfolder" size={20} onPress={() => ui$.folderModalFolder.set(newFolder(currentTab.value))} />
       </View>

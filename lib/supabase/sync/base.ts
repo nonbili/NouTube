@@ -52,6 +52,9 @@ export abstract class BaseSyncer<T extends Item> {
   }
 
   async saveItems(items: T[]) {
+    if (!items.length) {
+      return
+    }
     const user_id = auth$.userId.get()
     if (!user_id) {
       return
@@ -71,6 +74,9 @@ export abstract class BaseSyncer<T extends Item> {
   }
 
   async deleteItems(items: T[]) {
+    if (!items.length) {
+      return
+    }
     const { count, error } = await supabase
       .from(this.TABLE_NAME)
       .delete({ count: 'estimated' })

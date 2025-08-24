@@ -31,7 +31,7 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = ({ bookmark }) => 
   const square = round || pageType?.home == 'yt-music'
 
   return (
-    <View className="flex flex-row my-2 overflow-hidden">
+    <View className="flex flex-row my-2 overflow-hidden px-1">
       <Pressable className={clsx(square ? 'w-[48px]' : 'w-[160px]')} onPress={onPress}>
         <Image
           source={bookmark.json?.thumbnail || getThumbnail(bookmark.url)}
