@@ -15,6 +15,8 @@ interface Store {
   embedVideoId: string
   libraryModalOpen: boolean
   libraryModalTab: string
+  // webview
+  webview: any
 }
 
 export const ui$ = observable<Store>({
@@ -29,9 +31,14 @@ export const ui$ = observable<Store>({
   embedVideoId: '',
   libraryModalOpen: false,
   libraryModalTab: '',
+  // webview
+  webview: undefined,
 })
 
 export function updateUrl(url: string) {
+  const webview = ui$.webview.get()
+  // workaround for beforeunload https://github.com/electron/electron/issues/43314#issuecomment-2399072938
+  webview?.executeJavaScript('NouTube.pause()')
   ui$.url.set('')
   ui$.url.set(url)
 }

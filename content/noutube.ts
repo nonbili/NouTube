@@ -1,13 +1,15 @@
 import { hideShorts, showShorts } from './css'
-import { playDefaultAudio, player } from './player'
+import { playDefaultAudio } from './player'
+
+const getPlayer = (): any => document.getElementById('movie_player')
 
 export function initNouTube() {
   return {
-    play: () => player.playVideo(),
-    pause: () => player.pauseVideo(),
-    prev: () => player.previousVideo(),
-    next: () => player.nextVideo(),
-    seekBy: (delta: number) => player.seekBy(delta),
+    play: () => getPlayer()?.playVideo(),
+    pause: () => getPlayer()?.pauseVideo(),
+    prev: () => getPlayer()?.previousVideo(),
+    next: () => getPlayer()?.nextVideo(),
+    seekBy: (delta: number) => getPlayer()?.seekBy(delta),
     hideShorts,
     showShorts,
     playDefaultAudio,

@@ -22,6 +22,7 @@ import { auth$ } from '@/states/auth'
 import { useMe } from '@/lib/hooks/useMe'
 import { FolderModal } from '../modal/FolderModal'
 import { BookmarkModal } from '../modal/BookmarkModal'
+import { ObservableHint } from '@legendapp/state'
 
 export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   const uiState = use$(ui$)
@@ -62,7 +63,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       syncSupabase()
       timer = setInterval(
         () => syncSupabase(),
-        30 * 60 * 1000, // 30 minutes
+        10 * 60 * 1000, // 10 minutes
       )
     }
     return () => clearInterval(timer)
@@ -125,6 +126,13 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       onMessage(e.channel, e.args[0])
     })
   }, [webviewRef])
+
+  useEffect(() => {
+    const webview = webviewRef.current || nativeRef.current
+    if (webview) {
+      ui$.webview.set(ObservableHint.opaque(webview))
+    }
+  }, [webviewRef, nativeRef])
 
   useObserveEffect(ui$.url, ({ value }) => {
     const webview = webviewRef.current
