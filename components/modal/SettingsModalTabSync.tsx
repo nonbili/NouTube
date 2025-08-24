@@ -4,7 +4,7 @@ import { Image } from 'expo-image'
 import { use$ } from '@legendapp/state/react'
 import { auth$ } from '@/states/auth'
 import { isWeb } from '@/lib/utils'
-import { signInWithGoogle, signOut } from '@/lib/supabase/auth'
+import { signOut } from '@/lib/supabase/auth'
 import { NouLink } from '../link/NouLink'
 import { NouMenu } from '../menu/NouMenu'
 import { capitalize } from 'es-toolkit'
@@ -18,23 +18,15 @@ export const SettingsModalTabSync = () => {
         <NouText className="font-medium text-base mb-8">
           Sync bookmarks across your phones and computers as a premium user.
         </NouText>
-        {!user &&
-          (process.env.EXPO_PUBLIC_GOOGLE_OAUTH_CLIENT_ID ? (
-            <TouchableOpacity
-              className="text-sm py-2 px-6 text-center bg-[#6366f1] rounded-full flex-row justify-center"
-              onPress={signInWithGoogle}
-            >
-              <NouText>Sign in with Google</NouText>
-            </TouchableOpacity>
-          ) : (
-            <NouLink
-              className="text-sm py-2 px-6 text-center bg-[#6366f1] rounded-full flex-row justify-center text-white"
-              href="https://noutube.inks.page/auth/app"
-              target="_blank"
-            >
-              Sign in
-            </NouLink>
-          ))}
+        {!user && (
+          <NouLink
+            className="text-sm py-2 px-6 text-center bg-[#6366f1] rounded-full flex-row justify-center text-white"
+            href="https://noutube.inks.page/auth/app"
+            target="_blank"
+          >
+            Sign in
+          </NouLink>
+        )}
         {user && plan && (
           <>
             <View className="flex-row items-center gap-4 mt-2">

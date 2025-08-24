@@ -2,10 +2,6 @@ import { supabase } from './client'
 
 export const signOut = () => supabase.auth.signOut({ scope: 'local' })
 
-export const signInWithGoogle = () => {
-  throw 'noop'
-}
-
 export const onReceiveAuthUrl = (url: string) => {
   const token = new URL(url).searchParams.get('t')
   if (token) {

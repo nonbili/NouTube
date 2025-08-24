@@ -1,0 +1,1 @@
+- Support grouping bookmarks into folders
