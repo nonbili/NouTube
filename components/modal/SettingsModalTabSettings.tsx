@@ -23,6 +23,7 @@ import { importCsv } from '@/lib/import'
 import { onClearData$, ui$ } from '@/states/ui'
 import NouTubeViewModule from '@/modules/nou-tube-view/src/NouTubeViewModule'
 import { showToast } from '@/lib/toast'
+import { NouSwitch } from '../switch/NouSwitch'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const themes = [null, 'dark', 'light'] as const
@@ -68,22 +69,18 @@ export const SettingsModalTabSettings = () => {
 
   return (
     <ScrollView>
-      <View className="items-center mt-10 flex-row justify-between">
-        <Pressable className="flex-1" onPress={() => settings$.hideShorts.set(!settings.hideShorts)}>
-          <NouText className="font-medium">Hide shorts</NouText>
-        </Pressable>
-        <Switch
-          value={settings.hideShorts}
-          onValueChange={(v) => settings$.hideShorts.set(v)}
-          trackColor={{ false: '#767577', true: '#e9d5ff' }}
-          thumbColor={settings.hideShorts ? '#6366f1' : '#f4f3f4'}
-          {...Platform.select({
-            web: {
-              activeThumbColor: '#6366f1',
-            },
-          })}
-        />
-      </View>
+      <NouSwitch
+        className="mt-10"
+        label="Hide shorts"
+        value={settings.hideShorts}
+        onPress={() => settings$.hideShorts.set(!settings.hideShorts)}
+      />
+      <NouSwitch
+        className="mt-10"
+        label="Watch history"
+        value={settings.keepHistory}
+        onPress={() => settings$.keepHistory.set(!settings.keepHistory)}
+      />
       {!isWeb && (
         <View className="my-6">
           <View className="items-center flex-row justify-between">

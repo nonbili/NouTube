@@ -3,26 +3,20 @@ import { ui$ } from '@/states/ui'
 import { Bookmark, bookmarks$, newBookmark } from '@/states/bookmarks'
 import { fixPageTitle, getPageType } from './page'
 import { genId } from './utils'
+import { getWatchPageBookmark } from './webview'
 
 export async function toggleStar(noutube: any, starred: boolean) {
   const isYTMusic = settings$.isYTMusic.get()
   const uiState = ui$.get()
   const pageType = getPageType(uiState.pageUrl)
-  const bookmark = newBookmark({ url: uiState.pageUrl })
+  let bookmark = newBookmark({ url: uiState.pageUrl })
 
   if (!starred) {
     bookmark.title = fixPageTitle((await noutube?.executeJavaScript('document.title')) || '')
     if (isYTMusic) {
       switch (pageType?.type) {
         case 'watch': {
-          const data = await noutube?.executeJavaScript(
-            `document.querySelector('#movie_player').getPlayerResponse()?.videoDetails`,
-          )
-          const { author, title, thumbnail } = typeof data == 'string' ? JSON.parse(data) : data
-          if (author && title) {
-            bookmark.title = `${title} - ${author}`
-            bookmark.json.thumbnail = thumbnail?.thumbnails?.at(-1)?.url
-          }
+          bookmark = await getWatchPageBookmark(uiState.pageUrl)
           break
         }
         case 'channel': {

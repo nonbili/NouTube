@@ -68,7 +68,7 @@ export const LibraryModal = () => {
 
   return (
     <BaseModal className={libraryModalOpen ? 'block' : 'hidden'} onClose={() => ui$.libraryModalOpen.set(false)}>
-      <View className={clsx('px-1 flex-row justify-between items-center mb-4', isWeb && 'mt-4')}>
+      <View className={clsx('px-2 flex-row justify-between items-center mb-4', isWeb && 'mt-4')}>
         {isWeb ? <NouText /> : null}
         <Segemented options={tabs.map((x) => x.label)} selectedIndex={tabIndex} onChange={setTabIndex} />
         <AntButton name="addfolder" size={20} onPress={() => ui$.folderModalFolder.set(newFolder(currentTab.value))} />

@@ -1,6 +1,10 @@
 import { ui$ } from '@/states/ui'
 import { onReceiveAuthUrl } from './supabase/auth'
 import { isWeb } from './utils'
+import { settings$ } from '@/states/settings'
+import { getWatchPageBookmark } from './webview'
+import { history$ } from '@/states/history'
+import { debounce } from 'es-toolkit'
 
 const starrableTypes = ['channel', 'playlist', 'podcast', 'shorts', 'watch']
 
@@ -94,3 +98,22 @@ export function unnormalizeUrl(url: string) {
   }
   return newURL.href
 }
+
+export const setPageUrl = debounce(async function (url: string) {
+  if (!url) {
+    return
+  }
+  ui$.pageUrl.set(url)
+  const { host } = new URL(url)
+  settings$.home.set(host == 'music.youtube.com' ? 'yt-music' : 'yt')
+
+  const pageType = getPageType(url)
+  if (settings$.keepHistory.get() && pageType?.type == 'watch') {
+    setTimeout(async () => {
+      const history = await getWatchPageBookmark(url)
+      if (history.url == url) {
+        history$.addBookmark(history)
+      }
+    }, 5000)
+  }
+}, 300)

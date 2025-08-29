@@ -7,21 +7,16 @@ import { bookmarks$, migrateWatchlist, newBookmark } from '@/states/bookmarks'
 import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
 import NouTubeViewModule, { NouTubeView } from '@/modules/nou-tube-view'
 import { View, Text, BackHandler, ColorSchemeName } from 'react-native'
-import { fixPageTitle, fixSharingUrl, getPageType, getVideoId } from '@/lib/page'
+import { fixPageTitle, fixSharingUrl, getPageType, getVideoId, setPageUrl } from '@/lib/page'
 import { showToast } from '@/lib/toast'
 import { isWeb } from '@/lib/utils'
 import type { WebviewTag } from 'electron'
 import { NouHeader } from '../header/NouHeader'
-import { LibraryModal } from '../modal/LibraryModal'
-import { QueueModal } from '../modal/QueueModal'
-import { SettingsModal } from '../modal/SettingsModal'
 import { syncSupabase } from '@/lib/supabase/sync'
 import { useQuery, UseQueryResult } from '@tanstack/react-query'
 import { getMeQuery } from '@/lib/query'
 import { auth$ } from '@/states/auth'
 import { useMe } from '@/lib/hooks/useMe'
-import { FolderModal } from '../modal/FolderModal'
-import { BookmarkModal } from '../modal/BookmarkModal'
 import { ObservableHint } from '@legendapp/state'
 
 export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) => {
@@ -112,15 +107,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       webview.executeJavaScript(contentJs)
       toggleShorts(hideShorts)
     })
-    webview.addEventListener('did-start-loading', (e) => {
-      const { host } = new URL(webview.src)
-      settings$.home.set(host == 'music.youtube.com' ? 'yt-music' : 'yt')
-    })
     webview.addEventListener('did-navigate', (e) => {
-      ui$.pageUrl.set(e.url)
+      setPageUrl(e.url)
     })
     webview.addEventListener('did-navigate-in-page', (e) => {
-      ui$.pageUrl.set(e.url)
+      setPageUrl(e.url)
     })
     webview.addEventListener('ipc-message', (e) => {
       onMessage(e.channel, e.args[0])
@@ -149,12 +140,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
 
   const onLoad = async (e: { nativeEvent: any }) => {
-    const { url } = e.nativeEvent
-    if (url) {
-      ui$.pageUrl.set(url)
-      const { host } = new URL(url)
-      settings$.home.set(host == 'music.youtube.com' ? 'yt-music' : 'yt')
-    }
+    setPageUrl(e.nativeEvent.url)
     const webview = nativeRef.current
     if (webview) {
       webview.executeJavaScript("document.querySelector('#movie_player')?.unMute()")
@@ -187,11 +173,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           />
         )}
       </View>
-      <LibraryModal />
-      <BookmarkModal />
-      <FolderModal />
-      <QueueModal />
-      <SettingsModal />
     </>
   )
 }
