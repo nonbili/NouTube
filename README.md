@@ -3,6 +3,7 @@
 YouTube and YouTube Music in a single app. No ads, plays in the background.
 
 - Manage video/music library without login
+- Manage watch history without login
 - Hide shorts
 - Live chat
 - Play original audio

@@ -1,0 +1,2 @@
+- Support watch history
+- Hide shorts on search page
