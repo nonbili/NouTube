@@ -5,15 +5,16 @@ import { NouText } from '../NouText'
 import { colors } from '@/lib/colors'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { NouMenu } from '../menu/NouMenu'
-import { isWeb } from '@/lib/utils'
+import { isWeb, nIf } from '@/lib/utils'
 import { ui$ } from '@/states/ui'
 import { bookmarks$ } from '@/states/bookmarks'
-import { getPageType, normalizeUrl } from '@/lib/page'
+import { getPageType } from '@/lib/page'
 import { toggleStar } from '@/lib/bookmarks'
 import { queue$ } from '@/states/queue'
 import { share } from '@/lib/share'
 import { MaterialButton } from '../button/IconButtons'
 import { library$ } from '@/states/library'
+import { normalizeUrl } from '@/lib/url'
 
 export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const isYTMusic = use$(settings$.isYTMusic)
@@ -52,15 +53,17 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
           />
         </View>
         <View className="flex flex-row lg:flex-col lg:pb-1 items-center gap-2">
-          {!isYTMusic && queueSize > 0 && (
-            <MaterialButton name="playlist-play" onPress={() => ui$.queueModalOpen.set(!ui$.queueModalOpen.get())} />
+          {nIf(
+            !isYTMusic && queueSize > 0,
+            <MaterialButton name="playlist-play" onPress={() => ui$.queueModalOpen.set(!ui$.queueModalOpen.get())} />,
           )}
-          {pageType?.canStar && (
+          {nIf(
+            pageType?.canStar,
             <MaterialButton
               color={starred ? 'gold' : colors.icon}
               name={starred ? 'star' : 'star-outline'}
               onPress={onToggleStar}
-            />
+            />,
           )}
           <NouMenu
             trigger={<MaterialButton name="more-vert" />}

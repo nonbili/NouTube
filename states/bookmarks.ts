@@ -4,7 +4,7 @@ import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import { genId, isWeb } from '@/lib/utils'
 import { getIndexedDBPlugin } from './indexeddb'
 import { watchlist$ } from './watchlist'
-import { normalizeUrl } from '@/lib/page'
+import { normalizeUrl } from '@/lib/url'
 
 export interface Bookmark {
   id: string

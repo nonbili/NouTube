@@ -76,7 +76,7 @@ export const SettingsModalTabSettings = () => {
         onPress={() => settings$.hideShorts.set(!settings.hideShorts)}
       />
       <NouSwitch
-        className="mt-10"
+        className="my-6"
         label="Watch history"
         value={settings.keepHistory}
         onPress={() => settings$.keepHistory.set(!settings.keepHistory)}

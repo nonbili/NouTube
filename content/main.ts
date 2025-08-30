@@ -1,4 +1,4 @@
-import { blockAds } from './ad'
+import { intercept } from './intercept'
 import { injectCSS } from './css'
 import { initNouTube } from './noutube'
 import { handleVideoPlayer } from './player'
@@ -10,7 +10,7 @@ import { preload } from './preload'
 try {
   if (!window.electron) {
     preload()
-    blockAds()
+    intercept()
   }
 
   window.NouTube = initNouTube()

@@ -2,7 +2,7 @@ import { event, observable } from '@legendapp/state'
 import { settings$ } from './settings'
 import { Folder } from './folders'
 import { Bookmark } from './bookmarks'
-import { unnormalizeUrl } from '@/lib/page'
+import { unnormalizeUrl } from '@/lib/url'
 
 interface Store {
   url: string

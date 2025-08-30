@@ -1,6 +1,6 @@
 import { app, net, protocol, session } from 'electron'
 import * as cheerio from 'cheerio'
-import { transformPlayerResponse } from '../../../../lib/ad'
+import { RE_INTERCEPT, transformPlayerResponse, transformSearchResponse } from '../../../../lib/intercept'
 
 function transformHtml(html: string) {
   const $ = cheerio.load(html)
@@ -28,23 +28,30 @@ export function interceptHttpRequest() {
       duplex: 'half',
     })
     const { pathname } = new URL(req.url)
+    const match = pathname.match(RE_INTERCEPT)
+    if (res.status > 200 || (!pathname.startsWith('/watch') && !match)) {
+      return res
+    }
+
+    const text = await res.text()
+    const responseInit = {
+      status: res.status,
+      headers: res.headers,
+    }
     try {
       if (pathname.startsWith('/watch')) {
-        const text = await res.text()
-        return new Response(transformHtml(text), {
-          status: res.status,
-          headers: res.headers,
-        })
-      } else if (pathname.startsWith('/youtubei/v1/player')) {
-        const text = await res.text()
-        return new Response(transformPlayerResponse(text), {
-          status: res.status,
-          headers: res.headers,
-        })
+        return new Response(transformHtml(text), responseInit)
+      }
+
+      if (match) {
+        return new Response(
+          match[1] == 'search' ? transformSearchResponse(text) : transformPlayerResponse(text),
+          responseInit,
+        )
       }
     } catch (e) {
       console.error(e)
     }
-    return res
+    return new Response(text, responseInit)
   })
 }

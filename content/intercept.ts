@@ -1,28 +1,31 @@
-import { transformPlayerResponse } from '@/lib/ad'
+import { RE_INTERCEPT, transformPlayerResponse, transformSearchResponse } from '@/lib/intercept'
 
-export function blockAds() {
+export function intercept() {
   const winFetch = fetch
   // @ts-expect-error xx
   window.fetch = async (...args) => {
     const request = args[0]
     const url = request instanceof Request ? request.url : request.toString()
-    if (url.includes('youtubei/v1/player')) {
-      try {
-        const res = await winFetch(...args)
-        if (!res.ok) {
-          return res
-        }
-        const text = await res.text()
-        return new Response(transformPlayerResponse(text), {
-          status: res.status,
-          headers: res.headers,
-        })
-      } catch (error) {
-        console.error('NouScript:', error)
-        return winFetch(...args)
-      }
+    let res = await winFetch(...args)
+    const match = new URL(url).pathname.match(RE_INTERCEPT)
+    if (res.status > 200 || !match || (match[1] == 'search' && !window.NouTube.shortsHidden)) {
+      return res
     }
-    return winFetch(...args)
+
+    const text = await res.text()
+    const responseInit = {
+      status: res.status,
+      headers: res.headers,
+    }
+    try {
+      return new Response(
+        match[1] == 'search' ? transformSearchResponse(text) : transformPlayerResponse(text),
+        responseInit,
+      )
+    } catch (error) {
+      console.error('NouScript:', error)
+    }
+    return new Response(text, responseInit)
   }
 
   // https://stackoverflow.com/a/78369686
