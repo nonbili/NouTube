@@ -27,9 +27,6 @@ val BLOCK_HOSTS = arrayOf(
 
 val VIEW_HOSTS = arrayOf(
   "youtube.com",
-  "m.youtube.com",
-  "music.youtube.com",
-  "www.youtube.com",
   "youtu.be"
 )
 
@@ -102,7 +99,10 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
           override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
             val uri = Uri.parse(url)
-            if (uri.host in VIEW_HOSTS) {
+            if (uri.host in VIEW_HOSTS ||
+              (uri.host?.endsWith(".google.com") == true) ||
+              (uri.host?.endsWith(".youtube.com") == true)
+            ) {
               return false
             } else {
               view.getContext().startActivity(
