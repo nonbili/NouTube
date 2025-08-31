@@ -6,7 +6,7 @@ import { FlatList, TextInput, TouchableOpacity, View } from 'react-native'
 import { useEffect, useMemo, useState } from 'react'
 import { gray } from '@radix-ui/colors'
 import { bookmarks$, newBookmark } from '@/states/bookmarks'
-import { Folder, folders$ } from '@/states/folders'
+import { Folder, folders$, newFolder } from '@/states/folders'
 import { NouButton } from '../button/NouButton'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { colors } from '@/lib/colors'
@@ -22,7 +22,7 @@ const FolderItem: React.FC<{ folder: Folder; onPress: () => void }> = ({ folder,
 }
 
 export const BookmarkModal = () => {
-  const bookmark = ui$.bookmarkModalBookmark.get()
+  const bookmark = use$(ui$.bookmarkModalBookmark)
   const onClose = () => ui$.bookmarkModalBookmark.set(undefined)
   const [title, setTitle] = useState('')
   const folders = use$(folders$.folders)
@@ -39,7 +39,7 @@ export const BookmarkModal = () => {
     return sortBy(
       folders.filter((x) => x.json.tab == currentTab),
       ['name'],
-    )
+    ).concat([newFolder(currentTab, { id: '', name: '+ New folder' })])
   }, [folders, folders.length, currentTab])
 
   if (!draftBookmark) {
@@ -49,6 +49,10 @@ export const BookmarkModal = () => {
   const folder = folders.find((x) => x.id == draftBookmark.json.folder)
 
   const onChangeFolder = (folder: Folder) => {
+    if (!folder.id) {
+      ui$.folderModalFolder.set(newFolder(currentTab))
+      return
+    }
     setDraftBookmark({
       ...draftBookmark,
       json: {

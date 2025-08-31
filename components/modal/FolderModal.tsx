@@ -8,7 +8,7 @@ import { gray } from '@radix-ui/colors'
 import { folders$, newFolder } from '@/states/folders'
 
 export const FolderModal = () => {
-  const folder = ui$.folderModalFolder.get()
+  const folder = use$(ui$.folderModalFolder)
   const onClose = () => ui$.folderModalFolder.set(undefined)
   const [name, setName] = useState('')
 
