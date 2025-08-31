@@ -85,18 +85,18 @@ export const BookmarkModal = () => {
     <BaseCenterModal onClose={onClose}>
       <View className="p-5">
         <NouText className="text-lg font-semibold mb-4">Edit bookmark</NouText>
-        <NouText className="mb-1">Title</NouText>
+        <NouText className="mb-1 font-semibold text-gray-300">Title</NouText>
         <TextInput
-          className="border border-gray-600 rounded mb-3 text-white p-2"
+          className="border border-gray-600 rounded mb-3 text-white p-2 text-sm"
           value={title}
           onChangeText={setTitle}
           placeholder="Later"
           placeholderTextColor={gray.gray11}
         />
-        <NouText>{draftBookmark.url}</NouText>
-        <View className="mt-5 mb-1 flex-row items-center gap-3">
-          <NouText className="">Folder</NouText>
-          <NouText>{folder?.name || 'Ungrouped'}</NouText>
+        <NouText className="text-sm">{draftBookmark.url}</NouText>
+        <NouText className="mt-5 mb-1 font-semibold text-gray-300">Folder</NouText>
+        <View className="flex-row items-center gap-3">
+          <NouText className="text-sm">{folder?.name || 'Ungrouped'}</NouText>
           <NouButton variant="soft" size="1" onPress={() => setFolderPickerShown(!folderPikcerShown)}>
             Move
           </NouButton>
