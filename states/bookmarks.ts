@@ -88,7 +88,7 @@ export const bookmarks$ = observable<Store>({
         return x
       })
       .filter((x) => !bookmarkUrls.has(x.url))
-    bookmarks$.bookmarks.push(...xs)
+    bookmarks$.bookmarks.unshift(...xs)
     bookmarks$.setUpdatedTime()
     return xs.length
   },

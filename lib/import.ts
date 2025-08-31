@@ -1,8 +1,9 @@
 import { Bookmark, bookmarks$, newBookmark } from '@/states/bookmarks'
 import pp from 'papaparse'
 import * as cheerio from 'cheerio/slim'
-import { getVideoThumbnail } from './page'
+import { getPageType, getVideoThumbnail } from './page'
 import { showToast } from './toast'
+import { normalizeUrl } from './url'
 
 async function getOg(url: string, type: string, videoId?: string): Promise<{ thumbnail?: string; title?: string }> {
   try {
@@ -10,12 +11,12 @@ async function getOg(url: string, type: string, videoId?: string): Promise<{ thu
     const html = await res.text()
     const $ = cheerio.load(html)
 
+    const title = $('meta[property="og:title"]').attr('content')
     switch (type) {
       case 'yt-channel':
         const thumbnail = $('meta[property="og:thumbnail"]').attr('content')
-        return { thumbnail }
-      case 'yt-video':
-        const title = $('meta[property="og:title"]').attr('content')
+        return { title, thumbnail }
+      default:
         return {
           title,
         }
@@ -63,6 +64,27 @@ export async function importCsv(csv: string) {
         }
       }
       break
+  }
+
+  if (bookmarks.length) {
+    const count = bookmarks$.importBookmarks(bookmarks)
+    showToast(`🎉 Imported ${count} pages`)
+  }
+}
+
+export async function importList(list: string) {
+  let sep = list.includes('\r\n') ? '\r\n' : '\n'
+  const lines = list.split(sep)
+  let bookmarks: Bookmark[] = []
+  for (const line of lines) {
+    const pageType = getPageType(line)
+    if (!pageType?.canStar) {
+      continue
+    }
+    const url = normalizeUrl(line)
+    let type = `${pageType.home}-${pageType.type}`
+    const { thumbnail, title } = await getOg(url, type)
+    bookmarks.push(newBookmark({ url, title: title || '', json: { thumbnail } }))
   }
 
   if (bookmarks.length) {

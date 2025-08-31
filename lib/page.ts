@@ -12,7 +12,13 @@ export function getPageType(url: string) {
   if (!url) {
     return
   }
-  const { host, pathname } = new URL(url)
+  let host, pathname
+  try {
+    ;({ host, pathname } = new URL(url))
+  } catch (e) {
+    console.error(e)
+    return
+  }
   let home
   if (host == 'music.youtube.com') {
     home = 'yt-music'

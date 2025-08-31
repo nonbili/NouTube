@@ -19,22 +19,41 @@ import { use$ } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { Segemented } from '../picker/Segmented'
 import { getDocumentAsync } from 'expo-document-picker'
-import { importCsv } from '@/lib/import'
+import { importCsv, importList } from '@/lib/import'
 import { onClearData$, ui$ } from '@/states/ui'
 import NouTubeViewModule from '@/modules/nou-tube-view/src/NouTubeViewModule'
 import { showToast } from '@/lib/toast'
 import { NouSwitch } from '../switch/NouSwitch'
+import { NouButton } from '../button/NouButton'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const themes = [null, 'dark', 'light'] as const
 
 export const SettingsModalTabSettings = () => {
   const settings = use$(settings$)
-  const [importing, setImporting] = useState(false)
+  const [importingList, setImportingList] = useState(false)
+  const [importingTakeout, setImportingTakeout] = useState(false)
 
-  const onClickImport = async () => {
+  const onClickImportList = async () => {
     const res = await getDocumentAsync({ copyToCacheDirectory: true, type: 'text/*' })
-    setImporting(true)
+    setImportingList(true)
+    try {
+      const csv = res.assets?.[0]
+      if (csv) {
+        const res = await fetch(csv.uri)
+        const text = await res.text()
+        await importList(text)
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setImportingList(false)
+    }
+  }
+
+  const onClickImportTakeout = async () => {
+    const res = await getDocumentAsync({ copyToCacheDirectory: true, type: 'text/*' })
+    setImportingTakeout(true)
     try {
       const csv = res.assets?.[0]
       if (csv) {
@@ -45,7 +64,7 @@ export const SettingsModalTabSettings = () => {
     } catch (e) {
       console.error(e)
     } finally {
-      setImporting(false)
+      setImportingTakeout(false)
     }
   }
 
@@ -110,17 +129,17 @@ export const SettingsModalTabSettings = () => {
         </View>
       )}
       <View className="mt-8 flex-row justify-center">
-        <TouchableOpacity
-          className={clsx(
-            'py-2 px-6 text-center bg-indigo-500 rounded-full flex-row justify-center gap-2',
-            importing && 'pointer-events-none',
-          )}
-          onPress={onClickImport}
-        >
-          {importing && <ActivityIndicator color="white" />}
-          <NouText className="">Import from YouTube Takeout</NouText>
-        </TouchableOpacity>
+        <NouButton loading={importingList} onPress={onClickImportList}>
+          Import a list of links
+        </NouButton>
       </View>
+      <View className="mt-8 flex-row justify-center">
+        <NouButton loading={importingTakeout} onPress={onClickImportTakeout}>
+          Import from YouTube Takeout
+        </NouButton>
+      </View>
+
+      <View className="h-20" />
     </ScrollView>
   )
 }
