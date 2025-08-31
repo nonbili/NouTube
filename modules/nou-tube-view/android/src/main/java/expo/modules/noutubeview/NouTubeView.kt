@@ -100,7 +100,8 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
           override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
             val uri = Uri.parse(url)
             if (uri.host in VIEW_HOSTS ||
-              (uri.host?.endsWith(".google.com") == true) ||
+              (uri.host?.startsWith("accounts.google.") == true) ||
+              (uri.host?.startsWith("gds.google.") == true) ||
               (uri.host?.endsWith(".youtube.com") == true)
             ) {
               return false
