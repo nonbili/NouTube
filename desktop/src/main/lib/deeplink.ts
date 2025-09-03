@@ -1,9 +1,10 @@
 import path from 'path'
 import { mainWindow } from './main-window'
 import { uiClient } from 'main/ipc/ui'
+import { app } from 'electron'
 
 // https://www.electronjs.org/docs/latest/tutorial/launch-app-from-url-in-another-app
-export function bindDeeplink(app: Electron.App) {
+export function bindDeeplink() {
   if (process.defaultApp) {
     if (process.argv.length >= 2) {
       app.setAsDefaultProtocolClient('inks', process.execPath, [path.resolve(process.argv[1])])

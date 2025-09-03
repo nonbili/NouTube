@@ -86,6 +86,7 @@ jobs:
       - name: release
         uses: softprops/action-gh-release@v2
         with:
+          body_path: desktop/changelogs/${{ env.TAG }}.txt
           files: dist/*
           repository: nonbili/NouTube-Desktop
           token: ${{ secrets.GH_RELEASE_TOKEN }}

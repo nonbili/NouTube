@@ -6,6 +6,7 @@ import { setMainWindow } from './lib/main-window'
 import { bindDeeplink } from './lib/deeplink'
 import { genDesktopFile } from './lib/linux'
 import { interceptHttpRequest } from './lib/intercept'
+import { checkForUpdate } from './lib/auto-update'
 
 function createWindow(): void {
   // Create the browser window.
@@ -86,4 +87,6 @@ app.on('window-all-closed', () => {
   }
 })
 
-bindDeeplink(app)
+bindDeeplink()
+
+checkForUpdate()
