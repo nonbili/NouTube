@@ -19,36 +19,56 @@ const makeMenuItem = ({ icon, label }: { icon: string; label: string }) =>
 
 const makeListItem = ({ icon, label }: { icon: string; label: string }) =>
   nouPolicy.createHTML(/* HTML */ `
-    <yt-list-item-view-model class="yt-list-item-view-model-wiz" role="menuitem" tabindex="0">
-      <div
-        class="yt-list-item-view-model-wiz__label yt-list-item-view-model-wiz__container yt-list-item-view-model-wiz__container--compact yt-list-item-view-model-wiz__container--tappable yt-list-item-view-model-wiz__container--in-popup"
-      >
-        <div
+    <div
+      class="yt-list-item-view-model__label yt-list-item-view-model__container yt-list-item-view-model__container--compact yt-list-item-view-model__container--tappable yt-list-item-view-model__container--in-popup"
+    >
+      <div aria-hidden="true" class="yt-list-item-view-model__image-container yt-list-item-view-model__leading">
+        <span
+          class="ytIconWrapperHost yt-list-item-view-model__accessory yt-list-item-view-model__image"
+          role="img"
+          aria-label=""
           aria-hidden="true"
-          class="yt-list-item-view-model-wiz__image-container yt-list-item-view-model-wiz__leading"
+          style=""
         >
+          <span class="yt-icon-shape ytSpecIconShapeHost">
+            <div style="width: 100%; height: 100%; display: block; fill: currentcolor;">${icon}</div>
+          </span>
+        </span>
+      </div>
+      <div class="yt-list-item-view-model__text-wrapper">
+        <div class="yt-list-item-view-model__title-wrapper">
           <span
-            class="ytIconWrapperHost yt-list-item-view-model-wiz__accessory yt-list-item-view-model-wiz__image"
-            role="img"
-            aria-label=""
-            aria-hidden="true"
-            style=""
+            class="yt-core-attributed-string yt-list-item-view-model__title yt-core-attributed-string--white-space-pre-wrap"
+            role="text"
           >
-            <span class="yt-icon-shape">${icon}</span>
+            ${label} 🦦
           </span>
         </div>
-        <div class="yt-list-item-view-model-wiz__text-wrapper">
-          <div class="yt-list-item-view-model-wiz__title-wrapper">
-            <span
-              class="yt-core-attributed-string yt-list-item-view-model-wiz__title yt-core-attributed-string--white-space-pre-wrap"
-              role="text"
-            >
-              ${label} 🦦
-            </span>
-          </div>
-        </div>
       </div>
-    </yt-list-item-view-model>
+    </div>
+  `)
+
+const makePaperItem = ({ icon, label }: { icon: string; label: string }) =>
+  nouPolicy.createHTML(/* HTML */ `
+    <tp-yt-paper-item
+      class="style-scope ytd-menu-service-item-renderer"
+      style-target="host"
+      role="option"
+      tabindex="0"
+      aria-disabled="false"
+    >
+      <yt-icon class="style-scope ytd-menu-service-item-renderer">
+        <span class="yt-icon-shape style-scope yt-icon ytSpecIconShapeHost">
+          <div style="width: 100%; height: 100%; display: block; fill: currentcolor;">${icon}</div>
+        </span>
+      </yt-icon>
+      <yt-formatted-string class="style-scope ytd-menu-service-item-renderer">${label}</yt-formatted-string>
+      <ytd-badge-supported-renderer class="style-scope ytd-menu-service-item-renderer" system-icons="" hidden="">
+        <dom-repeat id="repeat" as="badge" class="style-scope ytd-badge-supported-renderer">
+          <template is="dom-repeat"></template>
+        </dom-repeat>
+      </ytd-badge-supported-renderer>
+    </tp-yt-paper-item>
   `)
 
 const htmlMenuStar = makeMenuItem({ icon: iconStar, label: 'Star' })
@@ -57,21 +77,27 @@ const htmlMenuQueue = makeMenuItem({ icon: iconAddQueue, label: 'Add to queue' }
 export function handleMenu() {
   document.addEventListener('click', async (e) => {
     const el = e.target as HTMLElement
-    const videoItem = el.closest('ytm-media-item,yt-lockup-metadata-view-model')
+    const videoItem = el.closest(
+      'ytm-media-item,ytm-compact-video-renderer,yt-lockup-metadata-view-model,ytd-video-renderer,ytd-grid-video-renderer',
+    )
     if (videoItem) {
       const menu = await retry(
         async () => {
-          const menu = document.querySelector(
+          const menu1 = document.querySelector(
             'ytm-menu-service-item-renderer,ytm-menu-navigation-item-renderer,yt-list-view-model',
           )
-          if (!menu) {
-            throw 'menu not ready'
+          const menu2 = document.querySelector('tp-yt-paper-listbox')
+          if (menu1?.offsetHeight) {
+            return menu1
           }
-          return menu
+          if (menu2?.offsetHeight) {
+            return menu2
+          }
+          throw 'menu not ready'
         },
         { retries: 50, delay: 100 },
       )
-      const title = videoItem.querySelector('h3')?.innerText
+      const title = videoItem.querySelector('h3')?.innerText || videoItem.querySelector('h4')?.innerText
       const url = videoItem.querySelector('a')?.href
       let menuItem: HTMLElement
 
@@ -87,16 +113,50 @@ export function handleMenu() {
         menu.prepend(menuItem)
       }
 
-      menuItem = document.createElement('ytm-menu-item')
-      const fn = menu.tagName.toLowerCase() == 'yt-list-view-model' ? makeListItem : makeMenuItem
-      menuItem.innerHTML = fn({ icon: iconStar, label: 'Star' })
+      const itemCls = '_inks_menu_'
+      menu.querySelectorAll(`.${itemCls}`).forEach((el) => el.remove())
+      const item = { icon: iconStar, label: 'Star' }
+      switch (menu.tagName.toLowerCase()) {
+        case 'yt-list-view-model':
+          // desktop home page
+          menuItem = document.createElement('ytm-list-item-view-model')
+          menuItem.classList.add(itemCls)
+          menuItem.innerHTML = makeListItem(item)
+          break
+        case 'tp-yt-paper-listbox':
+          // desktop channel and search page
+          menuItem = document.createElement('ytd-menu-service-item-renderer')
+          menuItem.classList.add(itemCls)
+          menuItem.innerHTML = makePaperItem(item)
+          break
+        default:
+          // mobile
+          menuItem = document.createElement('ytm-menu-item')
+          menuItem.innerHTML = makeMenuItem(item)
+      }
       menuItem.onclick = () => {
         if (url) {
           emit('star', { title, url })
         }
-        menuItem.remove()
       }
       menu.prepend(menuItem)
+
+      if (menu.tagName.toLowerCase() == 'tp-yt-paper-listbox') {
+        const label = menuItem.querySelector('yt-formatted-string')
+        if (label?.hasAttribute('is-empty')) {
+          label.textContent = item.label + ' 🦦'
+          label.removeAttribute('is-empty')
+        }
+        const icon = menuItem.querySelector('yt-icon')
+        if (icon?.hasAttribute('hidden')) {
+          icon.innerHTML = nouPolicy.createHTML(/* HTML */ `
+            <span class="yt-icon-shape style-scope yt-icon ytSpecIconShapeHost">
+              <div style="width: 100%; height: 100%; display: block; fill: currentcolor;">${item.icon}</div>
+            </span>
+          `)
+          icon.removeAttribute('hidden')
+        }
+      }
     }
   })
 }
