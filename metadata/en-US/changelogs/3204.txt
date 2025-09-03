@@ -1,0 +1,2 @@
+- Pause when bluetooth device disconnected
+- Inject star menu item to channel/search page
