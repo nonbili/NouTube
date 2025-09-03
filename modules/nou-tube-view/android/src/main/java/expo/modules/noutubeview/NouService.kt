@@ -6,9 +6,13 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.bluetooth.BluetoothDevice
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.BitmapFactory
+import android.media.AudioManager
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
@@ -21,6 +25,16 @@ import java.net.URL
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+class NoisyAudioReceiver : BroadcastReceiver() {
+  override fun onReceive(context: Context, intent: Intent) {
+    if (intent.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY ||
+      intent.action == BluetoothDevice.ACTION_ACL_DISCONNECTED
+    ) {
+      nouController.pause()
+    }
+  }
+}
 
 class NouService : Service() {
   private var webView: NouWebView? = null
@@ -51,6 +65,12 @@ class NouService : Service() {
     webView = view
     mediaSession = MediaSessionCompat(this, "NouService")
     initCallback()
+
+    val filter = IntentFilter()
+    filter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+    filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
+    val noisyReceiver = NoisyAudioReceiver()
+    _activity.registerReceiver(noisyReceiver, filter)
   }
 
   fun initCallback() {

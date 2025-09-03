@@ -74,6 +74,11 @@ class NouController {
     }
   }
 
+  fun pause() {
+    val webView = nouTubeView!!.webView
+    webView?.evaluateJavascript("NouTube.pause()", null)
+  }
+
   fun onMessage(payload: String) {
     nouTubeView?.onMessage(mapOf("payload" to payload))
   }
