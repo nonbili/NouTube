@@ -21,7 +21,7 @@ export async function toggleStar(noutube: any, starred: boolean) {
         }
         case 'channel': {
           const title = await noutube?.executeJavaScript(
-            `document.querySelector('ytmusic-immersive-header-renderer h1')?.innerText`,
+            `document.querySelector('ytmusic-immersive-header-renderer h1')?.textContent?.trim()`,
           )
           const thumbnail = await noutube?.executeJavaScript(
             `document.querySelector('ytmusic-immersive-header-renderer img')?.src`,
@@ -39,15 +39,14 @@ export async function toggleStar(noutube: any, starred: boolean) {
           )
           bookmark.json.thumbnail = thumbnail
           const title = await noutube?.executeJavaScript(
-            `document.querySelector('ytmusic-responsive-header-renderer h1')?.innerText`,
+            `document.querySelector('ytmusic-responsive-header-renderer h1')?.textContent?.trim()`,
           )
           let author = await noutube?.executeJavaScript(
-            `document.querySelector('ytmusic-responsive-header-renderer .strapline-text')?.innerText`,
+            `document.querySelector('ytmusic-responsive-header-renderer .strapline-text')?.textContent?.trim()`,
           )
           if (title) {
             bookmark.title = title
             if (author && author != 'null') {
-              author = author.replaceAll('\\n', '')
               bookmark.title += ` - ${author}`
             }
           }

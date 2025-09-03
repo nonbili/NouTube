@@ -85,8 +85,8 @@ export function handleMenu() {
         async () => {
           const menu1 = document.querySelector(
             'ytm-menu-service-item-renderer,ytm-menu-navigation-item-renderer,yt-list-view-model',
-          )
-          const menu2 = document.querySelector('tp-yt-paper-listbox')
+          ) as HTMLElement
+          const menu2 = document.querySelector('tp-yt-paper-listbox') as HTMLElement
           if (menu1?.offsetHeight) {
             return menu1
           }
@@ -97,7 +97,8 @@ export function handleMenu() {
         },
         { retries: 50, delay: 100 },
       )
-      const title = videoItem.querySelector('h3')?.innerText || videoItem.querySelector('h4')?.innerText
+      const title =
+        videoItem.querySelector('h3')?.textContent?.trim() || videoItem.querySelector('h4')?.textContent?.trim()
       const url = videoItem.querySelector('a')?.href
       let menuItem: HTMLElement
 
