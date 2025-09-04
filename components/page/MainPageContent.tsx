@@ -45,10 +45,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     }
 
     migrateWatchlist()
-
-    onClearData$.on(() => {
-      nativeRef.current?.clearData()
-    })
   }, [])
 
   useEffect(() => {

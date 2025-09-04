@@ -25,6 +25,7 @@ import NouTubeViewModule from '@/modules/nou-tube-view/src/NouTubeViewModule'
 import { showToast } from '@/lib/toast'
 import { NouSwitch } from '../switch/NouSwitch'
 import { NouButton } from '../button/NouButton'
+import { showConfirm } from '@/lib/confirm'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const themes = [null, 'dark', 'light'] as const
@@ -69,21 +70,10 @@ export const SettingsModalTabSettings = () => {
   }
 
   const clearWebviewData = () => {
-    Alert.alert('Clear webview data', 'All cookies, browsing history will be removed.', [
-      {
-        text: 'Cancel',
-        onPress: () => {},
-        style: 'cancel',
-      },
-      {
-        text: 'Yes',
-        onPress: () => {
-          onClearData$.fire()
-          showToast('WebView data cleared')
-        },
-        style: 'default',
-      },
-    ])
+    showConfirm('Clear webview data', 'All cookies, browsing history will be removed.', () => {
+      onClearData$.fire()
+      showToast('WebView data cleared')
+    })
   }
 
   return (
@@ -116,18 +106,14 @@ export const SettingsModalTabSettings = () => {
           </NouText>
         </View>
       )}
-      {!isWeb && (
-        <View className="mt-8 flex-row justify-center">
-          <TouchableOpacity
-            className={clsx(
-              'py-2 px-6 text-center border border-indigo-300 rounded-full flex-row justify-center gap-2',
-            )}
-            onPress={clearWebviewData}
-          >
-            <NouText className="">Clear webview data</NouText>
-          </TouchableOpacity>
-        </View>
-      )}
+      <View className="mt-8 flex-row justify-center">
+        <TouchableOpacity
+          className={clsx('py-2 px-6 text-center border border-indigo-300 rounded-full flex-row justify-center gap-2')}
+          onPress={clearWebviewData}
+        >
+          <NouText className="">Clear webview data</NouText>
+        </TouchableOpacity>
+      </View>
       <View className="mt-8 flex-row justify-center">
         <NouButton loading={importingList} onPress={onClickImportList}>
           Import a list of links

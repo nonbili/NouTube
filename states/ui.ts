@@ -3,6 +3,7 @@ import { settings$ } from './settings'
 import { Folder } from './folders'
 import { Bookmark } from './bookmarks'
 import { unnormalizeUrl } from '@/lib/url'
+import { isWeb } from '@/lib/utils'
 
 interface Store {
   url: string
@@ -47,3 +48,17 @@ export function updateUrl(url: string) {
 }
 
 export const onClearData$ = event()
+
+onClearData$.on(async () => {
+  const webview = ui$.webview.get()
+  if (!webview) {
+    return
+  }
+  if (isWeb) {
+    const { mainClient } = await import('@renderer/ipc/main')
+    mainClient.clearData()
+    webview.executeJavaScript('document.location.reload()')
+  } else {
+    webview.clearData()
+  }
+})

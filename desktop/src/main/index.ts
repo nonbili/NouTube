@@ -7,6 +7,7 @@ import { bindDeeplink } from './lib/deeplink'
 import { genDesktopFile } from './lib/linux'
 import { interceptHttpRequest } from './lib/intercept'
 import { checkForUpdate } from './lib/auto-update'
+import { initMainChannel } from './ipc/main'
 
 function createWindow(): void {
   // Create the browser window.
@@ -59,6 +60,8 @@ app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
 
   interceptHttpRequest()
+
+  initMainChannel()
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
