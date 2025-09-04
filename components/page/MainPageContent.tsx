@@ -102,6 +102,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     }
 
     webview.addEventListener('dom-ready', () => {
+      ui$.webview.set(ObservableHint.opaque(webview))
       /* webview.openDevTools() */
       webviewReadyRef.current = true
       webview.executeJavaScript(contentJs)
@@ -119,11 +120,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   }, [webviewRef])
 
   useEffect(() => {
-    const webview = webviewRef.current || nativeRef.current
+    const webview = nativeRef.current
     if (webview) {
       ui$.webview.set(ObservableHint.opaque(webview))
     }
-  }, [webviewRef, nativeRef])
+  }, [nativeRef])
 
   useObserveEffect(ui$.url, ({ value }) => {
     const webview = webviewRef.current

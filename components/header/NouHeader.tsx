@@ -5,8 +5,8 @@ import { NouText } from '../NouText'
 import { colors } from '@/lib/colors'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { NouMenu } from '../menu/NouMenu'
-import { isWeb, nIf } from '@/lib/utils'
-import { ui$ } from '@/states/ui'
+import { clsx, isWeb, nIf } from '@/lib/utils'
+import { ui$, updateUrl } from '@/states/ui'
 import { bookmarks$ } from '@/states/bookmarks'
 import { getPageType } from '@/lib/page'
 import { toggleStar } from '@/lib/bookmarks'
@@ -15,6 +15,7 @@ import { share } from '@/lib/share'
 import { MaterialButton } from '../button/IconButtons'
 import { library$ } from '@/states/library'
 import { normalizeUrl } from '@/lib/url'
+import { useEffect, useState } from 'react'
 
 export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const isYTMusic = use$(settings$.isYTMusic)
@@ -24,6 +25,16 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const starred = allStarred.has(normalizeUrl(uiState.pageUrl))
   const bookmark = use$(bookmarks$.getBookmarkByUrl(normalizeUrl(uiState.pageUrl)))
   const queueSize = use$(queue$.size)
+  const [canGoBack, setCanGoBack] = useState(false)
+  const [canGoForward, setCanGoForward] = useState(false)
+
+  useEffect(() => {
+    if (!isWeb || !uiState.webview) {
+      return
+    }
+    setCanGoBack(uiState.webview.canGoBack())
+    setCanGoForward(uiState.webview.canGoForward())
+  }, [uiState.pageUrl, uiState.webview])
 
   const pageType = getPageType(uiState.pageUrl)
 
@@ -32,7 +43,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
     if (isYTMusic) {
       newUrl = isWeb ? 'https://www.youtube.com' : 'https://m.youtube.com'
     }
-    ui$.url.set(newUrl)
+    updateUrl(newUrl)
   }
 
   const onToggleStar = () => {
@@ -51,6 +62,23 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
             name={isYTMusic ? 'library-music' : 'video-library'}
             onPress={() => ui$.libraryModalOpen.set(true)}
           />
+          {nIf(
+            isWeb,
+            <>
+              <MaterialButton
+                color={canGoBack ? colors.icon : colors.underlay}
+                name="arrow-back"
+                disabled={!canGoBack}
+                onPress={() => uiState.webview.goBack()}
+              />
+              <MaterialButton
+                color={canGoForward ? colors.icon : colors.underlay}
+                name="arrow-forward"
+                disabled={!canGoForward}
+                onPress={() => uiState.webview.goForward()}
+              />
+            </>,
+          )}
         </View>
         <View className="flex flex-row lg:flex-col lg:pb-1 items-center gap-2">
           {nIf(
