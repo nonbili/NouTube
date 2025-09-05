@@ -98,6 +98,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
             items={[
               { label: isYTMusic ? 'YouTube' : 'YouTube Music', handler: onToggleHome },
               { label: 'History', handler: () => ui$.historyModalOpen.set(true) },
+              { label: 'Reload', handler: () => uiState.webview.executeJavaScript('document.location.reload()') },
               { label: 'Share', handler: () => share(uiState.pageUrl) },
               { label: 'Settings', handler: () => ui$.settingsModalOpen.set(true) },
             ]}

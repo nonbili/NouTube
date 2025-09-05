@@ -55,7 +55,7 @@ onClearData$.on(async () => {
     return
   }
   if (isWeb) {
-    const { mainClient } = await import('@renderer/ipc/main')
+    const { mainClient } = await import('../desktop/src/renderer/ipc/main')
     mainClient.clearData()
     webview.executeJavaScript('document.location.reload()')
   } else {

@@ -4,7 +4,8 @@
     "strict": true,
     "lib": ["esnext", "dom", "dom.iterable"],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "main/*": ["./desktop/src/main/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts", "nativewind-env.d.ts"],
