@@ -6,6 +6,10 @@ const interfaces = {
     session.fromPartition('persist:webview').clearData()
     session.fromPartition('').clearData({ origins: ['https://music.youtube.com', 'https://www.youtube.com'] })
   },
+  fetchFeed: async (url: string) => {
+    const res = await fetch(url)
+    return await res.text()
+  },
 }
 
 export type MainInterface = typeof interfaces

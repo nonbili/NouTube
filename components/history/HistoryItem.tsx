@@ -17,6 +17,7 @@ const blurhash =
 export const HistoryItem: React.FC<{ bookmark: Bookmark }> = ({ bookmark }) => {
   const onPress = () => {
     updateUrl(bookmark.url)
+    ui$.assign({ historyModalOpen: false })
   }
 
   const pageType = getPageType(bookmark.url)

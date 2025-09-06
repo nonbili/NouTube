@@ -35,7 +35,7 @@ const getFolderIndex = (folder: Folder) => folders$.folders.findIndex((x) => x.i
 
 export const folders$ = observable<Store>({
   folders: [],
-  updatedAt: new Date(1970),
+  updatedAt: new Date(0),
   syncedAt: undefined,
   addFolder: (folder) => {
     folders$.folders.unshift(folder)

@@ -11,6 +11,7 @@ interface Store {
   fullSyncedAt: Date | undefined
   // modals
   bookmarkModalBookmark: Bookmark | undefined
+  feedModalOpen: boolean
   folderModalFolder: Folder | undefined
   historyModalOpen: boolean
   settingsModalOpen: boolean
@@ -28,6 +29,7 @@ export const ui$ = observable<Store>({
   fullSyncedAt: undefined,
   // modals
   bookmarkModalBookmark: undefined,
+  feedModalOpen: false,
   folderModalFolder: undefined,
   historyModalOpen: false,
   settingsModalOpen: false,

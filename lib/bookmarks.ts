@@ -54,10 +54,18 @@ export async function toggleStar(noutube: any, starred: boolean) {
         }
       }
     } else if (pageType?.type == 'channel') {
+      // https://www.youtube.com/feeds/videos.xml?channel_id=***
+      const feedUrl = await noutube?.executeJavaScript(
+        `document.querySelector('link[type="application/rss+xml"]').href`,
+      )
+      const id = new URL(feedUrl).searchParams.get('channel_id')
       const thumbnail = await noutube?.executeJavaScript(
         `document.querySelector('yt-page-header-view-model yt-avatar-shape img')?.src`,
       )
       bookmark.json.thumbnail = thumbnail
+      if (id) {
+        bookmark.json.id = id
+      }
     } else if (pageType?.type == 'playlist') {
       const thumbnail = await noutube?.executeJavaScript(
         `document.querySelector('yt-content-preview-image-view-model img.ytCoreImageLoaded')?.src`,

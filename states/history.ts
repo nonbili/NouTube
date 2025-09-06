@@ -1,7 +1,7 @@
 import { observable } from '@legendapp/state'
 import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
-import { Bookmark } from './watchlist'
+import type { Bookmark } from './watchlist'
 import { isWeb } from '@/lib/utils'
 import { getIndexedDBPlugin } from './indexeddb'
 
@@ -37,8 +37,8 @@ export const history$ = observable<Store>({
       history$.bookmarks.splice(index, 1)
     }
     history$.bookmarks.unshift(bookmark)
-    if (history$.bookmarks.length > 1000) {
-      history$.bookmarks.pop()
+    if (history$.bookmarks.length > LIMIT) {
+      history$.bookmarks.splice(LIMIT, history$.bookmarks.length)
     }
   },
 })

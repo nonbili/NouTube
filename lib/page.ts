@@ -29,10 +29,13 @@ export function getPageType(url: string) {
     return
   }
   let type = pathname.slice(1).split('/')[0]
-  if (type.startsWith('@')) {
+  let canStar = starrableTypes.includes(type)
+
+  if (!canStar && (type.startsWith('@') || (type && pathname.split('/').length == 2))) {
     type = 'channel'
+    canStar = true
   }
-  return { home, type, canStar: starrableTypes.includes(type) }
+  return { home, type, canStar }
 }
 
 export function fixPageTitle(title: string) {

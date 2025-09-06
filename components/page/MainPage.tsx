@@ -11,6 +11,8 @@ import { HistoryModal } from '../modal/HistoryModal'
 import { LibraryModal } from '../modal/LibraryModal'
 import { QueueModal } from '../modal/QueueModal'
 import { SettingsModal } from '../modal/SettingsModal'
+import { feederLoop } from '@/lib/feeder'
+import { FeedModal } from '../modal/FeedModal'
 
 export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   useEffect(() => {
@@ -23,6 +25,8 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
         accessToken: session?.access_token,
       })
     })
+
+    feederLoop()
   }, [])
 
   return (
@@ -30,6 +34,7 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
       <MainPageContent contentJs={contentJs} />
       <LibraryModal />
       <BookmarkModal />
+      <FeedModal />
       <FolderModal />
       <HistoryModal />
       <QueueModal />

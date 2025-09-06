@@ -21,6 +21,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const isYTMusic = use$(settings$.isYTMusic)
   const { width } = useWindowDimensions()
   const uiState = use$(ui$)
+  const feedsEnabled = use$(settings$.feedsEnabled)
   const allStarred = use$(library$.urls)
   const starred = allStarred.has(normalizeUrl(uiState.pageUrl))
   const bookmark = use$(bookmarks$.getBookmarkByUrl(normalizeUrl(uiState.pageUrl)))
@@ -56,15 +57,21 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
 
   return (
     <>
-      <View className="bg-zinc-800 flex flex-row lg:flex-col justify-between px-2 py-1 lg:px-1 lg:py-2">
-        <View className="">
-          <MaterialButton
-            name={isYTMusic ? 'library-music' : 'video-library'}
-            onPress={() => ui$.libraryModalOpen.set(true)}
-          />
+      <View className="bg-zinc-800 flex-row lg:flex-col justify-between px-2 py-1 lg:px-1 lg:py-2">
+        <View className="gap-2">
+          <View className="flex-row lg:flex-col">
+            <MaterialButton
+              name={isYTMusic ? 'library-music' : 'video-library'}
+              onPress={() => ui$.libraryModalOpen.set(true)}
+            />
+            {nIf(
+              !isYTMusic && feedsEnabled,
+              <MaterialButton name="rss-feed" onPress={() => ui$.feedModalOpen.set(true)} />,
+            )}
+          </View>
           {nIf(
             isWeb,
-            <>
+            <View>
               <MaterialButton
                 color={canGoBack ? colors.icon : colors.underlay}
                 name="arrow-back"
@@ -77,7 +84,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
                 disabled={!canGoForward}
                 onPress={() => uiState.webview.goForward()}
               />
-            </>,
+            </View>,
           )}
         </View>
         <View className="flex flex-row lg:flex-col lg:pb-1 items-center gap-2">

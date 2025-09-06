@@ -13,6 +13,7 @@ export interface Bookmark {
   created_at: Date
   updated_at: Date
   json: {
+    id?: string
     thumbnail?: string
     deleted?: boolean
     folder?: string
@@ -131,6 +132,9 @@ if (isWeb) {
 }
 
 export function newBookmark(bookmark?: Partial<Bookmark>): Bookmark {
+  if (bookmark?.url) {
+    bookmark.url = normalizeUrl(bookmark.url)
+  }
   return {
     url: '',
     title: '',

@@ -7,13 +7,13 @@ import { bookmarksSyncer } from './sync/bookmarks'
 import { foldersSyncer } from './sync/folders'
 import { folders$ } from '@/states/folders'
 import { ui$ } from '@/states/ui'
+import { feederLoop } from '../feeder'
 
 const oneDay = 24 * 3600 * 1000
-export function syncSupabase() {
+export async function syncSupabase() {
   const fullSyncedAt = ui$.fullSyncedAt.get()
   const fullSync = !fullSyncedAt || Date.now() - fullSyncedAt.valueOf() > oneDay
-  bookmarksSyncer.sync(fullSync)
-  foldersSyncer.sync(fullSync)
+  await Promise.all([bookmarksSyncer.sync(fullSync), foldersSyncer.sync(fullSync)])
   if (fullSync) {
     ui$.fullSyncedAt.set(new Date())
   }
@@ -23,6 +23,7 @@ bookmarks$.bookmarks.onChange(() => {
   if (ui$.fullSyncedAt.get()) {
     bookmarksSyncer.sync()
   }
+  feederLoop()
 })
 
 folders$.folders.onChange(() => {
