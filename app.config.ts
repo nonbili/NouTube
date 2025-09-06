@@ -20,6 +20,7 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
       versionCode,
       adaptiveIcon: {
         foregroundImage: './assets/images/adaptive-icon.png',
+        monochromeImage: './assets/images/monochrome-icon.png',
         backgroundColor: '#ffffff',
       },
       edgeToEdgeEnabled: true,
