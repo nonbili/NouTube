@@ -8,7 +8,9 @@ import { handleMenu } from './menu'
 import { preload } from './preload'
 
 try {
-  if (!window.electron) {
+  if (window.electron) {
+    injectCSS()
+  } else {
     preload()
     intercept()
   }

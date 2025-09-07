@@ -1,8 +1,6 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { preload } from 'noutube/content/preload'
 
-preload()
 // Custom APIs for renderer
 // const api = {}
 
