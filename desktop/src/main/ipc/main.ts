@@ -1,3 +1,4 @@
+import { toggleInterception } from 'main/lib/intercept.js'
 import { MAIN_CHANNEL } from './constants.js'
 import { ipcMain, session } from 'electron'
 
@@ -10,6 +11,7 @@ const interfaces = {
     const res = await fetch(url)
     return await res.text()
   },
+  toggleInterception,
 }
 
 export type MainInterface = typeof interfaces

@@ -19,13 +19,13 @@ function transformHtml(html: string) {
 
 export function interceptHttpRequest() {
   const ses = session.fromPartition('persist:webview')
+  if (ses.protocol.isProtocolHandled('https')) {
+    return
+  }
+
   ses.protocol.handle('https', async (req) => {
-    const res = await net.fetch(req.url, {
-      method: req.method,
-      headers: req.headers,
-      body: req.body,
-      // @ts-expect-error
-      duplex: 'half',
+    const res = await ses.fetch(req, {
+      bypassCustomProtocolHandlers: true,
     })
     const { pathname } = new URL(req.url)
     const match = pathname.match(RE_INTERCEPT)
@@ -54,4 +54,15 @@ export function interceptHttpRequest() {
     }
     return new Response(text, responseInit)
   })
+}
+
+export function toggleInterception(enabled: boolean) {
+  if (enabled) {
+    interceptHttpRequest()
+  } else {
+    const ses = session.fromPartition('persist:webview')
+    if (ses.protocol.isProtocolHandled('https')) {
+      ses.protocol.unhandle('https')
+    }
+  }
 }

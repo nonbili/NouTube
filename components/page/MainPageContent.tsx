@@ -18,6 +18,7 @@ import { getMeQuery } from '@/lib/query'
 import { auth$ } from '@/states/auth'
 import { useMe } from '@/lib/hooks/useMe'
 import { ObservableHint } from '@legendapp/state'
+import { mainClient } from '@/desktop/src/renderer/ipc/main'
 
 export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   const uiState = use$(ui$)
@@ -105,7 +106,13 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       toggleShorts(hideShorts)
     })
     webview.addEventListener('did-navigate', (e) => {
+      const { host } = new URL(e.url)
+      mainClient.toggleInterception(['m.youtube.com', 'music.youtube.com', 'www.youtube.com'].includes(host))
+      const pageUrl = uiState.pageUrl
       setPageUrl(e.url)
+      if (pageUrl && host != new URL(pageUrl).host) {
+        uiState.webview.executeJavaScript('document.location.reload()')
+      }
     })
     webview.addEventListener('did-navigate-in-page', (e) => {
       setPageUrl(e.url)
