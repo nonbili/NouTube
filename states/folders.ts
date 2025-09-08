@@ -27,6 +27,7 @@ interface Store {
   saveFolder: (folder: Folder) => void
   removeFolder: (folder: Folder) => void
   importFolders: (folders: Folder[]) => void
+  getOrCreateFolder: (tab: string, name: string) => Folder
   setUpdatedTime: () => void
   setSyncedTime: () => void
 }
@@ -66,6 +67,14 @@ export const folders$ = observable<Store>({
     folders$.folders.push(...xs)
     folders$.setUpdatedTime()
     return xs.length
+  },
+  getOrCreateFolder(tab: string, name: string): Folder {
+    let folder = folders$.folders.get().find((x) => x.json.tab == tab && x.name == name)
+    if (!folder) {
+      folder = newFolder(tab, { name })
+    }
+    folders$.saveFolder(folder)
+    return folder
   },
   setUpdatedTime() {
     folders$.updatedAt.set(new Date())

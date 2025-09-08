@@ -55,6 +55,9 @@ const parser = new XMLParser({
 const threshold = 2 * 3600 * 1000 // 2 hours
 
 async function fetchChannel(id: string) {
+  if (!id) {
+    return
+  }
   const feed = feeds$.feeds.get().find((x) => x.id == id)
   if (!feed || Date.now() - feed.fetchedAt.valueOf() < threshold) {
     return

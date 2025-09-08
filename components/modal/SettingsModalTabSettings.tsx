@@ -19,13 +19,14 @@ import { use$ } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { Segemented } from '../picker/Segmented'
 import { getDocumentAsync } from 'expo-document-picker'
-import { importCsv, importList } from '@/lib/import'
+import { importCsv, importList, importZip } from '@/lib/import'
 import { onClearData$, ui$ } from '@/states/ui'
 import NouTubeViewModule from '@/modules/nou-tube-view/src/NouTubeViewModule'
 import { showToast } from '@/lib/toast'
 import { NouSwitch } from '../switch/NouSwitch'
 import { NouButton } from '../button/NouButton'
 import { showConfirm } from '@/lib/confirm'
+import JSZip from 'jszip'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const themes = [null, 'dark', 'light'] as const
@@ -53,14 +54,24 @@ export const SettingsModalTabSettings = () => {
   }
 
   const onClickImportTakeout = async () => {
-    const res = await getDocumentAsync({ copyToCacheDirectory: true, type: 'text/*' })
+    const res = await getDocumentAsync({ copyToCacheDirectory: true, type: ['application/zip', 'text/*'] })
     setImportingTakeout(true)
     try {
-      const csv = res.assets?.[0]
-      if (csv) {
-        const res = await fetch(csv.uri)
-        const text = await res.text()
-        await importCsv(text)
+      const asset = res.assets?.[0]
+      if (asset) {
+        if (asset.size && asset.size > 20 * 1024 * 1024) {
+          return
+        }
+        const res = await fetch(asset.uri)
+        if (asset.mimeType == 'application/zip') {
+          const buf = await res.arrayBuffer()
+          const zip = new JSZip()
+          await zip.loadAsync(buf)
+          await importZip(zip)
+        } else {
+          const text = await res.text()
+          await importCsv(text, asset.name)
+        }
       }
     } catch (e) {
       console.error(e)

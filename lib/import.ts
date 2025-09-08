@@ -4,6 +4,8 @@ import * as cheerio from 'cheerio/slim'
 import { getPageType, getVideoThumbnail } from './page'
 import { showToast } from './toast'
 import { normalizeUrl } from './url'
+import JSZip from 'jszip'
+import { folders$ } from '@/states/folders'
 
 async function getOg(url: string, type: string, videoId?: string): Promise<{ thumbnail?: string; title?: string }> {
   try {
@@ -31,7 +33,7 @@ async function getOg(url: string, type: string, videoId?: string): Promise<{ thu
  * Visit https://myaccount.google.com/u/0/yourdata/youtube, in the "Your YouTube
  * dashboard" panel, click More -> Download Data. You will get a few csv files.
  */
-export async function importCsv(csv: string) {
+export async function importCsv(csv: string, filename?: string) {
   const res = pp.parse<string[]>(csv.trim())
 
   const [col0, col1, col2] = res.data[0]
@@ -54,7 +56,14 @@ export async function importCsv(csv: string) {
         for (const [id] of items) {
           const url = `https://m.youtube.com/watch?v=${id}`
           const { thumbnail, title } = await getOg(url, 'yt-video')
-          bookmarks.push(newBookmark({ url, title: title || '' }))
+          let folder = undefined
+          if (filename) {
+            const playlistName = filename?.split('-')[0]
+            if (playlistName) {
+              folder = folders$.getOrCreateFolder('watch', playlistName)
+            }
+          }
+          bookmarks.push(newBookmark({ url, title: title || '', json: { folder: folder?.id } }))
         }
       } else if (col1 == 'Song Title') {
         // "music library songs.csv"
@@ -64,12 +73,31 @@ export async function importCsv(csv: string) {
         }
       }
       break
+    default:
+      console.log('failed to parse', filename)
   }
 
   if (bookmarks.length) {
     const count = bookmarks$.importBookmarks(bookmarks)
-    showToast(`🎉 Imported ${count} pages`)
+    showToast(`🎉 Imported ${count} links from ${filename}`)
   }
+}
+
+export async function importZip(zip: JSZip) {
+  const promises: Promise<void>[] = []
+  zip.forEach((_, file) => {
+    const slugs = file.name.split('/')
+    // Takeout/YouTube and YouTube Music/channels/channel.csv
+    const folder = slugs[2]
+    if (file.name.endsWith('.csv') && ['music (library and uploads)', 'playlists', 'subscriptions'].includes(folder)) {
+      const fn = async () => {
+        const csv = await file.async('string')
+        await importCsv(csv, slugs.at(-1))
+      }
+      promises.push(fn())
+    }
+  })
+  await Promise.all(promises)
 }
 
 export async function importList(list: string) {
