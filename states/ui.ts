@@ -9,6 +9,7 @@ interface Store {
   url: string
   pageUrl: string
   fullSyncedAt: Date | undefined
+
   // modals
   bookmarkModalBookmark: Bookmark | undefined
   feedModalOpen: boolean
@@ -19,6 +20,7 @@ interface Store {
   embedVideoId: string
   libraryModalOpen: boolean
   libraryModalTab: string
+
   // webview
   webview: any
 }
@@ -27,6 +29,7 @@ export const ui$ = observable<Store>({
   url: '',
   pageUrl: '',
   fullSyncedAt: undefined,
+
   // modals
   bookmarkModalBookmark: undefined,
   feedModalOpen: false,
@@ -37,6 +40,7 @@ export const ui$ = observable<Store>({
   embedVideoId: '',
   libraryModalOpen: false,
   libraryModalTab: '',
+
   // webview
   webview: undefined,
 })

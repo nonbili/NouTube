@@ -3,7 +3,6 @@ import { ReactNode } from 'react'
 import { Pressable, ScrollView, View } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
-/* <View className="h-screen" style={{ paddingTop: insets.top }}> */
 export const BaseModal: React.FC<{ className?: string; children: ReactNode; onClose: () => void }> = ({
   className,
   children,

@@ -10,6 +10,7 @@ import * as Linking from 'expo-linking'
 import { queue$ } from '@/states/queue'
 import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
 import { MainPage } from '@/components/page/MainPage'
+import { nIf } from '@/lib/utils'
 
 export default function HomeScreen() {
   const [scriptOnStart, setScriptOnStart] = useState('')
@@ -50,5 +51,5 @@ export default function HomeScreen() {
     ui$.queueModalOpen.set(false)
   })
 
-  return <>{scriptOnStart && <MainPage contentJs={scriptOnStart} />}</>
+  return nIf(scriptOnStart, <MainPage contentJs={scriptOnStart} />)
 }

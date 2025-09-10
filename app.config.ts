@@ -35,6 +35,15 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
           },
           category: ['BROWSABLE', 'DEFAULT'],
         },
+        {
+          autoVerify: false,
+          action: 'VIEW',
+          data: {
+            scheme: 'https',
+            host: 'youtu.be',
+          },
+          category: ['BROWSABLE', 'DEFAULT'],
+        },
       ],
     },
     web: {
