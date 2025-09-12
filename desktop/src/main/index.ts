@@ -8,6 +8,7 @@ import { genDesktopFile } from './lib/linux'
 import { interceptHttpRequest } from './lib/intercept'
 import { checkForUpdate } from './lib/auto-update'
 import { initMainChannel } from './ipc/main'
+import contextMenu from 'electron-context-menu'
 
 function createWindow(): void {
   // Create the browser window.
@@ -52,6 +53,15 @@ function createWindow(): void {
   })
 
   mainWindow.webContents.on('did-attach-webview', (e, wc) => {
+    // @ts-expect-error ?
+    contextMenu.default({
+      window: wc,
+      showCopyImage: false,
+      showLearnSpelling: false,
+      showLookUpSelection: false,
+      showSearchWithGoogle: false,
+      showSelectAll: false,
+    })
     wc.setWindowOpenHandler((details) => {
       const { pathname, searchParams } = new URL(details.url)
       const redirectTo = searchParams.get('q')
