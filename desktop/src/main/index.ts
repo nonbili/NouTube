@@ -50,6 +50,16 @@ function createWindow(): void {
     webPreferences.sandbox = false
     webPreferences.preload = join(__dirname, '../preload/index.js')
   })
+
+  mainWindow.webContents.on('did-attach-webview', (e, wc) => {
+    wc.setWindowOpenHandler((details) => {
+      const { pathname, searchParams } = new URL(details.url)
+      const redirectTo = searchParams.get('q')
+      const url = pathname == '/redirect' && redirectTo ? redirectTo : details.url
+      shell.openExternal(url)
+      return { action: 'deny' }
+    })
+  })
 }
 
 // This method will be called when Electron has finished

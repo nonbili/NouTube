@@ -158,7 +158,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         <NouHeader noutube={webviewRef.current || nativeRef.current} />
         {isWeb ? (
           // @ts-expect-error ??
-          <NouTubeView className="flex-1" ref={webviewRef} partition="persist:webview" />
+          <NouTubeView className="flex-1" ref={webviewRef} partition="persist:webview" allowpopups="true" />
         ) : (
           <NouTubeView
             // @ts-expect-error ??

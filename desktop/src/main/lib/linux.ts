@@ -5,7 +5,7 @@ import os from 'os'
 import path from 'path'
 
 const templateDesktopFile = (exec: string, icon: string) => `[Desktop Entry]
-Name=Noutube
+Name=NouTube
 Exec=${exec} %u
 Type=Application
 Categories=AudioVideo;Network;Utility;
