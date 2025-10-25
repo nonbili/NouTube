@@ -47,6 +47,9 @@ class NouWebView @JvmOverloads constructor(context: Context, attrs: AttributeSet
       javaScriptEnabled = true
       domStorageEnabled = true
       mediaPlaybackRequiresUserGesture = false
+      supportZoom()
+      builtInZoomControls = true
+      displayZoomControls = false
     }
     CookieManager.getInstance().setAcceptCookie(true)
 

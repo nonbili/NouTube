@@ -6,6 +6,7 @@ import { emit } from './utils'
 import { handleDialogs } from './dialogs'
 import { handleMenu } from './menu'
 import { preload } from './preload'
+import { pinchToZoom } from './pinch'
 
 try {
   if (window.electron) {
@@ -40,4 +41,6 @@ async function initObserver() {
   })
 
   handleMenu()
+
+  pinchToZoom()
 }
