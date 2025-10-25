@@ -1,5 +1,5 @@
 // https://github.com/Bilalkamal/YouTube-Original-Audio-Track/blob/main/content.js
-const l18nOriginal = {
+const l10nOriginal = {
   en: 'original',
   es: 'original',
   fr: 'originale',
@@ -123,4 +123,4 @@ const l18nOriginal = {
   'zh-tw': '原始',
 }
 
-export const originalLabels = [...new Set(Object.values(l18nOriginal))]
+export const originalLabels = [...new Set(Object.values(l10nOriginal))]

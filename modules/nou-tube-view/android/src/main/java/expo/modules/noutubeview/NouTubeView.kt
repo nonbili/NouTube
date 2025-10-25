@@ -1,10 +1,15 @@
 package expo.modules.noutubeview
 
+import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.AttributeSet
+import android.view.ContextMenu
+import android.view.MenuItem
 import android.view.View
 import android.webkit.CookieManager
 import android.webkit.JsResult
@@ -71,6 +76,42 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   private var pageUrl = ""
   private var customView: View? = null
 
+  private val currentActivity: Activity?
+    get() = appContext.activityProvider?.currentActivity
+
+  override fun onCreateContextMenu(menu: ContextMenu) {
+    super.onCreateContextMenu(menu)
+
+    val result = webView.getHitTestResult()
+    val activity = currentActivity
+    var url: String? = null
+
+    if (result.getType() == WebView.HitTestResult.SRC_ANCHOR_TYPE) {
+      url = result.getExtra()
+    } else if (result.getType() == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
+      // https://stackoverflow.com/a/77852272
+      val href = webView.getHandler().obtainMessage()
+      webView.requestFocusNodeHref(href)
+      val data = href.getData()
+      if (data != null) {
+        url = data.getString("url")
+      }
+    }
+    if (
+      url != null && activity != null
+    ) {
+      val onCopyLink = object : MenuItem.OnMenuItemClickListener {
+        override fun onMenuItemClick(item: MenuItem): Boolean {
+          val clipboardManager = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+          val clipData = ClipData.newPlainText("link", url)
+          clipboardManager.setPrimaryClip(clipData)
+          return true
+        }
+      }
+
+      menu.add("Copy link").setOnMenuItemClickListener(onCopyLink)
+    }
+  }
   internal val webView =
     NouWebView(context).apply {
       layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
@@ -138,6 +179,9 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     }
 
     addView(webView)
+
+    val activity = currentActivity
+    activity?.registerForContextMenu(webView)
   }
 
   fun setScriptOnStart(script: String) {
