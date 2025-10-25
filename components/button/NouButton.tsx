@@ -3,12 +3,14 @@ import { NouText } from '../NouText'
 import { ActivityIndicator, TouchableOpacity } from 'react-native'
 
 export const NouButton = ({
+  className,
   variant = 'solid',
   size = '2',
   loading = false,
   children,
   onPress,
 }: React.PropsWithChildren<{
+  className?: string
   variant?: 'solid' | 'soft' | 'outline'
   size?: '1' | '2'
   loading?: boolean
@@ -23,6 +25,7 @@ export const NouButton = ({
         variant == 'solid' && 'bg-indigo-600',
         variant == 'soft' && 'bg-indigo-200',
         variant == 'outline' && 'border border-indigo-200',
+        className,
       )}
       onPress={onPress}
     >

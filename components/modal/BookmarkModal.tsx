@@ -11,22 +11,14 @@ import { NouButton } from '../button/NouButton'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { colors } from '@/lib/colors'
 import { sortBy } from 'es-toolkit'
-
-const FolderItem: React.FC<{ folder: Folder; onPress: () => void }> = ({ folder, onPress }) => {
-  return (
-    <TouchableOpacity className="flex-row items-center gap-2 p-2" onPress={onPress}>
-      <MaterialIcons name="folder-open" color={colors.icon} size={20} />
-      <NouText>{folder.name}</NouText>
-    </TouchableOpacity>
-  )
-}
+import { FolderItem } from '../folder/FolderItem'
 
 export const BookmarkModal = () => {
   const bookmark = use$(ui$.bookmarkModalBookmark)
   const onClose = () => ui$.bookmarkModalBookmark.set(undefined)
   const [title, setTitle] = useState('')
   const folders = use$(folders$.folders)
-  const [folderPikcerShown, setFolderPickerShown] = useState(false)
+  const [folderPickerShown, setFolderPickerShown] = useState(false)
   const [draftBookmark, setDraftBookmark] = useState(bookmark)
   const currentTab = use$(ui$.libraryModalTab)
 
@@ -97,15 +89,15 @@ export const BookmarkModal = () => {
         <NouText className="mt-5 mb-1 font-semibold text-gray-300">Folder</NouText>
         <View className="flex-row items-center gap-3">
           <NouText className="text-sm">{folder?.name || 'Ungrouped'}</NouText>
-          <NouButton variant="soft" size="1" onPress={() => setFolderPickerShown(!folderPikcerShown)}>
+          <NouButton variant="soft" size="1" onPress={() => setFolderPickerShown(!folderPickerShown)}>
             Move
           </NouButton>
         </View>
-        {folderPikcerShown ? (
+        {folderPickerShown ? (
           <FlatList
             className="border border-gray-600 rounded my-2 max-h-[200px]"
             data={filteredFolders}
-            renderItem={({ item }) => <FolderItem folder={item} onPress={() => onChangeFolder(item)} />}
+            renderItem={({ item }) => <FolderItem folder={item} onPress={() => onChangeFolder(item)} readOnly />}
           />
         ) : null}
         <View className="flex-row items-center justify-between mt-6">
