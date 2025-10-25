@@ -1,0 +1,3 @@
+- add copy link context menu
+- support pinch to zoom
+- support switching folder in Feed panel
