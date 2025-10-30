@@ -97,6 +97,12 @@ export const SettingsModalTabSettings = () => {
       />
       <NouSwitch
         className="mt-6"
+        label="Sponsor block"
+        value={settings.sponsorBlock}
+        onPress={() => settings$.sponsorBlock.set(!settings.sponsorBlock)}
+      />
+      <NouSwitch
+        className="mt-6"
         label="Channels feed"
         value={settings.feedsEnabled}
         onPress={() => settings$.feedsEnabled.set(!settings.feedsEnabled)}

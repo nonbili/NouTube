@@ -40,6 +40,16 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     [nativeRef, webviewRef],
   )
 
+  const syncSettingsToWebview = useCallback(() => {
+    if (webviewRef.current && !webviewReadyRef.current) {
+      return
+    }
+    const ref = webviewRef.current || nativeRef.current
+    const { sponsorBlock } = settings$.get()
+    const value = JSON.stringify({ sponsorBlock })
+    ref?.executeJavaScript(`localStorage.setItem('nou:settings', '${value}')`)
+  }, [nativeRef, webviewRef])
+
   useEffect(() => {
     if (!ui$.url.get()) {
       ui$.url.set(isYTMusic ? 'https://music.youtube.com' : isWeb ? 'https://www.youtube.com' : 'https://m.youtube.com')
@@ -104,6 +114,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       webviewReadyRef.current = true
       webview.executeJavaScript(contentJs)
       toggleShorts(hideShorts)
+      syncSettingsToWebview()
     })
     webview.addEventListener('did-navigate', (e) => {
       const { host } = new URL(e.url)
@@ -142,6 +153,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   })
 
   useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
+  useObserveEffect(settings$.sponsorBlock, () => syncSettingsToWebview())
 
   const onLoad = async (e: { nativeEvent: any }) => {
     setPageUrl(e.nativeEvent.url)
@@ -149,6 +161,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     if (webview) {
       webview.executeJavaScript("document.querySelector('#movie_player')?.unMute()")
       toggleShorts(hideShorts)
+      syncSettingsToWebview()
     }
   }
 

@@ -2,11 +2,13 @@ import { retry, throttle } from 'es-toolkit'
 import { emit, isYTMusic, nouPolicy, parseJson } from './utils'
 import { hideLiveChat, showLiveChatButton } from './livechat'
 import { originalLabels } from './audio'
+import { getSkipSegments, isSponsorBlockEnabled, Segment } from './sponsorblock'
 
 export let player: any
 let curVideoId = ''
 let shouldSaveProgress = false
 let restoredProgress = false
+let skipSegments: { videoId: string; segments: Segment[] } = { videoId: '', segments: [] }
 
 const keys = {
   videos: 'nou:videos:progress',
@@ -34,9 +36,18 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
           const currentTime = el.getCurrentTime()
           window.NouTubeI?.notifyProgress(el.getPlayerState() == 1, currentTime)
           saveProgress(currentTime)
+          if (isSponsorBlockEnabled() && curVideoId == skipSegments.videoId && skipSegments.segments.length) {
+            for (const segment of skipSegments.segments) {
+              const [start, end] = segment.segment
+              if (currentTime > start && currentTime < end) {
+                player.seekTo(end)
+                return
+              }
+            }
+          }
         }, 1000)
         let progressBinded = false
-        el.addEventListener('onStateChange', (state: number) => {
+        el.addEventListener('onStateChange', async (state: number) => {
           const { playabilityStatus, videoDetails } = el.getPlayerResponse() || {}
           if (!videoDetails) {
             hideLiveChat()
@@ -89,6 +100,10 @@ export function handleVideoPlayer(mutations: MutationRecord[]) {
               if (playabilityStatus?.liveStreamability) {
                 showLiveChatButton(curVideoId)
               }
+            }
+
+            if (isSponsorBlockEnabled()) {
+              skipSegments = await getSkipSegments(videoId)
             }
           }
         })
@@ -158,7 +173,6 @@ export async function playDefaultAudio() {
     container = document.createElement('div')
     container.id = '_inks_audio_picker'
     document.body.append(container)
-    console.log('-- appended picker')
   }
   container.innerHTML = nouPolicy.createHTML(/* HTML */ `
     <select>

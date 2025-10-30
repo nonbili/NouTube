@@ -1,4 +1,4 @@
-import { clsx, isWeb } from '@/lib/utils'
+import { clsx } from '@/lib/utils'
 import { ReactNode } from 'react'
 import { Pressable, ScrollView, View } from 'react-native'
 
