@@ -98,7 +98,9 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
-  genDesktopFile()
+  if (import.meta.env.VITE_BUILD_TARGET != 'portable') {
+    genDesktopFile()
+  }
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -112,4 +114,6 @@ app.on('window-all-closed', () => {
 
 bindDeeplink()
 
-checkForUpdate()
+if (import.meta.env.VITE_BUILD_TARGET != 'portable') {
+  checkForUpdate()
+}
