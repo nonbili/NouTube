@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=NouTube
+Comment=YouTube and YouTube Music in a single app. No ads
+Exec=/app/bin/run.sh %u
+Type=Application
+Categories=AudioVideo;Player;
+Icon=jp.nonbili.noutube
+MimeType=x-scheme-handler/noutube;

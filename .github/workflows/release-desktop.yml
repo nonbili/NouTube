@@ -54,16 +54,6 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'win')
         run: bun electron-builder --publish never
 
-      - name: pkg linux portable
-        if: startsWith(matrix.os, 'ubuntu')
-        run: |
-          VITE_BUILD_TARGET=portable bun electron-vite build
-          bun electron-builder --publish never
-          zip -r dist/linux-unpacked.zip dist/linux-unpacked
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-
       - name: upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -76,7 +66,6 @@ jobs:
             desktop/dist/*.dmg
             desktop/dist/*.exe
             desktop/dist/*.zip
-            desktop/dist/linux-unpacked.zip
 
   release:
     needs: build
