@@ -14,9 +14,9 @@ jobs:
     strategy:
       matrix:
         os:
-          - macos-13
+          # - macos-13
           - ubuntu-latest
-          - windows-latest
+          # - windows-latest
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
 
@@ -59,6 +59,7 @@ jobs:
         run: |
           VITE_BUILD_TARGET=portable bun electron-vite build
           bun electron-builder --publish never
+          cp -r ../metadata/flatpak dist/linux-unpacked
           zip -r dist/linux-unpacked.zip dist/linux-unpacked
         env:
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
