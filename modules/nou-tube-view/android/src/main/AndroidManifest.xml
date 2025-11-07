@@ -6,7 +6,7 @@
   <uses-permission android:name="android.permission.BLUETOOTH"/>
   <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
-  <application android:enableOnBackInvokedCallback="true">
+  <application>
     <service
       android:name=".NouService"
       android:exported="false"
