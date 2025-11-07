@@ -79,7 +79,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   private var pageUrl = ""
   private var customView: View? = null
 
-  private val currentActivity: Activity?
+  internal val currentActivity: Activity?
     get() = appContext.activityProvider?.currentActivity
 
   override fun onCreateContextMenu(menu: ContextMenu) {

@@ -25,16 +25,24 @@ class NouTubeViewModule : Module() {
       }
       Events("onLoad", "onMessage")
 
+      AsyncFunction("clearData") { view: NouTubeView -> view.clearData() }
+
+      AsyncFunction("executeJavaScript") Coroutine
+        { view: NouTubeView, script: String ->
+          return@Coroutine view.webView.eval(script)
+        }
+
+      AsyncFunction("goBack") { view: NouTubeView ->
+        val webView = view.webView
+        if (webView.canGoBack()) {
+          webView.goBack()
+        } else {
+          view.currentActivity?.finish()
+        }
+      }
+
       AsyncFunction("loadUrl") { view: NouTubeView, url: String ->
         view.webView.loadUrl(url)
-      }
-
-      AsyncFunction("executeJavaScript") Coroutine { view: NouTubeView, script: String ->
-        return@Coroutine view.webView.eval(script)
-      }
-
-      AsyncFunction("clearData") { view: NouTubeView ->
-        view.clearData()
       }
     }
   }

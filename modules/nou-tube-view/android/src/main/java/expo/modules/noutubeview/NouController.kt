@@ -65,15 +65,6 @@ class NouController {
     service?.notifyProgress(playing, pos)
   }
 
-  fun goBack() {
-    val webView = nouTubeView!!.webView
-    if (webView.canGoBack()) {
-      webView.goBack()
-    } else {
-      activity?.finish()
-    }
-  }
-
   fun pause() {
     val webView = nouTubeView!!.webView
     webView?.evaluateJavascript("NouTube.pause()", null)
