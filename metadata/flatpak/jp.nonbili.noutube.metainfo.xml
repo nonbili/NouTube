@@ -3,7 +3,7 @@
   <id>jp.nonbili.noutube</id>
 
   <name>NouTube</name>
-  <summary>YouTube and YouTube Music in a single app. No ads</summary>
+  <summary>YouTube and YouTube Music in a single app</summary>
 
   <developer id="jp.nonbili">
     <name>Nonbili Inc.</name>
@@ -12,10 +12,16 @@
   <metadata_license>CC-BY-SA-4.0</metadata_license>
   <project_license>AGPL-3.0-or-later</project_license>
 
+  <branding>
+    <color type="primary" scheme_preference="light">#99c1f1</color>
+    <color type="primary" scheme_preference="dark">#a599a5</color>
+  </branding>
+
   <description>
     <ul>
       <li>Manage video/music library without login</li>
       <li>Manage watch history without login</li>
+      <li>No ads</li>
       <li>Hide shorts</li>
       <li>Sponsor block</li>
     </ul>
