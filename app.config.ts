@@ -24,6 +24,7 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
         backgroundColor: '#ffffff',
       },
       edgeToEdgeEnabled: true,
+      predictiveBackGestureEnabled: false,
       package: 'jp.nonbili.noutube',
       intentFilters: [
         {
