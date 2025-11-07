@@ -1,0 +1,63 @@
+name: Prepare flatpak assets
+
+on:
+  push:
+    branches:
+      - release-desktop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: x64
+            platform: linux/amd64
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: install
+        run: |
+          rm yarn.lock
+          bun link
+          bun install
+
+      - name: zip source and node_modules
+        run: |
+          git archive --format=tar.gz --output=source.tar.gz HEAD
+          tar -czf node_modules-${{ matrix.arch }}.tar.gz node_modules
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.arch }}
+          path: |
+            *.tar.gz
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: get version
+        run: |
+          echo "TAG=v$(jq -r '.version' desktop/package.json)" >> $GITHUB_ENV
+
+      - name: release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          repository: nonbili/NouTube-Desktop
+          token: ${{ secrets.GH_RELEASE_TOKEN }}
+          tag_name: ${{ env.TAG }}

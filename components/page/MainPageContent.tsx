@@ -137,6 +137,17 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     const webview = nativeRef.current
     if (webview) {
       ui$.webview.set(ObservableHint.opaque(webview))
+      const url = ui$.url.get()
+      ;(async () => {
+        try {
+          const location = await webview.executeJavaScript('document.location.href')
+          if (location == 'about:blank') {
+            webview.loadUrl(url)
+          }
+        } catch (e) {
+          webview.loadUrl(url)
+        }
+      })()
     }
   }, [nativeRef])
 
