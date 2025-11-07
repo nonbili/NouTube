@@ -34,6 +34,8 @@ export default function HomeScreen() {
     })()
 
     const subscription = BackHandler.addEventListener('hardwareBackPress', function () {
+      const webview = ui$.webview.get()
+      webview?.goBack()
       return true
     })
 
