@@ -71,7 +71,7 @@ export const LibraryModal = () => {
       <View className={clsx('px-2 flex-row justify-between items-center mb-4', isWeb && 'mt-4')}>
         {isWeb ? <NouText /> : null}
         <Segemented options={tabs.map((x) => x.label)} selectedIndex={tabIndex} onChange={setTabIndex} />
-        <AntButton name="addfolder" size={20} onPress={() => ui$.folderModalFolder.set(newFolder(currentTab.value))} />
+        <AntButton name="folder-add" size={20} onPress={() => ui$.folderModalFolder.set(newFolder(currentTab.value))} />
       </View>
       {currentFolder != undefined ? (
         <>
