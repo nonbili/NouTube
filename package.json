@@ -5,8 +5,8 @@
   "name": "noutube",
   "private": true,
   "main": "expo-router/entry",
-  "version": "0.4.3",
-  "versionCode": 36,
+  "version": "0.4.4",
+  "versionCode": 37,
   "scripts": {
     "bundle": "bun build --target browser content/main.ts --outfile assets/scripts/main.bjs",
     "bundle:es": "esbuild --bundle content/main.ts --minify --outfile=assets/scripts/main.bjs",
@@ -18,7 +18,7 @@
     "lint": "expo lint"
   },
   "dependencies": {
-    "@expo/ui": "0.2.0-beta.8",
+    "@expo/ui": "0.1.1-alpha.10",
     "@expo/vector-icons": "^14.1.0",
     "@legendapp/state": "^3.0.0-beta.30",
     "@react-native-async-storage/async-storage": "2.1.2",
