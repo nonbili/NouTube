@@ -27,10 +27,6 @@ Download Linux/macOS/Windows version from [NouTube-Desktop](https://github.com/n
 
 <img src="metadata/en-US/images/phoneScreenshots/1.jpg" width="240" alt="youtube"> <img src="metadata/en-US/images/phoneScreenshots/2.jpg" width="240" alt="youtube-music"> <img src="metadata/en-US/images/phoneScreenshots/3.jpg" width="240" alt="music-library">
 
-## Installation
-
-You can find [installing instructions here](/INSTALL.md)
-
 ## Contributing
 
 You can find [contributing instructions here](/CONTRIBUTING.md)
