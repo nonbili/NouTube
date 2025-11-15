@@ -4,36 +4,55 @@ Thank you for your interest in contributing to [NouTube](https://github.com/nonb
 
 Please read this guide before submitting changes.
 
-## Questions
-
-Before opening an issue, check [existing issues](https://github.com/nonbili/NouTube/issues).
-
 ## Before you start
 
 Knowledge of JavaScript/TypeScript, React and ReactNative makes it easier to contribute to the project.
 
-## Reporting a bug
+## Installation
 
-1. Check if the [issue](https://github.com/nonbili/NouTube/issues) has already been reported.
-2. Test using the latest version.
-3. Provide a clear description:
+Here you will find instructions to install NouTube.
 
-   * Steps to reproduce the issue
-   * Expected vs. actual results
-   * System details and project version
-   * Logs, screenshots, or other helpful context
+### Prerequisites
 
-## Suggesting an enhancement
+- [bun](https://bun.com/docs/installation)
+- [Android SDK](https://developer.android.com/studio): if you want to build the android app
+- [Expo Go](https://play.google.com/store/apps/details?id=host.exp.exponent): if you want to use Expo Go on your phone
 
-Before suggesting a new feature or improvement:
+### Installing the project
 
-* Make sure it doesn’t already exist.
-* Clearly describe the use case and potential benefits.
-* If possible, include a proposed approach or example implementation.
+- Clone the project:
 
-## First contribution
+```shell
+git clone https://github.com/nonbili/NouTube.git 
+```
 
-Read the [installation guide](/INSTALL.md) to set up your development environment.
+- Install all dependencies:
+
+```shell
+bun install
+```
+
+- Build in dev mode:
+
+```shell
+bun dev
+```
+
+- Build the android app:
+
+```shell
+bun android
+```
+
+### Troubleshooting
+
+#### "Failed to resolve the Android SDK path..."
+
+Make sure that you have the android SDK installed and the environment variable set with the SDK location.
+
+```shell
+export ANDROID_HOME=/home/john/Android/sdk
+```
 
 ## Pull requests
 
@@ -47,8 +66,8 @@ Read the [installation guide](/INSTALL.md) to set up your development environmen
 
 Your commits must:
 
-* Be meaningful
-* Refer the issue (if you are fixing an issue)
+- Be meaningful
+- Refer the issue (if you are fixing an issue)
 
 Example: android(0.4.3): support sponsor block, fix #7
 
