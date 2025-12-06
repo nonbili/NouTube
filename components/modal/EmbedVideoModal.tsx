@@ -2,10 +2,13 @@ import { Modal, Text, Pressable, View, Switch, TouchableOpacity, ActivityIndicat
 import { NouText } from '../NouText'
 import { useEffect, useRef, useState } from 'react'
 import { NouTubeView } from '@/modules/nou-tube-view'
+import { getUserAgent } from '@/lib/webview'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const tabs = ['Settings', 'About']
 const themes = [null, 'dark', 'light'] as const
+
+const userAgent = getUserAgent()
 
 export const EmbedVideoModal: React.FC<{ videoId: string; scriptOnStart: string; onClose: () => void }> = ({
   videoId,
@@ -27,9 +30,9 @@ export const EmbedVideoModal: React.FC<{ videoId: string; scriptOnStart: string;
     <View className="absolute inset-0">
       <View className="flex-1 bg-zinc-800">
         <NouTubeView
-          // @ts-expect-error ??
           ref={ref}
           style={{ flex: 1 }}
+          useragent={userAgent}
           scriptOnStart={scriptOnStart}
           onLoad={onLoad}
           onMessage={onMessage}

@@ -10,9 +10,11 @@ YouTube and YouTube Music in a single app. No ads, plays in the background.
 
 <h2>How it works</h2>
 
+<ul>
 <li>Wrap https://m.youtube.com and https://music.youtube.com in Android webview</li>
 <li>Inject code to block ads</li>
 <li>Hook playback controls and support playing in background</li>
+</ul>
 
 <h2>Desktop version</h2>
 

@@ -19,6 +19,9 @@ import { auth$ } from '@/states/auth'
 import { useMe } from '@/lib/hooks/useMe'
 import { ObservableHint } from '@legendapp/state'
 import { mainClient } from '@/desktop/src/renderer/ipc/main'
+import { getUserAgent } from '@/lib/webview'
+
+const userAgent = getUserAgent()
 
 export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   const uiState = use$(ui$)
@@ -73,6 +76,10 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   const onMessage = useCallback(async (type: string, data: any) => {
     switch (type) {
+      case '[content]':
+      case '[kotlin]':
+        console.log(type, data)
+        break
       case 'add-queue':
         queue$.addBookmark(data)
         showToast(`Added to queue`)
@@ -98,7 +105,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   }, [])
 
   const onNativeMessage = async (e: { nativeEvent: { payload: string } }) => {
-    const { type, data } = JSON.parse(e.nativeEvent.payload)
+    const { payload } = e.nativeEvent
+    const { type, data } = typeof payload == 'string' ? JSON.parse(payload) : payload
     onMessage(type, data)
   }
 
@@ -181,13 +189,12 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       <View className="flex-1 h-full lg:flex-row overflow-hidden">
         <NouHeader noutube={webviewRef.current || nativeRef.current} />
         {isWeb ? (
-          // @ts-expect-error ??
-          <NouTubeView className="flex-1" ref={webviewRef} partition="persist:webview" allowpopups="true" />
+          <NouTubeView ref={webviewRef} style={{ flex: 1 }} useragent={userAgent} partition="persist:webview" />
         ) : (
           <NouTubeView
-            // @ts-expect-error ??
             ref={nativeRef}
             style={{ flex: 1 }}
+            useragent={userAgent}
             scriptOnStart={contentJs}
             onLoad={onLoad}
             onMessage={onNativeMessage}

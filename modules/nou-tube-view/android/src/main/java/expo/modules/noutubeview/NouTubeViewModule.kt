@@ -6,6 +6,15 @@ import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
 class NouTubeViewModule : Module() {
+  fun log(msg: String) {
+    this@NouTubeViewModule.sendEvent(
+      "onLog",
+      mapOf(
+        "msg" to msg
+      )
+    )
+  }
+
   override fun definition() = ModuleDefinition {
     Name("NouTubeView")
 
@@ -23,6 +32,11 @@ class NouTubeViewModule : Module() {
       Prop("scriptOnStart") { view: NouTubeView, script: String ->
         view.setScriptOnStart(script)
       }
+
+      Prop("useragent") { view: NouTubeView, ua: String ->
+        view.webView.settings.setUserAgentString(ua)
+      }
+
       Events("onLoad", "onMessage")
 
       AsyncFunction("clearData") { view: NouTubeView -> view.clearData() }
