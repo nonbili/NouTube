@@ -121,16 +121,17 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
       webViewClient =
         object : WebViewClient() {
           override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
-            pageUrl = url
-            onLoad(
-              mapOf(
-                "url" to pageUrl
+            if (pageUrl != url) {
+              pageUrl = url
+              onLoad(
+                mapOf(
+                  "url" to pageUrl
+                )
               )
-            )
+            }
           }
 
           override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
-            pageUrl = url
             evaluateJavascript(scriptOnStart, null)
           }
 

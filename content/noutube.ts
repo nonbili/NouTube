@@ -1,5 +1,5 @@
 import { hideShorts, showShorts } from './css'
-import { playDefaultAudio } from './player'
+import { playDefaultAudio, restoreLastPlaying } from './player'
 
 const getPlayer = (): any => document.getElementById('movie_player')
 
@@ -20,5 +20,6 @@ export function initNouTube() {
       this.shortsHidden = false
     },
     playDefaultAudio,
+    restoreLastPlaying,
   }
 }

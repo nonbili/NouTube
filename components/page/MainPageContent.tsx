@@ -9,7 +9,7 @@ import NouTubeViewModule, { NouTubeView } from '@/modules/nou-tube-view'
 import { View, Text, BackHandler, ColorSchemeName } from 'react-native'
 import { fixPageTitle, fixSharingUrl, getPageType, getVideoId, setPageUrl } from '@/lib/page'
 import { showToast } from '@/lib/toast'
-import { isWeb } from '@/lib/utils'
+import { isWeb, nIf } from '@/lib/utils'
 import type { WebviewTag } from 'electron'
 import { NouHeader } from '../header/NouHeader'
 import { syncSupabase } from '@/lib/supabase/sync'
@@ -22,6 +22,14 @@ import { mainClient } from '@/desktop/src/renderer/ipc/main'
 import { getUserAgent } from '@/lib/webview'
 
 const userAgent = getUserAgent()
+let restored = false
+
+function restoreLastPlaying(webview: any) {
+  if (settings$.restoreOnStart.get() && !restored) {
+    restored = true
+    webview.executeJavaScript('window.NouTube.restoreLastPlaying()')
+  }
+}
 
 export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   const uiState = use$(ui$)
@@ -80,6 +88,10 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       case '[kotlin]':
         console.log(type, data)
         break
+      case 'onload':
+        const webview = webviewRef.current || nativeRef.current
+        restoreLastPlaying(webview)
+        break
       case 'add-queue':
         queue$.addBookmark(data)
         showToast(`Added to queue`)
@@ -117,8 +129,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     }
 
     webview.addEventListener('dom-ready', () => {
+      // webview.openDevTools()
+
       ui$.webview.set(ObservableHint.opaque(webview))
-      /* webview.openDevTools() */
       webviewReadyRef.current = true
       webview.executeJavaScript(contentJs)
       toggleShorts(hideShorts)
@@ -200,12 +213,13 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
             onMessage={onNativeMessage}
           />
         )}
-        {uiState.embedVideoId && (
+        {nIf(
+          uiState.embedVideoId,
           <EmbedVideoModal
             videoId={uiState.embedVideoId}
             scriptOnStart={contentJs}
             onClose={() => ui$.embedVideoId.set('')}
-          />
+          />,
         )}
       </View>
     </>

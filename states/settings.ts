@@ -9,6 +9,7 @@ interface Store {
   feedsEnabled: boolean
   hideShorts: boolean
   keepHistory: boolean
+  restoreOnStart: boolean
   sponsorBlock: boolean
   theme: null | 'dark' | 'light'
 }
@@ -20,6 +21,7 @@ export const settings$ = observable<Store>({
   feedsEnabled: true,
   hideShorts: true,
   keepHistory: true,
+  restoreOnStart: true,
   sponsorBlock: true,
   theme: null,
 })

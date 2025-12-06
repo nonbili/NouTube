@@ -1,7 +1,7 @@
 import { intercept } from './intercept'
 import { injectCSS } from './css'
 import { initNouTube } from './noutube'
-import { handleVideoPlayer } from './player'
+import { handleMutations, handleVideoPlayer } from './player'
 import { emit } from './utils'
 import { handleDialogs } from './dialogs'
 import { handleMenu } from './menu'
@@ -18,9 +18,11 @@ try {
 
   window.NouTube = initNouTube()
   if (document.documentElement) {
+    emit('onload')
     initObserver()
   } else {
     document.addEventListener('DOMContentLoaded', () => {
+      emit('onload')
       initObserver()
     })
   }
@@ -31,8 +33,14 @@ try {
 }
 
 async function initObserver() {
+  const player = document.querySelector('#movie_player')
+  if (player) {
+    handleVideoPlayer(player)
+  }
   const observer = new MutationObserver((mutations) => {
-    handleVideoPlayer(mutations)
+    if (!player) {
+      handleMutations(mutations)
+    }
     handleDialogs()
   })
   observer.observe(document.documentElement, {

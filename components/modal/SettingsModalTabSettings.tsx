@@ -91,6 +91,12 @@ export const SettingsModalTabSettings = () => {
     <ScrollView>
       <NouSwitch
         className="mt-10"
+        label="Restore last playing on start"
+        value={settings.restoreOnStart}
+        onPress={() => settings$.restoreOnStart.set(!settings.restoreOnStart)}
+      />
+      <NouSwitch
+        className="mt-6"
         label="Hide shorts"
         value={settings.hideShorts}
         onPress={() => settings$.hideShorts.set(!settings.hideShorts)}

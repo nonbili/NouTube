@@ -1,5 +1,5 @@
 import { retry, throttle } from 'es-toolkit'
-import { emit, isYTMusic, nouPolicy, parseJson } from './utils'
+import { emit, log, isYTMusic, nouPolicy, parseJson } from './utils'
 import { hideLiveChat, showLiveChatButton } from './livechat'
 import { originalLabels } from './audio'
 import { getSkipSegments, isSponsorBlockEnabled, Segment } from './sponsorblock'
@@ -11,105 +11,129 @@ let restoredProgress = false
 let skipSegments: { videoId: string; segments: Segment[] } = { videoId: '', segments: [] }
 
 const keys = {
+  playing: 'nou:playing',
   videos: 'nou:videos:progress',
   videoProgress(id: string) {
     return `nou:progress:${id}`
   },
 }
 
-export function handleVideoPlayer(mutations: MutationRecord[]) {
+function savePlaying(currentTime: number) {
+  const value = parseJson(localStorage.getItem(keys.playing), {})
+  if (value.id != curVideoId) {
+    value.id = curVideoId
+    value.url = document.location.href
+  }
+  value.currentTime = currentTime
+  localStorage.setItem(keys.playing, JSON.stringify(value))
+}
+
+export function handleMutations(mutations: MutationRecord[]) {
   for (const mutation of mutations) {
     for (const node of mutation.addedNodes.values()) {
       const el = node as any
       if (el.id == 'movie_player') {
-        player = el
-        const saveProgress = throttle((currentTime) => {
-          if (shouldSaveProgress && restoredProgress) {
-            localStorage.setItem(keys.videoProgress(curVideoId), currentTime)
-          }
-        }, 5000)
-        const notifyProgress = throttle(() => {
-          if (!el.getCurrentTime) {
-            hideLiveChat()
-            return
-          }
-          const currentTime = el.getCurrentTime()
-          window.NouTubeI?.notifyProgress(el.getPlayerState() == 1, currentTime)
-          saveProgress(currentTime)
-          if (isSponsorBlockEnabled() && curVideoId == skipSegments.videoId && skipSegments.segments.length) {
-            for (const segment of skipSegments.segments) {
-              const [start, end] = segment.segment
-              if (currentTime > start && currentTime < end) {
-                player.seekTo(end)
-                return
-              }
-            }
-          }
-        }, 1000)
-        let progressBinded = false
-        el.addEventListener('onStateChange', async (state: number) => {
-          const { playabilityStatus, videoDetails } = el.getPlayerResponse() || {}
-          if (!videoDetails) {
-            hideLiveChat()
-            return
-          }
-          if (state == 0 && !isYTMusic) {
-            emit('playback-end')
-          }
-          if (document.location.host == 'm.youtube.com' && document.location.pathname == '/') {
-            el.pauseVideo()
-            return
-          }
-          if (!progressBinded) {
-            const video = el.querySelector('video')
-            if (video) {
-              ;['play', 'pause', 'timeupdate'].forEach((evt) => {
-                video.addEventListener(evt, notifyProgress)
-              })
-              progressBinded = true
-            }
-          }
-
-          const { title, author, thumbnail, lengthSeconds, videoId } = videoDetails
-          if (curVideoId != videoId) {
-            const thumb = thumbnail.thumbnails.at(-1)
-            const duration = +lengthSeconds
-            window.NouTubeI?.notify(title, author, duration, thumb?.url || '')
-            curVideoId = videoId
-            restoredProgress = false
-            shouldSaveProgress = duration > 60 * 10
-            if (shouldSaveProgress) {
-              const lastProgress = localStorage.getItem(keys.videoProgress(curVideoId))
-              if (lastProgress) {
-                player.seekTo(lastProgress)
-              }
-              restoredProgress = true
-              const watchProgress = parseJson(localStorage.getItem(keys.videos), [])
-              watchProgress.push(curVideoId)
-              if (watchProgress.length > 100) {
-                const id = watchProgress.pop()
-                localStorage.removeItem(keys.videoProgress(id))
-              }
-              localStorage.setItem(keys.videos, JSON.stringify(watchProgress))
-            }
-
-            if (window.NouTubeI) {
-              renderPlayOriginalAudioBtn()
-
-              hideLiveChat()
-              if (playabilityStatus?.liveStreamability) {
-                showLiveChatButton(curVideoId)
-              }
-            }
-
-            if (isSponsorBlockEnabled()) {
-              skipSegments = await getSkipSegments(videoId)
-            }
-          }
-        })
+        handleVideoPlayer(el)
       }
     }
   }
+}
+
+export function handleVideoPlayer(el: any) {
+  const player = el
+  const saveProgress = throttle((currentTime) => {
+    if (shouldSaveProgress && restoredProgress) {
+      localStorage.setItem(keys.videoProgress(curVideoId), currentTime)
+    }
+    savePlaying(currentTime)
+  }, 5000)
+  const notifyProgress = throttle(() => {
+    if (!el.getCurrentTime) {
+      hideLiveChat()
+      return
+    }
+    const currentTime = el.getCurrentTime()
+    window.NouTubeI?.notifyProgress(el.getPlayerState() == 1, currentTime)
+    saveProgress(currentTime)
+    if (isSponsorBlockEnabled() && curVideoId == skipSegments.videoId && skipSegments.segments.length) {
+      for (const segment of skipSegments.segments) {
+        const [start, end] = segment.segment
+        if (currentTime > start && currentTime < end) {
+          player.seekTo(end)
+          return
+        }
+      }
+    }
+  }, 1000)
+  let progressBinded = false
+  el.addEventListener('onStateChange', async (state: number) => {
+    const { playabilityStatus, videoDetails } = el.getPlayerResponse() || {}
+    if (!videoDetails) {
+      hideLiveChat()
+      return
+    }
+    if (state == 0 && !isYTMusic) {
+      emit('playback-end')
+    }
+    if (document.location.host == 'm.youtube.com' && document.location.pathname == '/') {
+      el.pauseVideo()
+      return
+    }
+    if (!progressBinded) {
+      const video = el.querySelector('video')
+      if (video) {
+        ;['play', 'pause', 'timeupdate'].forEach((evt) => {
+          video.addEventListener(evt, notifyProgress)
+        })
+        progressBinded = true
+      }
+    }
+
+    const { title, author, thumbnail, lengthSeconds, videoId } = videoDetails
+    if (curVideoId != videoId) {
+      const thumb = thumbnail.thumbnails.at(-1)
+      const duration = +lengthSeconds
+      window.NouTubeI?.notify(title, author, duration, thumb?.url || '')
+      curVideoId = videoId
+      restoredProgress = false
+      shouldSaveProgress = duration > 60 * 10
+      const lastPlaying = parseJson(localStorage.getItem(keys.playing), {})
+      let pendingSeekTo = 0
+      if (lastPlaying.id == curVideoId) {
+        pendingSeekTo = lastPlaying.currentTime
+      }
+      if (shouldSaveProgress || pendingSeekTo) {
+        const lastProgress = pendingSeekTo || localStorage.getItem(keys.videoProgress(curVideoId))
+        if (lastProgress) {
+          player.seekTo(lastProgress)
+          pendingSeekTo = 0
+        }
+        restoredProgress = true
+        if (shouldSaveProgress) {
+          const watchProgress = parseJson(localStorage.getItem(keys.videos), [])
+          watchProgress.push(curVideoId)
+          if (watchProgress.length > 100) {
+            const id = watchProgress.pop()
+            localStorage.removeItem(keys.videoProgress(id))
+          }
+          localStorage.setItem(keys.videos, JSON.stringify(watchProgress))
+        }
+      }
+
+      if (window.NouTubeI) {
+        renderPlayOriginalAudioBtn()
+
+        hideLiveChat()
+        if (playabilityStatus?.liveStreamability) {
+          showLiveChatButton(curVideoId)
+        }
+      }
+
+      if (isSponsorBlockEnabled()) {
+        skipSegments = await getSkipSegments(videoId)
+      }
+    }
+  })
 }
 
 screen.orientation.addEventListener('change', (event) => {
@@ -225,4 +249,11 @@ async function renderPlayOriginalAudioBtn() {
   }
 
   badgeRenderer.append(container)
+}
+
+export function restoreLastPlaying() {
+  const value = parseJson(localStorage.getItem(keys.playing), {})
+  if (value.url) {
+    document.location = value.url
+  }
 }
