@@ -27,6 +27,13 @@
     </ul>
   </description>
 
+  <keywords>
+    <keyword>youtube</keyword>
+    <keyword>youtube-music</keyword>
+    <keyword>yt</keyword>
+    <keyword>yt-music</keyword>
+  </keywords>
+
   <launchable type="desktop-id">jp.nonbili.noutube.desktop</launchable>
   <screenshots>
     <screenshot type="default">
