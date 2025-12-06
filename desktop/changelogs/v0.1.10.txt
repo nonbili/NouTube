@@ -1,0 +1,2 @@
+- use Chrome's user-agent
+- support restoring last playing on start

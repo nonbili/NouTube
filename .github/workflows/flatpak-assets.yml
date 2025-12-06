@@ -13,18 +13,37 @@ jobs:
         include:
           - arch: x64
             platform: linux/amd64
+          - arch: arm64
+            platform: linux/arm64
     timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: oven-sh/setup-bun@v2
+      - if: matrix.arch == 'x64'
+        uses: oven-sh/setup-bun@v2
 
       - name: install
+        if: matrix.arch == 'x64'
         run: |
           rm yarn.lock
           bun link
           bun install
+
+      - name: setup qemu
+        if: matrix.arch == 'arm64'
+        uses: docker/setup-qemu-action@v3
+        with:
+            platforms: linux/arm64
+
+      - name: install
+        if: matrix.arch == 'arm64'
+        run: |
+            rm yarn.lock
+            docker run --rm --platform ${{ matrix.platform }} \
+              -v "$(pwd):/work" -w /work \
+              oven/bun:1 \
+              /bin/bash -c "bun link && bun install"
 
       - name: zip source and node_modules
         run: |

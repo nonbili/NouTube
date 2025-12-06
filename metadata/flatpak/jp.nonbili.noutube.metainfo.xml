@@ -27,6 +27,13 @@
     </ul>
   </description>
 
+  <keywords>
+    <keyword>youtube</keyword>
+    <keyword>youtube-music</keyword>
+    <keyword>yt</keyword>
+    <keyword>yt-music</keyword>
+  </keywords>
+
   <launchable type="desktop-id">jp.nonbili.noutube.desktop</launchable>
   <screenshots>
     <screenshot type="default">
@@ -49,11 +56,11 @@
   <content_rating type="oars-1.1" />
 
   <releases>
-    <release version="0.1.9" date="2025-11-01">
+    <release version="0.1.10" date="2025-12-07">
       <description>
         <ul>
-          <li>Support selecting folder in FeedModal</li>
-          <li>Support sponsor block</li>
+          <li>Use Chrome's user-agent</li>
+          <li>Support restoring last playing on start</li>
         </ul>
       </description>
     </release>

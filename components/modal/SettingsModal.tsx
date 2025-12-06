@@ -15,6 +15,7 @@ import { SettingsModalTabSettings } from './SettingsModalTabSettings'
 const repo = 'https://github.com/nonbili/NouTube'
 const tabs = ['Settings', 'Sync', 'About']
 const themes = [null, 'dark', 'light'] as const
+const donateLinks = ['https://github.com/sponsors/rnons', 'https://liberapay.com/rnons', 'https://paypal.me/rnons']
 
 export const SettingsModal = () => {
   const settingsModalOpen = use$(ui$.settingsModalOpen)
@@ -35,11 +36,19 @@ export const SettingsModal = () => {
                 <NouText className="text-lg font-medium">NouTube</NouText>
                 <NouText>v{isWeb ? desktopVersion : version}</NouText>
               </View>
-              <View className="">
+              <View className="mb-6">
                 <NouText className="font-medium">Source code</NouText>
                 <NouLink className="text-indigo-400 text-sm" href={repo}>
                   {repo}
                 </NouLink>
+              </View>
+              <View className="mb-6">
+                <NouText className="font-medium mb-1">Donate</NouText>
+                {donateLinks.map((url) => (
+                  <NouLink className="text-indigo-400 text-sm mb-2" href={url} key={url}>
+                    {url}
+                  </NouLink>
+                ))}
               </View>
             </>
           )}
