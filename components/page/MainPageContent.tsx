@@ -191,7 +191,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     setPageUrl(e.nativeEvent.url)
     const webview = nativeRef.current
     if (webview) {
-      webview.executeJavaScript("document.querySelector('#movie_player')?.unMute()")
       toggleShorts(hideShorts)
       syncSettingsToWebview()
     }

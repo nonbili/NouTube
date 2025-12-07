@@ -91,6 +91,7 @@ export function handleVideoPlayer(el: any) {
 
     const { title, author, thumbnail, lengthSeconds, videoId } = videoDetails
     if (curVideoId != videoId) {
+      player.unMute()
       const thumb = thumbnail.thumbnails.at(-1)
       const duration = +lengthSeconds
       window.NouTubeI?.notify(title, author, duration, thumb?.url || '')
