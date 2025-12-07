@@ -11,6 +11,7 @@ import { queue$ } from '@/states/queue'
 import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
 import { MainPage } from '@/components/page/MainPage'
 import { nIf } from '@/lib/utils'
+import NouTubeViewModule from '@/modules/nou-tube-view'
 
 export default function HomeScreen() {
   const [scriptOnStart, setScriptOnStart] = useState('')
@@ -32,6 +33,11 @@ export default function HomeScreen() {
         setScriptOnStart(content)
       }
     })()
+
+    // @ts-expect-error
+    NouTubeViewModule.addListener('onLog', (evt) => {
+      console.log('[kotlin]', evt.msg)
+    })
 
     const subscription = BackHandler.addEventListener('hardwareBackPress', function () {
       const webview = ui$.webview.get()

@@ -60,12 +60,12 @@ class NouWebView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     addJavascriptInterface(NouJsInterface(context), "NouTubeI")
   }
 
-  suspend fun eval(script: String): String = suspendCancellableCoroutine { cont ->
+  suspend fun eval(script: String): String? = suspendCancellableCoroutine { cont ->
     evaluateJavascript(script) { result ->
-      if (result != null) {
-        cont.resume(result.removeSurrounding("\""), null)
+      if (result == "null") {
+        cont.resume(null, null)
       } else {
-        cont.resumeWithException(Exception("evaluateJavascript failed"))
+        cont.resume(result.removeSurrounding("\""), null)
       }
     }
   }

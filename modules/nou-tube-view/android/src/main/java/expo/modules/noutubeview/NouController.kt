@@ -22,12 +22,19 @@ class NouOrientationListener(context: Context) : OrientationEventListener(contex
   }
 }
 
+typealias LogFn = (String) -> Unit
+
 class NouController {
   private var activity: Activity? = null
   private var nouTubeView: NouTubeView? = null
   private var service: NouService? = null
   private var orientationListener: NouOrientationListener? = null
   internal var inited = false
+  internal var logFn: LogFn? = null
+
+  fun log(msg: String) {
+    logFn?.invoke(msg)
+  }
 
   fun setActivity(v: Activity) {
     activity = v
