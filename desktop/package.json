@@ -1,7 +1,7 @@
 {
   "name": "noutube-desktop",
   "productName": "NouTube",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "YouTube and YouTube Music in a single app",
   "main": "./out/main/index.js",
   "author": "Nonbili Inc.",
@@ -38,7 +38,7 @@
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^4.7.0",
     "electron": "37.2.5",
-    "electron-builder": "^26.1.0",
+    "electron-builder": "26.1.0",
     "electron-vite": "^4.0.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",

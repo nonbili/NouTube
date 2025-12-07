@@ -56,11 +56,10 @@
   <content_rating type="oars-1.1" />
 
   <releases>
-    <release version="0.1.10" date="2025-12-07">
+    <release version="0.1.11" date="2025-12-07">
       <description>
         <ul>
-          <li>Use Chrome's user-agent</li>
-          <li>Support restoring last playing on start</li>
+          <li>Fix build</li>
         </ul>
       </description>
     </release>
