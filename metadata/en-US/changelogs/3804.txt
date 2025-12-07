@@ -1,0 +1,4 @@
+- use Chrome's user-agent
+- fix starring channels
+- unmute video
+- support restoring last playing on start (use the history menu if not restored automatically)
