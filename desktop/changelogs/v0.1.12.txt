@@ -1,0 +1,2 @@
+- fix clicking links in video description
+- fix auto updating for gh releases
