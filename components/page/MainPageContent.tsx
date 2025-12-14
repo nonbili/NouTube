@@ -201,7 +201,13 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       <View className="flex-1 h-full lg:flex-row overflow-hidden">
         <NouHeader noutube={webviewRef.current || nativeRef.current} />
         {isWeb ? (
-          <NouTubeView ref={webviewRef} style={{ flex: 1 }} useragent={userAgent} partition="persist:webview" />
+          <NouTubeView
+            ref={webviewRef}
+            style={{ flex: 1 }}
+            useragent={userAgent}
+            partition="persist:webview"
+            allowpopups="true"
+          />
         ) : (
           <NouTubeView
             ref={nativeRef}

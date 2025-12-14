@@ -13,6 +13,7 @@ export type NouTubeViewProps = {
   ref: React.Ref<any>
   useragent: string
   partition?: string
+  allowpopups?: string
   scriptOnStart?: string
   onLoad?: (event: { nativeEvent: OnLoadEventPayload }) => void
   onMessage?: (event: { nativeEvent: OnMessageEventPayload }) => void
