@@ -87,7 +87,7 @@ class NouController {
       view,
       FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
     )
-    activity!!.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+    activity!!.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
 
     // https://stackoverflow.com/a/64828067
     val controller = WindowCompat.getInsetsController(window, window.decorView)
@@ -111,10 +111,9 @@ class NouController {
   }
 
   fun onOrientationChanged(orientation: Int) {
-    if (activity?.getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-      return
-    }
-    if (orientation in 70..110 || orientation in 250..290) {
+    if (activity?.getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE &&
+      (orientation in 70..110 || orientation in 250..290)
+    ) {
       activity!!.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER)
     }
   }

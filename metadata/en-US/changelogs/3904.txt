@@ -1,0 +1,1 @@
+- use phone orientation in fullscreen

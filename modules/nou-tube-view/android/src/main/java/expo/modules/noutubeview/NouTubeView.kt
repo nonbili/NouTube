@@ -207,10 +207,6 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     webView.reload()
   }
 
-  fun log(msg: String) {
-    emit("[kotlin]", msg)
-  }
-
   fun emit(type: String, data: Any) {
     val payload = mapOf("type" to type, "data" to data)
     onMessage(mapOf("payload" to payload))

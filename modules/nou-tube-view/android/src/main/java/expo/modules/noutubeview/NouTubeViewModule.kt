@@ -6,18 +6,16 @@ import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
 class NouTubeViewModule : Module() {
-  fun log(msg: String) {
-    sendEvent("onLog", mapOf("msg" to msg))
-  }
-
   init {
-    nouController.logFn = this::log
+    nouController.logFn = { msg: String ->
+      sendEvent("log", mapOf("msg" to msg))
+    }
   }
 
   override fun definition() = ModuleDefinition {
     Name("NouTubeView")
 
-    Events("onLog")
+    Events("log")
 
     Function("setTheme") { theme: String? ->
       var mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM

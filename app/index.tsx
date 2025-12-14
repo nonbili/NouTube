@@ -35,7 +35,7 @@ export default function HomeScreen() {
     })()
 
     // @ts-expect-error
-    NouTubeViewModule.addListener('onLog', (evt) => {
+    NouTubeViewModule.addListener('log', (evt) => {
       console.log('[kotlin]', evt.msg)
     })
 
