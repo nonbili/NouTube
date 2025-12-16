@@ -9,6 +9,8 @@ import { preload } from './preload'
 import { pinchToZoom } from './pinch'
 
 try {
+  window.NouTube = initNouTube()
+
   if (window.electron) {
     injectCSS()
   } else {
@@ -16,7 +18,6 @@ try {
     intercept()
   }
 
-  window.NouTube = initNouTube()
   if (document.documentElement) {
     emit('onload')
     initObserver()

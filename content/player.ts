@@ -104,8 +104,11 @@ export function handleVideoPlayer(el: any) {
         pendingSeekTo = lastPlaying.currentTime
       }
       if (shouldSaveProgress || pendingSeekTo) {
-        const lastProgress = pendingSeekTo || localStorage.getItem(keys.videoProgress(curVideoId))
+        let lastProgress = Number(pendingSeekTo || localStorage.getItem(keys.videoProgress(curVideoId)))
         if (lastProgress) {
+          if (duration - lastProgress < 10 && lastProgress > 10) {
+            lastProgress -= 10
+          }
           player.seekTo(lastProgress)
           pendingSeekTo = 0
         }
