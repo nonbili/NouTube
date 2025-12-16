@@ -56,6 +56,14 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.1.13" date="2025-12-16">
+      <description>
+        <ul>
+          <li>Add a button to open youtube/noutube url directly</li>
+          <li>Prevent restoring progress to the end</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.1.12" date="2025-12-14">
       <description>
         <ul>
