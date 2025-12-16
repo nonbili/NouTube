@@ -24,7 +24,7 @@ export const NouButton = ({
         size == '2' && 'py-2 px-6',
         variant == 'solid' && 'bg-indigo-600',
         variant == 'soft' && 'bg-indigo-200',
-        variant == 'outline' && 'border border-indigo-200',
+        variant == 'outline' && 'border border-indigo-300',
         className,
       )}
       onPress={onPress}

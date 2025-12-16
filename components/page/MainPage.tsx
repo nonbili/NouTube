@@ -13,6 +13,7 @@ import { QueueModal } from '../modal/QueueModal'
 import { SettingsModal } from '../modal/SettingsModal'
 import { feederLoop } from '@/lib/feeder'
 import { FeedModal } from '../modal/FeedModal'
+import { UrlModal } from '../modal/UrlModal'
 
 export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   useEffect(() => {
@@ -39,6 +40,7 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
       <HistoryModal />
       <QueueModal />
       <SettingsModal />
+      <UrlModal />
     </QueryClientProvider>
   )
 }

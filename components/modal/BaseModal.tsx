@@ -15,9 +15,7 @@ export const BaseModal: React.FC<{ className?: string; children: ReactNode; onCl
   return (
     <View className={clsx('absolute inset-0 z-10', className)}>
       <Pressable className="absolute inset-0 bg-gray-600/50" onPress={onClose} />
-      <View className="bg-gray-950 absolute top-0 left-0 bottom-0 w-[30rem] lg:w-[40rem] xl:w-[50rem] max-w-[80vw]">
-        {inner}
-      </View>
+      <View className="bg-gray-950 absolute top-0 left-0 bottom-0 w-[30rem] xl:w-[40rem] max-w-[80vw]">{inner}</View>
     </View>
   )
 }

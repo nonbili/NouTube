@@ -88,7 +88,7 @@ export const SettingsModalTabSettings = () => {
   }
 
   return (
-    <ScrollView>
+    <>
       <NouSwitch
         className="mt-10"
         label="Restore last playing on start"
@@ -136,25 +136,25 @@ export const SettingsModalTabSettings = () => {
         </View>
       )}
       <View className="mt-8 flex-row justify-center">
-        <TouchableOpacity
-          className={clsx('py-2 px-6 text-center border border-indigo-300 rounded-full flex-row justify-center gap-2')}
-          onPress={clearWebviewData}
-        >
-          <NouText className="">Clear webview data</NouText>
-        </TouchableOpacity>
+        <NouButton onPress={() => ui$.urlModalOpen.set(true)}>Open URL</NouButton>
       </View>
       <View className="mt-8 flex-row justify-center">
-        <NouButton loading={importingList} onPress={onClickImportList}>
+        <NouButton variant="outline" onPress={clearWebviewData}>
+          Clar webview data
+        </NouButton>
+      </View>
+      <View className="mt-8 flex-row justify-center">
+        <NouButton variant="soft" loading={importingList} onPress={onClickImportList}>
           Import a list of links
         </NouButton>
       </View>
       <View className="mt-8 flex-row justify-center">
-        <NouButton loading={importingTakeout} onPress={onClickImportTakeout}>
+        <NouButton variant="soft" loading={importingTakeout} onPress={onClickImportTakeout}>
           Import from YouTube Takeout
         </NouButton>
       </View>
 
       <View className="h-20" />
-    </ScrollView>
+    </>
   )
 }

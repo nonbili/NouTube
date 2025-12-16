@@ -1,4 +1,4 @@
-import { ui$ } from '@/states/ui'
+import { ui$, updateUrl } from '@/states/ui'
 import { onReceiveAuthUrl } from './supabase/auth'
 import { isWeb } from './utils'
 import { settings$ } from '@/states/settings'
@@ -78,7 +78,7 @@ export function openSharedUrl(url: string) {
   try {
     const { host } = new URL(fixSharingUrl(url))
     if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'music.youtube.com', 'youtu.be'].includes(host)) {
-      ui$.url.set(url.replace('noutube://', 'https://'))
+      updateUrl(url.replace('noutube://', 'https://'))
     }
   } catch (e) {
     console.error(e)

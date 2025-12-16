@@ -1,4 +1,4 @@
-import { Button, View } from 'react-native'
+import { Button, ScrollView, View } from 'react-native'
 import { NouText } from '../NouText'
 import { NouLink } from '../link/NouLink'
 import { version } from '../../package.json'
@@ -24,10 +24,10 @@ export const SettingsModal = () => {
   return (
     settingsModalOpen && (
       <BaseModal onClose={() => ui$.settingsModalOpen.set(false)}>
-        <View className="items-center mt-4">
+        <View className="items-center my-4">
           <Segemented options={tabs} selectedIndex={tabIndex} onChange={setTabIndex} />
         </View>
-        <View className="px-4">
+        <ScrollView className="px-4">
           {tabIndex == 0 && <SettingsModalTabSettings />}
           {tabIndex == 1 && <SettingsModalTabSync />}
           {tabIndex == 2 && (
@@ -52,7 +52,7 @@ export const SettingsModal = () => {
               </View>
             </>
           )}
-        </View>
+        </ScrollView>
       </BaseModal>
     )
   )

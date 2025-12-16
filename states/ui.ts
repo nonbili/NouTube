@@ -12,14 +12,15 @@ interface Store {
 
   // modals
   bookmarkModalBookmark: Bookmark | undefined
+  embedVideoId: string
   feedModalOpen: boolean
   folderModalFolder: Folder | undefined
   historyModalOpen: boolean
-  settingsModalOpen: boolean
-  queueModalOpen: boolean
-  embedVideoId: string
   libraryModalOpen: boolean
   libraryModalTab: string
+  queueModalOpen: boolean
+  settingsModalOpen: boolean
+  urlModalOpen: boolean
 
   // webview
   webview: any
@@ -32,14 +33,15 @@ export const ui$ = observable<Store>({
 
   // modals
   bookmarkModalBookmark: undefined,
+  embedVideoId: '',
   feedModalOpen: false,
   folderModalFolder: undefined,
   historyModalOpen: false,
-  settingsModalOpen: false,
-  queueModalOpen: false,
-  embedVideoId: '',
   libraryModalOpen: false,
   libraryModalTab: '',
+  queueModalOpen: false,
+  settingsModalOpen: false,
+  urlModalOpen: false,
 
   // webview
   webview: undefined,
