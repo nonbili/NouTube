@@ -36,10 +36,10 @@ jobs:
       - name: build portable
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'win')
         run: |
-          VITE_BUILD_TARGET=portable bun electron-vite build
+          bun electron-vite build
           bun electron-builder --publish never
-          zip -r dist/linux-unpacked.zip dist/linux-unpacked
         env:
+          VITE_BUILD_TARGET: portable
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
@@ -50,8 +50,9 @@ jobs:
 
       - name: zip portable
         if: startsWith(matrix.os, 'win')
-        run: |
-          zip -r dist/win-unpacked.zip dist/win-unpacked
+        run: Compress-Archive -Path "dist\win-unpacked\*" -DestinationPath "dist\win-unpacked.zip"
+        shell: powershell
+
 
       - name: build
         run: bun electron-vite build
