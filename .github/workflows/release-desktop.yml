@@ -33,8 +33,8 @@ jobs:
           bun install
           bun bundle
 
-      - name: pkg linux portable
-        if: startsWith(matrix.os, 'ubuntu')
+      - name: build portable
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'win')
         run: |
           VITE_BUILD_TARGET=portable bun electron-vite build
           bun electron-builder --publish never
@@ -42,6 +42,16 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+      - name: zip portable
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          zip -r dist/linux-unpacked.zip dist/linux-unpacked
+
+      - name: zip portable
+        if: startsWith(matrix.os, 'win')
+        run: |
+          zip -r dist/win-unpacked.zip dist/win-unpacked
 
       - name: build
         run: bun electron-vite build
