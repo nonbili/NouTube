@@ -1,3 +1,4 @@
+import { useModal } from '@/lib/hooks/useModal'
 import { clsx, isWeb } from '@/lib/utils'
 import { ReactNode } from 'react'
 import { Pressable, ScrollView, View } from 'react-native'
@@ -8,6 +9,8 @@ export const BaseModal: React.FC<{ className?: string; children: ReactNode; onCl
   children,
   onClose,
 }) => {
+  useModal(onClose)
+
   const insets = useSafeAreaInsets()
 
   const inner = isWeb ? children : <SafeAreaView className="max-h-full">{children}</SafeAreaView>
