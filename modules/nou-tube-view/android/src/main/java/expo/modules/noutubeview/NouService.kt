@@ -228,4 +228,10 @@ class NouService : Service() {
       notificationManager?.notify(NOTIFICATION_ID, buildNotification())
     }
   }
+
+  fun exit() {
+    notificationManager?.deleteNotificationChannel(CHANNEL_ID)
+    notificationManager = null
+    stopSelf()
+  }
 }

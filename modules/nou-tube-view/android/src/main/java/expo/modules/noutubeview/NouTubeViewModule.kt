@@ -27,6 +27,10 @@ class NouTubeViewModule : Module() {
       AppCompatDelegate.setDefaultNightMode(mode)
     }
 
+    Function("exit") {
+      nouController.exit()
+    }
+
     View(NouTubeView::class) {
       Prop("scriptOnStart") { view: NouTubeView, script: String ->
         view.setScriptOnStart(script)

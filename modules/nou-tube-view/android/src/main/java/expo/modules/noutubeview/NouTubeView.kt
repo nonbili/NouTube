@@ -244,6 +244,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
         val nouBinder = binder as NouService.NouBinder
         service = nouBinder.getService()
         service?.initialize(webView, activity)
+        nouController.service = service
       }
 
       override fun onServiceDisconnected(name: ComponentName) {
@@ -294,5 +295,9 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     ) {
       activity?.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER)
     }
+  }
+
+  fun exit() {
+    service?.exit()
   }
 }
