@@ -45,7 +45,10 @@ export default function HomeScreen() {
       return true
     })
 
-    return () => subscription.remove()
+    return () => {
+      console.log('-- App unmount')
+      subscription.remove()
+    }
   }, [])
 
   useEffect(() => {

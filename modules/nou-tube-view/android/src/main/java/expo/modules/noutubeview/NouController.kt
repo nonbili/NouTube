@@ -117,6 +117,11 @@ class NouController {
       activity!!.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER)
     }
   }
+
+  fun exit() {
+    nouController.log("ctrl.exit")
+    service?.exit()
+  }
 }
 
 val nouController = NouController()

@@ -19,6 +19,7 @@ import android.os.IBinder
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.media.session.MediaButtonReceiver
 import java.net.URL
@@ -60,7 +61,15 @@ class NouService : Service() {
     return super.onStartCommand(intent, flags, startId)
   }
 
+  override fun onTaskRemoved(intent: Intent) {
+    Log.d("NouService", "-- onTaskRemoved0")
+    // exit()
+    // stopSelf()
+    // nouController.log("-- onTaskRemoved")
+  }
+
   fun initialize(view: NouWebView, _activity: Activity) {
+    nouController.log("-- initialize")
     activity = _activity
     webView = view
     mediaSession = MediaSessionCompat(this, "NouService")
@@ -227,5 +236,12 @@ class NouService : Service() {
     if (statePlaying != playing) {
       notificationManager?.notify(NOTIFICATION_ID, buildNotification())
     }
+  }
+
+  fun exit() {
+    nouController.log("service.exit")
+    notificationManager?.deleteNotificationChannel(CHANNEL_ID)
+    notificationManager = null
+    stopSelf()
   }
 }
