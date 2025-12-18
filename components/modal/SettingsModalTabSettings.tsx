@@ -14,7 +14,7 @@ import { NouText } from '../NouText'
 import { NouLink } from '../link/NouLink'
 import { version } from '../../package.json'
 import { useState } from 'react'
-import { clsx, isWeb } from '@/lib/utils'
+import { clsx, isWeb, nIf } from '@/lib/utils'
 import { use$ } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { Segemented } from '../picker/Segmented'
@@ -27,9 +27,14 @@ import { NouSwitch } from '../switch/NouSwitch'
 import { NouButton } from '../button/NouButton'
 import { showConfirm } from '@/lib/confirm'
 import JSZip from 'jszip'
+import { mainClient } from '@/desktop/src/renderer/ipc/main'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const themes = [null, 'dark', 'light'] as const
+
+const rowCls = 'mb-6 flex-row justify-between items-center'
+const headerCls = 'mb-6 font-semibold text-gray-400'
+const labelCls = 'text-gray-200'
 
 export const SettingsModalTabSettings = () => {
   const settings = use$(settings$)
@@ -89,8 +94,9 @@ export const SettingsModalTabSettings = () => {
 
   return (
     <>
+      <NouText className={headerCls}>General</NouText>
       <NouSwitch
-        className="mt-10"
+        className=""
         label="Restore last playing on start"
         value={settings.restoreOnStart}
         onPress={() => settings$.restoreOnStart.set(!settings.restoreOnStart)}
@@ -119,7 +125,8 @@ export const SettingsModalTabSettings = () => {
         value={settings.keepHistory}
         onPress={() => settings$.keepHistory.set(!settings.keepHistory)}
       />
-      {!isWeb && (
+      {nIf(
+        !isWeb,
         <View className="my-6">
           <View className="items-center flex-row justify-between">
             <NouText className="font-medium">YouTube Theme</NouText>
@@ -133,24 +140,42 @@ export const SettingsModalTabSettings = () => {
           <NouText className="mt-2 text-sm text-gray-400 text-right">
             Restart manually if change not reflected in webview.
           </NouText>
-        </View>
+        </View>,
       )}
-      <View className="mt-8 flex-row justify-center">
-        <NouButton onPress={() => ui$.urlModalOpen.set(true)}>Open URL</NouButton>
-      </View>
-      <View className="mt-8 flex-row justify-center">
-        <NouButton variant="outline" onPress={clearWebviewData}>
-          Clar webview data
+      <View className="h-4" />
+
+      {nIf(
+        isWeb,
+        <View className={rowCls}>
+          <NouText className={labelCls}>Try this if couldn't login from webview</NouText>
+          <NouButton size="1" onPress={() => mainClient.openLoginWindow()}>
+            Login YouTube
+          </NouButton>
+        </View>,
+      )}
+      <View className={rowCls}>
+        <NouText className={labelCls}>Open supported URL directly</NouText>
+        <NouButton size="1" onPress={() => ui$.urlModalOpen.set(true)}>
+          Open URL
         </NouButton>
       </View>
-      <View className="mt-8 flex-row justify-center">
-        <NouButton variant="soft" loading={importingList} onPress={onClickImportList}>
-          Import a list of links
+      <View className={rowCls}>
+        <NouText className={labelCls}>Clear webview data</NouText>
+        <NouButton size="1" variant="outline" onPress={clearWebviewData}>
+          Clear
         </NouButton>
       </View>
-      <View className="mt-8 flex-row justify-center">
-        <NouButton variant="soft" loading={importingTakeout} onPress={onClickImportTakeout}>
-          Import from YouTube Takeout
+      <NouText className={clsx(headerCls, 'mt-4')}>Import</NouText>
+      <View className={rowCls}>
+        <NouText className={labelCls}>Import a list of links</NouText>
+        <NouButton size="1" variant="soft" loading={importingList} onPress={onClickImportList}>
+          Import
+        </NouButton>
+      </View>
+      <View className={rowCls}>
+        <NouText className={labelCls}>Import from YouTube takeout</NouText>
+        <NouButton size="1" variant="soft" loading={importingTakeout} onPress={onClickImportTakeout}>
+          Import
         </NouButton>
       </View>
 

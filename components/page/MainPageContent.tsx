@@ -19,9 +19,9 @@ import { auth$ } from '@/states/auth'
 import { useMe } from '@/lib/hooks/useMe'
 import { ObservableHint } from '@legendapp/state'
 import { mainClient } from '@/desktop/src/renderer/ipc/main'
-import { getUserAgent } from '@/lib/webview'
+import { getUserAgent } from '@/lib/useragent'
 
-const userAgent = getUserAgent()
+const userAgent = getUserAgent(isWeb ? window.electron.process.platform : 'android')
 let restored = false
 
 function restoreLastPlaying(webview: any) {

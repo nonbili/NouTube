@@ -1,4 +1,5 @@
 import { toggleInterception } from 'main/lib/intercept.js'
+import { openLoginWindow } from 'main/lib/login-window.js'
 import { MAIN_CHANNEL } from './constants.js'
 import { ipcMain, session } from 'electron'
 
@@ -12,6 +13,7 @@ const interfaces = {
     return await res.text()
   },
   toggleInterception,
+  openLoginWindow,
 }
 
 export type MainInterface = typeof interfaces

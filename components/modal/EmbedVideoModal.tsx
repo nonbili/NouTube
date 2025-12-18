@@ -2,7 +2,7 @@ import { Modal, Text, Pressable, View, Switch, TouchableOpacity, ActivityIndicat
 import { NouText } from '../NouText'
 import { useEffect, useRef, useState } from 'react'
 import { NouTubeView } from '@/modules/nou-tube-view'
-import { getUserAgent } from '@/lib/webview'
+import { getUserAgent } from '@/lib/useragent'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const tabs = ['Settings', 'About']

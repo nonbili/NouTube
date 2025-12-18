@@ -37,7 +37,7 @@ export const SettingsModal = () => {
                 <NouText>v{isWeb ? desktopVersion : version}</NouText>
               </View>
               <View className="mb-6">
-                <NouText className="font-medium">Source code</NouText>
+                <NouText className="font-medium mb-1">Source code</NouText>
                 <NouLink className="text-indigo-400 text-sm" href={repo}>
                   {repo}
                 </NouLink>

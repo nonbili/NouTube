@@ -30,7 +30,7 @@ export const NouButton = ({
       onPress={onPress}
     >
       {nIf(loading, <ActivityIndicator color="white" />)}
-      <NouText className={clsx(variant == 'soft' && 'text-indigo-600')}>{children}</NouText>
+      <NouText className={clsx('text-sm', variant == 'soft' && 'text-indigo-600')}>{children}</NouText>
     </TouchableOpacity>
   )
 }

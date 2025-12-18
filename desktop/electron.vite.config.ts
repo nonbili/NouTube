@@ -8,6 +8,7 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()],
     resolve: {
       alias: {
+        '@': 'noutube',
         main: resolve('src/main'),
       },
     },
