@@ -18,16 +18,6 @@ const keys = {
   },
 }
 
-function savePlaying(currentTime: number) {
-  const value = parseJson(localStorage.getItem(keys.playing), {})
-  if (value.id != curVideoId) {
-    value.id = curVideoId
-    value.url = document.location.href
-  }
-  value.currentTime = currentTime
-  localStorage.setItem(keys.playing, JSON.stringify(value))
-}
-
 export function handleMutations(mutations: MutationRecord[]) {
   for (const mutation of mutations) {
     for (const node of mutation.addedNodes.values()) {
@@ -45,7 +35,7 @@ export function handleVideoPlayer(el: any) {
     if (shouldSaveProgress && restoredProgress) {
       localStorage.setItem(keys.videoProgress(curVideoId), currentTime)
     }
-    savePlaying(currentTime)
+    localStorage.setItem(keys.playing, JSON.stringify({ url: player.getVideoUrl() }))
   }, 5000)
   const notifyProgress = throttle(() => {
     if (!el.getCurrentTime) {
@@ -98,19 +88,13 @@ export function handleVideoPlayer(el: any) {
       curVideoId = videoId
       restoredProgress = false
       shouldSaveProgress = duration > 60 * 10
-      const lastPlaying = parseJson(localStorage.getItem(keys.playing), {})
-      let pendingSeekTo = 0
-      if (lastPlaying.id == curVideoId) {
-        pendingSeekTo = lastPlaying.currentTime
-      }
-      if (shouldSaveProgress || pendingSeekTo) {
-        let lastProgress = Number(pendingSeekTo || localStorage.getItem(keys.videoProgress(curVideoId)))
+      if (shouldSaveProgress) {
+        let lastProgress = Number(localStorage.getItem(keys.videoProgress(curVideoId)))
         if (lastProgress) {
           if (duration - lastProgress < 10 && lastProgress > 10) {
             lastProgress -= 10
           }
           player.seekTo(lastProgress)
-          pendingSeekTo = 0
         }
         restoredProgress = true
         if (shouldSaveProgress) {
