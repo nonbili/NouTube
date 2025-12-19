@@ -56,6 +56,14 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.1.14" date="2025-12-19">
+      <description>
+        <ul>
+          <li>Add Login YouTube button to workaround failure in webview</li>
+          <li>Fix page url when restoring last playing</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.1.13" date="2025-12-16">
       <description>
         <ul>
