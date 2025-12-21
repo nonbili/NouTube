@@ -3,19 +3,19 @@ package expo.modules.noutubeview
 import android.content.Context
 import android.webkit.JavascriptInterface
 
-class NouJsInterface(private val mContext: Context) {
+class NouJsInterface(private val context: Context, private val view: NouTubeView) {
   @JavascriptInterface
   fun onMessage(payload: String) {
-    nouController.onMessage(payload)
+    view.onMessage(mapOf("payload" to payload))
   }
 
   @JavascriptInterface
   fun notify(title: String, author: String, seconds: Long, thumbnail: String) {
-    nouController.notify(title, author, seconds, thumbnail)
+    view.notify(title, author, seconds, thumbnail)
   }
 
   @JavascriptInterface
   fun notifyProgress(playing: Boolean, pos: Long) {
-    nouController.notifyProgress(playing, pos)
+    view.notifyProgress(playing, pos)
   }
 }

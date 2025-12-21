@@ -26,18 +26,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class NoisyAudioReceiver : BroadcastReceiver() {
+class NoisyAudioReceiver(private val view: NouWebView) : BroadcastReceiver() {
   override fun onReceive(context: Context, intent: Intent) {
     if (intent.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY ||
       intent.action == BluetoothDevice.ACTION_ACL_DISCONNECTED
     ) {
-      nouController.pause()
+      view.evaluateJavascript("NouTube.pause()", null)
     }
   }
 }
 
 class NouService : Service() {
-  private var webView: NouWebView? = null
+  private lateinit var webView: NouWebView
   private val binder = NouBinder()
   private var mediaSession: MediaSessionCompat? = null
   private var notificationManager: NotificationManager? = null
@@ -69,7 +69,7 @@ class NouService : Service() {
     val filter = IntentFilter()
     filter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
     filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
-    val noisyReceiver = NoisyAudioReceiver()
+    val noisyReceiver = NoisyAudioReceiver(view)
     _activity.registerReceiver(noisyReceiver, filter)
   }
 

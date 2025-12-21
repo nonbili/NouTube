@@ -3,14 +3,21 @@ package expo.modules.noutubeview
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
+import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.IBinder
+import android.provider.Settings
 import android.util.AttributeSet
 import android.view.ContextMenu
 import android.view.MenuItem
+import android.view.OrientationEventListener
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.JsResult
 import android.webkit.WebChromeClient
@@ -18,6 +25,10 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.FrameLayout
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.viewevent.EventDispatcher
 import expo.modules.kotlin.views.ExpoView
@@ -56,8 +67,6 @@ class NouWebView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     // https://stackoverflow.com/a/64564676
     setFocusable(true)
     setFocusableInTouchMode(true)
-
-    addJavascriptInterface(NouJsInterface(context), "NouTubeI")
   }
 
   suspend fun eval(script: String): String? = suspendCancellableCoroutine { cont ->
@@ -71,6 +80,12 @@ class NouWebView @JvmOverloads constructor(context: Context, attrs: AttributeSet
   }
 }
 
+class NouOrientationListener(context: Context, private val view: NouTubeView) : OrientationEventListener(context) {
+  override fun onOrientationChanged(orientation: Int) {
+    view.onOrientationChanged(orientation)
+  }
+}
+
 class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, appContext) {
   private val onLoad by EventDispatcher()
   internal val onMessage by EventDispatcher()
@@ -78,6 +93,9 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   private var scriptOnStart = ""
   private var pageUrl = ""
   private var customView: View? = null
+  private lateinit var orientationListener: NouOrientationListener
+
+  private var service: NouService? = null
 
   internal val currentActivity: Activity?
     get() = appContext.activityProvider?.currentActivity
@@ -167,25 +185,74 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
         override fun onShowCustomView(view: View, cllback: CustomViewCallback) {
           customView = view
-          nouController.showFullscreen(view)
+          val activity = currentActivity
+          if (activity == null) {
+            return
+          }
+          val window = activity.window
+          (window.decorView as FrameLayout).addView(
+            view,
+            FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+          )
+          activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
+
+          // https://stackoverflow.com/a/64828067
+          val controller = WindowCompat.getInsetsController(window, window.decorView)
+          controller.hide(WindowInsetsCompat.Type.systemBars())
+          controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+          if (Settings.System.getInt(activity.contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0) == 1) {
+            orientationListener.enable()
+          }
         }
 
         override fun onHideCustomView() {
-          nouController.exitFullscreen(customView!!)
+          val activity = currentActivity
+          if (activity == null) {
+            return
+          }
+          val window = activity.window
+          (window.decorView as FrameLayout).removeView(customView)
+          activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER)
+
+          val controller = WindowCompat.getInsetsController(window, window.decorView)
+          controller.show(WindowInsetsCompat.Type.systemBars())
+
+          orientationListener.disable()
         }
       }
     }
 
   init {
-    if (!nouController.inited) {
-      nouController.setNouTubeView(this)
-      nouController.initService()
-    }
-
     addView(webView)
+
+    initService()
 
     val activity = currentActivity
     activity?.registerForContextMenu(webView)
+
+    webView.addJavascriptInterface(NouJsInterface(context, this), "NouTubeI")
+  }
+
+  fun initService() {
+    val activity = currentActivity
+    if (activity == null) {
+      return
+    }
+    val connection = object : ServiceConnection {
+      override fun onServiceConnected(name: ComponentName, binder: IBinder) {
+        val nouBinder = binder as NouService.NouBinder
+        service = nouBinder.getService()
+        service?.initialize(webView, activity)
+      }
+
+      override fun onServiceDisconnected(name: ComponentName) {
+      }
+    }
+    val intent = Intent(activity, NouService::class.java)
+    activity.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+
+    orientationListener = NouOrientationListener(activity, this)
   }
 
   fun setScriptOnStart(script: String) {
@@ -210,5 +277,22 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   fun emit(type: String, data: Any) {
     val payload = mapOf("type" to type, "data" to data)
     onMessage(mapOf("payload" to payload))
+  }
+
+  fun notify(title: String, author: String, seconds: Long, thumbnail: String) {
+    service?.notify(title, author, seconds, thumbnail)
+  }
+
+  fun notifyProgress(playing: Boolean, pos: Long) {
+    service?.notifyProgress(playing, pos)
+  }
+
+  fun onOrientationChanged(orientation: Int) {
+    val activity = currentActivity
+    if (activity?.getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE &&
+      (orientation in 70..110 || orientation in 250..290)
+    ) {
+      activity?.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER)
+    }
   }
 }
