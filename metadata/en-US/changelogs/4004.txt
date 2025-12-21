@@ -1,0 +1,3 @@
+- add a button to open url directly
+- fix restoring last playing
+- dismiss notification when removed from recent apps

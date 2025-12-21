@@ -91,6 +91,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       case 'onload':
         const webview = webviewRef.current || nativeRef.current
         restoreLastPlaying(webview)
+        toggleShorts(hideShorts)
+        syncSettingsToWebview()
         break
       case 'add-queue':
         queue$.addBookmark(data)
@@ -134,8 +136,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       ui$.webview.set(ObservableHint.opaque(webview))
       webviewReadyRef.current = true
       webview.executeJavaScript(contentJs)
-      toggleShorts(hideShorts)
-      syncSettingsToWebview()
     })
     webview.addEventListener('did-navigate', (e) => {
       const { host } = new URL(e.url)
@@ -189,11 +189,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   const onLoad = async (e: { nativeEvent: any }) => {
     setPageUrl(e.nativeEvent.url)
-    const webview = nativeRef.current
-    if (webview) {
-      toggleShorts(hideShorts)
-      syncSettingsToWebview()
-    }
   }
 
   return (
