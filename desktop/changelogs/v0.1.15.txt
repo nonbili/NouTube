@@ -1,0 +1,1 @@
+- Bump electron to see if it helps with login issue

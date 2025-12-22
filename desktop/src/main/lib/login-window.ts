@@ -1,9 +1,11 @@
 import { BrowserWindow } from 'electron'
+import { toggleInterception } from './intercept'
 
 export async function openLoginWindow() {
+  toggleInterception(false)
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1000,
+    height: 800,
     autoHideMenuBar: true,
     webPreferences: {
       sandbox: true,
