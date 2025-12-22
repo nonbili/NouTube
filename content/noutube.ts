@@ -1,7 +1,19 @@
 import { hideShorts, showShorts } from './css'
 import { playDefaultAudio, restoreLastPlaying } from './player'
+import { emit, log } from './utils'
 
 const getPlayer = (): any => document.getElementById('movie_player')
+
+let bridged = false
+function bridgeShortcuts() {
+  if (bridged) {
+    return
+  }
+  bridged = true
+  window.addEventListener('keyup', (e) => {
+    emit('keyup', { key: e.key, metaKey: e.metaKey, ctrlKey: e.ctrlKey })
+  })
+}
 
 export function initNouTube() {
   return {
@@ -21,5 +33,6 @@ export function initNouTube() {
     },
     playDefaultAudio,
     restoreLastPlaying,
+    bridgeShortcuts,
   }
 }

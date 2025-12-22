@@ -20,6 +20,7 @@ import { useMe } from '@/lib/hooks/useMe'
 import { ObservableHint } from '@legendapp/state'
 import { mainClient } from '@/desktop/src/renderer/ipc/main'
 import { getUserAgent } from '@/lib/useragent'
+import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
 
 const userAgent = getUserAgent(isWeb ? window.electron.process.platform : 'android')
 let restored = false
@@ -93,6 +94,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         restoreLastPlaying(webview)
         toggleShorts(hideShorts)
         syncSettingsToWebview()
+        if (isWeb) {
+          uiState.webview.executeJavaScript('window.NouTube.bridgeShortcuts()')
+        }
         break
       case 'add-queue':
         queue$.addBookmark(data)
@@ -114,6 +118,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         break
       case 'embed':
         ui$.embedVideoId.set(data)
+        break
+      case 'keyup':
+        handleShortcuts(data)
         break
     }
   }, [])
