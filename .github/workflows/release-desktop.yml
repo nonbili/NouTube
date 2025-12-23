@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - release-desktop
+      - appx
 
 jobs:
   build:
@@ -14,8 +15,8 @@ jobs:
     strategy:
       matrix:
         os:
-          - macos-15
-          - ubuntu-latest
+          # - macos-15
+          # - ubuntu-latest
           - windows-latest
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
@@ -37,7 +38,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'win')
         run: |
           bun electron-vite build
-          bun electron-builder --publish never
+          # bun electron-builder --publish never
         env:
           VITE_BUILD_TARGET: portable
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -48,11 +49,16 @@ jobs:
         run: |
           zip -r dist/linux-unpacked.zip dist/linux-unpacked
 
-      - name: zip portable
-        if: startsWith(matrix.os, 'win')
-        run: Compress-Archive -Path "dist\win-unpacked\*" -DestinationPath "dist\win-unpacked.zip"
-        shell: powershell
+      # - name: zip portable
+      #   if: startsWith(matrix.os, 'win')
+      #   run: Compress-Archive -Path "dist\win-unpacked\*" -DestinationPath "dist\win-unpacked.zip"
+      #   shell: powershell
 
+      - name: pkg appx on windows
+        if: startsWith(matrix.os, 'win')
+        run: |
+          bun electron-builder --publish never --win appx
+          ls dist
 
       - name: build
         run: bun electron-vite build
@@ -83,6 +89,7 @@ jobs:
             desktop/dist/latest.yml
             desktop/dist/latest-*.yml
             desktop/dist/*.AppImage
+            desktop/dist/*.appx
             desktop/dist/*.blockmap
             desktop/dist/*.dmg
             desktop/dist/*.exe
@@ -109,6 +116,6 @@ jobs:
         with:
           body_path: desktop/changelogs/${{ env.TAG }}.txt
           files: dist/*
-          repository: nonbili/NouTube-Desktop
+          repository: rnons/nt-test
           token: ${{ secrets.GH_RELEASE_TOKEN }}
           tag_name: ${{ env.TAG }}

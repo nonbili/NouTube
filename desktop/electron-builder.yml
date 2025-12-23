@@ -23,6 +23,11 @@ nsis:
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
+appx:
+  artifactName: ${productName}-${version}.${ext}
+  identityName: Nonbili.NouTube
+  publisher: CN=E9477937-876C-417D-81DD-D63DDBACDEC2
+  publisherDisplayName: Nonbili
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
