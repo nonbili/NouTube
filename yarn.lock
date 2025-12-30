@@ -5258,7 +5258,7 @@ ejs@^3.1.8:
   dependencies:
     jake "^10.8.5"
 
-electron-builder@^26.1.0:
+electron-builder@26.1.0:
   version "26.1.0"
   resolved "https://registry.yarnpkg.com/electron-builder/-/electron-builder-26.1.0.tgz#48a5fbfc149d25f9d729a79ee6dc3688b77c1c81"
   integrity sha512-dvy9sODWE7uqz7l68copgAtO2EKumdkLqCgooNWl7bSFjrubMmjf2hVS6iwSrcb7hLHL02OULBPNp45aeGAcpA==
@@ -5342,10 +5342,10 @@ electron-vite@^4.0.0:
     magic-string "^0.30.17"
     picocolors "^1.1.1"
 
-electron@37.2.5:
-  version "37.2.5"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-37.2.5.tgz#29ce0154f763c03d70645063344da51af40c751c"
-  integrity sha512-719ZqEp43rj6xDJMICm4CIXl8keFFgvVNO9Ix6OtjNjrh9HtYlP/1WiYeRohnXj06aLyGx5NCzrHbG7j3BxO9w==
+electron@39.2.7:
+  version "39.2.7"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-39.2.7.tgz#1cf2371304994fe26c564764bd50878fe405fb4b"
+  integrity sha512-KU0uFS6LSTh4aOIC3miolcbizOFP7N1M46VTYVfqIgFiuA2ilfNaOHLDS9tCMvwwHRowAsvqBrh9NgMXcTOHCQ==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^22.7.7"
@@ -6026,6 +6026,11 @@ expo-share-intent@^4.1.0:
     "@expo/config-plugins" "^10.0.2"
     expo-constants "^17.1.5"
     expo-linking "~7.1.4"
+
+expo-sharing@~13.1.5:
+  version "13.1.5"
+  resolved "https://registry.yarnpkg.com/expo-sharing/-/expo-sharing-13.1.5.tgz#73d86cdcc037b46ddc82be224dfd3d6bceec497c"
+  integrity sha512-X/5sAEiWXL2kdoGE3NO5KmbfcmaCWuWVZXHu8OQef7Yig4ZgHFkGD11HKJ5KqDrDg+SRZe4ISd6MxE7vGUgm4w==
 
 expo-splash-screen@~0.30.10:
   version "0.30.10"

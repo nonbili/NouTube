@@ -28,6 +28,9 @@ import { NouButton } from '../button/NouButton'
 import { showConfirm } from '@/lib/confirm'
 import JSZip from 'jszip'
 import { mainClient } from '@/desktop/src/renderer/ipc/main'
+import { File, Paths } from 'expo-file-system/next'
+import { shareAsync } from 'expo-sharing'
+import { bookmarks$ } from '@/states/bookmarks'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const themes = [null, 'dark', 'light'] as const
@@ -55,6 +58,25 @@ export const SettingsModalTabSettings = () => {
       console.error(e)
     } finally {
       setImportingList(false)
+    }
+  }
+
+  const onClickExportList = async () => {
+    const bookmarks = bookmarks$.bookmarks
+      .get()
+      .map((x) => x.url)
+      .join('\n')
+    const date = new Date().toLocaleDateString()
+    const file = new File(Paths.cache, `NouTube_bookmarks_${Date.now()}.txt`)
+    try {
+      file.create()
+      file.write(bookmarks)
+      await shareAsync(file.uri, {
+        mimeType: 'text/plain',
+        dialogTitle: 'Save the file',
+      })
+    } catch (e) {
+      console.error(e)
     }
   }
 
@@ -165,6 +187,7 @@ export const SettingsModalTabSettings = () => {
           Clear
         </NouButton>
       </View>
+
       <NouText className={clsx(headerCls, 'mt-4')}>Import</NouText>
       <View className={rowCls}>
         <NouText className={labelCls}>Import a list of links</NouText>
@@ -178,6 +201,19 @@ export const SettingsModalTabSettings = () => {
           Import
         </NouButton>
       </View>
+
+      {nIf(
+        !isWeb,
+        <>
+          <NouText className={clsx(headerCls, 'mt-4')}>Export</NouText>
+          <View className={rowCls}>
+            <NouText className={labelCls}>Export bookmarks to a list</NouText>
+            <NouButton size="1" variant="soft" loading={importingList} onPress={onClickExportList}>
+              Export
+            </NouButton>
+          </View>
+        </>,
+      )}
 
       <View className="h-20" />
     </>
