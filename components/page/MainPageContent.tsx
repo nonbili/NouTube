@@ -3,7 +3,7 @@ import { use$, useObserve, useObserveEffect } from '@legendapp/state/react'
 import { onClearData$, ui$ } from '@/states/ui'
 import { queue$ } from '@/states/queue'
 import { settings$ } from '@/states/settings'
-import { bookmarks$, migrateWatchlist, newBookmark } from '@/states/bookmarks'
+import { bookmarks$, newBookmark } from '@/states/bookmarks'
 import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
 import NouTubeViewModule, { NouTubeView } from '@/modules/nou-tube-view'
 import { View, Text, BackHandler, ColorSchemeName } from 'react-native'
@@ -66,8 +66,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     if (!ui$.url.get()) {
       ui$.url.set(isYTMusic ? 'https://music.youtube.com' : isWeb ? 'https://www.youtube.com' : 'https://m.youtube.com')
     }
-
-    migrateWatchlist()
   }, [])
 
   useEffect(() => {
@@ -182,6 +180,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(ui$.url, ({ value }) => {
     const webview = webviewRef.current
     const native = nativeRef.current
+    try {
+      if (value && new URL(value).pathname != '/' && !restored) {
+        restored = true
+      }
+    } catch (e) {}
     if (value) {
       if (webview) {
         webview.src = value

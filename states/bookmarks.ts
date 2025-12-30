@@ -3,13 +3,13 @@ import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import { genId, isWeb } from '@/lib/utils'
 import { getIndexedDBPlugin } from './indexeddb'
-import { watchlist$ } from './watchlist'
 import { normalizeUrl } from '@/lib/url'
 
 export interface Bookmark {
   id: string
   url: string
   title: string
+  thumbnail?: string
   created_at: Date
   updated_at: Date
   json: {
@@ -144,25 +144,6 @@ export function newBookmark(bookmark?: Partial<Bookmark>): Bookmark {
     updated_at: new Date(),
     ...bookmark,
   }
-}
-
-export async function migrateWatchlist() {
-  const bookmarksState$ = syncState(bookmarks$)
-  const watchlistState$ = syncState(watchlist$)
-  await when([bookmarksState$.isPersistLoaded, watchlistState$.isPersistLoaded])
-  if (bookmarks$.bookmarks.length || !watchlist$.bookmarks.length) {
-    return
-  }
-  const bookmarks = watchlist$.bookmarks.get().map(({ url, title, thumbnail }) => ({
-    id: genId(),
-    url,
-    title,
-    created_at: new Date(),
-    updated_at: new Date(),
-    json: { thumbnail },
-  }))
-  bookmarks$.importBookmarks(bookmarks)
-  watchlist$.bookmarks.set([])
 }
 
 export function getBookmarkUrls() {

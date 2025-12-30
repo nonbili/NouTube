@@ -1,7 +1,7 @@
 import { observable } from '@legendapp/state'
 import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
-import type { Bookmark } from './watchlist'
+import type { Bookmark } from './bookmarks'
 import { isWeb } from '@/lib/utils'
 import { getIndexedDBPlugin } from './indexeddb'
 

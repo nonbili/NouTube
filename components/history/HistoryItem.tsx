@@ -1,7 +1,7 @@
 import { View, Text, Pressable, ScrollView } from 'react-native'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { observer, use$, useObservable } from '@legendapp/state/react'
-import { Bookmark } from '@/states/watchlist'
+import { Bookmark } from '@/states/bookmarks'
 import { Image } from 'expo-image'
 import { updateUrl, ui$ } from '@/states/ui'
 import { colors } from '@/lib/colors'

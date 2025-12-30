@@ -1,7 +1,7 @@
 import { observable } from '@legendapp/state'
 import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
-import { Bookmark } from './watchlist'
+import { Bookmark } from './bookmarks'
 
 interface Store {
   bookmarks: Bookmark[]
