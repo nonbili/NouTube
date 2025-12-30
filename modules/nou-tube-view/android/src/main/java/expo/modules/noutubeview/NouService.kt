@@ -117,7 +117,7 @@ class NouService : Service() {
     val session = mediaSession!!
     val metadata = session.getController().getMetadata()
     val title = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
-    val author = metadata.getString(MediaMetadataCompat.METADATA_KEY_AUTHOR)
+    val author = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
     val largeIcon = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART)
     val playActionIntent =
       MediaButtonReceiver.buildMediaButtonPendingIntent(
@@ -188,7 +188,7 @@ class NouService : Service() {
   fun notify(title: String, author: String, seconds: Long, thumbnail: String) {
     val metadataBuilder = MediaMetadataCompat.Builder()
       .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
-      .putString(MediaMetadataCompat.METADATA_KEY_AUTHOR, author)
+      .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, author)
       .putLong(
         MediaMetadataCompat.METADATA_KEY_DURATION,
         seconds * 1000
