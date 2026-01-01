@@ -30,3 +30,7 @@ Download Linux/macOS/Windows version from [NouTube-Desktop](https://github.com/n
 ## Contributing
 
 You can find [contributing instructions here](/CONTRIBUTING.md)
+
+## Translation
+
+Translation is supported by [Weblate](https://hosted.weblate.org/projects/noutube).

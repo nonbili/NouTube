@@ -9,6 +9,7 @@ import { NouText } from '../NouText'
 import { clsx, nIf } from '@/lib/utils'
 import { NouMenu } from '../menu/NouMenu'
 import { MaterialButton } from '../button/IconButtons'
+import { t } from 'i18next'
 
 export const FolderItem: React.FC<{ folder: Folder; readOnly?: boolean; onPress: () => void }> = ({
   folder,
@@ -29,8 +30,8 @@ export const FolderItem: React.FC<{ folder: Folder; readOnly?: boolean; onPress:
           <NouMenu
             trigger={<MaterialButton name="more-vert" size={20} />}
             items={[
-              { label: 'Edit', handler: () => ui$.folderModalFolder.set(folder) },
-              { label: 'Remove', handler: () => removeFolder(folder) },
+              { label: t('menus.edit'), handler: () => ui$.folderModalFolder.set(folder) },
+              { label: t('menus.remove'), handler: () => removeFolder(folder) },
             ]}
           />
         </View>,

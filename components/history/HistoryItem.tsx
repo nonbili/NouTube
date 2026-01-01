@@ -10,6 +10,7 @@ import { clsx } from '@/lib/utils'
 import { getPageType, getThumbnail, getVideoThumbnail } from '@/lib/page'
 import { history$ } from '@/states/history'
 import { NouMenu } from '../menu/NouMenu'
+import { t } from 'i18next'
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
@@ -52,7 +53,7 @@ export const HistoryItem: React.FC<{ bookmark: Bookmark }> = ({ bookmark }) => {
               size={20}
             />
           }
-          items={[{ label: 'Remove', handler: () => history$.toggleBookmark(bookmark) }]}
+          items={[{ label: t('menus.remove'), handler: () => history$.toggleBookmark(bookmark) }]}
         />
       </View>
     </View>

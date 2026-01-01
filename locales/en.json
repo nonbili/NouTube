@@ -1,0 +1,72 @@
+{
+  "about": {
+    "label": "About",
+    "code": "Source code",
+    "donate": "Donate"
+  },
+  "buttons": {
+    "clear": "Clear",
+    "import": "Import",
+    "export": "Export",
+    "open": "Open",
+    "cancel": "Cancel",
+    "openUrl": "Open URL",
+    "move": "Move",
+    "save": "Save",
+    "signOut": "Sign out"
+  },
+  "library": {
+    "videos": "Videos",
+    "channels": "Channels",
+    "playlists": "Playlists",
+    "songs": "Songs",
+    "artists": "Artists"
+  },
+  "menus": {
+    "edit": "Edit",
+    "remove": "Remove",
+    "reload": "Reload",
+    "share": "Share"
+  },
+  "modals": {
+    "editBookmark": "Edit bookmark",
+    "title": "Title",
+    "folder": "Folder",
+    "ungrouped": "Ungrouped",
+    "feeds": "Feeds",
+    "history": "History",
+    "queue": "Queue"
+  },
+  "settings": {
+    "label": "Settings",
+    "general": "General",
+    "restoreOnStart": "Restore last playing on start",
+    "hideShorts": "Hide shorts",
+    "channelsFeed": "Channels feed",
+    "watchHistory": "Watch history",
+    "theme": {
+      "label": "YouTube Theme",
+      "system": "System",
+      "dark": "Dark",
+      "light": "Light",
+      "hint": "Restart manually if change not reflected in webview."
+    },
+    "login": {
+      "label": "Try this if couldn't login from webview",
+      "button": "Login YouTube"
+    },
+    "openUrlLabel": "Open supported URL directly",
+    "webview": {
+      "clearLabel": "Clear webview data"
+    },
+    "importList": "Import a list of links",
+    "importTakeout": "Import from YouTube takeout",
+    "exportLabel": "Export bookmarks to a list"
+  },
+  "sync": {
+    "label": "Sync",
+    "hint": "Sync bookmarks across your phones and computers as a premium user.",
+    "currentPlan": "Current plan",
+    "managePlan": "Manage plan"
+  }
+}

@@ -16,19 +16,20 @@ import { Folder, folders$, newFolder } from '@/states/folders'
 import { FolderItem } from '../folder/FolderItem'
 import { sortBy } from 'es-toolkit'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import { t } from 'i18next'
 
 const tabsYT = [
-  { label: 'Videos', value: 'watch' },
-  { label: 'Channels', value: 'channel' },
-  { label: 'Playlists', value: 'playlist' },
+  { label: t('library.videos'), value: 'watch' },
+  { label: t('library.channels'), value: 'channel' },
+  { label: t('library.playlists'), value: 'playlist' },
 ]
 const tabsYTMusic = [
-  { label: 'Songs', value: 'm-watch' },
-  { label: 'Artists', value: 'm-channel' },
-  { label: 'Playlists', value: 'm-playlist' },
+  { label: t('library.songs'), value: 'm-watch' },
+  { label: t('library.artists'), value: 'm-channel' },
+  { label: t('library.playlists'), value: 'm-playlist' },
 ]
 
-const ungroupedFolder = newFolder('', { name: 'Ungrouped', id: '' })
+const ungroupedFolder = newFolder('', { name: t('modals.ungrouped'), id: '' })
 
 export const LibraryModal = () => {
   const libraryModalOpen = use$(ui$.libraryModalOpen)

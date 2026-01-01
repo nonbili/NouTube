@@ -25,6 +25,7 @@ import { queue$ } from '@/states/queue'
 import { usePlayingQueueIndex } from '@/lib/queue'
 import { ui$ } from '@/states/ui'
 import { BaseModal } from './BaseModal'
+import { t } from 'i18next'
 
 export const QueueModal = () => {
   const queueModalOpen = use$(ui$.queueModalOpen)
@@ -36,7 +37,7 @@ export const QueueModal = () => {
       <BaseModal onClose={() => ui$.queueModalOpen.set(false)}>
         <View className="mt-3 mb-4 px-4 flex-row items-center justify-between">
           <View className="flex-row items-baseline">
-            <NouText className="font-medium text-lg">Queue</NouText>
+            <NouText className="font-medium text-lg">{t('modals.queue')}</NouText>
             <NouText className="text-sm text-gray-400 pl-4">
               {playingIndex + 1} / {size}
             </NouText>

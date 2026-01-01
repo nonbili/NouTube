@@ -8,6 +8,7 @@ import { signOut } from '@/lib/supabase/auth'
 import { NouLink } from '../link/NouLink'
 import { NouMenu } from '../menu/NouMenu'
 import { capitalize } from 'es-toolkit'
+import { t } from 'i18next'
 
 export const SettingsModalTabSync = () => {
   const { user, plan } = use$(auth$)
@@ -15,9 +16,7 @@ export const SettingsModalTabSync = () => {
   return (
     <>
       <View className="pt-10">
-        <NouText className="font-medium text-base mb-8">
-          Sync bookmarks across your phones and computers as a premium user.
-        </NouText>
+        <NouText className="font-medium text-base mb-8">{t('sync.hint')}</NouText>
         {!user && (
           <NouLink
             className="text-sm py-2 px-6 text-center bg-[#6366f1] rounded-full flex-row justify-center text-white"
@@ -30,12 +29,14 @@ export const SettingsModalTabSync = () => {
         {user && plan && (
           <>
             <View className="flex-row items-center gap-4 mt-2">
-              <NouText>Current plan: {capitalize(plan)}</NouText>
+              <NouText>
+                {t('sync.currentPlan')}: {capitalize(plan)}
+              </NouText>
               <NouLink
                 className="text-sm py-2 px-6 text-center bg-[#6366f1] rounded-full flex-row justify-center text-white"
                 href="https://noutube.inks.page/app"
               >
-                Manage plan
+                {t('sync.managePlan')}
               </NouLink>
             </View>
           </>
@@ -56,7 +57,7 @@ export const SettingsModalTabSync = () => {
                 <NouText>{user.email}</NouText>
               </View>
             }
-            items={[{ label: 'Sign out', handler: signOut }]}
+            items={[{ label: t('buttons.signOut'), handler: signOut }]}
           />
         </View>
       ) : null}

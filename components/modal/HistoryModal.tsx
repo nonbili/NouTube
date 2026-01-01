@@ -16,6 +16,7 @@ import { ui$ } from '@/states/ui'
 import { BaseModal } from './BaseModal'
 import { getPageType } from '@/lib/page'
 import { NouButton } from '../button/NouButton'
+import { t } from 'i18next'
 
 export const HistoryModal = () => {
   const historyModalOpen = use$(ui$.historyModalOpen)
@@ -34,7 +35,7 @@ export const HistoryModal = () => {
     <BaseModal onClose={() => ui$.historyModalOpen.set(false)}>
       <View className="mt-3 mb-4 px-2 flex-row items-center justify-between">
         <View className="flex-row items-baseline">
-          <NouText className="font-semibold text-lg">History</NouText>
+          <NouText className="font-semibold text-lg">{t('modals.history')}</NouText>
           <NouText className="text-sm text-gray-400 pl-4"></NouText>
         </View>
         {nIf(

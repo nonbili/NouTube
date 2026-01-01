@@ -14,8 +14,16 @@ import { SettingsModal } from '../modal/SettingsModal'
 import { feederLoop } from '@/lib/feeder'
 import { FeedModal } from '../modal/FeedModal'
 import { UrlModal } from '../modal/UrlModal'
+import { useLocales } from 'expo-localization'
+import i18n from 'i18next'
 
 export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
+  const locales = useLocales()
+
+  useEffect(() => {
+    i18n.changeLanguage(locales[0].languageCode || undefined)
+  }, [locales[0]])
+
   useEffect(() => {
     supabase.auth.onAuthStateChange((event, session) => {
       // console.log('onAuthStateChange', event, session)
