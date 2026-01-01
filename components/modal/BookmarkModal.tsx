@@ -12,6 +12,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { colors } from '@/lib/colors'
 import { sortBy } from 'es-toolkit'
 import { FolderItem } from '../folder/FolderItem'
+import { t } from 'i18next'
 
 export const BookmarkModal = () => {
   const bookmark = use$(ui$.bookmarkModalBookmark)
@@ -76,8 +77,8 @@ export const BookmarkModal = () => {
   return (
     <BaseCenterModal onClose={onClose}>
       <View className="p-5">
-        <NouText className="text-lg font-semibold mb-4">Edit bookmark</NouText>
-        <NouText className="mb-1 font-semibold text-gray-300">Title</NouText>
+        <NouText className="text-lg font-semibold mb-4">{t('modals.editBookmark')}</NouText>
+        <NouText className="mb-1 font-semibold text-gray-300">{t('modals.title')}</NouText>
         <TextInput
           className="border border-gray-600 rounded mb-3 text-white p-2 text-sm"
           value={title}
@@ -86,11 +87,11 @@ export const BookmarkModal = () => {
           placeholderTextColor={gray.gray11}
         />
         <NouText className="text-sm">{draftBookmark.url}</NouText>
-        <NouText className="mt-5 mb-1 font-semibold text-gray-300">Folder</NouText>
+        <NouText className="mt-5 mb-1 font-semibold text-gray-300">{t('modals.title')}</NouText>
         <View className="flex-row items-center gap-3">
-          <NouText className="text-sm">{folder?.name || 'Ungrouped'}</NouText>
+          <NouText className="text-sm">{folder?.name || t('modals.ungrouped')}</NouText>
           <NouButton variant="soft" size="1" onPress={() => setFolderPickerShown(!folderPickerShown)}>
-            Move
+            {t('buttons.move')}
           </NouButton>
         </View>
         {folderPickerShown ? (
@@ -102,9 +103,9 @@ export const BookmarkModal = () => {
         ) : null}
         <View className="flex-row items-center justify-between mt-6">
           <NouButton variant="outline" size="1" onPress={onRemove}>
-            Remove
+            {t('buttons.remove')}
           </NouButton>
-          <NouButton onPress={onSubmit}>Save</NouButton>
+          <NouButton onPress={onSubmit}>{t('buttons.save')}</NouButton>
         </View>
       </View>
     </BaseCenterModal>

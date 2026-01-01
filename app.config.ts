@@ -65,6 +65,12 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
       ],
       'expo-asset',
       'expo-font',
+      [
+        'expo-localization',
+        {
+          supportedLocales: ['en'],
+        },
+      ],
       'expo-share-intent',
       'expo-web-browser',
       './plugins/withAndroidPlugin.ts',

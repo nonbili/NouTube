@@ -20,6 +20,7 @@ import { FolderItem } from '../folder/FolderItem'
 import { Folder, folders$, newFolder } from '@/states/folders'
 import { sortBy } from 'es-toolkit'
 import { bookmarks$ } from '@/states/bookmarks'
+import { t } from 'i18next'
 
 const allFolder = newFolder('', { name: 'All', id: '' })
 
@@ -35,7 +36,7 @@ export const FeedModal = () => {
   const filteredFolders = useMemo(() => {
     return [
       allFolder,
-      newFolder('', { name: 'Ungrouped', id: undefined }),
+      newFolder('', { name: t('modals.ungrouped'), id: undefined }),
       ...sortBy(
         folders.filter((x) => x.json.tab == 'channel'),
         ['name'],
@@ -67,7 +68,7 @@ export const FeedModal = () => {
     <BaseModal onClose={() => ui$.feedModalOpen.set(false)}>
       <View className="mt-3 px-2 flex-row items-center">
         <View className="flex-row items-baseline">
-          <NouText className="font-semibold text-lg">Feeds</NouText>
+          <NouText className="font-semibold text-lg">{t('modals.feed')}</NouText>
         </View>
         <NouButton
           className="font-semibold ml-4"

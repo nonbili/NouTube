@@ -16,6 +16,7 @@ import { MaterialButton } from '../button/IconButtons'
 import { library$ } from '@/states/library'
 import { normalizeUrl } from '@/lib/url'
 import { useEffect, useState } from 'react'
+import { t } from 'i18next'
 
 export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const isYTMusic = use$(settings$.isYTMusic)
@@ -103,10 +104,13 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
             trigger={<MaterialButton name="more-vert" />}
             items={[
               { label: isYTMusic ? 'YouTube' : 'YouTube Music', handler: onToggleHome },
-              { label: 'History', handler: () => ui$.historyModalOpen.set(true) },
-              { label: 'Reload', handler: () => uiState.webview.executeJavaScript('document.location.reload()') },
-              { label: 'Share', handler: () => share(uiState.pageUrl) },
-              { label: 'Settings', handler: () => ui$.settingsModalOpen.set(true) },
+              { label: t('modals.history'), handler: () => ui$.historyModalOpen.set(true) },
+              {
+                label: t('menus.reload'),
+                handler: () => uiState.webview.executeJavaScript('document.location.reload()'),
+              },
+              { label: t('menus.share'), handler: () => share(uiState.pageUrl) },
+              { label: t('settings.label'), handler: () => ui$.settingsModalOpen.set(true) },
             ]}
           />
         </View>

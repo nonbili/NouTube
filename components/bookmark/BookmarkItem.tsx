@@ -10,6 +10,7 @@ import { NouText } from '../NouText'
 import { clsx } from '@/lib/utils'
 import { getPageType, getVideoThumbnail } from '@/lib/page'
 import { NouMenu } from '../menu/NouMenu'
+import { t } from 'i18next'
 
 /* https://www.youtube.com/watch?v=<id> */
 function getThumbnail(url: string) {
@@ -57,8 +58,8 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = ({ bookmark }) => 
             />
           }
           items={[
-            { label: 'Edit', handler: () => ui$.bookmarkModalBookmark.set(bookmark) },
-            { label: 'Remove', handler: () => bookmarks$.toggleBookmark(bookmark) },
+            { label: t('menus.edit'), handler: () => ui$.bookmarkModalBookmark.set(bookmark) },
+            { label: t('menus.remove'), handler: () => bookmarks$.toggleBookmark(bookmark) },
           ]}
         />
       </View>

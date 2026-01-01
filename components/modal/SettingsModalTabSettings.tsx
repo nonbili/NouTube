@@ -31,6 +31,7 @@ import { mainClient } from '@/desktop/src/renderer/ipc/main'
 import { File, Paths } from 'expo-file-system/next'
 import { shareAsync } from 'expo-sharing'
 import { bookmarks$ } from '@/states/bookmarks'
+import { t } from 'i18next'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const themes = [null, 'dark', 'light'] as const
@@ -116,16 +117,16 @@ export const SettingsModalTabSettings = () => {
 
   return (
     <>
-      <NouText className={headerCls}>General</NouText>
+      <NouText className={headerCls}>{t('settings.general')}</NouText>
       <NouSwitch
         className=""
-        label="Restore last playing on start"
+        label={t('settings.restoreOnStart')}
         value={settings.restoreOnStart}
         onPress={() => settings$.restoreOnStart.set(!settings.restoreOnStart)}
       />
       <NouSwitch
         className="mt-6"
-        label="Hide shorts"
+        label={t('settings.hideShorts')}
         value={settings.hideShorts}
         onPress={() => settings$.hideShorts.set(!settings.hideShorts)}
       />
@@ -137,13 +138,13 @@ export const SettingsModalTabSettings = () => {
       />
       <NouSwitch
         className="mt-6"
-        label="Channels feed"
+        label={t('settings.channelsFeed')}
         value={settings.feedsEnabled}
         onPress={() => settings$.feedsEnabled.set(!settings.feedsEnabled)}
       />
       <NouSwitch
         className="my-6"
-        label="Watch history"
+        label={t('settings.watchHistory')}
         value={settings.keepHistory}
         onPress={() => settings$.keepHistory.set(!settings.keepHistory)}
       />
@@ -151,17 +152,15 @@ export const SettingsModalTabSettings = () => {
         !isWeb,
         <View className="my-6">
           <View className="items-center flex-row justify-between">
-            <NouText className="font-medium">YouTube Theme</NouText>
+            <NouText className="font-medium">{t('settings.theme.label')}</NouText>
             <Segemented
-              options={['System', 'Dark', 'Light']}
+              options={[t('settings.theme.system'), t('settings.theme.dark'), t('settings.theme.light')]}
               selectedIndex={themes.indexOf(settings.theme)}
               size={1}
               onChange={(index) => settings$.theme.set(themes[index])}
             />
           </View>
-          <NouText className="mt-2 text-sm text-gray-400 text-right">
-            Restart manually if change not reflected in webview.
-          </NouText>
+          <NouText className="mt-2 text-sm text-gray-400 text-right">{t('settings.theme.hint')}</NouText>
         </View>,
       )}
       <View className="h-4" />
@@ -169,47 +168,47 @@ export const SettingsModalTabSettings = () => {
       {nIf(
         isWeb,
         <View className={rowCls}>
-          <NouText className={labelCls}>Try this if couldn't login from webview</NouText>
+          <NouText className={labelCls}>{t('settings.login.label')}</NouText>
           <NouButton size="1" onPress={() => mainClient.openLoginWindow()}>
-            Login YouTube
+            {t('settings.login.button')}
           </NouButton>
         </View>,
       )}
       <View className={rowCls}>
-        <NouText className={labelCls}>Open supported URL directly</NouText>
+        <NouText className={labelCls}>{t('settings.openUrlLabel')}</NouText>
         <NouButton size="1" onPress={() => ui$.urlModalOpen.set(true)}>
-          Open URL
+          {t('buttons.openUrl')}
         </NouButton>
       </View>
       <View className={rowCls}>
-        <NouText className={labelCls}>Clear webview data</NouText>
+        <NouText className={labelCls}>{t('settings.webview.clearLabel')}</NouText>
         <NouButton size="1" variant="outline" onPress={clearWebviewData}>
-          Clear
+          {t('buttons.clear')}
         </NouButton>
       </View>
 
-      <NouText className={clsx(headerCls, 'mt-4')}>Import</NouText>
+      <NouText className={clsx(headerCls, 'mt-4')}>{t('buttons.import')}</NouText>
       <View className={rowCls}>
-        <NouText className={labelCls}>Import a list of links</NouText>
+        <NouText className={labelCls}>{t('settings.importList')}</NouText>
         <NouButton size="1" variant="soft" loading={importingList} onPress={onClickImportList}>
-          Import
+          {t('buttons.import')}
         </NouButton>
       </View>
       <View className={rowCls}>
-        <NouText className={labelCls}>Import from YouTube takeout</NouText>
+        <NouText className={labelCls}>{t('settings.importTakeout')}</NouText>
         <NouButton size="1" variant="soft" loading={importingTakeout} onPress={onClickImportTakeout}>
-          Import
+          {t('buttons.import')}
         </NouButton>
       </View>
 
       {nIf(
         !isWeb,
         <>
-          <NouText className={clsx(headerCls, 'mt-4')}>Export</NouText>
+          <NouText className={clsx(headerCls, 'mt-4')}>{t('buttons.export')}</NouText>
           <View className={rowCls}>
-            <NouText className={labelCls}>Export bookmarks to a list</NouText>
+            <NouText className={labelCls}>{t('settings.exportLabel')}</NouText>
             <NouButton size="1" variant="soft" loading={importingList} onPress={onClickExportList}>
-              Export
+              {t('buttons.export')}
             </NouButton>
           </View>
         </>,

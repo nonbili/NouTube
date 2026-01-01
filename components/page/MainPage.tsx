@@ -14,8 +14,33 @@ import { SettingsModal } from '../modal/SettingsModal'
 import { feederLoop } from '@/lib/feeder'
 import { FeedModal } from '../modal/FeedModal'
 import { UrlModal } from '../modal/UrlModal'
+import { useLocales } from 'expo-localization'
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next'
+import enText from '@/locales/en.json'
+/* import jaText from '@/locales/ja.json' */
+
+i18n.use(initReactI18next).init({
+  /* debug: true, */
+  fallbackLng: 'en',
+  supportedLngs: ['en'],
+  resources: {
+    en: {
+      translation: enText,
+    },
+    /* ja: {
+     *   translation: jaText,
+     * }, */
+  },
+})
 
 export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
+  const locales = useLocales()
+
+  useEffect(() => {
+    i18n.changeLanguage(locales[0].languageCode || undefined)
+  }, [locales[0]])
+
   useEffect(() => {
     supabase.auth.onAuthStateChange((event, session) => {
       // console.log('onAuthStateChange', event, session)
