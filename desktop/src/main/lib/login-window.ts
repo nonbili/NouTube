@@ -11,6 +11,7 @@ export async function openLoginWindow() {
       sandbox: true,
       contextIsolation: true,
       partition: 'persist:webview',
+      webSecurity: false,
     },
   })
   await win.loadURL('https://www.youtube.com')

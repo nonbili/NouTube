@@ -1,6 +1,9 @@
 const chromeVersion = 142
 
 export function getUserAgent(platform = 'android') {
+  // https://stackoverflow.com/a/68231284
+  return 'Mozilla/5.0 (X11; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0'
+
   const mobile = platform == 'android' ? 'Mobile ' : ''
   const detail =
     {
