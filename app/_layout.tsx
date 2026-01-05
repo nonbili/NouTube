@@ -1,3 +1,4 @@
+import '@/lib/i18n'
 import './global.css'
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -10,7 +11,6 @@ import { useObserveEffect } from '@legendapp/state/react'
 import { Slot } from 'expo-router'
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useEffect } from 'react'
-import '@/lib/i18n'
 
 export default function RootLayout() {
   useObserveEffect(settings$.theme, ({ value }) => {

@@ -28,10 +28,10 @@ import { NouButton } from '../button/NouButton'
 import { showConfirm } from '@/lib/confirm'
 import JSZip from 'jszip'
 import { mainClient } from '@/desktop/src/renderer/ipc/main'
-import { File, Paths } from 'expo-file-system/next'
 import { shareAsync } from 'expo-sharing'
 import { bookmarks$ } from '@/states/bookmarks'
 import { t } from 'i18next'
+import { saveFile } from '@/lib/file'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const themes = [null, 'dark', 'light'] as const
@@ -63,22 +63,13 @@ export const SettingsModalTabSettings = () => {
   }
 
   const onClickExportList = async () => {
-    const bookmarks = bookmarks$.bookmarks
+    const content = bookmarks$.bookmarks
       .get()
       .map((x) => x.url)
       .join('\n')
     const date = new Date().toLocaleDateString()
-    const file = new File(Paths.cache, `NouTube_bookmarks_${Date.now()}.txt`)
-    try {
-      file.create()
-      file.write(bookmarks)
-      await shareAsync(file.uri, {
-        mimeType: 'text/plain',
-        dialogTitle: 'Save the file',
-      })
-    } catch (e) {
-      console.error(e)
-    }
+    const filename = `NouTube_bookmarks_${Date.now()}.txt`
+    await saveFile(filename, content)
   }
 
   const onClickImportTakeout = async () => {

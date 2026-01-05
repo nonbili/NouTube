@@ -1,3 +1,4 @@
+import '@/lib/i18n'
 import './global.css'
 
 import { StrictMode } from 'react'
