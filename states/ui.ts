@@ -40,7 +40,7 @@ export const ui$ = observable<Store>({
   libraryModalOpen: false,
   libraryModalTab: '',
   queueModalOpen: false,
-  settingsModalOpen: false,
+  settingsModalOpen: true,
   urlModalOpen: false,
 
   // webview

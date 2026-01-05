@@ -40,7 +40,7 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <MainPageContent contentJs={contentJs} />
+      {/* <MainPageContent contentJs={contentJs} /> */}
       <LibraryModal />
       <BookmarkModal />
       <FeedModal />
