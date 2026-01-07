@@ -29,8 +29,52 @@ export function handleMutations(mutations: MutationRecord[]) {
   }
 }
 
+let playbackRatesExtended = false
+
+function extendPlaybackRates(player: any) {
+  if (playbackRatesExtended) {
+    return
+  }
+  
+  try {
+    // Extend available playback rates to include 2.5x, 3x, 3.5x, 4x
+    const extendedRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4]
+    
+    // Override the getAvailablePlaybackRates method
+    const originalGetRates = player.getAvailablePlaybackRates?.bind(player)
+    if (originalGetRates) {
+      player.getAvailablePlaybackRates = function() {
+        return extendedRates
+      }
+    }
+    
+    // Store original setPlaybackRate to allow any rate
+    const originalSetRate = player.setPlaybackRate?.bind(player)
+    if (originalSetRate) {
+      player.setPlaybackRate = function(rate: number) {
+        // Get the video element and set playbackRate directly
+        const video = player.querySelector('video')
+        if (video) {
+          video.playbackRate = rate
+        }
+        // Also call original method for rates <= 2
+        if (rate <= 2) {
+          originalSetRate(rate)
+        }
+      }
+      playbackRatesExtended = true
+    }
+  } catch (e) {
+    log('Failed to extend playback rates:', e)
+  }
+}
+
 export function handleVideoPlayer(el: any) {
-  const player = el
+  player = el
+  
+  // Extend playback rates to support up to 4x
+  extendPlaybackRates(player)
+  
   const saveProgress = throttle((currentTime) => {
     if (shouldSaveProgress && restoredProgress) {
       localStorage.setItem(keys.videoProgress(curVideoId), currentTime)
