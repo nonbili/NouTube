@@ -52,16 +52,20 @@ function extendPlaybackRates(player: any) {
     const originalSetRate = player.setPlaybackRate?.bind(player)
     if (originalSetRate) {
       player.setPlaybackRate = function(rate: number) {
-        // Get the video element and set playbackRate directly
-        const video = player.querySelector('video')
-        if (video) {
+        // Get the video element from the player - YouTube player wraps a video element
+        const video = document.querySelector('#movie_player video')
+        if (video && video instanceof HTMLVideoElement) {
           video.playbackRate = rate
         }
-        // Also call original method for rates <= 2
+        // Also call original method for rates <= 2 to maintain YouTube's internal state
         if (rate <= 2) {
           originalSetRate(rate)
         }
       }
+    }
+    
+    // Mark as extended only if we successfully set up both overrides
+    if (originalGetRates && originalSetRate) {
       playbackRatesExtended = true
     }
   } catch (e) {
