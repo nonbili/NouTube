@@ -42,31 +42,45 @@ function extendPlaybackRates(player: any) {
     
     // Override the getAvailablePlaybackRates method
     const originalGetRates = player.getAvailablePlaybackRates?.bind(player)
-    if (originalGetRates) {
-      player.getAvailablePlaybackRates = function() {
-        return extendedRates
-      }
+    if (!originalGetRates) {
+      log('Player getAvailablePlaybackRates method not available')
+      return
+    }
+    
+    player.getAvailablePlaybackRates = function() {
+      return extendedRates
     }
     
     // Store original setPlaybackRate to allow any rate
     const originalSetRate = player.setPlaybackRate?.bind(player)
-    if (originalSetRate) {
-      player.setPlaybackRate = function(rate: number) {
-        // Get the video element from the player - YouTube player wraps a video element
-        const video = document.querySelector('#movie_player video')
-        if (video && video instanceof HTMLVideoElement) {
-          video.playbackRate = rate
-        }
-        // Also call original method for rates <= 2 to maintain YouTube's internal state
-        if (rate <= 2) {
-          originalSetRate(rate)
-        }
+    if (!originalSetRate) {
+      log('Player setPlaybackRate method not available')
+      return
+    }
+    
+    player.setPlaybackRate = function(rate: number) {
+      // Get the video element from the player - YouTube player wraps a video element
+      // Try multiple selectors in case YouTube changes their DOM structure
+      const video = document.querySelector('#movie_player video') || 
+                    player.querySelector?.('video') ||
+                    document.querySelector('video')
+      
+      if (video && video instanceof HTMLVideoElement) {
+        video.playbackRate = rate
+      } else {
+        log('Video element not found for playback rate change')
+      }
+      
+      // Also call original method for rates <= 2 to maintain YouTube's internal state
+      if (rate <= 2) {
+        originalSetRate(rate)
       }
     }
     
-    // Mark as extended only if we successfully set up both overrides
-    if (originalGetRates && originalSetRate) {
+    // Verify the overrides were successfully assigned
+    if (player.getAvailablePlaybackRates && player.setPlaybackRate) {
       playbackRatesExtended = true
+      log('Playback rates extended to 4x')
     }
   } catch (e) {
     log('Failed to extend playback rates:', e)
