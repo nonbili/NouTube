@@ -1,21 +1,28 @@
 # NouTube
 
-YouTube and YouTube Music in a single app. No ads, plays in the background.
+Android and Desktop app for YouTube and YouTube Music.
 
+Install from F-Droid, or download APK from GitHub.
+
+[<img src="https://img.shields.io/badge/F--Droid-1976D2?style=for-the-badge&logo=f-droid"
+    alt="Get it on F-Droid"
+    height="80">](https://f-droid.org/packages/jp.nonbili.noutube)
+[<img src="https://img.shields.io/badge/GitHub%20Releases-100000?style=for-the-badge&logo=github"
+      alt="Get it on GitHub"
+      hspace="16"
+      height="50">](https://github.com/nonbili/NouTube/releases/latest)
+
+Find Linux, macOS, Windows versions in [NouTube-Desktop](https://github.com/nonbili/NouTube-Desktop).
+
+## Features
+
+- No ads
+- Plays in the background
 - Manage video/music library without login
 - Manage watch history without login
 - Hide shorts
 - Live chat
 - Play original audio
-
-[<img src="https://f-droid.org/badge/get-it-on.png"
-    alt="Get it on F-Droid"
-    height="80">](https://f-droid.org/packages/jp.nonbili.noutube)
-
-## Desktop version
-
-Desktop version shares the same code base with mobile version.
-Download Linux/macOS/Windows version from [NouTube-Desktop](https://github.com/nonbili/NouTube-Desktop/releases).
 
 ## How it works
 
