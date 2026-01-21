@@ -120,6 +120,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       case 'keyup':
         handleShortcuts(data)
         break
+      case 'playback-rate':
+        ui$.playbackRate.set(data)
+        break
     }
   }, [])
 

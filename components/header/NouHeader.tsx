@@ -23,6 +23,8 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const { width } = useWindowDimensions()
   const uiState = use$(ui$)
   const feedsEnabled = use$(settings$.feedsEnabled)
+  const showPlaybackSpeedControl = use$(settings$.showPlaybackSpeedControl)
+  const playbackRate = use$(ui$.playbackRate)
   const allStarred = use$(library$.urls)
   const starred = allStarred.has(normalizeUrl(uiState.pageUrl))
   const bookmark = use$(bookmarks$.getBookmarkByUrl(normalizeUrl(uiState.pageUrl)))
@@ -91,6 +93,15 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
           {nIf(
             !isYTMusic && queueSize > 0,
             <MaterialButton name="playlist-play" onPress={() => ui$.queueModalOpen.set(!ui$.queueModalOpen.get())} />,
+          )}
+          {nIf(
+            showPlaybackSpeedControl,
+            <TouchableOpacity
+              className="p-2.5 items-center justify-center"
+              onPress={() => ui$.playbackSpeedModalOpen.set(true)}
+            >
+              <NouText className="font-bold text-gray-200">{playbackRate}x</NouText>
+            </TouchableOpacity>,
           )}
           {nIf(
             pageType?.canStar,
