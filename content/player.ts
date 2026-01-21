@@ -75,6 +75,7 @@ function extendPlaybackRates(player: any) {
       if (rate <= 2) {
         originalSetRate(rate)
       }
+      emit('playback-rate', rate)
     }
     
     // Verify the overrides were successfully assigned
@@ -137,6 +138,7 @@ export function handleVideoPlayer(el: any) {
         ;['play', 'pause', 'timeupdate'].forEach((evt) => {
           video.addEventListener(evt, notifyProgress)
         })
+        video.addEventListener('ratechange', () => emit('playback-rate', video.playbackRate))
         progressBinded = true
       }
     }

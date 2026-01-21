@@ -11,6 +11,7 @@ interface Store {
   keepHistory: boolean
   restoreOnStart: boolean
   sponsorBlock: boolean
+  showPlaybackSpeedControl: boolean
   theme: null | 'dark' | 'light'
 }
 
@@ -23,6 +24,7 @@ export const settings$ = observable<Store>({
   keepHistory: true,
   restoreOnStart: true,
   sponsorBlock: true,
+  showPlaybackSpeedControl: false,
   theme: null,
 })
 

@@ -21,9 +21,11 @@ interface Store {
   queueModalOpen: boolean
   settingsModalOpen: boolean
   urlModalOpen: boolean
+  playbackSpeedModalOpen: boolean
 
   // webview
   webview: any
+  playbackRate: number
 }
 
 export const ui$ = observable<Store>({
@@ -42,9 +44,11 @@ export const ui$ = observable<Store>({
   queueModalOpen: false,
   settingsModalOpen: false,
   urlModalOpen: false,
+  playbackSpeedModalOpen: false,
 
   // webview
   webview: undefined,
+  playbackRate: 1,
 })
 
 export function updateUrl(url: string) {
