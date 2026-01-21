@@ -1,18 +1,5 @@
-import {
-  Button,
-  Text,
-  Pressable,
-  View,
-  Switch,
-  TouchableOpacity,
-  ActivityIndicator,
-  Platform,
-  ScrollView,
-  Alert,
-} from 'react-native'
+import { View } from 'react-native'
 import { NouText } from '../NouText'
-import { NouLink } from '../link/NouLink'
-import { version } from '../../package.json'
 import { useState } from 'react'
 import { clsx, isWeb, nIf } from '@/lib/utils'
 import { use$ } from '@legendapp/state/react'
@@ -21,14 +8,12 @@ import { Segemented } from '../picker/Segmented'
 import { getDocumentAsync } from 'expo-document-picker'
 import { importCsv, importList, importZip } from '@/lib/import'
 import { onClearData$, ui$ } from '@/states/ui'
-import NouTubeViewModule from '@/modules/nou-tube-view/src/NouTubeViewModule'
 import { showToast } from '@/lib/toast'
 import { NouSwitch } from '../switch/NouSwitch'
 import { NouButton } from '../button/NouButton'
 import { showConfirm } from '@/lib/confirm'
 import JSZip from 'jszip'
 import { mainClient } from '@/desktop/src/renderer/ipc/main'
-import { shareAsync } from 'expo-sharing'
 import { bookmarks$ } from '@/states/bookmarks'
 import { t } from 'i18next'
 import { saveFile } from '@/lib/file'
@@ -126,6 +111,12 @@ export const SettingsModalTabSettings = () => {
         label="Sponsor block"
         value={settings.sponsorBlock}
         onPress={() => settings$.sponsorBlock.set(!settings.sponsorBlock)}
+      />
+      <NouSwitch
+        className="mt-6"
+        label="Show playback speed control"
+        value={settings.showPlaybackSpeedControl}
+        onPress={() => settings$.showPlaybackSpeedControl.set(!settings.showPlaybackSpeedControl)}
       />
       <NouSwitch
         className="mt-6"

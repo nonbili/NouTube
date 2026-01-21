@@ -29,8 +29,71 @@ export function handleMutations(mutations: MutationRecord[]) {
   }
 }
 
+let playbackRatesExtended = false
+
+function extendPlaybackRates(player: any) {
+  if (playbackRatesExtended) {
+    return
+  }
+  
+  try {
+    // Extend available playback rates to include 2.5x, 3x, 3.5x, 4x
+    const extendedRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4]
+    
+    // Override the getAvailablePlaybackRates method
+    const originalGetRates = player.getAvailablePlaybackRates?.bind(player)
+    if (!originalGetRates) {
+      log('Player getAvailablePlaybackRates method not available')
+      return
+    }
+    
+    player.getAvailablePlaybackRates = function() {
+      return extendedRates
+    }
+    
+    // Store original setPlaybackRate to allow any rate
+    const originalSetRate = player.setPlaybackRate?.bind(player)
+    if (!originalSetRate) {
+      log('Player setPlaybackRate method not available')
+      return
+    }
+    
+    player.setPlaybackRate = function(rate: number) {
+      // Get the video element from the player - YouTube player wraps a video element
+      // Try multiple selectors in case YouTube changes their DOM structure
+      const video = document.querySelector('#movie_player video') || 
+                    player.querySelector?.('video') ||
+                    document.querySelector('video')
+      
+      if (video && video instanceof HTMLVideoElement) {
+        video.playbackRate = rate
+      } else {
+        log('Video element not found for playback rate change')
+      }
+      
+      // Also call original method for rates <= 2 to maintain YouTube's internal state
+      if (rate <= 2) {
+        originalSetRate(rate)
+      }
+      emit('playback-rate', rate)
+    }
+    
+    // Verify the overrides were successfully assigned
+    if (player.getAvailablePlaybackRates && player.setPlaybackRate) {
+      playbackRatesExtended = true
+      log('Playback rates extended to 4x')
+    }
+  } catch (e) {
+    log('Failed to extend playback rates:', e)
+  }
+}
+
 export function handleVideoPlayer(el: any) {
-  const player = el
+  player = el
+  
+  // Extend playback rates to support up to 4x
+  extendPlaybackRates(player)
+  
   const saveProgress = throttle((currentTime) => {
     if (shouldSaveProgress && restoredProgress) {
       localStorage.setItem(keys.videoProgress(curVideoId), currentTime)
@@ -75,6 +138,7 @@ export function handleVideoPlayer(el: any) {
         ;['play', 'pause', 'timeupdate'].forEach((evt) => {
           video.addEventListener(evt, notifyProgress)
         })
+        video.addEventListener('ratechange', () => emit('playback-rate', video.playbackRate))
         progressBinded = true
       }
     }

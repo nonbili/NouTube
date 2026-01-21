@@ -23,6 +23,9 @@ export function initNouTube() {
     prev: () => getPlayer()?.previousVideo(),
     next: () => getPlayer()?.nextVideo(),
     seekBy: (delta: number) => getPlayer()?.seekBy(delta),
+    getPlaybackRate: () => getPlayer()?.getPlaybackRate(),
+    setPlaybackRate: (rate: number) => getPlayer()?.setPlaybackRate(rate),
+    getAvailablePlaybackRates: () => getPlayer()?.getAvailablePlaybackRates(),
     hideShorts() {
       hideShorts()
       this.shortsHidden = true
