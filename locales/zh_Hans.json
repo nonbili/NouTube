@@ -1,0 +1,72 @@
+{
+  "about": {
+    "label": "关于",
+    "code": "源代码",
+    "donate": "捐赠"
+  },
+  "buttons": {
+    "clear": "清除",
+    "import": "导入",
+    "export": "导出",
+    "open": "打开",
+    "cancel": "取消",
+    "openUrl": "打开 URL",
+    "move": "移动",
+    "save": "保存",
+    "signOut": "登出"
+  },
+  "library": {
+    "videos": "视频",
+    "channels": "频道",
+    "playlists": "播放列表",
+    "songs": "歌曲",
+    "artists": "音乐人"
+  },
+  "menus": {
+    "edit": "编辑",
+    "remove": "移除",
+    "reload": "重新加载",
+    "share": "分享"
+  },
+  "modals": {
+    "editBookmark": "编辑书签",
+    "title": "标题",
+    "folder": "文件夹",
+    "ungrouped": "未分组",
+    "feeds": "订阅源",
+    "history": "历史记录",
+    "queue": "队列"
+  },
+  "settings": {
+    "label": "设置",
+    "general": "常规",
+    "restoreOnStart": "启动时恢复上次播放",
+    "hideShorts": "隐藏 Shorts 短视频",
+    "channelsFeed": "频道订阅源",
+    "watchHistory": "观看历史",
+    "theme": {
+      "label": "YouTube 主题",
+      "system": "系统",
+      "dark": "深色",
+      "light": "浅色",
+      "hint": "如果更改未在 WebView 中生效，请手动重启。"
+    },
+    "login": {
+      "button": "登录 YouTube",
+      "label": "如果无法通过 WebView 登录，请尝试此操作"
+    },
+    "openUrlLabel": "直接打开支持的 URL",
+    "webview": {
+      "clearLabel": "清除 WebView 数据"
+    },
+    "importList": "导入链接列表",
+    "importTakeout": "从 YouTube 导出数据导入",
+    "exportLabel": "将书签导出为列表"
+  },
+  "sync": {
+    "label": "同步",
+    "hint": "高级用户可在手机和电脑之间同步书签。",
+    "currentPlan": "当前套餐",
+    "managePlan": "管理套餐"
+  }
+}
