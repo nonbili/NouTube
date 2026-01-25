@@ -1,0 +1,7 @@
+YouTube 和 YouTube Music 整合于单一应用。无广告、支持后台播放。
+<ul><li>登录即可管理观看列表和音乐库</li><li>登录即可管理观看历史</li><li>隐藏 Shorts 短视频</li><li>实时聊天</li><li>播放原始音频</li></ul>
+<h2>工作原理</h2>
+<ul><li>将 https://m.youtube.com 和 https://music.youtube.com 封装在 Android WebView 中</li><li>注入代码以屏蔽广告</li><li>支持播放控制和后台播放</li></ul>
+<h2>桌面版</h2>
+桌面版与移动版共享相同的代码库。
+从 <a href="https://github.com/nonbili/NouTube-Desktop/releases">NouTube-Desktop</a> 下载 Linux/macOS/Windows 版本。

@@ -1,0 +1,72 @@
+{
+  "about": {
+    "label": "О приложении",
+    "code": "Исходный код",
+    "donate": "Пожертвовать"
+  },
+  "buttons": {
+    "clear": "Очистить",
+    "import": "Импорт",
+    "export": "Экспорт",
+    "open": "Открыть",
+    "cancel": "Отмена",
+    "openUrl": "Открыть ссылку",
+    "move": "Переместить",
+    "save": "Сохранить",
+    "signOut": "Выйти"
+  },
+  "library": {
+    "videos": "Видео",
+    "channels": "Каналы",
+    "playlists": "Плейлисты",
+    "songs": "Треки",
+    "artists": "Исполнители"
+  },
+  "menus": {
+    "edit": "Изменить",
+    "remove": "Удалить",
+    "reload": "Обновить",
+    "share": "Поделиться"
+  },
+  "modals": {
+    "editBookmark": "Изменить закладку",
+    "title": "Название",
+    "folder": "Папка",
+    "ungrouped": "Без группы",
+    "feeds": "Ленты",
+    "history": "История",
+    "queue": "Очередь"
+  },
+  "settings": {
+    "label": "Настройки",
+    "general": "Общие",
+    "restoreOnStart": "Восстановить воспроизведение при запуске",
+    "hideShorts": "Скрыть Shorts",
+    "channelsFeed": "Лента каналов",
+    "watchHistory": "История просмотра",
+    "theme": {
+      "label": "Тема YouTube",
+      "system": "Системная",
+      "dark": "Тёмная",
+      "light": "Светлая",
+      "hint": "Перезапустите вручную, если тема в webview не изменилась."
+    },
+    "login": {
+      "label": "Попробуйте это, если не удается войти через webview",
+      "button": "Войти в YouTube"
+    },
+    "openUrlLabel": "Открывать поддерживаемые ссылки напрямую",
+    "webview": {
+      "clearLabel": "Очистить данные webview"
+    },
+    "importList": "Импорт списка ссылок",
+    "importTakeout": "Импорт из YouTube takeout",
+    "exportLabel": "Экспорт закладок в список"
+  },
+  "sync": {
+    "label": "Синхронизация",
+    "hint": "Синхронизируйте закладки между телефонами и компьютерами как премиум‑пользователь.",
+    "currentPlan": "Текущий план",
+    "managePlan": "Управление планом"
+  }
+}
