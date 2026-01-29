@@ -55,16 +55,18 @@ function createWindow(): void {
     webPreferences.preload = join(__dirname, '../preload/index.js')
   })
 
+  const contextMenuOptions = {
+    showCopyImage: false,
+    showLearnSpelling: false,
+    showLookUpSelection: false,
+    showSearchWithGoogle: false,
+    showSelectAll: false,
+  }
+  // @ts-expect-error ?
+  contextMenu.default({ ...contextMenuOptions, window: mainWindow.webContents })
   mainWindow.webContents.on('did-attach-webview', (e, wc) => {
     // @ts-expect-error ?
-    contextMenu.default({
-      window: wc,
-      showCopyImage: false,
-      showLearnSpelling: false,
-      showLookUpSelection: false,
-      showSearchWithGoogle: false,
-      showSelectAll: false,
-    })
+    contextMenu.default({ ...contextMenuOptions, window: wc })
     wc.setWindowOpenHandler((details) => {
       const { pathname, searchParams } = new URL(details.url)
       const redirectTo = searchParams.get('q')
