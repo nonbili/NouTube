@@ -6,7 +6,7 @@ import { ui$, updateUrl } from '@/states/ui'
 import { Button, ContextMenu } from '@expo/ui/jetpack-compose'
 import { colors } from '@/lib/colors'
 import { NouText } from '../NouText'
-import { clsx, nIf } from '@/lib/utils'
+import { clsx, nIf, isWeb, isIos } from '@/lib/utils'
 import { NouMenu } from '../menu/NouMenu'
 import { MaterialButton } from '../button/IconButtons'
 import { t } from 'i18next'
@@ -28,7 +28,15 @@ export const FolderItem: React.FC<{ folder: Folder; readOnly?: boolean; onPress:
         !readOnly,
         <View>
           <NouMenu
-            trigger={<MaterialButton name="more-vert" size={20} />}
+            trigger={
+              isWeb ? (
+                <MaterialButton name="more-vert" size={20} />
+              ) : isIos ? (
+                'ellipsis'
+              ) : (
+                'filled.MoreVert'
+              )
+            }
             items={[
               { label: t('menus.edit'), handler: () => ui$.folderModalFolder.set(folder) },
               { label: t('menus.remove'), handler: () => removeFolder(folder) },

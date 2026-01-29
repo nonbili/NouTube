@@ -5,7 +5,7 @@ import { NouText } from '../NouText'
 import { colors } from '@/lib/colors'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { NouMenu } from '../menu/NouMenu'
-import { clsx, isWeb, nIf } from '@/lib/utils'
+import { clsx, isIos, isWeb, nIf } from '@/lib/utils'
 import { ui$, updateUrl } from '@/states/ui'
 import { bookmarks$ } from '@/states/bookmarks'
 import { getPageType } from '@/lib/page'
@@ -101,7 +101,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
             />,
           )}
           <NouMenu
-            trigger={<MaterialButton name="more-vert" />}
+            trigger={isWeb ? <MaterialButton name="more-vert" /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
             items={[
               { label: isYTMusic ? 'YouTube' : 'YouTube Music', handler: onToggleHome },
               { label: t('modals.history'), handler: () => ui$.historyModalOpen.set(true) },

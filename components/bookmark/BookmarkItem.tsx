@@ -7,10 +7,11 @@ import { ui$, updateUrl } from '@/states/ui'
 import { Button, ContextMenu } from '@expo/ui/jetpack-compose'
 import { colors } from '@/lib/colors'
 import { NouText } from '../NouText'
-import { clsx } from '@/lib/utils'
+import { clsx, isWeb, isIos } from '@/lib/utils'
 import { getPageType, getVideoThumbnail } from '@/lib/page'
 import { NouMenu } from '../menu/NouMenu'
 import { t } from 'i18next'
+import { MaterialButton } from '../button/IconButtons'
 
 /* https://www.youtube.com/watch?v=<id> */
 function getThumbnail(url: string) {
@@ -48,15 +49,7 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = ({ bookmark }) => 
       </Pressable>
       <View>
         <NouMenu
-          trigger={
-            <MaterialIcons.Button
-              color={colors.icon}
-              backgroundColor="transparent"
-              iconStyle={{ marginRight: 0 }}
-              name="more-vert"
-              size={20}
-            />
-          }
+          trigger={isWeb ? <MaterialButton name="more-vert" size={20} /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
           items={[
             { label: t('menus.edit'), handler: () => ui$.bookmarkModalBookmark.set(bookmark) },
             { label: t('menus.remove'), handler: () => bookmarks$.toggleBookmark(bookmark) },

@@ -2,7 +2,7 @@ import { View, Text, Pressable } from 'react-native'
 import { NouText } from '../NouText'
 import { clsx } from '@/lib/utils'
 
-export const Segemented: React.FC<{
+export const Segmented: React.FC<{
   options: string[]
   selectedIndex: number
   size?: 1 | 2

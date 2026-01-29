@@ -17,7 +17,7 @@ import { useState } from 'react'
 import { clsx, isWeb, nIf } from '@/lib/utils'
 import { use$ } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
-import { Segemented } from '../picker/Segmented'
+import { Segmented } from '../picker/Segmented'
 import { getDocumentAsync } from 'expo-document-picker'
 import { importCsv, importList, importZip } from '@/lib/import'
 import { onClearData$, ui$ } from '@/states/ui'
@@ -144,7 +144,7 @@ export const SettingsModalTabSettings = () => {
         <View className="my-6">
           <View className="items-center flex-row justify-between">
             <NouText className="font-medium">{t('settings.theme.label')}</NouText>
-            <Segemented
+            <Segmented
               options={[t('settings.theme.system'), t('settings.theme.dark'), t('settings.theme.light')]}
               selectedIndex={themes.indexOf(settings.theme)}
               size={1}

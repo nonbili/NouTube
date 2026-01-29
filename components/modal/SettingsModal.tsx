@@ -6,7 +6,7 @@ import { version as desktopVersion } from '../../desktop/package.json'
 import { useState } from 'react'
 import { clsx, isWeb } from '@/lib/utils'
 import { use$ } from '@legendapp/state/react'
-import { Segemented } from '../picker/Segmented'
+import { Segmented } from '../picker/Segmented'
 import { BaseModal } from './BaseModal'
 import { ui$ } from '@/states/ui'
 import { SettingsModalTabSync } from './SettingsModalTabSync'
@@ -26,7 +26,7 @@ export const SettingsModal = () => {
     settingsModalOpen && (
       <BaseModal onClose={() => ui$.settingsModalOpen.set(false)}>
         <View className="items-center my-4">
-          <Segemented options={tabs} selectedIndex={tabIndex} onChange={setTabIndex} />
+          <Segmented options={tabs} selectedIndex={tabIndex} onChange={setTabIndex} />
         </View>
         <ScrollView className="px-4">
           {tabIndex == 0 && <SettingsModalTabSettings />}

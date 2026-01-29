@@ -14,14 +14,22 @@ import { SettingsModal } from '../modal/SettingsModal'
 import { feederLoop } from '@/lib/feeder'
 import { FeedModal } from '../modal/FeedModal'
 import { UrlModal } from '../modal/UrlModal'
-import { useLocales } from 'expo-localization'
+import { Locale, useLocales } from 'expo-localization'
 import i18n from 'i18next'
+
+function expoLocaleToI18nLocale(locale: Locale): string | undefined {
+  const { languageCode, languageScriptCode } = locale
+  if (languageCode == 'zh') {
+    return `${languageCode}_${languageScriptCode}`
+  }
+  return languageCode || undefined
+}
 
 export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   const locales = useLocales()
 
   useEffect(() => {
-    i18n.changeLanguage(locales[0].languageCode || undefined)
+    i18n.changeLanguage(expoLocaleToI18nLocale(locales[0]))
   }, [locales[0]])
 
   useEffect(() => {
