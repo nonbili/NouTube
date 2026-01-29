@@ -1,10 +1,21 @@
 const keys = ['adBreakHeartbeatParams', 'adPlacements', 'adSlots', 'playerAds']
 
-export const RE_INTERCEPT = new RegExp('^/youtubei/v1/(player|search)')
+export const RE_INTERCEPT = new RegExp('^/youtubei/v1/(get_watch|player|search)')
+
+export function transformGetWatchResponse(text: string) {
+  const data = JSON.parse(text)
+  data[0].playerResonse = stripAdKeys(data[0].playerResonse)
+  return JSON.stringify(data)
+}
+
+function stripAdKeys(data: any) {
+  keys.forEach((key) => delete data[key])
+  return data
+}
 
 export function transformPlayerResponse(text: string) {
   const data = JSON.parse(text)
-  keys.forEach((key) => delete data[key])
+  stripAdKeys(data)
   return JSON.stringify(data)
 }
 

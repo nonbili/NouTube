@@ -1,4 +1,9 @@
-import { RE_INTERCEPT, transformPlayerResponse, transformSearchResponse } from '@/lib/intercept'
+import {
+  RE_INTERCEPT,
+  transformGetWatchResponse,
+  transformPlayerResponse,
+  transformSearchResponse,
+} from '@/lib/intercept'
 
 export function intercept() {
   const winFetch = fetch
@@ -18,10 +23,12 @@ export function intercept() {
       headers: res.headers,
     }
     try {
-      return new Response(
-        match[1] == 'search' ? transformSearchResponse(text) : transformPlayerResponse(text),
-        responseInit,
-      )
+      const fn =
+        {
+          get_watch: transformGetWatchResponse,
+          search: transformSearchResponse,
+        }[match[1]] || transformPlayerResponse
+      return new Response(fn(text), responseInit)
     } catch (error) {
       console.error('NouScript:', error)
     }

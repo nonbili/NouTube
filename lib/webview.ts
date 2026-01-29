@@ -17,7 +17,7 @@ export async function getWatchPageBookmark(url: string) {
     }
     return bookmark
   } catch (e) {
-    console.error(e, data)
+    console.log(e, data)
   }
   return bookmark
 }
