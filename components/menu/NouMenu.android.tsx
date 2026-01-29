@@ -19,9 +19,15 @@ export const NouMenu: React.FC<{ trigger: ReactNode; items: Item[] }> = ({ trigg
 
   return (
     <ContextMenu color={colors.bg}>
-      {/* @ts-expect-error ?? */}
       <ContextMenu.Items>{menuItems}</ContextMenu.Items>
-      <ContextMenu.Trigger>{trigger}</ContextMenu.Trigger>
+      <ContextMenu.Trigger>
+        <Button
+          elementColors={{ containerColor: 'transparent', contentColor: colors.icon }}
+          leadingIcon={trigger as any}
+        >
+          {''}
+        </Button>
+      </ContextMenu.Trigger>
     </ContextMenu>
   )
 }

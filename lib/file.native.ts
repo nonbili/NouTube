@@ -1,4 +1,5 @@
 import { File, Paths } from 'expo-file-system/next'
+import { shareAsync } from 'expo-sharing'
 
 export async function saveFile(filename: string, content: string) {
   const file = new File(Paths.cache, filename)
