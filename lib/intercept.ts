@@ -4,7 +4,7 @@ export const RE_INTERCEPT = new RegExp('^/youtubei/v1/(get_watch|player|search)'
 
 export function transformGetWatchResponse(text: string) {
   const data = JSON.parse(text)
-  data[0].playerResonse = stripAdKeys(data[0].playerResonse)
+  data[0].playerResponse = stripAdKeys(data[0].playerResponse)
   return JSON.stringify(data)
 }
 
