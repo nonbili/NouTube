@@ -31,7 +31,7 @@ export function getPageType(url: string) {
   let type = pathname.slice(1).split('/')[0]
   let canStar = starrableTypes.includes(type)
 
-  if (!canStar && (type.startsWith('@') || (type && pathname.split('/').length == 2))) {
+  if (!canStar && (type.startsWith('@') || (type && !['results'].includes(type) && pathname.split('/').length == 2))) {
     type = 'channel'
     canStar = true
   }

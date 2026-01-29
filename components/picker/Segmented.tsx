@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from 'react-native'
 import { NouText } from '../NouText'
-import { clsx } from '@/lib/utils'
+import { clsx, isIos } from '@/lib/utils'
 
 export const Segmented: React.FC<{
   options: string[]
@@ -19,9 +19,9 @@ export const Segmented: React.FC<{
             className={clsx(
               size == 1 ? 'px-3 py-1' : 'px-4 py-2',
               active ? 'bg-zinc-100' : 'bg-zinc-700',
-              index == 0 && 'rounded-l-md',
+              !isIos && index == 0 && 'rounded-l-md',
               index < options.length - 1 && 'border-r',
-              index == options.length - 1 && 'rounded-r-md',
+              !isIos && index == options.length - 1 && 'rounded-r-md',
             )}
           >
             <NouText className={clsx('font-medium', size == 1 && 'text-sm', active && 'text-gray-900')}>{tab}</NouText>

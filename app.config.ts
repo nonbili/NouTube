@@ -27,6 +27,10 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'jp.nonbili.noutube',
+      infoPlist: {
+        // Required for background playback and PiP on iOS.
+        UIBackgroundModes: ['audio'],
+      },
     },
     android: {
       versionCode,

@@ -77,14 +77,29 @@ const cssContent = css`
     display: none !important;
   }
 
-  #_inks_audio_btn {
+  #_inks_native_actions {
+    display: flex;
+    gap: 8px;
+    margin-left: 8px;
+  }
+  #_inks_native_actions[data-floating='true'] {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 20;
+    margin-left: 0;
+  }
+  #_inks_audio_btn,
+  #_inks_pip_btn {
     display: flex;
     align-items: center;
     background: #34d399;
     padding: 0 4px;
     color: #44403c;
     border-radius: 4px;
-    margin-left: 8px;
+  }
+  #_inks_pip_btn {
+    background: #93c5fd;
   }
   #_inks_audio_picker {
     position: absolute;

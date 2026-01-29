@@ -7,8 +7,32 @@ import { handleDialogs } from './dialogs'
 import { handleMenu } from './menu'
 import { pinchToZoom } from './pinch'
 
+function preventYoutubeBackgroundPause() {
+  if (!window.webkit?.messageHandlers?.NouTubeI || !document.location.host.endsWith('youtube.com')) {
+    return
+  }
+
+  const stopImmediate = (event: Event) => event.stopImmediatePropagation()
+  for (const [key, value] of [
+    ['hidden', false],
+    ['webkitHidden', false],
+    ['visibilityState', 'visible'],
+  ] as const) {
+    try {
+      Object.defineProperty(document, key, {
+        configurable: true,
+        get: () => value,
+      })
+    } catch {}
+  }
+
+  document.addEventListener('visibilitychange', stopImmediate, true)
+  window.addEventListener('pagehide', stopImmediate, true)
+}
+
 try {
   window.NouTube = initNouTube()
+  preventYoutubeBackgroundPause()
 
   if (!window.electron) {
     intercept()

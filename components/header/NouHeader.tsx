@@ -56,6 +56,10 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
     }
   }
 
+  const onStartPiP = () => {
+    noutube?.executeJavaScript('window.NouTube?.prepareForBackground?.()')
+  }
+
   return (
     <>
       <View className="bg-zinc-800 flex-row lg:flex-col justify-between px-2 py-1 lg:px-1 lg:py-2">
@@ -100,9 +104,11 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
               onPress={onToggleStar}
             />,
           )}
+          {nIf(!isWeb && isIos, <MaterialButton name="picture-in-picture-alt" onPress={onStartPiP} />)}
           <NouMenu
             trigger={isWeb ? <MaterialButton name="more-vert" /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
             items={[
+              ...(isIos ? [{ label: 'Start PiP', handler: onStartPiP }] : []),
               { label: isYTMusic ? 'YouTube' : 'YouTube Music', handler: onToggleHome },
               { label: t('modals.history'), handler: () => ui$.historyModalOpen.set(true) },
               {

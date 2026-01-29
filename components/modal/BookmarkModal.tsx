@@ -103,7 +103,7 @@ export const BookmarkModal = () => {
         ) : null}
         <View className="flex-row items-center justify-between mt-6">
           <NouButton variant="outline" size="1" onPress={onRemove}>
-            {t('buttons.remove')}
+            {t('menus.remove')}
           </NouButton>
           <NouButton onPress={onSubmit}>{t('buttons.save')}</NouButton>
         </View>

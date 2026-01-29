@@ -50,7 +50,7 @@ export const FeedItem: React.FC<{ bookmark: Bookmark; channel?: Bookmark }> = me
           items={[{ label: t('menus.share'), handler: () => share(bookmark.url) }]}
         />
       </View>
-      <View className="flex-row mb-4 overflow-hidden px-2">
+      <View className="flex-row mb-6 overflow-hidden px-2">
         <View className="flex-row items-center">
           <Pressable className="w-[120px]" onPress={onPress}>
             <Image

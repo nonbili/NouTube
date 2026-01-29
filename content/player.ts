@@ -1,5 +1,5 @@
 import { retry, throttle } from 'es-toolkit'
-import { emit, log, isYTMusic, nouPolicy, parseJson } from './utils'
+import { emit, isYTMusic, nouPolicy, parseJson } from './utils'
 import { hideLiveChat, showLiveChatButton } from './livechat'
 import { originalLabels } from './audio'
 import { getSkipSegments, isSponsorBlockEnabled, Segment } from './sponsorblock'
@@ -10,6 +10,106 @@ let skipSegments: { videoId: string; segments: Segment[] } = { videoId: '', segm
 
 const keys = {
   playing: 'nou:playing',
+}
+
+function getVideoEl() {
+  return document.querySelector('#movie_player video') as any
+}
+
+function isIosNativeWebView() {
+  return Boolean((window as any).webkit?.messageHandlers?.NouTubeI)
+}
+
+function isVideoInPiP(video = getVideoEl()) {
+  return Boolean(video && (video.webkitPresentationMode === 'picture-in-picture' || document.pictureInPictureElement === video))
+}
+
+function isVideoFullscreen() {
+  const video = getVideoEl()
+  return Boolean(document.fullscreenElement || (document as any).webkitFullscreenElement || video?.webkitDisplayingFullscreen)
+}
+
+function enterVideoFullscreen() {
+  const video = getVideoEl()
+  if (video?.webkitSupportsFullscreen && typeof video.webkitEnterFullscreen == 'function') {
+    try {
+      video.webkitEnterFullscreen()
+      return
+    } catch {}
+  }
+  ;(document.querySelector('#player-control-container .fullscreen-icon') as HTMLButtonElement | null)?.click()
+}
+
+function exitVideoFullscreen() {
+  const video = getVideoEl()
+  if (document.fullscreenElement && document.exitFullscreen) {
+    document.exitFullscreen()
+    return
+  }
+  if ((document as any).webkitFullscreenElement && typeof (document as any).webkitExitFullscreen == 'function') {
+    ;(document as any).webkitExitFullscreen()
+    return
+  }
+  if (video?.webkitDisplayingFullscreen && typeof video.webkitExitFullscreen == 'function') {
+    video.webkitExitFullscreen()
+  }
+}
+
+function syncVideoFullscreen() {
+  if (document.location.pathname !== '/watch') {
+    return
+  }
+  if (isVideoInPiP()) {
+    return
+  }
+
+  const isLandscape = window.matchMedia('(orientation: landscape)').matches
+  if (isLandscape) {
+    if (!isVideoFullscreen() && Math.max(window.innerWidth, window.innerHeight) < 1000) {
+      enterVideoFullscreen()
+    }
+  } else if (isVideoFullscreen()) {
+    exitVideoFullscreen()
+  }
+}
+
+export function prepareForBackground() {
+  if (document.location.pathname !== '/watch') {
+    return false
+  }
+
+  const video = getVideoEl()
+  if (!video) {
+    return false
+  }
+  if (isVideoInPiP(video)) {
+    return true
+  }
+
+  if (typeof video.play === 'function') {
+    video.play().catch(() => {})
+  }
+
+  if (typeof video.webkitSetPresentationMode === 'function') {
+    try {
+      if (video.webkitPresentationMode !== 'picture-in-picture') {
+        video.webkitSetPresentationMode('picture-in-picture')
+      }
+      return true
+    } catch {}
+  }
+
+  if (typeof video.requestPictureInPicture === 'function') {
+    video.requestPictureInPicture().catch(() => {})
+    return true
+  }
+
+  if (!isVideoFullscreen()) {
+    enterVideoFullscreen()
+    return true
+  }
+
+  return false
 }
 
 export function handleMutations(mutations: MutationRecord[]) {
@@ -71,8 +171,12 @@ export function handleVideoPlayer(el: any) {
         ;['play', 'pause', 'timeupdate'].forEach((evt) => {
           video.addEventListener(evt, notifyProgress)
         })
+        video.addEventListener('play', syncVideoFullscreen)
         progressBinded = true
       }
+    }
+    if (state == 1) {
+      syncVideoFullscreen()
     }
 
     const { title: _title, author, thumbnail, lengthSeconds, videoId } = videoDetails
@@ -85,7 +189,7 @@ export function handleVideoPlayer(el: any) {
       curVideoId = videoId
 
       if (window.NouTubeI) {
-        renderPlayOriginalAudioBtn()
+        void renderNativeActionButtons()
 
         hideLiveChat()
         if (playabilityStatus?.liveStreamability) {
@@ -100,23 +204,9 @@ export function handleVideoPlayer(el: any) {
   })
 }
 
-screen.orientation.addEventListener('change', (event) => {
-  if (document.location.pathname != '/watch') {
-    return
-  }
-
-  const target = event.target as any
-  const type = target.type
-  if (type.includes('landscape')) {
-    if (!document.fullscreenElement && screen.availWidth < 1000) {
-      ;(document.querySelector('#player-control-container .fullscreen-icon') as HTMLButtonElement)?.click()
-    }
-  } else {
-    if (document.fullscreenElement) {
-      document.exitFullscreen()
-    }
-  }
-})
+window.addEventListener('orientationchange', syncVideoFullscreen)
+window.addEventListener('resize', syncVideoFullscreen)
+screen.orientation?.addEventListener?.('change', syncVideoFullscreen)
 
 export async function playDefaultAudio() {
   await retry(
@@ -181,38 +271,52 @@ export async function playDefaultAudio() {
   }
 }
 
-async function renderPlayOriginalAudioBtn() {
+async function renderNativeActionButtons() {
   if (document.location.pathname != '/watch' || isYTMusic) {
     return
   }
 
-  const badgeRenderer = await retry(
-    async () => {
-      const badgeRenderer = document.querySelector('ytm-slim-video-information-renderer ytm-badge-supported-renderer')
-      if (!badgeRenderer) {
-        throw 'badge not ready'
-      }
-      return badgeRenderer
-    },
-    { retries: 30, delay: 100 },
-  )
-
-  if (!badgeRenderer) {
+  const badgeRenderer = document.querySelector('ytm-slim-video-information-renderer ytm-badge-supported-renderer')
+  const host = badgeRenderer || document.body
+  if (!host) {
     return
   }
 
-  const container = document.createElement('div')
-  container.id = '_inks_audio_btn'
-  container.innerHTML = nouPolicy.createHTML(/* HTML */ `
+  let container = document.querySelector('div#_inks_native_actions')
+  if (!container) {
+    container = document.createElement('div')
+    container.id = '_inks_native_actions'
+    host.append(container)
+  }
+  if (container.parentElement !== host) {
+    host.append(container)
+  }
+  container.setAttribute('data-floating', host === document.body ? 'true' : 'false')
+
+  container.innerHTML = ''
+
+  const audioBtn = document.createElement('div')
+  audioBtn.id = '_inks_audio_btn'
+  audioBtn.innerHTML = nouPolicy.createHTML(/* HTML */ `
     Play original audio 🦦
   `)
-  container.onclick = (e) => {
+  audioBtn.onclick = (e) => {
     e.stopPropagation()
     player.pauseVideo()
     emit('embed', curVideoId)
   }
+  container.append(audioBtn)
 
-  badgeRenderer.append(container)
+  if (isIosNativeWebView()) {
+    const pipBtn = document.createElement('div')
+    pipBtn.id = '_inks_pip_btn'
+    pipBtn.textContent = 'Start PiP'
+    pipBtn.onclick = (e) => {
+      e.stopPropagation()
+      prepareForBackground()
+    }
+    container.append(pipBtn)
+  }
 }
 
 export function restoreLastPlaying() {
