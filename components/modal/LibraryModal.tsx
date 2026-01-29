@@ -11,7 +11,7 @@ import { Segemented } from '../picker/Segmented'
 import { FlatList, View } from 'react-native'
 import { clsx, isWeb } from '@/lib/utils'
 import { colors } from '@/lib/colors'
-import { AntButton, MaterialButton } from '../button/IconButtons'
+import { AntButton, MaterialButton, MaterialCommunityButton } from '../button/IconButtons'
 import { Folder, folders$, newFolder } from '@/states/folders'
 import { FolderItem } from '../folder/FolderItem'
 import { sortBy } from 'es-toolkit'
@@ -72,7 +72,11 @@ export const LibraryModal = () => {
       <View className={clsx('px-2 flex-row justify-between items-center mb-4', isWeb && 'mt-4')}>
         {isWeb ? <NouText /> : null}
         <Segemented options={tabs.map((x) => x.label)} selectedIndex={tabIndex} onChange={setTabIndex} />
-        <AntButton name="addfolder" size={20} onPress={() => ui$.folderModalFolder.set(newFolder(currentTab.value))} />
+        <MaterialCommunityButton
+          name="folder-plus-outline"
+          size={20}
+          onPress={() => ui$.folderModalFolder.set(newFolder(currentTab.value))}
+        />
       </View>
       {currentFolder != undefined ? (
         <>

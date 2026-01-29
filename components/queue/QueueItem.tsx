@@ -6,10 +6,11 @@ import { Image } from 'expo-image'
 import { updateUrl, ui$ } from '@/states/ui'
 import { colors } from '@/lib/colors'
 import { NouText } from '../NouText'
-import { clsx } from '@/lib/utils'
+import { clsx, isWeb, isIos } from '@/lib/utils'
 import { getPageType, getThumbnail, getVideoThumbnail } from '@/lib/page'
 import { queue$ } from '@/states/queue'
 import { NouMenu } from '../menu/NouMenu'
+import { MaterialButton } from '../button/IconButtons'
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
@@ -43,13 +44,13 @@ export const QueueItem: React.FC<{ bookmark: Bookmark; playing: boolean }> = ({ 
       </Pressable>
       <NouMenu
         trigger={
-          <MaterialIcons.Button
-            color={colors.icon}
-            backgroundColor="transparent"
-            iconStyle={{ marginRight: 0 }}
-            name="more-vert"
-            size={20}
-          />
+          isWeb ? (
+            <MaterialButton name="more-vert" size={20} />
+          ) : isIos ? (
+            'ellipsis'
+          ) : (
+            'filled.MoreVert'
+          )
         }
         items={[{ label: 'Remove', handler: () => queue$.toggleBookmark(bookmark) }]}
       />

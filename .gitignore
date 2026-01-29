@@ -30,9 +30,9 @@ expo-env.d.ts
 *.tsbuildinfo
 
 /android
+/ios
 assets/scripts/
 modules/*/android/build/
-modules/*/ios
 
 *-env.d.ts
 
