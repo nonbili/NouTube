@@ -11,6 +11,7 @@ const withAndroidSigningConfig: ConfigPlugin = (config) => {
 
 android {`,
       )
+      .replace('zh-Hans', 'b+zh+Hans')
       .replace(
         /buildTypes \{([\s\S]*?)release \{([\s\S]*?)signingConfig signingConfigs\.debug/,
         `buildTypes {$1release { `,
