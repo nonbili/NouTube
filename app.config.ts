@@ -54,6 +54,7 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
     },
     plugins: [
       './plugins/withAndroidPlugin.ts',
+      './plugins/withAndroidAuto.ts',
       'expo-router',
       [
         'expo-splash-screen',

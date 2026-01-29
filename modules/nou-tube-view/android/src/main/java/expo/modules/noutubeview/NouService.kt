@@ -26,6 +26,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+import android.support.v4.media.MediaBrowserCompat
+import androidx.media.MediaBrowserServiceCompat
+
 class NoisyAudioReceiver(private val view: NouWebView) : BroadcastReceiver() {
   override fun onReceive(context: Context, intent: Intent) {
     if (intent.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY ||
@@ -36,7 +39,7 @@ class NoisyAudioReceiver(private val view: NouWebView) : BroadcastReceiver() {
   }
 }
 
-class NouService : Service() {
+class NouService : MediaBrowserServiceCompat() {
   private lateinit var webView: NouWebView
   private val binder = NouBinder()
   private var mediaSession: MediaSessionCompat? = null
@@ -51,9 +54,29 @@ class NouService : Service() {
     fun getService(): NouService = this@NouService
   }
 
-  override fun onBind(intent: Intent): IBinder = binder
+  override fun onBind(intent: Intent): IBinder? {
+    if (SERVICE_INTERFACE == intent.action) {
+      return super.onBind(intent)
+    }
+    return binder
+  }
 
-  override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+  override fun onGetRoot(
+    clientPackageName: String,
+    clientUid: Int,
+    rootHints: Bundle?
+  ): MediaBrowserServiceCompat.BrowserRoot? {
+    return MediaBrowserServiceCompat.BrowserRoot("root", null)
+  }
+
+  override fun onLoadChildren(
+    parentId: String,
+    result: MediaBrowserServiceCompat.Result<MutableList<MediaBrowserCompat.MediaItem>>
+  ) {
+    result.sendResult(mutableListOf())
+  }
+
+  override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
     if (intent != null) {
       MediaButtonReceiver.handleIntent(mediaSession, intent)
     }
@@ -64,6 +87,7 @@ class NouService : Service() {
     activity = _activity
     webView = view
     mediaSession = MediaSessionCompat(this, "NouService")
+    sessionToken = mediaSession!!.sessionToken
     initCallback()
 
     val filter = IntentFilter()
