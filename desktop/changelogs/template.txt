@@ -1,0 +1,3 @@
+| Linux | macOS | macOS | Windows |
+| - | - | - | - |
+| [Download](https://github.com/nonbili/NouTube-Desktop/releases/download/v{VER}/NouTube-{VER}.AppImage) | [Download](https://github.com/nonbili/NouTube-Desktop/releases/download/v{VER}/NouTube-{VER}-x64.dmg) | [Download](https://github.com/nonbili/NouTube-Desktop/releases/download/v{VER}/NouTube-{VER}-arm64.dmg) | [Download](https://github.com/nonbili/NouTube-Desktop/releases/download/v{VER}/NouTube-{VER}-setup.exe) |
