@@ -1,0 +1,72 @@
+{
+  "about": {
+    "label": "À propos",
+    "code": "Code source",
+    "donate": "Faire un don"
+  },
+  "buttons": {
+    "clear": "Effacer",
+    "import": "Importer",
+    "export": "Exporter",
+    "open": "Ouvrir",
+    "cancel": "Annuler",
+    "openUrl": "Ouvrir l'URL",
+    "move": "Déplacer",
+    "save": "Enregistrer",
+    "signOut": "Se déconnecter"
+  },
+  "library": {
+    "videos": "Vidéos",
+    "channels": "Chaînes",
+    "playlists": "Playlists",
+    "songs": "Titres",
+    "artists": "Artistes"
+  },
+  "menus": {
+    "edit": "Modifier",
+    "remove": "Supprimer",
+    "reload": "Recharger",
+    "share": "Partager"
+  },
+  "modals": {
+    "editBookmark": "Modifier le signet",
+    "title": "Titre",
+    "folder": "Dossier",
+    "ungrouped": "Non regroupé",
+    "feeds": "Flux",
+    "history": "Historique",
+    "queue": "File d'attente"
+  },
+  "settings": {
+    "label": "Paramètres",
+    "general": "Général",
+    "restoreOnStart": "Restaurer la dernière lecture au démarrage",
+    "hideShorts": "Masquer les shorts",
+    "channelsFeed": "Flux des chaînes",
+    "watchHistory": "Historique des visionnages",
+    "theme": {
+      "label": "Thème YouTube",
+      "system": "Système",
+      "dark": "Sombre",
+      "light": "Clair",
+      "hint": "Redémarrez manuellement si la modification n'apparaît pas dans la vue Web."
+    },
+    "login": {
+      "label": "Essayez ceci si vous ne parvenez pas à vous connecter depuis Webview.",
+      "button": "Connexion YouTube"
+    },
+    "openUrlLabel": "Ouvrir directement l'URL prise en charge",
+    "webview": {
+      "clearLabel": "Effacer les données WebView"
+    },
+    "importList": "Importer une liste de liens",
+    "importTakeout": "Importer depuis YouTube",
+    "exportLabel": "Exporter les signets vers une liste"
+  },
+  "sync": {
+    "label": "Synchronisation",
+    "hint": "Synchronisez vos signets entre vos téléphones et vos ordinateurs en tant qu'utilisateur premium.",
+    "currentPlan": "Plan actuel",
+    "managePlan": "Gérer le plan"
+  }
+}
