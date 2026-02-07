@@ -1,0 +1,7 @@
+YouTube dan YouTube Music dalam satu aplikasi. Tanpa iklan, pemutaran di latar belakang.
+<ul><li>Kelola daftar tontonan, pustaka musik tanpa perlu masuk</li><li>Kelola riwayat tontonan tanpa masuk</li><li>Sembunyikan shorts</li><li>Obrolan langsung</li><li>Putar audio asli</li></ul>
+<h2>Bagaimana itu bekerja</h2>
+<ul><li>Membungkus https://m.youtube.com dan https://music.youtube.com di dalam Android webview</li><li>Memasukkan kode untuk memblokir iklan</li><li>Mengaitkan kontrol pemutaran dan dukungan pemutaran di latar belakang</li></ul>
+<h2>Versi desktop</h2>
+Versi desktop menggunakan kode dasar yang sama dengan versi seluler.
+Unduh versi Linux/macOS/Windows dari <a .href="https://github.com/nonbili/NouTube-Desktop/releases">NouTube-Desktop</a>.

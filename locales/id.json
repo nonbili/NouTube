@@ -1,0 +1,72 @@
+{
+  "about": {
+    "label": "Tentang",
+    "donate": "Donasi",
+    "code": "Kode sumber"
+  },
+  "buttons": {
+    "clear": "Bersihkan",
+    "import": "Impor",
+    "export": "Ekspor",
+    "open": "Buka",
+    "cancel": "Batalkan",
+    "openUrl": "Buka URL",
+    "move": "Pindahkan",
+    "save": "Simpan",
+    "signOut": "Keluar"
+  },
+  "library": {
+    "videos": "Video",
+    "channels": "Saluran",
+    "playlists": "Daftar putar",
+    "songs": "Lagu",
+    "artists": "Artis"
+  },
+  "menus": {
+    "edit": "Sunting",
+    "remove": "Hapus",
+    "reload": "Muat ulang",
+    "share": "Bagikan"
+  },
+  "modals": {
+    "editBookmark": "Sunting penanda",
+    "title": "Judul",
+    "folder": "Folder",
+    "ungrouped": "Tidak dikelompokkan",
+    "feeds": "Umpan",
+    "history": "Riwayat",
+    "queue": "Antrean"
+  },
+  "settings": {
+    "label": "Pengaturan",
+    "general": "Umum",
+    "restoreOnStart": "Pulihkan pemutaran terakhir saat memulai",
+    "hideShorts": "Sembunyikan shorts",
+    "channelsFeed": "Umpan saluran",
+    "watchHistory": "Riwayat menonton",
+    "theme": {
+      "label": "Tema YouTube",
+      "system": "Sistem",
+      "dark": "Gelap",
+      "light": "Terang",
+      "hint": "Mulai ulang manual jika perubahan tidak ditampilkan di webview."
+    },
+    "login": {
+      "label": "Coba ini jika tidak bisa masuk dari webview",
+      "button": "Masuk YouTube"
+    },
+    "openUrlLabel": "Buka URL yang didukung secara langsung",
+    "webview": {
+      "clearLabel": "Bersihkan data webview"
+    },
+    "importList": "Impor daftar tautan",
+    "importTakeout": "Impor dari penarikan YouTube",
+    "exportLabel": "Ekspor penanda ke daftar"
+  },
+  "sync": {
+    "label": "Sinkron",
+    "hint": "Sinkronkan penanda di semua ponsel dan komputer Anda sebagai pengguna premium.",
+    "currentPlan": "Paket saat ini",
+    "managePlan": "Kelola paket"
+  }
+}
