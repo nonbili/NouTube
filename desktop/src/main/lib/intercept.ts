@@ -1,6 +1,11 @@
 import { app, net, protocol, session } from 'electron'
 import * as cheerio from 'cheerio'
-import { RE_INTERCEPT, transformPlayerResponse, transformSearchResponse } from '../../../../lib/intercept'
+import {
+  RE_INTERCEPT,
+  transformGetWatchResponse,
+  transformPlayerResponse,
+  transformSearchResponse,
+} from 'noutube/lib/intercept'
 
 function transformHtml(html: string) {
   const $ = cheerio.load(html)
@@ -44,10 +49,12 @@ export function interceptHttpRequest() {
       }
 
       if (match) {
-        return new Response(
-          match[1] == 'search' ? transformSearchResponse(text) : transformPlayerResponse(text),
-          responseInit,
-        )
+        const fn =
+          {
+            get_watch: transformGetWatchResponse,
+            search: transformSearchResponse,
+          }[match[1]] || transformPlayerResponse
+        return new Response(fn(text), responseInit)
       }
     } catch (e) {
       console.error(e)

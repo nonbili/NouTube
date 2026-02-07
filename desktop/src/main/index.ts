@@ -16,7 +16,7 @@ app.userAgentFallback = getUserAgent(process.platform)
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1024,
+    width: 1080,
     height: 800,
     show: false,
     autoHideMenuBar: true,
@@ -30,7 +30,8 @@ function createWindow(): void {
   setMainWindow(mainWindow)
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
+    mainWindow.maximize()
+    // mainWindow.show()
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {

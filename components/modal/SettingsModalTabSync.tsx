@@ -3,7 +3,7 @@ import { NouText } from '../NouText'
 import { Image } from 'expo-image'
 import { use$ } from '@legendapp/state/react'
 import { auth$ } from '@/states/auth'
-import { isWeb, isIos } from '@/lib/utils'
+import { isWeb, isIos, nIf } from '@/lib/utils'
 import { signOut } from '@/lib/supabase/auth'
 import { NouLink } from '../link/NouLink'
 import { NouMenu } from '../menu/NouMenu'
@@ -18,16 +18,19 @@ export const SettingsModalTabSync = () => {
     <>
       <View className="pt-10">
         <NouText className="font-medium text-base mb-8">{t('sync.hint')}</NouText>
-        {!user && (
-          <NouLink
-            className="text-sm py-2 px-6 text-center bg-[#6366f1] rounded-full flex-row justify-center text-white"
-            href="https://noutube.inks.page/auth/app"
-            target="_blank"
-          >
-            Login NouTube
-          </NouLink>
+        {nIf(
+          !user,
+          <View className="flex-row justify-center">
+            <NouLink
+              className="text-sm py-2 px-6 text-center bg-[#6366f1] rounded-full flex-row justify-center text-white"
+              href="https://noutube.inks.page/auth/app"
+              target="_blank"
+            >
+              Login NouTube
+            </NouLink>
+          </View>,
         )}
-        {user && plan && (
+        {user && plan ? (
           <>
             <View className="flex-row items-center gap-4 mt-2">
               <NouText>
@@ -41,26 +44,27 @@ export const SettingsModalTabSync = () => {
               </NouLink>
             </View>
           </>
-        )}
+        ) : null}
       </View>
-      {user ? (
+      {nIf(
+        user,
         <View className="mt-6 flex-row justify-between items-center">
           <View className="flex-row items-center gap-2 py-2">
             <View className="">
               <Image
                 style={{ width: 32, height: 32, borderRadius: '100%', backgroundColor: 'lightblue' }}
-                source={user.picture}
+                source={user?.picture}
                 contentFit="cover"
               />
             </View>
-            <NouText>{user.email}</NouText>
+            <NouText>{user?.email}</NouText>
           </View>
           <NouMenu
             trigger={isWeb ? <MaterialButton name="more-vert" /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
             items={[{ label: t('buttons.signOut'), handler: signOut }]}
           />
-        </View>
-      ) : null}
+        </View>,
+      )}
     </>
   )
 }
