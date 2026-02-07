@@ -74,6 +74,9 @@ jobs:
           bun electron-builder --x64 --arm64 --publish never
         env:
           CSC_LINK: ${{ secrets.CSC_LINK }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
       - name: pkg on ubuntu & windows
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'win')
