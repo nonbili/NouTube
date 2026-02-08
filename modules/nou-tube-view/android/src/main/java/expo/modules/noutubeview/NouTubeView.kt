@@ -26,6 +26,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -232,6 +233,11 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     activity?.registerForContextMenu(webView)
 
     webView.addJavascriptInterface(NouJsInterface(context, this), "NouTubeI")
+
+    // some websites have `padding-bottom: env(safe-area-inset-bottom)`, this set it to 0
+    ViewCompat.setOnApplyWindowInsetsListener(webView) { _, _ ->
+      WindowInsetsCompat.CONSUMED
+    }
   }
 
   fun initService() {
