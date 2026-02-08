@@ -22,6 +22,7 @@ export default defineConfig({
         '@': 'noutube',
         '@renderer': resolve('src/renderer'),
         main: resolve('src/main'),
+        'expo-modules-core-polyfill': resolve('../node_modules/expo-modules-core/src/polyfill/index.web.ts'),
       },
     },
     plugins: [

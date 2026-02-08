@@ -1,3 +1,4 @@
+import 'expo-modules-core-polyfill'
 import '@/lib/i18n'
 import './global.css'
 
