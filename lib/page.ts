@@ -94,12 +94,4 @@ export const setPageUrl = debounce(async function (url: string) {
   settings$.home.set(host == 'music.youtube.com' ? 'yt-music' : 'yt')
 
   const pageType = getPageType(url)
-  if (settings$.keepHistory.get() && pageType?.type == 'watch') {
-    setTimeout(async () => {
-      const history = await getWatchPageBookmark(url)
-      if (history.url == url) {
-        history$.addBookmark(history)
-      }
-    }, 5000)
-  }
 }, 300)

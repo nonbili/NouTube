@@ -21,6 +21,7 @@ import { ObservableHint } from '@legendapp/state'
 import { mainClient } from '@/desktop/src/renderer/ipc/main'
 import { getUserAgent } from '@/lib/useragent'
 import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
+import { history$ } from '@/states/history'
 
 const userAgent = getUserAgent(isWeb ? window.electron.process.platform : 'android')
 let restored = false
@@ -103,6 +104,15 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       case 'star':
         bookmarks$.addBookmark(newBookmark(data))
         showToast(`Saved to bookmarks`)
+        break
+      case 'progress':
+        history$.addHistory({
+          videoId: data.videoId,
+          url: data.url,
+          title: data.title,
+          current: data.current,
+          duration: data.duration,
+        })
         break
       case 'playback-end':
         const videoId = getVideoId(uiState.pageUrl)

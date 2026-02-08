@@ -1,18 +1,28 @@
 import { observable } from '@legendapp/state'
 import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
-import type { Bookmark } from './bookmarks'
-import { isWeb } from '@/lib/utils'
+import { genId, isWeb } from '@/lib/utils'
 import { getIndexedDBPlugin } from './indexeddb'
 
 const LIMIT = 1000
 
+export interface History {
+  id: string
+  videoId: string
+  url: string
+  title: string
+  thumbnail?: string
+  duration: number
+  current: number
+  updatedAt: number
+}
+
 interface Store {
-  bookmarks: Bookmark[]
+  bookmarks: History[]
   urls: () => Set<string>
   size: () => number
-  toggleBookmark: (bookmark: Bookmark) => void
-  addBookmark: (bookmark: Bookmark) => void
+  removeHistory: (history: History) => void
+  addHistory: (history: Partial<History>) => void
 }
 
 export const history$ = observable<Store>({
@@ -23,20 +33,30 @@ export const history$ = observable<Store>({
   size: (): number => {
     return history$.urls.size
   },
-  toggleBookmark: (bookmark) => {
-    if (history$.urls.has(bookmark.url)) {
-      const filtered = history$.bookmarks.get().filter((x) => x.url != bookmark.url)
-      history$.bookmarks.set(filtered)
-    } else {
-      history$.bookmarks.unshift(bookmark)
-    }
+  removeHistory: (history) => {
+    const filtered = history$.bookmarks.get().filter((x) => x.id != history.id)
+    history$.bookmarks.set(filtered)
   },
-  addBookmark: (bookmark) => {
-    const index = history$.bookmarks.findIndex((x) => x.url.get() == bookmark.url)
-    if (index != -1) {
-      history$.bookmarks.splice(index, 1)
+  addHistory: (history) => {
+    const latest = history$.bookmarks[0].get()
+    if (latest && latest.videoId == history.videoId) {
+      history$.bookmarks[0].assign({
+        ...history,
+        updatedAt: Date.now(),
+      })
+    } else {
+      history$.bookmarks.unshift({
+        id: genId(),
+        videoId: '',
+        url: '',
+        title: '',
+        duration: 0,
+        current: 0,
+        ...history,
+        updatedAt: Date.now(),
+      } as History)
     }
-    history$.bookmarks.unshift(bookmark)
+
     if (history$.bookmarks.length > LIMIT) {
       history$.bookmarks.splice(LIMIT, history$.bookmarks.length)
     }

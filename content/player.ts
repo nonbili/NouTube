@@ -6,16 +6,10 @@ import { getSkipSegments, isSponsorBlockEnabled, Segment } from './sponsorblock'
 
 export let player: any
 let curVideoId = ''
-let shouldSaveProgress = false
-let restoredProgress = false
 let skipSegments: { videoId: string; segments: Segment[] } = { videoId: '', segments: [] }
 
 const keys = {
   playing: 'nou:playing',
-  videos: 'nou:videos:progress',
-  videoProgress(id: string) {
-    return `nou:progress:${id}`
-  },
 }
 
 export function handleMutations(mutations: MutationRecord[]) {
@@ -31,11 +25,13 @@ export function handleMutations(mutations: MutationRecord[]) {
 
 export function handleVideoPlayer(el: any) {
   const player = el
+  let title = ''
+  let duration = 0
+
   const saveProgress = throttle((currentTime) => {
-    if (shouldSaveProgress && restoredProgress) {
-      localStorage.setItem(keys.videoProgress(curVideoId), currentTime)
-    }
-    localStorage.setItem(keys.playing, JSON.stringify({ url: player.getVideoUrl() }))
+    const url = player.getVideoUrl()
+    localStorage.setItem(keys.playing, JSON.stringify({ url }))
+    emit('progress', { url, title, videoId: curVideoId, current: currentTime, duration })
   }, 5000)
   const notifyProgress = throttle(() => {
     if (!el.getCurrentTime) {
@@ -79,34 +75,14 @@ export function handleVideoPlayer(el: any) {
       }
     }
 
-    const { title, author, thumbnail, lengthSeconds, videoId } = videoDetails
+    const { title: _title, author, thumbnail, lengthSeconds, videoId } = videoDetails
     if (curVideoId != videoId) {
       player.unMute()
       const thumb = thumbnail.thumbnails.at(-1)
-      const duration = +lengthSeconds
+      duration = +lengthSeconds
+      title = _title
       window.NouTubeI?.notify(title, author, duration, thumb?.url || '')
       curVideoId = videoId
-      restoredProgress = false
-      shouldSaveProgress = duration > 60 * 10
-      if (shouldSaveProgress) {
-        let lastProgress = Number(localStorage.getItem(keys.videoProgress(curVideoId)))
-        if (lastProgress) {
-          if (duration - lastProgress < 10 && lastProgress > 10) {
-            lastProgress -= 10
-          }
-          player.seekTo(lastProgress)
-        }
-        restoredProgress = true
-        if (shouldSaveProgress) {
-          const watchProgress = parseJson(localStorage.getItem(keys.videos), [])
-          watchProgress.push(curVideoId)
-          if (watchProgress.length > 100) {
-            const id = watchProgress.pop()
-            localStorage.removeItem(keys.videoProgress(id))
-          }
-          localStorage.setItem(keys.videos, JSON.stringify(watchProgress))
-        }
-      }
 
       if (window.NouTubeI) {
         renderPlayOriginalAudioBtn()
