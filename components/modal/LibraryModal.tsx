@@ -83,7 +83,7 @@ export const LibraryModal = () => {
           {filteredFolders.length ? (
             <View className="flex-row items-center gap-2 mb-2">
               <MaterialButton name="arrow-back" size={20} onPress={() => setCurrentFolder(undefined)} />
-              <NouText>{currentFolder.name}</NouText>
+              <NouText className="flex-1">{currentFolder.name}</NouText>
             </View>
           ) : null}
           <FlatList

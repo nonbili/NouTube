@@ -38,7 +38,7 @@ const themes = [null, 'dark', 'light'] as const
 
 const rowCls = 'mb-6 flex-row justify-between items-center'
 const headerCls = 'mb-6 font-semibold text-gray-400'
-const labelCls = 'text-gray-200'
+const labelCls = 'text-gray-200 flex-1 mr-4'
 
 export const SettingsModalTabSettings = () => {
   const settings = useValue(settings$)
@@ -143,7 +143,7 @@ export const SettingsModalTabSettings = () => {
         !isWeb,
         <View className="my-6">
           <View className="items-center flex-row justify-between">
-            <NouText className="font-medium">{t('settings.theme.label')}</NouText>
+            <NouText className="flex-1 font-medium mr-4">{t('settings.theme.label')}</NouText>
             <Segmented
               options={[t('settings.theme.system'), t('settings.theme.dark'), t('settings.theme.light')]}
               selectedIndex={themes.indexOf(settings.theme)}

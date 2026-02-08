@@ -33,7 +33,7 @@ export const SettingsModalTabSync = () => {
         {user && plan ? (
           <>
             <View className="flex-row items-center gap-4 mt-2">
-              <NouText>
+              <NouText className="flex-1">
                 {t('sync.currentPlan')}: {capitalize(plan)}
               </NouText>
               <NouLink
@@ -49,7 +49,7 @@ export const SettingsModalTabSync = () => {
       {nIf(
         user,
         <View className="mt-6 flex-row justify-between items-center">
-          <View className="flex-row items-center gap-2 py-2">
+          <View className="flex-row items-center gap-2 py-2 flex-1 mr-4">
             <View className="">
               <Image
                 style={{ width: 32, height: 32, borderRadius: '100%', backgroundColor: 'lightblue' }}
@@ -57,7 +57,7 @@ export const SettingsModalTabSync = () => {
                 contentFit="cover"
               />
             </View>
-            <NouText>{user?.email}</NouText>
+            <NouText className="flex-1">{user?.email}</NouText>
           </View>
           <NouMenu
             trigger={isWeb ? <MaterialButton name="more-vert" /> : isIos ? 'ellipsis' : 'filled.MoreVert'}

@@ -94,11 +94,11 @@ android {
         applicationId 'jp.nonbili.noutube'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 42
-        versionName "0.4.9"
+        versionCode 43
+        versionName "0.4.10"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
-        resourceConfigurations += ["en", "ru", "b+zh+Hans"]
+        resourceConfigurations += ["en", "fr", "it", "ru", "b+zh+Hans"]
     }
     signingConfigs {
         debug {
