@@ -69,7 +69,7 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
       [
         'expo-localization',
         {
-          supportedLocales: ['en', 'ru', 'zh-Hans'],
+          supportedLocales: ['en', 'fr', 'it', 'ru', 'zh-Hans'],
         },
       ],
       'expo-share-intent',

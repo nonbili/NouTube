@@ -57,6 +57,15 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.2.0" date="2026-02-08">
+      <description>
+        <ul>
+          <li>Fix ad blocking</li>
+          <li>Support injecting cookie to fix login</li>
+          <li>Support restoring progress from History panel</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.1.15" date="2025-12-22">
       <description>
         <ul>

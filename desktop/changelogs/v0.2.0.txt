@@ -1,0 +1,3 @@
+- Fix ad blocking
+- Support injecting cookie to fix login
+- Support restoring progress from History panel
