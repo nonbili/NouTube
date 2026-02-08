@@ -3,6 +3,18 @@ import 'ts-node/register'
 import { ExpoConfig } from 'expo/config'
 import { version, versionCode } from './package.json'
 
+const intentFilters = ['youtube.com', 'm.youtube.com', 'music.youtube.com', 'www.youtube.com', 'youtu.be'].map(
+  (host) => ({
+    autoVerify: false,
+    action: 'VIEW',
+    data: {
+      scheme: 'https',
+      host,
+    },
+    category: ['BROWSABLE', 'DEFAULT'],
+  }),
+)
+
 module.exports = ({ config }: { config: ExpoConfig }) => {
   return {
     name: 'NouTube',
@@ -26,26 +38,7 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
       package: 'jp.nonbili.noutube',
-      intentFilters: [
-        {
-          autoVerify: false,
-          action: 'VIEW',
-          data: {
-            scheme: 'https',
-            host: '*youtube.com',
-          },
-          category: ['BROWSABLE', 'DEFAULT'],
-        },
-        {
-          autoVerify: false,
-          action: 'VIEW',
-          data: {
-            scheme: 'https',
-            host: 'youtu.be',
-          },
-          category: ['BROWSABLE', 'DEFAULT'],
-        },
-      ],
+      intentFilters,
     },
     web: {
       bundler: 'metro',
