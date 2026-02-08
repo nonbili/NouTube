@@ -14,6 +14,41 @@ const interfaces = {
   },
   toggleInterception,
   openLoginWindow,
+  setCookie: async (cookie: string) => {
+    const ses = session.fromPartition('persist:webview')
+    const items = cookie.split(';').map((x) => x.trim())
+    for (const item of items) {
+      const index = item.indexOf('=')
+      if (index === -1) continue
+      const name = item.slice(0, index)
+      const value = item.slice(index + 1)
+
+      if (name && value) {
+        const details: any = {
+          url: 'https://www.youtube.com',
+          name,
+          value,
+          path: '/',
+          expirationDate: Math.floor(Date.now() / 1000) + 31536000,
+        }
+
+        if (name.startsWith('__Host-')) {
+          details.secure = true
+        } else {
+          details.domain = '.youtube.com'
+          if (name.startsWith('__Secure-')) {
+            details.secure = true
+          }
+        }
+
+        try {
+          await ses.cookies.set(details)
+        } catch (e) {
+          console.error(`Failed to set cookie ${name}`, e)
+        }
+      }
+    }
+  },
 }
 
 export type MainInterface = typeof interfaces

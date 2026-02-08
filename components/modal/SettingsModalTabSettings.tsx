@@ -157,7 +157,7 @@ export const SettingsModalTabSettings = () => {
       <View className="h-4" />
 
       {nIf(
-        isWeb,
+        0 && isWeb,
         <View className={rowCls}>
           <NouText className={labelCls}>{t('settings.login.label')}</NouText>
           <NouButton size="1" onPress={() => mainClient.openLoginWindow()}>
@@ -175,6 +175,12 @@ export const SettingsModalTabSettings = () => {
         <NouText className={labelCls}>{t('settings.webview.clearLabel')}</NouText>
         <NouButton size="1" variant="outline" onPress={clearWebviewData}>
           {t('buttons.clear')}
+        </NouButton>
+      </View>
+      <View className={rowCls}>
+        <NouText className={labelCls}>{t('settings.injectCookie')}</NouText>
+        <NouButton size="1" variant="outline" onPress={() => ui$.cookieModalOpen.set(true)}>
+          {t('buttons.open')}
         </NouButton>
       </View>
 
