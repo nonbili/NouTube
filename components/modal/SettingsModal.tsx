@@ -5,7 +5,7 @@ import { version } from '../../package.json'
 import { version as desktopVersion } from '../../desktop/package.json'
 import { useState } from 'react'
 import { clsx, isWeb } from '@/lib/utils'
-import { use$ } from '@legendapp/state/react'
+import { useValue } from '@legendapp/state/react'
 import { Segmented } from '../picker/Segmented'
 import { BaseModal } from './BaseModal'
 import { ui$ } from '@/states/ui'
@@ -19,7 +19,7 @@ const themes = [null, 'dark', 'light'] as const
 const donateLinks = ['https://github.com/sponsors/rnons', 'https://liberapay.com/rnons', 'https://paypal.me/rnons']
 
 export const SettingsModal = () => {
-  const settingsModalOpen = use$(ui$.settingsModalOpen)
+  const settingsModalOpen = useValue(ui$.settingsModalOpen)
   const [tabIndex, setTabIndex] = useState(0)
 
   return (

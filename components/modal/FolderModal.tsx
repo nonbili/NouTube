@@ -1,4 +1,4 @@
-import { use$ } from '@legendapp/state/react'
+import { useValue } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { BaseCenterModal } from './BaseCenterModal'
 import { NouText } from '../NouText'
@@ -8,7 +8,7 @@ import { gray } from '@radix-ui/colors'
 import { folders$, newFolder } from '@/states/folders'
 
 export const FolderModal = () => {
-  const folder = use$(ui$.folderModalFolder)
+  const folder = useValue(ui$.folderModalFolder)
   const onClose = () => ui$.folderModalFolder.set(undefined)
   const [name, setName] = useState('')
 

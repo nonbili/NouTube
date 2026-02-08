@@ -11,6 +11,9 @@ export function handleShortcuts(event: KeyboardEvent) {
     return
   }
   switch (event.key) {
+    case 'h':
+      ui$.historyModalOpen.toggle()
+      break
     case 'o':
       ui$.urlModalOpen.set(true)
       break

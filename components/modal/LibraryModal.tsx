@@ -1,4 +1,4 @@
-import { use$ } from '@legendapp/state/react'
+import { useValue } from '@legendapp/state/react'
 import { BaseModal } from './BaseModal'
 import { ui$ } from '@/states/ui'
 import { NouText } from '../NouText'
@@ -32,13 +32,13 @@ const tabsYTMusic = [
 const ungroupedFolder = newFolder('', { name: t('modals.ungrouped'), id: '' })
 
 export const LibraryModal = () => {
-  const libraryModalOpen = use$(ui$.libraryModalOpen)
-  const { bookmarks, updatedAt: bookmarksUpdatedAt } = use$(bookmarks$)
-  const home = use$(settings$.home)
+  const libraryModalOpen = useValue(ui$.libraryModalOpen)
+  const { bookmarks, updatedAt: bookmarksUpdatedAt } = useValue(bookmarks$)
+  const home = useValue(settings$.home)
   const [tabIndex, setTabIndex] = useState(0)
-  const isYTMusic = use$(settings$.isYTMusic)
+  const isYTMusic = useValue(settings$.isYTMusic)
   const tabs = isYTMusic ? tabsYTMusic : tabsYT
-  const { folders, updatedAt: foldersUpdatedAt } = use$(folders$)
+  const { folders, updatedAt: foldersUpdatedAt } = useValue(folders$)
   const [currentFolder, setCurrentFolder] = useState<Folder>()
   const currentTab = tabs[tabIndex]
 

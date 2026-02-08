@@ -1,4 +1,4 @@
-import { use$ } from '@legendapp/state/react'
+import { useValue } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { BaseCenterModal } from './BaseCenterModal'
 import { NouText } from '../NouText'
@@ -10,7 +10,7 @@ import { openSharedUrl } from '@/lib/page'
 import { t } from 'i18next'
 
 export const UrlModal = () => {
-  const urlModalOpen = use$(ui$.urlModalOpen)
+  const urlModalOpen = useValue(ui$.urlModalOpen)
   const [url, setUrl] = useState('')
   const onClose = () => ui$.urlModalOpen.set(false)
 

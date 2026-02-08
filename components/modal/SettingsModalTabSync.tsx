@@ -1,7 +1,7 @@
 import { TouchableOpacity, View } from 'react-native'
 import { NouText } from '../NouText'
 import { Image } from 'expo-image'
-import { use$ } from '@legendapp/state/react'
+import { useValue } from '@legendapp/state/react'
 import { auth$ } from '@/states/auth'
 import { isWeb, isIos, nIf } from '@/lib/utils'
 import { signOut } from '@/lib/supabase/auth'
@@ -12,7 +12,7 @@ import { t } from 'i18next'
 import { MaterialButton } from '../button/IconButtons'
 
 export const SettingsModalTabSync = () => {
-  const { user, plan } = use$(auth$)
+  const { user, plan } = useValue(auth$)
 
   return (
     <>

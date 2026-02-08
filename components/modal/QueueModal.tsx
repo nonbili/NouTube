@@ -14,7 +14,7 @@ import { version } from '../../package.json'
 import { useState } from 'react'
 import { colors } from '@/lib/colors'
 import { clsx } from '@/lib/utils'
-import { use$ } from '@legendapp/state/react'
+import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { Segmented } from '../picker/Segmented'
 import { getDocumentAsync } from 'expo-document-picker'
@@ -28,9 +28,9 @@ import { BaseModal } from './BaseModal'
 import { t } from 'i18next'
 
 export const QueueModal = () => {
-  const queueModalOpen = use$(ui$.queueModalOpen)
+  const queueModalOpen = useValue(ui$.queueModalOpen)
   const { playingIndex, size } = usePlayingQueueIndex()
-  const queue = use$(queue$.bookmarks)
+  const queue = useValue(queue$.bookmarks)
 
   return (
     queueModalOpen && (

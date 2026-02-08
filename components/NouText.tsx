@@ -1,5 +1,5 @@
 import { StyleSheet, Text, type TextProps } from 'react-native'
-import { use$ } from '@legendapp/state/react'
+import { useValue } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { clsx } from '@/lib/utils'
 

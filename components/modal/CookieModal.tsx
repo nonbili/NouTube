@@ -1,4 +1,4 @@
-import { use$ } from '@legendapp/state/react'
+import { useValue } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { BaseCenterModal } from './BaseCenterModal'
 import { NouText } from '../NouText'
@@ -11,7 +11,7 @@ import { showToast } from '@/lib/toast'
 import { isWeb } from '@/lib/utils'
 
 export const CookieModal = () => {
-  const cookieModalOpen = use$(ui$.cookieModalOpen)
+  const cookieModalOpen = useValue(ui$.cookieModalOpen)
   const [text, setText] = useState('')
   const onClose = () => ui$.cookieModalOpen.set(false)
 

@@ -10,6 +10,7 @@ function App(): React.JSX.Element {
   useEffect(() => {
     initUiChannel()
     window.addEventListener('keyup', handleShortcuts)
+    return () => window.removeEventListener('keyup', handleShortcuts)
   }, [])
 
   return (

@@ -1,6 +1,6 @@
 import { View, Text, BackHandler, ColorSchemeName, ToastAndroid } from 'react-native'
 import { useCallback, useEffect, useState } from 'react'
-import { use$, useObserve, useObserveEffect } from '@legendapp/state/react'
+import { useValue, useObserve, useObserveEffect } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { fixPageTitle, fixSharingUrl, getPageType, getVideoId, openSharedUrl } from '@/lib/page'
 import { Asset } from 'expo-asset'

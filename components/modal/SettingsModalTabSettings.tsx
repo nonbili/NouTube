@@ -15,7 +15,7 @@ import { NouLink } from '../link/NouLink'
 import { version } from '../../package.json'
 import { useState } from 'react'
 import { clsx, isWeb, nIf } from '@/lib/utils'
-import { use$ } from '@legendapp/state/react'
+import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { Segmented } from '../picker/Segmented'
 import { getDocumentAsync } from 'expo-document-picker'
@@ -41,7 +41,7 @@ const headerCls = 'mb-6 font-semibold text-gray-400'
 const labelCls = 'text-gray-200'
 
 export const SettingsModalTabSettings = () => {
-  const settings = use$(settings$)
+  const settings = useValue(settings$)
   const [importingList, setImportingList] = useState(false)
   const [importingTakeout, setImportingTakeout] = useState(false)
 

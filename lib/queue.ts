@@ -1,11 +1,11 @@
 import { ui$ } from '@/states/ui'
 import { getVideoId } from './page'
 import { queue$ } from '@/states/queue'
-import { use$ } from '@legendapp/state/react'
+import { useValue } from '@legendapp/state/react'
 
 export function usePlayingQueueIndex() {
-  const pageUrl = use$(ui$.pageUrl)
-  const bookmarks = use$(queue$.bookmarks)
+  const pageUrl = useValue(ui$.pageUrl)
+  const bookmarks = useValue(queue$.bookmarks)
 
   let playingIndex = -1
   const videoId = getVideoId(pageUrl)

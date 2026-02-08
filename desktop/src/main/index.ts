@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, screen } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -14,10 +14,12 @@ import { getUserAgent } from '@/lib/useragent'
 app.userAgentFallback = getUserAgent(process.platform)
 
 function createWindow(): void {
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1080,
-    height: 800,
+    width: Math.floor(width * 0.9),
+    height: Math.floor(height * 0.9),
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -30,8 +32,7 @@ function createWindow(): void {
   setMainWindow(mainWindow)
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.maximize()
-    // mainWindow.show()
+    mainWindow.show()
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {

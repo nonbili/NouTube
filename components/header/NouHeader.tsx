@@ -1,5 +1,5 @@
 import { TouchableOpacity, useWindowDimensions, View } from 'react-native'
-import { use$, useObserveEffect } from '@legendapp/state/react'
+import { useValue, useObserveEffect } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { NouText } from '../NouText'
 import { colors } from '@/lib/colors'
@@ -19,14 +19,14 @@ import { useEffect, useState } from 'react'
 import { t } from 'i18next'
 
 export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
-  const isYTMusic = use$(settings$.isYTMusic)
+  const isYTMusic = useValue(settings$.isYTMusic)
   const { width } = useWindowDimensions()
-  const uiState = use$(ui$)
-  const feedsEnabled = use$(settings$.feedsEnabled)
-  const allStarred = use$(library$.urls)
+  const uiState = useValue(ui$)
+  const feedsEnabled = useValue(settings$.feedsEnabled)
+  const allStarred = useValue(library$.urls)
   const starred = allStarred.has(normalizeUrl(uiState.pageUrl))
-  const bookmark = use$(bookmarks$.getBookmarkByUrl(normalizeUrl(uiState.pageUrl)))
-  const queueSize = use$(queue$.size)
+  const bookmark = useValue(bookmarks$.getBookmarkByUrl(normalizeUrl(uiState.pageUrl)))
+  const queueSize = useValue(queue$.size)
   const [canGoBack, setCanGoBack] = useState(false)
   const [canGoForward, setCanGoForward] = useState(false)
 

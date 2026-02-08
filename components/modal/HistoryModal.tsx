@@ -4,7 +4,7 @@ import { version } from '../../package.json'
 import { useMemo, useState } from 'react'
 import { colors } from '@/lib/colors'
 import { clsx, nIf } from '@/lib/utils'
-import { use$ } from '@legendapp/state/react'
+import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { Segmented } from '../picker/Segmented'
 import { getDocumentAsync } from 'expo-document-picker'
@@ -19,9 +19,9 @@ import { NouButton } from '../button/NouButton'
 import { t } from 'i18next'
 
 export const HistoryModal = () => {
-  const historyModalOpen = use$(ui$.historyModalOpen)
-  const bookmarks = use$(history$.bookmarks)
-  const home = use$(settings$.home)
+  const historyModalOpen = useValue(ui$.historyModalOpen)
+  const bookmarks = useValue(history$.bookmarks)
+  const home = useValue(settings$.home)
 
   const filteredBookmarks = useMemo(() => {
     return bookmarks.filter((x) => {

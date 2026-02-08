@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ScrollView } from 'react-native'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import { observer, use$, useObservable } from '@legendapp/state/react'
+import { observer, useValue, useObservable } from '@legendapp/state/react'
 import { bookmarks$, type Bookmark } from '@/states/bookmarks'
 import { Image } from 'expo-image'
 import { updateUrl, ui$ } from '@/states/ui'
@@ -19,7 +19,7 @@ const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
 
 export const FeedItem: React.FC<{ bookmark: Bookmark }> = ({ bookmark }) => {
-  const bookmarks = use$(bookmarks$.bookmarks)
+  const bookmarks = useValue(bookmarks$.bookmarks)
   const onPress = () => {
     updateUrl(bookmark.url)
     ui$.assign({ feedModalOpen: false })

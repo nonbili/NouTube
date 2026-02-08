@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { use$, useObserve, useObserveEffect } from '@legendapp/state/react'
+import { useValue, useObserve, useObserveEffect } from '@legendapp/state/react'
 import { onClearData$, ui$ } from '@/states/ui'
 import { queue$ } from '@/states/queue'
 import { settings$ } from '@/states/settings'
@@ -34,12 +34,12 @@ function restoreLastPlaying(webview: any) {
 }
 
 export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) => {
-  const uiState = use$(ui$)
+  const uiState = useValue(ui$)
   const nativeRef = useRef<typeof NouTubeViewModule>(null)
   const webviewRef = useRef<WebviewTag>(null)
   const webviewReadyRef = useRef(false)
-  const hideShorts = use$(settings$.hideShorts)
-  const isYTMusic = use$(settings$.isYTMusic)
+  const hideShorts = useValue(settings$.hideShorts)
+  const isYTMusic = useValue(settings$.isYTMusic)
   const { userId, me } = useMe()
 
   const toggleShorts = useCallback(

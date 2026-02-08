@@ -1,4 +1,4 @@
-import { use$ } from '@legendapp/state/react'
+import { useValue } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { BaseCenterModal } from './BaseCenterModal'
 import { NouText } from '../NouText'
@@ -15,13 +15,13 @@ import { FolderItem } from '../folder/FolderItem'
 import { t } from 'i18next'
 
 export const BookmarkModal = () => {
-  const bookmark = use$(ui$.bookmarkModalBookmark)
+  const bookmark = useValue(ui$.bookmarkModalBookmark)
   const onClose = () => ui$.bookmarkModalBookmark.set(undefined)
   const [title, setTitle] = useState('')
-  const folders = use$(folders$.folders)
+  const folders = useValue(folders$.folders)
   const [folderPickerShown, setFolderPickerShown] = useState(false)
   const [draftBookmark, setDraftBookmark] = useState(bookmark)
-  const currentTab = use$(ui$.libraryModalTab)
+  const currentTab = useValue(ui$.libraryModalTab)
 
   useEffect(() => {
     setTitle(bookmark?.title || '')

@@ -4,7 +4,7 @@ import { version } from '../../package.json'
 import { useMemo, useState } from 'react'
 import { colors } from '@/lib/colors'
 import { clsx, nIf } from '@/lib/utils'
-import { use$ } from '@legendapp/state/react'
+import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { Segmented } from '../picker/Segmented'
 import { getDocumentAsync } from 'expo-document-picker'
@@ -25,11 +25,11 @@ import { t } from 'i18next'
 const allFolder = newFolder('', { name: 'All', id: '' })
 
 export const FeedModal = () => {
-  const feedModalOpen = use$(ui$.feedModalOpen)
-  const bookmarks = use$(bookmarks$.bookmarks)
-  const feedItems = use$(feeds$.bookmarks)
-  const home = use$(settings$.home)
-  const folders = use$(folders$.folders)
+  const feedModalOpen = useValue(ui$.feedModalOpen)
+  const bookmarks = useValue(bookmarks$.bookmarks)
+  const feedItems = useValue(feeds$.bookmarks)
+  const home = useValue(settings$.home)
+  const folders = useValue(folders$.folders)
   const [folderPickerShown, setFolderPickerShown] = useState(false)
   const [currentFolder, setCurrentFolder] = useState(allFolder)
 
