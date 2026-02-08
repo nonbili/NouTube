@@ -2085,10 +2085,10 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@legendapp/state@^3.0.0-beta.30":
-  version "3.0.0-beta.31"
-  resolved "https://registry.yarnpkg.com/@legendapp/state/-/state-3.0.0-beta.31.tgz#d77aca8a878416cefc045da81f686a87603e25d1"
-  integrity sha512-ejQHeBk3DEHOeF/j4/nX0W6uXiGQBOqQ5Ftfk10ReDpGzeC/GxF3Or31LG5qPcp3ZZweUBiVyqZqEtQefX4eKA==
+"@legendapp/state@^3.0.0-beta.43":
+  version "3.0.0-beta.43"
+  resolved "https://registry.yarnpkg.com/@legendapp/state/-/state-3.0.0-beta.43.tgz#b37962eb5719d59fff2e79ee3a64d597b7c8e1f7"
+  integrity sha512-5Jtz1Vlubw5x98I+H12talCFT02orIWq+ewBMPFlSNIxRj+ZLjwV2yDM2UMR8ebI8XqW8YyoqOfGFh9zr3VU0g==
   dependencies:
     use-sync-external-store "^1.2.2"
 
@@ -9202,10 +9202,15 @@ react-native-is-edge-to-edge@^1.2.1:
   resolved "https://registry.yarnpkg.com/react-native-is-edge-to-edge/-/react-native-is-edge-to-edge-1.2.1.tgz#64e10851abd9d176cbf2b40562f751622bde3358"
   integrity sha512-FLbPWl/MyYQWz+KwqOZsSyj2JmLKglHatd3xLZWskXOpRaio4LfEDEz8E/A6uD8QoTHW6Aobw1jbEwK7KMgR7Q==
 
-react-native-mmkv@^3.2.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/react-native-mmkv/-/react-native-mmkv-3.3.0.tgz#a0816babdf68afd2bfd881a48e28c8815795286b"
-  integrity sha512-2iPjIJ+IAODXN35wm53EN6nv+hR/0NXLLiLWOdPA/0gXDB2dYVrr6MqvoiFpxhLhdj0B8fkf5ARNVavJaSvuuQ==
+react-native-mmkv@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/react-native-mmkv/-/react-native-mmkv-4.1.2.tgz#fb337930ec50d509392832c649b578a00c0d008e"
+  integrity sha512-6LHb2DQBXuo96Aues13EugmlWw/HAYuh3KoJoQNrC4JsBwn3J3KiRYAg2mCm5Je0VYq2YsmbgZG7XJwX/WFYZA==
+
+react-native-nitro-modules@^0.33.7:
+  version "0.33.7"
+  resolved "https://registry.yarnpkg.com/react-native-nitro-modules/-/react-native-nitro-modules-0.33.7.tgz#eb8104cc19e4242ab325666af24ea6ffc8b1539e"
+  integrity sha512-WepMobWe4j1Ae5GQ5RxYGBdBpJBwzP6zaOxJ7r6nhbY5iyl01DL3Gsh4gk8edzNFRuAh1rvXDAHIipq8SahxeQ==
 
 react-native-reanimated@~4.1.1:
   version "4.1.6"

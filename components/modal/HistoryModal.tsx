@@ -54,7 +54,7 @@ export const HistoryModal = () => {
       </View>
       <FlatList
         data={filteredBookmarks}
-        keyExtractor={(item) => item.url}
+        keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => <HistoryItem bookmark={item} />}
       />
     </BaseModal>,

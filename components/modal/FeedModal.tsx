@@ -68,7 +68,7 @@ export const FeedModal = () => {
     <BaseModal onClose={() => ui$.feedModalOpen.set(false)}>
       <View className="mt-3 px-2 flex-row items-center">
         <View className="flex-row items-baseline">
-          <NouText className="font-semibold text-lg">{t('modals.feed')}</NouText>
+          <NouText className="font-semibold text-lg">{t('modals.feeds')}</NouText>
         </View>
         <NouButton
           className="font-semibold ml-4"

@@ -1,1 +1,3 @@
+- support restoring progress from History panel
 - fix intentFilters to open youtube links directly
+- add French and Indonesian translations
