@@ -4,19 +4,20 @@ on:
   push:
     branches:
       - release-desktop
+      - binary-table
+
+defaults:
+  run:
+    working-directory: desktop
 
 jobs:
   build:
-    defaults:
-      run:
-        working-directory: desktop
-
     strategy:
       matrix:
         os:
-          - macos-15
+          # - macos-15
           - ubuntu-latest
-          - windows-latest
+          # - windows-latest
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
 
@@ -80,7 +81,7 @@ jobs:
         run: bun electron-builder --publish never
 
       - name: upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.os }}
           path: |
@@ -105,15 +106,19 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: get version
+      - name: prepare release note
         run: |
-          echo "TAG=v$(jq -r '.version' desktop/package.json)" >> $GITHUB_ENV
+          VER=$(jq -r '.version' package.json)
+          sed -i "s/{VER}/$VER/g" changelogs/template.txt
+          cat changelogs/template.txt changelogs/v$VER.txt > note.txt
+          echo "TAG=v$VER" >> $GITHUB_ENV
 
       - name: release
         uses: softprops/action-gh-release@v2
         with:
-          body_path: desktop/changelogs/${{ env.TAG }}.txt
+          body_path: desktop/note.txt
           files: dist/*
-          repository: nonbili/NouTube-Desktop
+          repository: rnons/nt-test
+          # repository: nonbili/NouTube-Desktop
           token: ${{ secrets.GH_RELEASE_TOKEN }}
           tag_name: ${{ env.TAG }}
