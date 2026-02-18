@@ -15,6 +15,7 @@ import { feederLoop } from '@/lib/feeder'
 import { FeedModal } from '../modal/FeedModal'
 import { UrlModal } from '../modal/UrlModal'
 import { CookieModal } from '../modal/CookieModal'
+import { UserAgentModal } from '../modal/UserAgentModal'
 import { Locale, useLocales } from 'expo-localization'
 import i18n from 'i18next'
 
@@ -59,6 +60,7 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
       <SettingsModal />
       <UrlModal />
       <CookieModal />
+      <UserAgentModal />
     </QueryClientProvider>
   )
 }

@@ -183,6 +183,12 @@ export const SettingsModalTabSettings = () => {
           {t('buttons.open')}
         </NouButton>
       </View>
+      <View className={rowCls}>
+        <NouText className={labelCls}>{t('settings.userAgent.title')}</NouText>
+        <NouButton size="1" variant="outline" onPress={() => ui$.userAgentModalOpen.set(true)}>
+          {t('buttons.open')}
+        </NouButton>
+      </View>
 
       <NouText className={clsx(headerCls, 'mt-4')}>{t('buttons.import')}</NouText>
       <View className={rowCls}>

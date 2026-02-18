@@ -19,11 +19,10 @@ import { auth$ } from '@/states/auth'
 import { useMe } from '@/lib/hooks/useMe'
 import { ObservableHint } from '@legendapp/state'
 import { mainClient } from '@/desktop/src/renderer/ipc/main'
-import { getUserAgent } from '@/lib/useragent'
+import { resolveUserAgent } from '@/lib/useragent'
 import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
 import { history$ } from '@/states/history'
 
-const userAgent = getUserAgent(isWeb ? window.electron.process.platform : 'android')
 let restored = false
 
 function restoreLastPlaying(webview: any) {
@@ -40,7 +39,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const webviewReadyRef = useRef(false)
   const hideShorts = useValue(settings$.hideShorts)
   const isYTMusic = useValue(settings$.isYTMusic)
+  const customUserAgent = useValue(settings$.userAgent)
   const { userId, me } = useMe()
+  const userAgent = resolveUserAgent(isWeb ? window.electron.process.platform : 'android', customUserAgent)
 
   const toggleShorts = useCallback(
     (hide?: boolean) => {

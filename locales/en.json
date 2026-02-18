@@ -59,6 +59,10 @@
     "webview": {
       "clearLabel": "Clear webview data"
     },
+    "userAgent": {
+      "title": "Custom user agent",
+      "default": "Default user agent"
+    },
     "importList": "Import a list of links",
     "importTakeout": "Import from YouTube takeout",
     "exportLabel": "Export bookmarks to a list",

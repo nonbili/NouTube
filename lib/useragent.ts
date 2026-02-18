@@ -10,3 +10,8 @@ export function getUserAgent(platform = 'android') {
     }[platform] || 'Windows NT 10.0; Win64; x64'
   return `Mozilla/5.0 (${detail}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion}.0.0.0 ${mobile}Safari/537.36`
 }
+
+export function resolveUserAgent(platform = 'android', customUserAgent = '') {
+  const override = customUserAgent.trim()
+  return override || getUserAgent(platform)
+}

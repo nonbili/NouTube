@@ -22,6 +22,7 @@ interface Store {
   settingsModalOpen: boolean
   urlModalOpen: boolean
   cookieModalOpen: boolean
+  userAgentModalOpen: boolean
 
   // webview
   webview: any
@@ -44,6 +45,7 @@ export const ui$ = observable<Store>({
   settingsModalOpen: false,
   urlModalOpen: false,
   cookieModalOpen: false,
+  userAgentModalOpen: false,
 
   // webview
   webview: undefined,

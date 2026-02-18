@@ -2,19 +2,22 @@ import { Modal, Text, Pressable, View, Switch, TouchableOpacity, ActivityIndicat
 import { NouText } from '../NouText'
 import { useEffect, useRef, useState } from 'react'
 import { NouTubeView } from '@/modules/nou-tube-view'
-import { getUserAgent } from '@/lib/useragent'
+import { resolveUserAgent } from '@/lib/useragent'
+import { settings$ } from '@/states/settings'
+import { useValue } from '@legendapp/state/react'
+import { isWeb } from '@/lib/utils'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const tabs = ['Settings', 'About']
 const themes = [null, 'dark', 'light'] as const
-
-const userAgent = getUserAgent()
 
 export const EmbedVideoModal: React.FC<{ videoId: string; scriptOnStart: string; onClose: () => void }> = ({
   videoId,
   scriptOnStart,
   onClose,
 }) => {
+  const customUserAgent = useValue(settings$.userAgent)
+  const userAgent = resolveUserAgent(isWeb ? window.electron.process.platform : 'android', customUserAgent)
   const url = `https://www.youtube.com/embed/${videoId}`
   const ref = useRef<any>(null)
   useEffect(() => {
