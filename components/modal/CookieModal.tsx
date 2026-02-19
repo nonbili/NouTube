@@ -2,13 +2,38 @@ import { useValue } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { BaseCenterModal } from './BaseCenterModal'
 import { NouText } from '../NouText'
-import { TextInput, View, TouchableOpacity } from 'react-native'
+import { TextInput, View } from 'react-native'
 import { useEffect, useState } from 'react'
 import { gray } from '@radix-ui/colors'
 import { NouButton } from '../button/NouButton'
 import { t } from 'i18next'
 import { showToast } from '@/lib/toast'
 import { isWeb } from '@/lib/utils'
+import { getDocumentAsync } from 'expo-document-picker'
+
+const parseCookies = (text: string) => {
+  const lines = text.split('\n')
+  const cookies: string[] = []
+  for (let line of lines) {
+    line = line.trim()
+    if (!line || line.startsWith('#')) continue
+    if (line.includes('\t')) {
+      const parts = line.split('\t')
+      if (parts.length >= 7) {
+        cookies.push(`${parts[5]}=${parts[6]}`)
+      }
+    } else {
+      const parts = line.split(';')
+      for (const part of parts) {
+        const p = part.trim()
+        if (p.includes('=')) {
+          cookies.push(p)
+        }
+      }
+    }
+  }
+  return cookies.filter(Boolean).join('; ')
+}
 
 export const CookieModal = () => {
   const cookieModalOpen = useValue(ui$.cookieModalOpen)
@@ -19,8 +44,25 @@ export const CookieModal = () => {
     setText('')
   }, [cookieModalOpen])
 
+  const onPickFile = async () => {
+    try {
+      const res = await getDocumentAsync({
+        type: ['text/plain', 'text/tab-separated-values'],
+        copyToCacheDirectory: true,
+      })
+      if (!res.canceled && res.assets?.[0]) {
+        const asset = res.assets[0]
+        const response = await fetch(asset.uri)
+        const content = await response.text()
+        setText(content)
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   const onSubmit = async () => {
-    const cookie = text.trim()
+    const cookie = parseCookies(text.trim())
     if (!cookie) {
       showToast('Invalid cookie')
       return
@@ -68,10 +110,17 @@ export const CookieModal = () => {
           autoFocus
         />
         <View className="flex-row items-center justify-between">
-          <NouButton variant="outline" size="1" onPress={onClose}>
-            {t('buttons.cancel')}
+          <View className="flex-row items-center gap-2">
+            <NouButton variant="outline" size="1" onPress={onClose}>
+              {t('buttons.cancel')}
+            </NouButton>
+            <NouButton variant="soft" size="1" onPress={onPickFile}>
+              {t('buttons.import')}
+            </NouButton>
+          </View>
+          <NouButton size="1" onPress={onSubmit}>
+            {t('buttons.save')}
           </NouButton>
-          <NouButton onPress={onSubmit}>{t('buttons.save')}</NouButton>
         </View>
       </View>
     </BaseCenterModal>
