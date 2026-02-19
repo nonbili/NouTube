@@ -72,15 +72,14 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   useEffect(() => {
     auth$.plan.set(me?.plan)
-    let timer: number
     if (userId && me?.plan && me.plan != 'free') {
       syncSupabase()
-      timer = setInterval(
+      const timer = setInterval(
         () => syncSupabase(),
         10 * 60 * 1000, // 10 minutes
       )
+      return () => clearInterval(timer)
     }
-    return () => clearInterval(timer)
   }, [me?.plan, userId])
 
   const onMessage = useCallback(async (type: string, data: any) => {

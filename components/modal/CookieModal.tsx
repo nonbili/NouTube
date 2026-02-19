@@ -103,7 +103,7 @@ export const CookieModal = () => {
           className="border border-gray-600 rounded mb-6 text-white p-2 text-sm"
           value={text}
           onChangeText={setText}
-          placeholder="key1=val1; key2=val2"
+          placeholder={'key1=val1; key2=val2\nor\ncookies.txt'}
           placeholderTextColor={gray.gray11}
           multiline
           numberOfLines={3}

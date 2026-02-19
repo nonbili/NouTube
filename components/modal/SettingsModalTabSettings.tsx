@@ -78,9 +78,6 @@ export const SettingsModalTabSettings = () => {
     try {
       const asset = res.assets?.[0]
       if (asset) {
-        if (asset.size && asset.size > 20 * 1024 * 1024) {
-          return
-        }
         const res = await fetch(asset.uri)
         if (asset.mimeType == 'application/zip') {
           const buf = await res.arrayBuffer()
