@@ -5,12 +5,12 @@ on:
     branches:
       - release-desktop
 
+defaults:
+  run:
+    working-directory: desktop
+
 jobs:
   build:
-    defaults:
-      run:
-        working-directory: desktop
-
     strategy:
       matrix:
         os:
@@ -73,14 +73,18 @@ jobs:
           sudo security add-trusted-cert -d -r trustRoot -k ~/Library/Keychains/login.keychain application.cer
           bun electron-builder --x64 --arm64 --publish never
         env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
 
       - name: pkg on ubuntu & windows
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'win')
         run: bun electron-builder --publish never
 
       - name: upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.os }}
           path: |
@@ -105,14 +109,17 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: get version
+      - name: prepare release note
         run: |
-          echo "TAG=v$(jq -r '.version' desktop/package.json)" >> $GITHUB_ENV
+          VER=$(jq -r '.version' package.json)
+          sed -i "s/{VER}/$VER/g" changelogs/template.txt
+          cat changelogs/template.txt changelogs/v$VER.txt > note.txt
+          echo "TAG=v$VER" >> $GITHUB_ENV
 
       - name: release
         uses: softprops/action-gh-release@v2
         with:
-          body_path: desktop/changelogs/${{ env.TAG }}.txt
+          body_path: desktop/note.txt
           files: dist/*
           repository: nonbili/NouTube-Desktop
           token: ${{ secrets.GH_RELEASE_TOKEN }}
