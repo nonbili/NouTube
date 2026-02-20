@@ -79,7 +79,11 @@ export const SettingsModalTabSettings = () => {
       const asset = res.assets?.[0]
       if (asset) {
         const res = await fetch(asset.uri)
-        if (asset.mimeType == 'application/zip') {
+        if (
+          asset.mimeType === 'application/zip' ||
+          asset.mimeType === 'application/x-zip-compressed' ||
+          asset.name?.toLowerCase().endsWith('.zip')
+        ) {
           const buf = await res.arrayBuffer()
           const zip = new JSZip()
           await zip.loadAsync(buf)

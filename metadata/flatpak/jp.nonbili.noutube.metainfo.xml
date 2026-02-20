@@ -57,6 +57,13 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.2.3" date="2026-02-20">
+      <description>
+        <ul>
+          <li>Fix importing from yt takeout on Windows</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.2.2" date="2026-02-19">
       <description>
         <ul>
