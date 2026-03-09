@@ -103,20 +103,28 @@ export async function importCsv(csv: string, filename?: string) {
 }
 
 export async function importZip(zip: JSZip) {
-  const promises: Promise<void>[] = []
+  const files: JSZip.JSZipObject[] = []
   zip.forEach((_, file) => {
     const slugs = file.name.split('/')
     // Takeout/YouTube and YouTube Music/channels/channel.csv
     const folder = slugs[2]
     if (file.name.endsWith('.csv') && ['music (library and uploads)', 'playlists', 'subscriptions'].includes(folder)) {
-      const fn = async () => {
-        const csv = await file.async('string')
-        await importCsv(csv, slugs.at(-1))
-      }
-      promises.push(fn())
+      files.push(file)
     }
   })
-  await Promise.all(promises)
+
+  // Process sequentially to save memory
+  for (const file of files) {
+    try {
+      const csv = await file.async('string')
+      const slugs = file.name.split('/')
+      await importCsv(csv, slugs.at(-1))
+      // Small pause to allow GC to work
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    } catch (e) {
+      console.error(`Failed to process ${file.name} from zip:`, e)
+    }
+  }
 }
 
 export async function importList(list: string) {

@@ -1,6 +1,6 @@
 import { View, Pressable } from 'react-native'
 import { memo } from 'react'
-import { Bookmark } from '@/states/bookmarks'
+import { Bookmark, bookmarks$ } from '@/states/bookmarks'
 import { Image } from 'expo-image'
 import { ui$, updateUrl } from '@/states/ui'
 import { NouText } from '../NouText'

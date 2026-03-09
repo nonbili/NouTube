@@ -78,23 +78,35 @@ export const SettingsModalTabSettings = () => {
     try {
       const asset = res.assets?.[0]
       if (asset) {
-        const res = await fetch(asset.uri)
-        if (
+        const isZip =
           asset.mimeType === 'application/zip' ||
           asset.mimeType === 'application/x-zip-compressed' ||
           asset.name?.toLowerCase().endsWith('.zip')
-        ) {
-          const buf = await res.arrayBuffer()
-          const zip = new JSZip()
-          await zip.loadAsync(buf)
-          await importZip(zip)
+
+        if (isZip) {
+          if (Platform.OS === 'android') {
+            const files = await NouTubeViewModule.extractTakeoutCsvFiles(asset.uri)
+            for (const file of files) {
+              const res = await fetch(file.uri)
+              const text = await res.text()
+              await importCsv(text, file.name)
+            }
+          } else {
+            const res = await fetch(asset.uri)
+            const data = await res.arrayBuffer()
+            const zip = new JSZip()
+            await zip.loadAsync(data)
+            await importZip(zip)
+          }
         } else {
+          const res = await fetch(asset.uri)
           const text = await res.text()
           await importCsv(text, asset.name)
         }
       }
     } catch (e) {
       console.error(e)
+      showToast('Import failed: ' + (e as Error).message)
     } finally {
       setImportingTakeout(false)
     }
