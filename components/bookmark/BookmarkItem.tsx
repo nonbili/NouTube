@@ -9,6 +9,7 @@ import { getPageType, getVideoThumbnail } from '@/lib/page'
 import { NouMenu } from '../menu/NouMenu'
 import { t } from 'i18next'
 import { MaterialButton } from '../button/IconButtons'
+import { share } from '@/lib/share'
 
 /* https://www.youtube.com/watch?v=<id> */
 function getThumbnail(url: string) {
@@ -53,6 +54,7 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = memo(({ bookmark }
           trigger={isWeb ? <MaterialButton name="more-vert" size={20} /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
           items={[
             { label: t('menus.edit'), handler: () => ui$.bookmarkModalBookmark.set(bookmark) },
+            { label: t('menus.share'), handler: () => share(bookmark.url) },
             { label: t('menus.remove'), handler: () => bookmarks$.toggleBookmark(bookmark) },
           ]}
         />

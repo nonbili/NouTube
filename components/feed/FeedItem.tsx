@@ -7,6 +7,11 @@ import { NouText } from '../NouText'
 import { getPageType, getThumbnail } from '@/lib/page'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { NouMenu } from '../menu/NouMenu'
+import { isWeb, isIos } from '@/lib/utils'
+import { share } from '@/lib/share'
+import { t } from 'i18next'
+import { MaterialButton } from '../button/IconButtons'
 
 dayjs.extend(relativeTime)
 
@@ -40,6 +45,10 @@ export const FeedItem: React.FC<{ bookmark: Bookmark; channel?: Bookmark }> = me
         <NouText className="ml-2 text-gray-400 text-sm whitespace-nowrap">
           {dayjs(bookmark.created_at).fromNow()}
         </NouText>
+        <NouMenu
+          trigger={isWeb ? <MaterialButton name="more-vert" size={20} /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
+          items={[{ label: t('menus.share'), handler: () => share(bookmark.url) }]}
+        />
       </View>
       <View className="flex-row mb-4 overflow-hidden px-2">
         <View className="flex-row items-center">

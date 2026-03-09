@@ -11,6 +11,7 @@ import { History, history$ } from '@/states/history'
 import { NouMenu } from '../menu/NouMenu'
 import { t } from 'i18next'
 import { MaterialButton } from '../button/IconButtons'
+import { share } from '@/lib/share'
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
@@ -51,7 +52,10 @@ export const HistoryItem: React.FC<{ bookmark: History }> = ({ bookmark }) => {
       <View>
         <NouMenu
           trigger={isWeb ? <MaterialButton name="more-vert" size={20} /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
-          items={[{ label: t('menus.remove'), handler: () => history$.removeHistory(bookmark) }]}
+          items={[
+            { label: t('menus.share'), handler: () => share(bookmark.url) },
+            { label: t('menus.remove'), handler: () => history$.removeHistory(bookmark) },
+          ]}
         />
       </View>
     </View>
