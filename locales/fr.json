@@ -52,7 +52,7 @@
       "hint": "Redémarrez manuellement si la modification n'apparaît pas dans la vue Web."
     },
     "login": {
-      "label": "Essayez ceci si vous ne parvenez pas à vous connecter depuis Webview.",
+      "label": "Essayez ceci si vous ne parvenez pas à vous connecter depuis Webview",
       "button": "Connexion YouTube"
     },
     "openUrlLabel": "Ouvrir directement l'URL prise en charge",
@@ -61,7 +61,14 @@
     },
     "importList": "Importer une liste de liens",
     "importTakeout": "Importer depuis YouTube",
-    "exportLabel": "Exporter les signets vers une liste"
+    "exportLabel": "Exporter les signets vers une liste",
+    "injectCookie": "Injecter un cookie si la connexion depuis la vue Web a échoué",
+    "injectCookieTitle": "Injecter le cookie d'authentification dans la vue Web",
+    "injectCookieHint": "Copiez la valeur de l'en-tête Cookie depuis le navigateur de votre PC. Ceci constitue une solution de contournement si vous ne parvenez pas à vous connecter avec votre adresse e-mail et votre mot de passe.",
+    "userAgent": {
+      "title": "Agent utilisateur personnalisé",
+      "default": "Agent utilisateur par défaut"
+    }
   },
   "sync": {
     "label": "Synchronisation",

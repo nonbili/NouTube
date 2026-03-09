@@ -52,8 +52,8 @@
       "hint": "Mulai ulang manual jika perubahan tidak ditampilkan di webview."
     },
     "login": {
-      "label": "Coba ini jika tidak bisa masuk dari webview",
-      "button": "Masuk YouTube"
+      "label": "Coba ini jika tidak bisa login dari webview",
+      "button": "Login ke YouTube"
     },
     "openUrlLabel": "Buka URL yang didukung secara langsung",
     "webview": {
@@ -61,7 +61,14 @@
     },
     "importList": "Impor daftar tautan",
     "importTakeout": "Impor dari penarikan YouTube",
-    "exportLabel": "Ekspor penanda ke daftar"
+    "exportLabel": "Ekspor penanda ke daftar",
+    "injectCookie": "Memasukkan cookie jika tidak dapat login melalui webview",
+    "injectCookieTitle": "Memasukkan cookie otentikasi ke dalam webview",
+    "injectCookieHint": "Salin nilai header Cookie dari peramban PC Anda. Ini adalah solusi alternatif jika Anda tidak dapat login dengan email/kata sandi.",
+    "userAgent": {
+      "title": "Agen pengguna khusus",
+      "default": "Agen pengguna bawaan"
+    }
   },
   "sync": {
     "label": "Sinkron",

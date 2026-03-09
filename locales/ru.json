@@ -55,13 +55,20 @@
       "label": "Попробуйте это, если не удается войти через webview",
       "button": "Войти в YouTube"
     },
-    "openUrlLabel": "Открывать поддерживаемые ссылки напрямую",
+    "openUrlLabel": "Открывать поддерживаемые URL напрямую",
     "webview": {
       "clearLabel": "Очистить данные webview"
     },
     "importList": "Импорт списка ссылок",
     "importTakeout": "Импорт из YouTube takeout",
-    "exportLabel": "Экспорт закладок в список"
+    "exportLabel": "Экспорт закладок в список",
+    "injectCookie": "Внедрить cookie, если не удается войти через webview",
+    "injectCookieTitle": "Внедрить cookie авторизации в webview",
+    "injectCookieHint": "Скопируйте значение заголовка Cookie из браузера на ПК. Используйте этот способ, если не удается войти с помощью email и пароля.",
+    "userAgent": {
+      "default": "User-Agent по умолчанию",
+      "title": "Пользовательский User-Agent"
+    }
   },
   "sync": {
     "label": "Синхронизация",

@@ -1,0 +1,7 @@
+YouTube e YouTube Music em um único aplicativo. Sem anúncios, reprodução em segundo plano.
+<ul><li>Gerencie suas playlists e biblioteca de músicas sem precisar fazer login</li><li>Gerencie seu histórico de reprodução sem precisar fazer login</li><li>Oculte vídeos curtos</li><li>Chat ao vivo</li><li>Reproduza áudio original</li></ul>
+<h2>Como funciona</h2>
+<ul><li>Envolva https://m.youtube.com e https://music.youtube.com no Android webview</li><li>Injete o código para bloquear anúncios</li><li>Conecte controles de reprodução e suporte a reprodução em segundo plano</li></ul>
+<h2>Versão para desktop</h2>
+A versão para desktop compartilha a mesma base de código com a versão móvel.
+Baixe a versão para Linux/macOS/Windows em <a href="https://github.com/nonbili/NouTube-Desktop/releases">NouTube-Desktop</a>.

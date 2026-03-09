@@ -1,0 +1,79 @@
+{
+  "about": {
+    "label": "Sobre",
+    "code": "Código-fonte",
+    "donate": "Doações"
+  },
+  "buttons": {
+    "clear": "Limpar",
+    "import": "Importar",
+    "export": "Exportar",
+    "open": "Abrir",
+    "cancel": "Cancelar",
+    "openUrl": "Abrir URL",
+    "move": "Mover",
+    "save": "Salvar",
+    "signOut": "Sair"
+  },
+  "library": {
+    "videos": "Vídeos",
+    "channels": "Canais",
+    "playlists": "Playlists",
+    "songs": "Músicas",
+    "artists": "Artistas"
+  },
+  "menus": {
+    "edit": "Editar",
+    "remove": "Remover",
+    "reload": "Recarregar",
+    "share": "Compartilhar"
+  },
+  "modals": {
+    "editBookmark": "Editar favorito",
+    "title": "Título",
+    "folder": "Pasta",
+    "ungrouped": "Desagrupado",
+    "feeds": "Feeds",
+    "history": "Histórico",
+    "queue": "Fila"
+  },
+  "settings": {
+    "label": "Configurações",
+    "general": "Geral",
+    "restoreOnStart": "Restaurar a última reprodução ao iniciar",
+    "hideShorts": "Oculta Shorts",
+    "channelsFeed": "Feed de canais",
+    "watchHistory": "Histórico de reprodução",
+    "theme": {
+      "label": "Tema do YouTube",
+      "system": "Sistema",
+      "dark": "Escuro",
+      "light": "Claro",
+      "hint": "Reiniciar manualmente se a alteração não for refletida no Webview."
+    },
+    "login": {
+      "label": "Tente isto se não conseguir fazer login a partir do Webview",
+      "button": "Login do YouTube"
+    },
+    "openUrlLabel": "Abrir URL suportado diretamente",
+    "webview": {
+      "clearLabel": "Limpar dados do WebView"
+    },
+    "importList": "Importar uma lista de links",
+    "importTakeout": "Importar do YouTube Takeout",
+    "exportLabel": "Exportar favoritos para uma lista",
+    "injectCookie": "Injetar cookie se não for possível fazer login a partir do Webview",
+    "injectCookieTitle": "Injetar cookie de autenticação no Webview",
+    "injectCookieHint": "Copiar valores do cabeçalho e cookies do navegador em seu computador. Esta é uma solução alternativa quando você não consegue fazer login com seu e-mail/senha.",
+    "userAgent": {
+      "title": "User-Agent personalizado",
+      "default": "User-Agent padrão"
+    }
+  },
+  "sync": {
+    "label": "Sincronizar",
+    "hint": "Sincronizar favoritos entre seus telefones e computadores como usuário premium.",
+    "currentPlan": "Plano atual",
+    "managePlan": "Gerenciar plano"
+  }
+}
