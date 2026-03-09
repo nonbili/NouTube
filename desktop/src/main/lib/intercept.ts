@@ -24,14 +24,36 @@ function transformHtml(html: string) {
 
 export function interceptHttpRequest() {
   const ses = session.fromPartition('persist:webview')
+
+  ses.setCertificateVerifyProc((request, callback) => {
+    if (
+      request.hostname.endsWith('.youtube.com') ||
+      request.hostname.endsWith('.googlevideo.com') ||
+      request.hostname.endsWith('.ytimg.com') ||
+      request.hostname.endsWith('.ggpht.com') ||
+      request.hostname === 'youtube.com'
+    ) {
+      callback(0)
+    } else {
+      callback(-3)
+    }
+  })
+
   if (ses.protocol.isProtocolHandled('https')) {
     return
   }
 
   ses.protocol.handle('https', async (req) => {
-    const res = await ses.fetch(req, {
-      bypassCustomProtocolHandlers: true,
-    })
+    let res: Response
+    try {
+      res = await ses.fetch(req, {
+        bypassCustomProtocolHandlers: true,
+      })
+    } catch (e) {
+      console.error(`Interception fetch failed for ${req.url}:`, e)
+      return Response.error()
+    }
+
     const { pathname } = new URL(req.url)
     const match = pathname.match(RE_INTERCEPT)
     if (res.status > 200 || (!pathname.startsWith('/watch') && !match)) {

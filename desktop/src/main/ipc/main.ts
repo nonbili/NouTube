@@ -9,8 +9,13 @@ const interfaces = {
     session.fromPartition('').clearData({ origins: ['https://music.youtube.com', 'https://www.youtube.com'] })
   },
   fetchFeed: async (url: string) => {
-    const res = await fetch(url)
-    return await res.text()
+    try {
+      const res = await fetch(url)
+      return await res.text()
+    } catch (e) {
+      console.error(`Failed to fetch feed from ${url}:`, e)
+      throw e
+    }
   },
   toggleInterception,
   openLoginWindow,
