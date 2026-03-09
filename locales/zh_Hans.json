@@ -13,7 +13,8 @@
     "openUrl": "打开 URL",
     "move": "移动",
     "save": "保存",
-    "signOut": "登出"
+    "signOut": "退出登录",
+    "remove": "移除"
   },
   "library": {
     "videos": "视频",
@@ -35,7 +36,7 @@
     "ungrouped": "未分组",
     "feeds": "订阅源",
     "history": "历史记录",
-    "queue": "队列"
+    "queue": "待播列表"
   },
   "settings": {
     "label": "设置",
@@ -61,7 +62,14 @@
     },
     "importList": "导入链接列表",
     "importTakeout": "从 YouTube 导出数据导入",
-    "exportLabel": "将书签导出为列表"
+    "exportLabel": "将书签导出为列表",
+    "injectCookie": "如果无法从 WebView 登录，则注入 Cookie",
+    "injectCookieTitle": "将认证 Cookie 注入 WebView",
+    "injectCookieHint": "从 PC 浏览器复制 Cookie 标头值。这是当您无法使用邮箱/密码登录时的临时解决办法。",
+    "userAgent": {
+      "title": "自定义用户代理",
+      "default": "默认用户代理"
+    }
   },
   "sync": {
     "label": "同步",

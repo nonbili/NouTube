@@ -1,0 +1,79 @@
+{
+  "about": {
+    "label": "Über",
+    "code": "Quellcode",
+    "donate": "Spenden"
+  },
+  "buttons": {
+    "clear": "Löschen",
+    "import": "Importieren",
+    "export": "Exportieren",
+    "open": "Öffnen",
+    "cancel": "Abbrechen",
+    "openUrl": "URL öffnen",
+    "move": "Verschieben",
+    "save": "Speichern",
+    "signOut": "Abmelden"
+  },
+  "library": {
+    "videos": "Videos",
+    "channels": "Kanäle",
+    "playlists": "Wiedergabelisten",
+    "songs": "Lieder",
+    "artists": "Künstler"
+  },
+  "menus": {
+    "edit": "Bearbeiten",
+    "remove": "Entfernen",
+    "reload": "Neu laden",
+    "share": "Teilen"
+  },
+  "modals": {
+    "editBookmark": "Lesezeichen bearbeiten",
+    "title": "Titel",
+    "folder": "Ordner",
+    "ungrouped": "Nicht gruppiert",
+    "history": "Verlauf",
+    "queue": "Warteschlange",
+    "feeds": "Feeds"
+  },
+  "settings": {
+    "label": "Einstellungen",
+    "general": "Allgemein",
+    "restoreOnStart": "Letzte Wiedergabe beim Start wiederherstellen",
+    "watchHistory": "Verlauf ansehen",
+    "theme": {
+      "label": "YouTube-Thema",
+      "system": "System",
+      "dark": "Dunkel",
+      "light": "Hell",
+      "hint": "Starte manuell neu, wenn die Änderung nicht in der Webansicht angezeigt wird."
+    },
+    "login": {
+      "label": "Versuche dies, wenn du dich nicht über die Webansicht anmelden konntest",
+      "button": "Bei YouTube anmelden"
+    },
+    "openUrlLabel": "Unterstützte URL direkt öffnen",
+    "webview": {
+      "clearLabel": "Webansicht-Daten löschen"
+    },
+    "importList": "Liste mit Links importieren",
+    "exportLabel": "Lesezeichen als Liste exportieren",
+    "hideShorts": "Shorts verstecken",
+    "channelsFeed": "Kanäle feed",
+    "importTakeout": "Import von YouTube takeout",
+    "injectCookie": "Cookie einfügen, falls die Anmeldung über die Webansicht fehlschlägt",
+    "injectCookieTitle": "Füge den Authentifizierungs-Cookie in die Webansicht ein",
+    "injectCookieHint": "Kopieren Sie den Wert des Cookie-Headers aus Ihrem Browser auf dem PC. Dies ist eine Notlösung, falls Sie sich nicht mit E-Mail-Adresse und Passwort anmelden konnten.",
+    "userAgent": {
+      "title": "Benutzerdefinierter Benutzer-Agent",
+      "default": "Standard-Benutzer-Agent"
+    }
+  },
+  "sync": {
+    "label": "Synchronisieren",
+    "hint": "Als Premium-Nutzer können Sie Ihre Lesezeichen auf all Ihren Smartphones und Computern synchronisieren.",
+    "currentPlan": "Aktueller Plan",
+    "managePlan": "Plan verwalten"
+  }
+}
