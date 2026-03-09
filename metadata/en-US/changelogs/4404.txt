@@ -1,0 +1,3 @@
+- fix importing YouTube takeout.zip on Android
+- add share menu to bookmark, history, and feed items
+- add German and Portuguese translations
