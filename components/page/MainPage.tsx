@@ -21,8 +21,11 @@ import i18n from 'i18next'
 
 function expoLocaleToI18nLocale(locale: Locale): string | undefined {
   const { languageCode, languageScriptCode } = locale
-  if (languageCode == 'zh') {
+  if (languageCode === 'zh') {
     return `${languageCode}_${languageScriptCode}`
+  }
+  if (languageCode === 'pt') {
+    return 'pt_BR'
   }
   return languageCode || undefined
 }
