@@ -1,15 +1,9 @@
-import { Pressable, View, TouchableOpacity, ActivityIndicator, ScrollView, FlatList } from 'react-native'
+import { View, FlatList } from 'react-native'
 import { NouText } from '../NouText'
-import { version } from '../../package.json'
 import { useMemo, useState } from 'react'
-import { colors } from '@/lib/colors'
-import { clsx, nIf } from '@/lib/utils'
-import { useValue } from '@legendapp/state/react'
+import { nIf } from '@/lib/utils'
+import { observer, useComputed } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
-import { Segmented } from '../picker/Segmented'
-import { getDocumentAsync } from 'expo-document-picker'
-import { importCsv } from '@/lib/import'
-import { BookmarkItem } from '../bookmark/BookmarkItem'
 import { FeedItem } from '../feed/FeedItem'
 import { feeds$ } from '@/states/feeds'
 import { ui$ } from '@/states/ui'
@@ -24,15 +18,12 @@ import { t } from 'i18next'
 
 const allFolder = newFolder('', { name: 'All', id: '' })
 
-export const FeedModal = () => {
-  const feedModalOpen = useValue(ui$.feedModalOpen)
-  const bookmarks = useValue(bookmarks$.bookmarks)
-  const feedItems = useValue(feeds$.bookmarks)
-  const home = useValue(settings$.home)
-  const folders = useValue(folders$.folders)
+export const FeedModal = observer(() => {
+  const feedModalOpen = ui$.feedModalOpen.get()
   const [folderPickerShown, setFolderPickerShown] = useState(false)
   const [currentFolder, setCurrentFolder] = useState(allFolder)
 
+  const folders = folders$.folders.get()
   const filteredFolders = useMemo(() => {
     return [
       allFolder,
@@ -42,21 +33,37 @@ export const FeedModal = () => {
         ['name'],
       ),
     ]
-  }, [folders, folders.length])
+  }, [folders])
+
+  const bookmarks = bookmarks$.bookmarks.get()
+  const feedItems = feeds$.bookmarks.get()
+
+  // Pre-calculate channel mapping for performance
+  const channelMap = useMemo(() => {
+    const map = new Map()
+    for (const b of bookmarks) {
+      if (!b.json?.deleted && b.json?.id) {
+        map.set(b.json.id, b)
+      }
+    }
+    return map
+  }, [bookmarks])
 
   const filteredBookmarks = useMemo(() => {
     if (currentFolder.id == '') {
       return feedItems
     }
-    const folderChannels = bookmarks.filter((x) => {
-      const pageType = getPageType(x.url)
-      return pageType?.home == 'yt' && pageType.type == 'channel' && x.json.folder == currentFolder.id
-    })
-    const channelIds = folderChannels.map((x) => x.json.id)
-    return feedItems.filter((x) => {
-      return channelIds.includes(x.json.id)
-    })
-  }, [bookmarks, feedItems, feedItems.length, home, currentFolder])
+    
+    // Efficiently filter by folder using pre-calculated channelMap
+    const folderChannelIds = new Set(
+      bookmarks
+        .filter((x) => x.json.folder == currentFolder.id)
+        .map((x) => x.json.id)
+        .filter(Boolean)
+    )
+    
+    return feedItems.filter((x) => folderChannelIds.has(x.json.id))
+  }, [feedItems, currentFolder.id, bookmarks])
 
   const onChangeFolder = (folder: Folder) => {
     setCurrentFolder(folder)
@@ -84,6 +91,7 @@ export const FeedModal = () => {
           <FlatList
             className="border border-gray-600 rounded my-2 max-h-[200px]"
             data={filteredFolders}
+            keyExtractor={(item) => item.id || 'ungrouped'}
             renderItem={({ item }) => <FolderItem folder={item} onPress={() => onChangeFolder(item)} readOnly />}
           />
         </View>
@@ -91,9 +99,18 @@ export const FeedModal = () => {
       <FlatList
         className="mt-4"
         data={filteredBookmarks}
-        keyExtractor={(item) => item.url}
-        renderItem={({ item, index }) => <FeedItem bookmark={item} />}
+        keyExtractor={(item, index) => item.url + index}
+        renderItem={({ item }) => (
+          <FeedItem 
+            bookmark={item} 
+            channel={channelMap.get(item.json.id)} 
+          />
+        )}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+        removeClippedSubviews={true}
       />
     </BaseModal>,
   )
-}
+})

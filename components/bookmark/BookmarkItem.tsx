@@ -1,11 +1,8 @@
-import { View, Text, Pressable, ScrollView } from 'react-native'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import { observer, useValue, useObservable } from '@legendapp/state/react'
-import { Bookmark, bookmarks$ } from '@/states/bookmarks'
+import { View, Pressable } from 'react-native'
+import { memo } from 'react'
+import { Bookmark } from '@/states/bookmarks'
 import { Image } from 'expo-image'
 import { ui$, updateUrl } from '@/states/ui'
-import { Button, ContextMenu } from '@expo/ui/jetpack-compose'
-import { colors } from '@/lib/colors'
 import { NouText } from '../NouText'
 import { clsx, isWeb, isIos } from '@/lib/utils'
 import { getPageType, getVideoThumbnail } from '@/lib/page'
@@ -15,14 +12,18 @@ import { MaterialButton } from '../button/IconButtons'
 
 /* https://www.youtube.com/watch?v=<id> */
 function getThumbnail(url: string) {
-  const id = new URL(url).searchParams.get('v')
-  return id ? getVideoThumbnail(id) : undefined
+  try {
+    const id = new URL(url).searchParams.get('v')
+    return id ? getVideoThumbnail(id) : undefined
+  } catch (e) {
+    return undefined
+  }
 }
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
 
-export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = ({ bookmark }) => {
+export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = memo(({ bookmark }) => {
   const onPress = () => {
     updateUrl(bookmark.url)
     ui$.assign({ libraryModalOpen: false })
@@ -58,4 +59,4 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = ({ bookmark }) => 
       </View>
     </View>
   )
-}
+})

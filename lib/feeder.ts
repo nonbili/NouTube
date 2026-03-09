@@ -10,31 +10,53 @@ import * as cheerio from 'cheerio/slim'
 import { ui$ } from '@/states/ui'
 import { settings$ } from '@/states/settings'
 
-export async function feederLoop() {
-  await when([syncState(feeds$).isPersistLoaded])
-  if (!settings$.feedsEnabled.get()) {
-    return
-  }
+let isFeederRunning = false
 
-  const bookmarks = bookmarks$.bookmarks.get()
-  let channels = bookmarks.filter((x) => {
-    const pageType = getPageType(x.url)
-    return !x.json.deleted && pageType?.home == 'yt' && pageType.type == 'channel'
-  })
-  
-  const channelsToUpdate = channels.filter((x) => !x.json.id || !x.json.thumbnail)
-  await Promise.all(channelsToUpdate.map((x) => updateChannelMetadata(x)))
-  
-  if (channelsToUpdate.length) {
-    channels = bookmarks.filter((x) => {
+export async function feederLoop() {
+  if (isFeederRunning) return
+  isFeederRunning = true
+
+  try {
+    await when([syncState(feeds$).isPersistLoaded])
+    if (!settings$.feedsEnabled.get()) {
+      return
+    }
+
+    const bookmarks = bookmarks$.bookmarks.get()
+    let channels = bookmarks.filter((x) => {
       const pageType = getPageType(x.url)
       return !x.json.deleted && pageType?.home == 'yt' && pageType.type == 'channel'
     })
+
+    // Update metadata sequentially and limit to avoid heavy initial hit
+    const channelsToUpdate = channels.filter((x) => !x.json.id || !x.json.thumbnail).slice(0, 20)
+    for (const channel of channelsToUpdate) {
+      await updateChannelMetadata(channel)
+      // Small delay between requests
+      await new Promise((r) => setTimeout(r, 200))
+    }
+
+    if (channelsToUpdate.length) {
+      channels = bookmarks.filter((x) => {
+        const pageType = getPageType(x.url)
+        return !x.json.deleted && pageType?.home == 'yt' && pageType.type == 'channel'
+      })
+    }
+
+    const channelIds = channels.map((x) => x.json.id!).filter(Boolean)
+    feeds$.setFeeds(channelIds)
+
+    // Fetch RSS feeds sequentially to avoid overwhelming the app
+    for (const id of channelIds) {
+      await fetchChannel(id)
+      // Small delay between requests
+      await new Promise((r) => setTimeout(r, 100))
+    }
+  } catch (e) {
+    console.error('feederLoop failed:', e)
+  } finally {
+    isFeederRunning = false
   }
-  
-  const channelIds = channels.map((x) => x.json.id!).filter(Boolean)
-  feeds$.setFeeds(channelIds)
-  await Promise.all(channelIds.map((id) => fetchChannel(id)))
 }
 
 async function updateChannelMetadata(bookmark: Bookmark) {
@@ -84,19 +106,39 @@ async function fetchChannel(id: string) {
   if (!feed || Date.now() - feed.fetchedAt.valueOf() < threshold) {
     return
   }
-  const xml = await mainClient.fetchFeed(`https://www.youtube.com/feeds/videos.xml?channel_id=${id}`)
-  const data = parser.parse(xml)
-  const bookmarks = data.feed.entry.map((x: any) =>
-    newBookmark({
-      title: x.title,
-      url: x.link.href,
-      created_at: new Date(x.published),
-      updated_at: new Date(x.updated),
-      json: {
-        id,
-      },
-    }),
-  )
-  feeds$.importBookmarks(bookmarks)
-  feeds$.saveFeed({ ...feed, fetchedAt: new Date() })
+  try {
+    const xml = await mainClient.fetchFeed(`https://www.youtube.com/feeds/videos.xml?channel_id=${id}`)
+    if (!xml) {
+      console.warn(`Empty feed for channel: ${id}`)
+      feeds$.saveFeed({ ...feed, fetchedAt: new Date() })
+      return
+    }
+
+    const data = parser.parse(xml)
+    const entries = data?.feed?.entry
+    if (!entries) {
+      // Not necessarily an error, could be a new channel or just failed to parse/fetch
+      feeds$.saveFeed({ ...feed, fetchedAt: new Date() })
+      return
+    }
+
+    const entryArray = Array.isArray(entries) ? entries : [entries]
+    const bookmarks = entryArray.map((x: any) =>
+      newBookmark({
+        title: x.title,
+        url: x.link.href,
+        created_at: new Date(x.published),
+        updated_at: new Date(x.updated),
+        json: {
+          id,
+        },
+      }),
+    )
+    feeds$.importBookmarks(bookmarks)
+    feeds$.saveFeed({ ...feed, fetchedAt: new Date() })
+  } catch (e) {
+    console.error(`Failed to fetch channel ${id}:`, e)
+    // Still mark as fetched to avoid immediate retry
+    feeds$.saveFeed({ ...feed, fetchedAt: new Date() })
+  }
 }

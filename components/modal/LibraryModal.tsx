@@ -1,4 +1,4 @@
-import { useValue } from '@legendapp/state/react'
+import { observer } from '@legendapp/state/react'
 import { BaseModal } from './BaseModal'
 import { ui$ } from '@/states/ui'
 import { NouText } from '../NouText'
@@ -10,12 +10,10 @@ import { BookmarkItem } from '../bookmark/BookmarkItem'
 import { Segmented } from '../picker/Segmented'
 import { FlatList, View } from 'react-native'
 import { clsx, isWeb } from '@/lib/utils'
-import { colors } from '@/lib/colors'
-import { AntButton, MaterialButton, MaterialCommunityButton } from '../button/IconButtons'
+import { MaterialButton, MaterialCommunityButton } from '../button/IconButtons'
 import { Folder, folders$, newFolder } from '@/states/folders'
 import { FolderItem } from '../folder/FolderItem'
 import { sortBy } from 'es-toolkit'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { t } from 'i18next'
 
 const tabsYT = [
@@ -31,24 +29,28 @@ const tabsYTMusic = [
 
 const ungroupedFolder = newFolder('', { name: t('modals.ungrouped'), id: '' })
 
-export const LibraryModal = () => {
-  const libraryModalOpen = useValue(ui$.libraryModalOpen)
-  const { bookmarks, updatedAt: bookmarksUpdatedAt } = useValue(bookmarks$)
-  const home = useValue(settings$.home)
+export const LibraryModal = observer(() => {
+  const libraryModalOpen = ui$.libraryModalOpen.get()
+  const home = settings$.home.get()
+  const isYTMusic = settings$.isYTMusic.get()
+  
   const [tabIndex, setTabIndex] = useState(0)
-  const isYTMusic = useValue(settings$.isYTMusic)
-  const tabs = isYTMusic ? tabsYTMusic : tabsYT
-  const { folders, updatedAt: foldersUpdatedAt } = useValue(folders$)
   const [currentFolder, setCurrentFolder] = useState<Folder>()
+  
+  const tabs = isYTMusic ? tabsYTMusic : tabsYT
   const currentTab = tabs[tabIndex]
 
+  // Only compute folders when relevant state changes
+  const folders = folders$.folders.get()
   const filteredFolders = useMemo(() => {
     return sortBy(
       folders.filter((x) => !x.json.deleted && x.json.tab == currentTab.value),
       ['name'],
     )
-  }, [folders, foldersUpdatedAt, currentTab])
+  }, [folders, currentTab.value])
 
+  // Only compute bookmarks when relevant state changes
+  const bookmarks = bookmarks$.bookmarks.get()
   const filteredBookmarks = useMemo(() => {
     const types = [['podcast', 'shorts', 'watch'], ['channel'], ['playlist']][tabIndex]
     return bookmarks.filter((x) => {
@@ -58,17 +60,22 @@ export const LibraryModal = () => {
       const pageType = getPageType(x.url)
       return pageType?.home == home && types.includes(pageType?.type)
     })
-  }, [bookmarks, bookmarksUpdatedAt, tabIndex, home, currentFolder])
+  }, [bookmarks, tabIndex, home, currentFolder?.id])
 
   useEffect(() => {
     setCurrentFolder(filteredFolders.length ? undefined : ungroupedFolder)
     ui$.libraryModalTab.set(currentTab.value)
-  }, [currentTab, filteredFolders])
+  }, [currentTab.value, filteredFolders.length])
 
-  const visibleFolders = (filteredBookmarks.length ? [ungroupedFolder] : []).concat(filteredFolders)
+  const visibleFolders = useMemo(() => 
+    (filteredBookmarks.length ? [ungroupedFolder] : []).concat(filteredFolders),
+    [filteredBookmarks.length, filteredFolders]
+  )
+
+  if (!libraryModalOpen) return null
 
   return (
-    <BaseModal className={libraryModalOpen ? 'block' : 'hidden'} onClose={() => ui$.libraryModalOpen.set(false)}>
+    <BaseModal onClose={() => ui$.libraryModalOpen.set(false)}>
       <View className={clsx('px-2 flex-row justify-between items-center mb-4', isWeb && 'mt-4')}>
         {isWeb ? <NouText /> : null}
         <Segmented options={tabs.map((x) => x.label)} selectedIndex={tabIndex} onChange={setTabIndex} />
@@ -90,14 +97,19 @@ export const LibraryModal = () => {
             data={filteredBookmarks}
             keyExtractor={(item) => item.url}
             renderItem={({ item }) => <BookmarkItem bookmark={item} />}
+            initialNumToRender={15}
+            maxToRenderPerBatch={10}
+            windowSize={5}
+            removeClippedSubviews={true}
           />
         </>
       ) : (
         <FlatList
           data={visibleFolders}
+          keyExtractor={(item) => item.id || 'ungrouped'}
           renderItem={({ item }) => <FolderItem folder={item} onPress={() => setCurrentFolder(item)} />}
         />
       )}
     </BaseModal>
   )
-}
+})
