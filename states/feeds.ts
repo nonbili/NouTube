@@ -30,9 +30,10 @@ export const feeds$ = observable<Store>({
     return new Set(feeds$.bookmarks.get().map((x) => x.url))
   },
   setFeeds: (ids) => {
-    const feeds = feeds$.feeds.get().filter((x) => ids.includes(x.id))
+    const uniqueIds = Array.from(new Set(ids.filter(Boolean)))
+    const feeds = feeds$.feeds.get().filter((x) => uniqueIds.includes(x.id))
     const feedIds = feeds.map((x) => x.id)
-    const newFeeds = ids.filter((id) => !feedIds.includes(id)).map((id) => ({ id, fetchedAt: new Date(0) }))
+    const newFeeds = uniqueIds.filter((id) => !feedIds.includes(id)).map((id) => ({ id, fetchedAt: new Date(0) }))
     feeds$.feeds.set(feeds.concat(newFeeds))
   },
   saveFeed: (feed) => {

@@ -21,29 +21,51 @@ export async function feederLoop() {
     const pageType = getPageType(x.url)
     return !x.json.deleted && pageType?.home == 'yt' && pageType.type == 'channel'
   })
-  const channelsWithoutId = channels.filter((x) => !x.json.id)
-  await Promise.all(channelsWithoutId.map((x) => getChannelId(x)))
-  if (channelsWithoutId.length) {
+  
+  const channelsToUpdate = channels.filter((x) => !x.json.id || !x.json.thumbnail)
+  await Promise.all(channelsToUpdate.map((x) => updateChannelMetadata(x)))
+  
+  if (channelsToUpdate.length) {
     channels = bookmarks.filter((x) => {
       const pageType = getPageType(x.url)
       return !x.json.deleted && pageType?.home == 'yt' && pageType.type == 'channel'
     })
   }
-  const channelIds = channels.map((x) => x.json.id!)
+  
+  const channelIds = channels.map((x) => x.json.id!).filter(Boolean)
   feeds$.setFeeds(channelIds)
   await Promise.all(channelIds.map((id) => fetchChannel(id)))
 }
 
-async function getChannelId(bookmark: Bookmark) {
-  const html = await mainClient.fetchFeed(bookmark.url)
-  const $ = cheerio.load(html)
-  const feedUrl = $('link[type="application/rss+xml"]').attr('href')
-  if (feedUrl) {
-    const id = new URL(feedUrl).searchParams.get('channel_id')
-    if (id) {
-      bookmark.json.id = id
+async function updateChannelMetadata(bookmark: Bookmark) {
+  try {
+    const html = await mainClient.fetchFeed(bookmark.url)
+    const $ = cheerio.load(html)
+    
+    let updated = false
+    
+    // Get channel ID from RSS link
+    const feedUrl = $('link[type="application/rss+xml"]').attr('href')
+    if (feedUrl) {
+      const id = new URL(feedUrl).searchParams.get('channel_id')
+      if (id && bookmark.json.id !== id) {
+        bookmark.json.id = id
+        updated = true
+      }
+    }
+    
+    // Get thumbnail from OG tags
+    const thumbnail = $('meta[property="og:image"]').attr('content') || $('meta[property="og:thumbnail"]').attr('content')
+    if (thumbnail && bookmark.json.thumbnail !== thumbnail) {
+      bookmark.json.thumbnail = thumbnail
+      updated = true
+    }
+    
+    if (updated) {
       bookmarks$.saveBookmark(bookmark)
     }
+  } catch (e) {
+    console.error(`Failed to update metadata for ${bookmark.url}:`, e)
   }
 }
 
