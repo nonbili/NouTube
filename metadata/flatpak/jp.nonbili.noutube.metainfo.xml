@@ -57,6 +57,16 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.2.4" date="2026-03-10">
+      <description>
+        <ul>
+          <li>Add share menu to bookmark/history/feed item</li>
+          <li>Add German and Portuguese translations</li>
+          <li>Improve library and feed loading performance</li>
+          <li>Improve importing process</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.2.3" date="2026-02-20">
       <description>
         <ul>
@@ -85,36 +95,6 @@
           <li>Fix ad blocking</li>
           <li>Support injecting cookie to fix login</li>
           <li>Support restoring progress from History panel</li>
-        </ul>
-      </description>
-    </release>
-    <release version="0.1.15" date="2025-12-22">
-      <description>
-        <ul>
-          <li>Bump electron to see if it helps with login issue</li>
-        </ul>
-      </description>
-    </release>
-    <release version="0.1.14" date="2025-12-19">
-      <description>
-        <ul>
-          <li>Add Login YouTube button to workaround failure in webview</li>
-          <li>Fix page url when restoring last playing</li>
-        </ul>
-      </description>
-    </release>
-    <release version="0.1.13" date="2025-12-16">
-      <description>
-        <ul>
-          <li>Add a button to open youtube/noutube url directly</li>
-          <li>Prevent restoring progress to the end</li>
-        </ul>
-      </description>
-    </release>
-    <release version="0.1.12" date="2025-12-14">
-      <description>
-        <ul>
-          <li>Fix clicking links in video description</li>
         </ul>
       </description>
     </release>

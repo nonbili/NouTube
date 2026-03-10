@@ -1,0 +1,4 @@
+- Add share menu to bookmark/history/feed item
+- Add German and Portuguese translations
+- Improve library and feed loading performance
+- Improve importing process
