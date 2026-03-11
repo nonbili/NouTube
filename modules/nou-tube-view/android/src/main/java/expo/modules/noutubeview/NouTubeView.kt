@@ -20,6 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.JsResult
+import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -179,6 +180,32 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
         }
 
       webChromeClient = object : WebChromeClient() {
+        override fun onPermissionRequest(request: PermissionRequest) {
+          val activity = currentActivity
+          if (activity == null) {
+            request.deny()
+            return
+          }
+
+          val resources = request.resources
+          val permissionsToRequest = mutableListOf<String>()
+
+          if (resources.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE)) {
+            permissionsToRequest.add(android.Manifest.permission.RECORD_AUDIO)
+          }
+          if (resources.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE)) {
+            permissionsToRequest.add(android.Manifest.permission.CAMERA)
+          }
+
+          if (permissionsToRequest.isEmpty()) {
+            request.grant(resources)
+            return
+          }
+
+          activity.requestPermissions(permissionsToRequest.toTypedArray(), 101)
+          request.grant(resources)
+        }
+
         override fun onJsBeforeUnload(view: WebView, url: String, message: String, result: JsResult): Boolean {
           result.confirm()
           return true
