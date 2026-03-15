@@ -1,4 +1,4 @@
-import { batch, Observable, observable, syncState, when } from '@legendapp/state'
+import { batch, Observable, observable } from '@legendapp/state'
 import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import { genId, isWeb } from '@/lib/utils'
@@ -23,7 +23,6 @@ export interface Bookmark {
 interface Store {
   bookmarks: Bookmark[]
   updatedAt: Date
-  syncedAt: Date | undefined
   getBookmarkByUrl: (url: string) => Observable<Bookmark> | undefined
   toggleBookmark: (bookmark: Bookmark) => void
   addBookmark: (bookmark: Bookmark) => void
@@ -31,7 +30,6 @@ interface Store {
   importBookmarks: (bookmarks: Bookmark[]) => void
   removeByFolder: (folderId: string) => void
   setUpdatedTime: () => void
-  setSyncedTime: () => void
 }
 
 const getBookmarkIndex = (bookmark: Bookmark) => bookmarks$.bookmarks.findIndex((x) => x.id.get() == bookmark.id)
@@ -39,7 +37,6 @@ const getBookmarkIndex = (bookmark: Bookmark) => bookmarks$.bookmarks.findIndex(
 export const bookmarks$ = observable<Store>({
   bookmarks: [],
   updatedAt: new Date(1970),
-  syncedAt: undefined,
   getBookmarkByUrl: (url): Observable<Bookmark> | undefined => {
     const x = bookmarks$.bookmarks.find((x) => x.url.get() == url)
     return x
@@ -106,9 +103,6 @@ export const bookmarks$ = observable<Store>({
   },
   setUpdatedTime() {
     bookmarks$.updatedAt.set(new Date())
-  },
-  setSyncedTime() {
-    bookmarks$.syncedAt.set(new Date())
   },
 })
 

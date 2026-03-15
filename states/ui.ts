@@ -1,5 +1,4 @@
 import { event, observable } from '@legendapp/state'
-import { settings$ } from './settings'
 import { Folder } from './folders'
 import { Bookmark } from './bookmarks'
 import { unnormalizeUrl } from '@/lib/url'
@@ -8,7 +7,6 @@ import { isWeb } from '@/lib/utils'
 interface Store {
   url: string
   pageUrl: string
-  fullSyncedAt: Date | undefined
 
   // modals
   bookmarkModalBookmark: Bookmark | undefined
@@ -31,7 +29,6 @@ interface Store {
 export const ui$ = observable<Store>({
   url: '',
   pageUrl: '',
-  fullSyncedAt: undefined,
 
   // modals
   bookmarkModalBookmark: undefined,

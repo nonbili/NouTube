@@ -1,33 +1,49 @@
-import { Bookmark, bookmarks$ } from '@/states/bookmarks'
-import { supabase } from './client'
-import { syncState, when } from '@legendapp/state'
 import { auth$ } from '@/states/auth'
-import { debounce } from 'es-toolkit'
+import { bookmarks$ } from '@/states/bookmarks'
+import { folders$ } from '@/states/folders'
+import { createLogger } from '@/lib/log'
+import { feederLoop } from '../feeder'
 import { bookmarksSyncer } from './sync/bookmarks'
 import { foldersSyncer } from './sync/folders'
-import { folders$ } from '@/states/folders'
-import { ui$ } from '@/states/ui'
-import { feederLoop } from '../feeder'
 
-const oneDay = 24 * 3600 * 1000
+const logger = createLogger('sync', { devOnly: true })
+
+const canSync = () => {
+  const { userId, plan } = auth$.get()
+  return Boolean(userId && plan && plan !== 'free')
+}
+
 export async function syncSupabase() {
-  const fullSyncedAt = ui$.fullSyncedAt.get()
-  const fullSync = !fullSyncedAt || Date.now() - fullSyncedAt.valueOf() > oneDay
-  await Promise.all([bookmarksSyncer.sync(fullSync), foldersSyncer.sync(fullSync)])
-  if (fullSync) {
-    ui$.fullSyncedAt.set(new Date())
+  if (!canSync()) {
+    logger.log('skipped syncSupabase because sync is disabled')
+    return
   }
+
+  logger.log('starting syncSupabase')
+  await Promise.all([bookmarksSyncer.syncNow(), foldersSyncer.syncNow()])
+  logger.log('completed syncSupabase')
 }
 
 bookmarks$.bookmarks.onChange(() => {
-  if (ui$.fullSyncedAt.get()) {
-    bookmarksSyncer.sync()
+  if (!bookmarksSyncer.isApplyingRemote()) {
+    logger.log('detected local bookmarks change')
+    bookmarksSyncer.markDirty()
+    if (canSync()) {
+      bookmarksSyncer.scheduleSync()
+    }
   }
+
   feederLoop()
 })
 
 folders$.folders.onChange(() => {
-  if (ui$.fullSyncedAt.get()) {
-    foldersSyncer.sync()
+  if (foldersSyncer.isApplyingRemote()) {
+    return
+  }
+
+  logger.log('detected local folders change')
+  foldersSyncer.markDirty()
+  if (canSync()) {
+    foldersSyncer.scheduleSync()
   }
 })
