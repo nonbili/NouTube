@@ -1,20 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useValue, useObserve, useObserveEffect } from '@legendapp/state/react'
-import { onClearData$, ui$ } from '@/states/ui'
+import { useCallback, useEffect, useRef } from 'react'
+import { useValue, useObserveEffect } from '@legendapp/state/react'
+import { ui$ } from '@/states/ui'
 import { queue$ } from '@/states/queue'
 import { settings$ } from '@/states/settings'
 import { bookmarks$, newBookmark } from '@/states/bookmarks'
+import { createLogger } from '@/lib/log'
 import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
 import NouTubeViewModule, { NouTubeView } from '@/modules/nou-tube-view'
-import { View, Text, BackHandler, ColorSchemeName } from 'react-native'
-import { fixPageTitle, fixSharingUrl, getPageType, getVideoId, setPageUrl } from '@/lib/page'
+import { View } from 'react-native'
+import { getVideoId, setPageUrl } from '@/lib/page'
 import { showToast } from '@/lib/toast'
 import { isWeb, nIf } from '@/lib/utils'
 import type { WebviewTag } from 'electron'
 import { NouHeader } from '../header/NouHeader'
 import { syncSupabase } from '@/lib/supabase/sync'
-import { useQuery, UseQueryResult } from '@tanstack/react-query'
-import { getMeQuery } from '@/lib/query'
 import { auth$ } from '@/states/auth'
 import { useMe } from '@/lib/hooks/useMe'
 import { ObservableHint } from '@legendapp/state'
@@ -24,6 +23,7 @@ import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
 import { history$ } from '@/states/history'
 
 let restored = false
+const logger = createLogger('sync')
 
 function restoreLastPlaying(webview: any) {
   if (settings$.restoreOnStart.get() && !restored) {
@@ -72,11 +72,17 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   useEffect(() => {
     auth$.plan.set(me?.plan)
-    if (userId && me?.plan && me.plan != 'free') {
-      syncSupabase()
+    const runSync = () => {
+      void syncSupabase().catch((error) => {
+        logger.error('syncSupabase failed', error)
+      })
+    }
+
+    if (userId && me?.plan && me.plan !== 'free') {
+      runSync()
       const timer = setInterval(
-        () => syncSupabase(),
-        10 * 60 * 1000, // 10 minutes
+        () => runSync(),
+        5 * 60 * 1000, // 5 minutes
       )
       return () => clearInterval(timer)
     }

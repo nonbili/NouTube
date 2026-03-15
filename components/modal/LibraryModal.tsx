@@ -1,4 +1,4 @@
-import { observer } from '@legendapp/state/react'
+import { observer, useValue } from '@legendapp/state/react'
 import { BaseModal } from './BaseModal'
 import { ui$ } from '@/states/ui'
 import { NouText } from '../NouText'
@@ -30,9 +30,11 @@ const tabsYTMusic = [
 const ungroupedFolder = newFolder('', { name: t('modals.ungrouped'), id: '' })
 
 export const LibraryModal = observer(() => {
-  const libraryModalOpen = ui$.libraryModalOpen.get()
-  const home = settings$.home.get()
-  const isYTMusic = settings$.isYTMusic.get()
+  const libraryModalOpen = useValue(ui$.libraryModalOpen)
+  const home = useValue(settings$.home)
+  const isYTMusic = useValue(settings$.isYTMusic)
+  const foldersUpdatedAt = useValue(folders$.updatedAt).valueOf()
+  const bookmarksUpdatedAt = useValue(bookmarks$.updatedAt).valueOf()
   
   const [tabIndex, setTabIndex] = useState(0)
   const [currentFolder, setCurrentFolder] = useState<Folder>()
@@ -41,26 +43,30 @@ export const LibraryModal = observer(() => {
   const currentTab = tabs[tabIndex]
 
   // Only compute folders when relevant state changes
-  const folders = folders$.folders.get()
+  const folders = useMemo(() => {
+    return [...folders$.folders.get()]
+  }, [foldersUpdatedAt])
   const filteredFolders = useMemo(() => {
     return sortBy(
-      folders.filter((x) => !x.json.deleted && x.json.tab == currentTab.value),
+      folders.filter((x) => !x.json.deleted && x.json.tab === currentTab.value),
       ['name'],
     )
   }, [folders, currentTab.value])
 
   // Only compute bookmarks when relevant state changes
-  const bookmarks = bookmarks$.bookmarks.get()
+  const bookmarks = useMemo(() => {
+    return [...bookmarks$.bookmarks.get()]
+  }, [bookmarksUpdatedAt])
   const filteredBookmarks = useMemo(() => {
     const types = [['podcast', 'shorts', 'watch'], ['channel'], ['playlist']][tabIndex]
     return bookmarks.filter((x) => {
-      if (x.json.deleted || (currentFolder ? (x.json.folder || '') != currentFolder?.id : x.json.folder)) {
+      if (x.json.deleted || (currentFolder ? (x.json.folder || '') !== currentFolder.id : x.json.folder)) {
         return false
       }
       const pageType = getPageType(x.url)
-      return pageType?.home == home && types.includes(pageType?.type)
+      return pageType?.home === home && types.includes(pageType?.type)
     })
-  }, [bookmarks, tabIndex, home, currentFolder?.id])
+  }, [bookmarks, tabIndex, home, currentFolder])
 
   useEffect(() => {
     setCurrentFolder(filteredFolders.length ? undefined : ungroupedFolder)
@@ -85,7 +91,7 @@ export const LibraryModal = observer(() => {
           onPress={() => ui$.folderModalFolder.set(newFolder(currentTab.value))}
         />
       </View>
-      {currentFolder != undefined ? (
+      {currentFolder !== undefined ? (
         <>
           {filteredFolders.length ? (
             <View className="flex-row items-center gap-2 mb-2">

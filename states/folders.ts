@@ -1,4 +1,4 @@
-import { Observable, observable, syncState, when } from '@legendapp/state'
+import { observable } from '@legendapp/state'
 import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import { genId, isWeb } from '@/lib/utils'
@@ -21,14 +21,12 @@ export interface Folder {
 interface Store {
   folders: Folder[]
   updatedAt: Date
-  syncedAt: Date | undefined
   addFolder: (folder: Folder) => void
   saveFolder: (folder: Folder) => void
   removeFolder: (folder: Folder) => void
   importFolders: (folders: Folder[]) => void
   getOrCreateFolder: (tab: string, name: string) => Folder
   setUpdatedTime: () => void
-  setSyncedTime: () => void
 }
 
 const getFolderIndex = (folder: Folder) => folders$.folders.findIndex((x) => x.id.get() == folder.id)
@@ -36,7 +34,6 @@ const getFolderIndex = (folder: Folder) => folders$.folders.findIndex((x) => x.i
 export const folders$ = observable<Store>({
   folders: [],
   updatedAt: new Date(0),
-  syncedAt: undefined,
   addFolder: (folder) => {
     folders$.folders.unshift(folder)
     folders$.setUpdatedTime()
@@ -77,9 +74,6 @@ export const folders$ = observable<Store>({
   },
   setUpdatedTime() {
     folders$.updatedAt.set(new Date())
-  },
-  setSyncedTime() {
-    folders$.syncedAt.set(new Date())
   },
 })
 

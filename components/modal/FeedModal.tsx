@@ -2,13 +2,11 @@ import { View, FlatList } from 'react-native'
 import { NouText } from '../NouText'
 import { useMemo, useState } from 'react'
 import { nIf } from '@/lib/utils'
-import { observer, useComputed } from '@legendapp/state/react'
-import { settings$ } from '@/states/settings'
+import { observer, useValue } from '@legendapp/state/react'
 import { FeedItem } from '../feed/FeedItem'
 import { feeds$ } from '@/states/feeds'
 import { ui$ } from '@/states/ui'
 import { BaseModal } from './BaseModal'
-import { getPageType } from '@/lib/page'
 import { NouButton } from '../button/NouButton'
 import { FolderItem } from '../folder/FolderItem'
 import { Folder, folders$, newFolder } from '@/states/folders'
@@ -19,23 +17,29 @@ import { t } from 'i18next'
 const allFolder = newFolder('', { name: 'All', id: '' })
 
 export const FeedModal = observer(() => {
-  const feedModalOpen = ui$.feedModalOpen.get()
+  const feedModalOpen = useValue(ui$.feedModalOpen)
+  const foldersUpdatedAt = useValue(folders$.updatedAt).valueOf()
+  const bookmarksUpdatedAt = useValue(bookmarks$.updatedAt).valueOf()
   const [folderPickerShown, setFolderPickerShown] = useState(false)
   const [currentFolder, setCurrentFolder] = useState(allFolder)
 
-  const folders = folders$.folders.get()
+  const folders = useMemo(() => {
+    return [...folders$.folders.get()]
+  }, [foldersUpdatedAt])
   const filteredFolders = useMemo(() => {
     return [
       allFolder,
       newFolder('', { name: t('modals.ungrouped'), id: undefined }),
       ...sortBy(
-        folders.filter((x) => x.json.tab == 'channel'),
+        folders.filter((x) => x.json.tab === 'channel'),
         ['name'],
       ),
     ]
   }, [folders])
 
-  const bookmarks = bookmarks$.bookmarks.get()
+  const bookmarks = useMemo(() => {
+    return [...bookmarks$.bookmarks.get()]
+  }, [bookmarksUpdatedAt])
   const feedItems = feeds$.bookmarks.get()
 
   // Pre-calculate channel mapping for performance
@@ -50,14 +54,14 @@ export const FeedModal = observer(() => {
   }, [bookmarks])
 
   const filteredBookmarks = useMemo(() => {
-    if (currentFolder.id == '') {
+    if (currentFolder.id === '') {
       return feedItems
     }
     
     // Efficiently filter by folder using pre-calculated channelMap
     const folderChannelIds = new Set(
       bookmarks
-        .filter((x) => x.json.folder == currentFolder.id)
+        .filter((x) => x.json.folder === currentFolder.id)
         .map((x) => x.json.id)
         .filter(Boolean)
     )
