@@ -1,12 +1,9 @@
-import { View, Text, Pressable, ScrollView } from 'react-native'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import { observer, useValue, useObservable } from '@legendapp/state/react'
+import { View, Pressable } from 'react-native'
 import { Image } from 'expo-image'
 import { updateUrl, ui$ } from '@/states/ui'
-import { colors } from '@/lib/colors'
 import { NouText } from '../NouText'
 import { clsx, isWeb, isIos } from '@/lib/utils'
-import { getPageType, getThumbnail, getVideoThumbnail } from '@/lib/page'
+import { getThumbnail } from '@/lib/page'
 import { History, history$ } from '@/states/history'
 import { NouMenu } from '../menu/NouMenu'
 import { t } from 'i18next'
@@ -16,15 +13,35 @@ import { share } from '@/lib/share'
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
 
+function getHistoryUrl(url: string, duration: number) {
+  try {
+    const nextUrl = new URL(url)
+    const value = nextUrl.searchParams.get('t')
+    if (!value) {
+      return url
+    }
+
+    const t = Number(value)
+    if (!Number.isFinite(t)) {
+      return url
+    }
+
+    const nextT = duration - t < 15 ? 0 : Math.max(t - 5, 0)
+    nextUrl.searchParams.set('t', `${nextT}`)
+    return nextUrl.toString()
+  } catch {
+    return url
+  }
+}
+
 export const HistoryItem: React.FC<{ bookmark: History }> = ({ bookmark }) => {
+  const historyUrl = getHistoryUrl(bookmark.url, bookmark.duration)
+
   const onPress = () => {
-    updateUrl(bookmark.url)
+    updateUrl(historyUrl)
     ui$.assign({ historyModalOpen: false })
   }
 
-  const pageType = getPageType(bookmark.url)
-  const round = pageType?.type == 'channel'
-  const square = round || pageType?.home == 'yt-music'
   const progress = (bookmark.current / bookmark.duration) * 100
 
   return (
@@ -53,7 +70,7 @@ export const HistoryItem: React.FC<{ bookmark: History }> = ({ bookmark }) => {
         <NouMenu
           trigger={isWeb ? <MaterialButton name="more-vert" size={20} /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
           items={[
-            { label: t('menus.share'), handler: () => share(bookmark.url) },
+            { label: t('menus.share'), handler: () => share(historyUrl) },
             { label: t('menus.remove'), handler: () => history$.removeHistory(bookmark) },
           ]}
         />

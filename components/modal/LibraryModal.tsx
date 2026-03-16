@@ -1,4 +1,4 @@
-import { observer, useValue } from '@legendapp/state/react'
+import { useValue } from '@legendapp/state/react'
 import { BaseModal } from './BaseModal'
 import { ui$ } from '@/states/ui'
 import { NouText } from '../NouText'
@@ -29,12 +29,12 @@ const tabsYTMusic = [
 
 const ungroupedFolder = newFolder('', { name: t('modals.ungrouped'), id: '' })
 
-export const LibraryModal = observer(() => {
+export const LibraryModal = () => {
   const libraryModalOpen = useValue(ui$.libraryModalOpen)
   const home = useValue(settings$.home)
   const isYTMusic = useValue(settings$.isYTMusic)
-  const foldersUpdatedAt = useValue(folders$.updatedAt).valueOf()
-  const bookmarksUpdatedAt = useValue(bookmarks$.updatedAt).valueOf()
+  const folderState = useValue(folders$)
+  const bookmarkState = useValue(bookmarks$)
   
   const [tabIndex, setTabIndex] = useState(0)
   const [currentFolder, setCurrentFolder] = useState<Folder>()
@@ -42,31 +42,23 @@ export const LibraryModal = observer(() => {
   const tabs = isYTMusic ? tabsYTMusic : tabsYT
   const currentTab = tabs[tabIndex]
 
-  // Only compute folders when relevant state changes
-  const folders = useMemo(() => {
-    return [...folders$.folders.get()]
-  }, [foldersUpdatedAt])
   const filteredFolders = useMemo(() => {
     return sortBy(
-      folders.filter((x) => !x.json.deleted && x.json.tab === currentTab.value),
+      folderState.folders.filter((x) => !x.json.deleted && x.json.tab === currentTab.value),
       ['name'],
     )
-  }, [folders, currentTab.value])
+  }, [folderState, currentTab.value])
 
-  // Only compute bookmarks when relevant state changes
-  const bookmarks = useMemo(() => {
-    return [...bookmarks$.bookmarks.get()]
-  }, [bookmarksUpdatedAt])
   const filteredBookmarks = useMemo(() => {
     const types = [['podcast', 'shorts', 'watch'], ['channel'], ['playlist']][tabIndex]
-    return bookmarks.filter((x) => {
+    return bookmarkState.bookmarks.filter((x) => {
       if (x.json.deleted || (currentFolder ? (x.json.folder || '') !== currentFolder.id : x.json.folder)) {
         return false
       }
       const pageType = getPageType(x.url)
       return pageType?.home === home && types.includes(pageType?.type)
     })
-  }, [bookmarks, tabIndex, home, currentFolder])
+  }, [bookmarkState, tabIndex, home, currentFolder])
 
   useEffect(() => {
     setCurrentFolder(filteredFolders.length ? undefined : ungroupedFolder)
@@ -118,4 +110,4 @@ export const LibraryModal = observer(() => {
       )}
     </BaseModal>
   )
-})
+}
