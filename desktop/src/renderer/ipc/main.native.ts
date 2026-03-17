@@ -1,7 +1,12 @@
 const interfaces = {
   fetchFeed: async (url: string) => {
     const res = await fetch(url)
-    return await res.text()
+    return {
+      ok: res.ok,
+      status: res.status,
+      statusText: res.statusText,
+      body: await res.text(),
+    }
   },
 }
 

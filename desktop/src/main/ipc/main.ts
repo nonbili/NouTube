@@ -11,7 +11,12 @@ const interfaces = {
   fetchFeed: async (url: string) => {
     try {
       const res = await fetch(url)
-      return await res.text()
+      return {
+        ok: res.ok,
+        status: res.status,
+        statusText: res.statusText,
+        body: await res.text(),
+      }
     } catch (e) {
       console.error(`Failed to fetch feed from ${url}:`, e)
       throw e

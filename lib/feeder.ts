@@ -1,16 +1,16 @@
 import { syncState, when } from '@legendapp/state'
-import { bookmarks$, newBookmark } from '@/states/bookmarks'
+import { bookmarks$, newBookmark, type Bookmark } from '@/states/bookmarks'
 import { getPageType } from './page'
 import { XMLParser } from 'fast-xml-parser'
 import { mainClient } from '../desktop/src/renderer/ipc/main'
-import { normalizeUrl } from './url'
 import { feeds$ } from '@/states/feeds'
-import { Bookmark } from '@/states/bookmarks'
-import * as cheerio from 'cheerio/slim'
-import { ui$ } from '@/states/ui'
 import { settings$ } from '@/states/settings'
+import { fetchYouTubeChannelMetadata } from './youtube-channel'
 
 let isFeederRunning = false
+const fetchingChannelIds = new Set<string>()
+type FetchChannelResult = 'success' | 'skipped' | 'already-running' | 'not-found' | 'http-error' | 'error'
+export type RefreshChannelFeedResult = Exclude<FetchChannelResult, 'skipped'>
 
 export async function feederLoop() {
   if (isFeederRunning) return
@@ -25,11 +25,15 @@ export async function feederLoop() {
     const bookmarks = bookmarks$.bookmarks.get()
     let channels = bookmarks.filter((x) => {
       const pageType = getPageType(x.url)
-      return !x.json.deleted && pageType?.home == 'yt' && pageType.type == 'channel'
+      return !x.json.deleted && pageType?.home === 'yt' && pageType.type === 'channel'
     })
 
+    const duplicateChannelIds = getDuplicateChannelIds(channels)
+
     // Update metadata sequentially and limit to avoid heavy initial hit
-    const channelsToUpdate = channels.filter((x) => !x.json.id || !x.json.thumbnail).slice(0, 20)
+    const channelsToUpdate = channels
+      .filter((x) => !x.json.id || !x.json.thumbnail || (!!x.json.id && duplicateChannelIds.has(x.json.id)))
+      .slice(0, 20)
     for (const channel of channelsToUpdate) {
       await updateChannelMetadata(channel)
       // Small delay between requests
@@ -39,7 +43,7 @@ export async function feederLoop() {
     if (channelsToUpdate.length) {
       channels = bookmarks.filter((x) => {
         const pageType = getPageType(x.url)
-        return !x.json.deleted && pageType?.home == 'yt' && pageType.type == 'channel'
+        return !x.json.deleted && pageType?.home === 'yt' && pageType.type === 'channel'
       })
     }
 
@@ -59,36 +63,85 @@ export async function feederLoop() {
   }
 }
 
+export async function refreshChannelFeed(bookmarkId: string): Promise<RefreshChannelFeedResult> {
+  if (!bookmarkId) {
+    return 'error'
+  }
+
+  await when([syncState(feeds$).isPersistLoaded])
+
+  const bookmark = bookmarks$.bookmarks.get().find((x) => x.id === bookmarkId)
+  if (!bookmark || bookmark.json.deleted) {
+    return 'error'
+  }
+
+  const pageType = getPageType(bookmark.url)
+  if (pageType?.home !== 'yt' || pageType.type !== 'channel') {
+    return 'error'
+  }
+
+  if (!bookmark.json.id) {
+    await updateChannelMetadata(bookmark)
+  }
+
+  if (!bookmark.json.id) {
+    return 'error'
+  }
+
+  const previousChannelId = bookmark.json.id
+  let result = await fetchChannel(previousChannelId, { force: true })
+
+  if (result === 'not-found') {
+    await updateChannelMetadata(bookmark)
+    const refreshedBookmark = bookmarks$.bookmarks.get().find((x) => x.id === bookmarkId)
+    const refreshedChannelId = refreshedBookmark?.json.id
+
+    if (refreshedChannelId && refreshedChannelId !== previousChannelId) {
+      result = await fetchChannel(refreshedChannelId, { force: true })
+    }
+  }
+
+  return result === 'skipped' ? 'error' : result
+}
+
 async function updateChannelMetadata(bookmark: Bookmark) {
   try {
-    const html = await mainClient.fetchFeed(bookmark.url)
-    const $ = cheerio.load(html)
-    
+    const metadata = await fetchYouTubeChannelMetadata(bookmark.url)
     let updated = false
-    
-    // Get channel ID from RSS link
-    const feedUrl = $('link[type="application/rss+xml"]').attr('href')
-    if (feedUrl) {
-      const id = new URL(feedUrl).searchParams.get('channel_id')
-      if (id && bookmark.json.id !== id) {
-        bookmark.json.id = id
-        updated = true
-      }
-    }
-    
-    // Get thumbnail from OG tags
-    const thumbnail = $('meta[property="og:image"]').attr('content') || $('meta[property="og:thumbnail"]').attr('content')
-    if (thumbnail && bookmark.json.thumbnail !== thumbnail) {
-      bookmark.json.thumbnail = thumbnail
+
+    if (metadata.id && bookmark.json.id !== metadata.id) {
+      bookmark.json.id = metadata.id
       updated = true
     }
-    
+
+    if (metadata.thumbnail && bookmark.json.thumbnail !== metadata.thumbnail) {
+      bookmark.json.thumbnail = metadata.thumbnail
+      updated = true
+    }
+
+    if (metadata.title && bookmark.title !== metadata.title) {
+      bookmark.title = metadata.title
+      updated = true
+    }
+
     if (updated) {
       bookmarks$.saveBookmark(bookmark)
     }
   } catch (e) {
     console.error(`Failed to update metadata for ${bookmark.url}:`, e)
   }
+}
+
+function getDuplicateChannelIds(channels: Bookmark[]) {
+  const counts = new Map<string, number>()
+  for (const channel of channels) {
+    if (!channel.json.id) {
+      continue
+    }
+    counts.set(channel.json.id, (counts.get(channel.json.id) || 0) + 1)
+  }
+
+  return new Set(Array.from(counts.entries()).filter(([, count]) => count > 1).map(([id]) => id))
 }
 
 const parser = new XMLParser({
@@ -98,28 +151,48 @@ const parser = new XMLParser({
 
 const threshold = 2 * 3600 * 1000 // 2 hours
 
-async function fetchChannel(id: string) {
+async function fetchChannel(id: string, { force = false }: { force?: boolean } = {}): Promise<FetchChannelResult> {
   if (!id) {
-    return
+    return 'error'
   }
-  const feed = feeds$.feeds.get().find((x) => x.id == id)
-  if (!feed || Date.now() - feed.fetchedAt.valueOf() < threshold) {
-    return
+
+  feeds$.ensureFeed(id)
+
+  const feed = feeds$.feeds.get().find((x) => x.id === id)
+  if (!feed) {
+    return 'error'
   }
+
+  if (!force && Date.now() - new Date(feed.fetchedAt).valueOf() < threshold) {
+    return 'skipped'
+  }
+
+  if (fetchingChannelIds.has(id)) {
+    return 'already-running'
+  }
+
+  fetchingChannelIds.add(id)
+
   try {
-    const xml = await mainClient.fetchFeed(`https://www.youtube.com/feeds/videos.xml?channel_id=${id}`)
-    if (!xml) {
-      console.warn(`Empty feed for channel: ${id}`)
+    const response = await mainClient.fetchFeed(`https://www.youtube.com/feeds/videos.xml?channel_id=${id}`)
+    if (!response.ok) {
+      console.warn(`Feed returned HTTP ${response.status} for channel: ${id}`)
       feeds$.saveFeed({ ...feed, fetchedAt: new Date() })
-      return
+      return response.status === 404 ? 'not-found' : 'http-error'
     }
 
-    const data = parser.parse(xml)
+    if (!response.body) {
+      console.warn(`Empty feed for channel: ${id}`)
+      feeds$.saveFeed({ ...feed, fetchedAt: new Date() })
+      return 'success'
+    }
+
+    const data = parser.parse(response.body)
     const entries = data?.feed?.entry
     if (!entries) {
       // Not necessarily an error, could be a new channel or just failed to parse/fetch
       feeds$.saveFeed({ ...feed, fetchedAt: new Date() })
-      return
+      return 'success'
     }
 
     const entryArray = Array.isArray(entries) ? entries : [entries]
@@ -136,9 +209,13 @@ async function fetchChannel(id: string) {
     )
     feeds$.importBookmarks(bookmarks)
     feeds$.saveFeed({ ...feed, fetchedAt: new Date() })
+    return 'success'
   } catch (e) {
     console.error(`Failed to fetch channel ${id}:`, e)
     // Still mark as fetched to avoid immediate retry
     feeds$.saveFeed({ ...feed, fetchedAt: new Date() })
+    return 'error'
+  } finally {
+    fetchingChannelIds.delete(id)
   }
 }

@@ -3,7 +3,7 @@ import { BaseModal } from './BaseModal'
 import { ui$ } from '@/states/ui'
 import { NouText } from '../NouText'
 import { bookmarks$ } from '@/states/bookmarks'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getPageType } from '@/lib/page'
 import { settings$ } from '@/states/settings'
 import { BookmarkItem } from '../bookmark/BookmarkItem'
@@ -33,8 +33,8 @@ export const LibraryModal = () => {
   const libraryModalOpen = useValue(ui$.libraryModalOpen)
   const home = useValue(settings$.home)
   const isYTMusic = useValue(settings$.isYTMusic)
-  const folderState = useValue(folders$)
-  const bookmarkState = useValue(bookmarks$)
+  const folders = useValue(folders$.folders)
+  const bookmarks = useValue(bookmarks$.bookmarks)
   
   const [tabIndex, setTabIndex] = useState(0)
   const [currentFolder, setCurrentFolder] = useState<Folder>()
@@ -42,33 +42,26 @@ export const LibraryModal = () => {
   const tabs = isYTMusic ? tabsYTMusic : tabsYT
   const currentTab = tabs[tabIndex]
 
-  const filteredFolders = useMemo(() => {
-    return sortBy(
-      folderState.folders.filter((x) => !x.json.deleted && x.json.tab === currentTab.value),
-      ['name'],
-    )
-  }, [folderState, currentTab.value])
+  const filteredFolders = sortBy(
+    folders.filter((x) => !x.json.deleted && x.json.tab === currentTab.value),
+    ['name'],
+  )
 
-  const filteredBookmarks = useMemo(() => {
-    const types = [['podcast', 'shorts', 'watch'], ['channel'], ['playlist']][tabIndex]
-    return bookmarkState.bookmarks.filter((x) => {
-      if (x.json.deleted || (currentFolder ? (x.json.folder || '') !== currentFolder.id : x.json.folder)) {
-        return false
-      }
-      const pageType = getPageType(x.url)
-      return pageType?.home === home && types.includes(pageType?.type)
-    })
-  }, [bookmarkState, tabIndex, home, currentFolder])
+  const types = [['podcast', 'shorts', 'watch'], ['channel'], ['playlist']][tabIndex]
+  const filteredBookmarks = bookmarks.filter((x) => {
+    if (x.json.deleted || (currentFolder ? (x.json.folder || '') !== currentFolder.id : x.json.folder)) {
+      return false
+    }
+    const pageType = getPageType(x.url)
+    return pageType?.home === home && types.includes(pageType?.type)
+  })
 
   useEffect(() => {
     setCurrentFolder(filteredFolders.length ? undefined : ungroupedFolder)
     ui$.libraryModalTab.set(currentTab.value)
   }, [currentTab.value, filteredFolders.length])
 
-  const visibleFolders = useMemo(() => 
-    (filteredBookmarks.length ? [ungroupedFolder] : []).concat(filteredFolders),
-    [filteredBookmarks.length, filteredFolders]
-  )
+  const visibleFolders = (filteredBookmarks.length ? [ungroupedFolder] : []).concat(filteredFolders)
 
   if (!libraryModalOpen) return null
 

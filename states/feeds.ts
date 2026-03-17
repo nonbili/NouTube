@@ -1,12 +1,10 @@
-import { batch, observable } from '@legendapp/state'
+import { observable } from '@legendapp/state'
 import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import type { Bookmark } from './bookmarks'
 import { isWeb } from '@/lib/utils'
 import { getIndexedDBPlugin } from './indexeddb'
-import { orderBy, sortBy } from 'es-toolkit'
-
-const LIMIT = 1000
+import { limitFeedBookmarksPerChannel } from '@/lib/feed-cache'
 
 interface Feed {
   id: string
@@ -17,8 +15,10 @@ interface Store {
   feeds: Feed[]
   bookmarks: Bookmark[]
   urls: () => Set<string>
+  ensureFeed: (id: string) => void
   setFeeds: (ids: string[]) => void
   saveFeed: (feed: Feed) => void
+  removeChannel: (channelId: string) => void
   toggleBookmark: (bookmark: Bookmark) => void
   importBookmarks: (bookmark: Bookmark[]) => void
 }
@@ -29,6 +29,18 @@ export const feeds$ = observable<Store>({
   urls: (): Set<string> => {
     return new Set(feeds$.bookmarks.get().map((x) => x.url))
   },
+  ensureFeed: (id) => {
+    if (!id) {
+      return
+    }
+
+    const feeds = feeds$.feeds.get()
+    if (feeds.some((feed) => feed.id === id)) {
+      return
+    }
+
+    feeds$.feeds.set(feeds.concat({ id, fetchedAt: new Date(0) }))
+  },
   setFeeds: (ids) => {
     const uniqueIds = Array.from(new Set(ids.filter(Boolean)))
     const feeds = feeds$.feeds.get().filter((x) => uniqueIds.includes(x.id))
@@ -37,14 +49,18 @@ export const feeds$ = observable<Store>({
     feeds$.feeds.set(feeds.concat(newFeeds))
   },
   saveFeed: (feed) => {
-    const index = feeds$.feeds.findIndex((x) => x.id.get() == feed.id)
-    if (index != -1) {
+    const index = feeds$.feeds.findIndex((x) => x.id.get() === feed.id)
+    if (index !== -1) {
       feeds$.feeds[index].set(feed)
     }
   },
+  removeChannel: (channelId) => {
+    feeds$.feeds.set(feeds$.feeds.get().filter((x) => x.id !== channelId))
+    feeds$.bookmarks.set(feeds$.bookmarks.get().filter((x) => x.json.id !== channelId))
+  },
   toggleBookmark: (bookmark) => {
     if (feeds$.urls.has(bookmark.url)) {
-      const filtered = feeds$.bookmarks.get().filter((x) => x.url != bookmark.url)
+      const filtered = feeds$.bookmarks.get().filter((x) => x.url !== bookmark.url)
       feeds$.bookmarks.set(filtered)
     } else {
       feeds$.bookmarks.unshift(bookmark)
@@ -56,11 +72,7 @@ export const feeds$ = observable<Store>({
     }
     const bookmarkUrls = feeds$.urls
     const xs = bookmarks.filter((x) => !bookmarkUrls.has(x.url))
-    feeds$.bookmarks.unshift(...xs)
-    feeds$.bookmarks.set(orderBy(feeds$.bookmarks.get(), ['created_at'], ['desc']))
-    if (feeds$.bookmarks.length > LIMIT) {
-      feeds$.bookmarks.splice(LIMIT, feeds$.bookmarks.length)
-    }
+    feeds$.bookmarks.set(limitFeedBookmarksPerChannel(feeds$.bookmarks.get().concat(xs)))
   },
 })
 

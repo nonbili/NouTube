@@ -1,5 +1,4 @@
 import { View, Pressable } from 'react-native'
-import { Image } from 'expo-image'
 import { updateUrl, ui$ } from '@/states/ui'
 import { NouText } from '../NouText'
 import { clsx, isWeb, isIos } from '@/lib/utils'
@@ -9,6 +8,7 @@ import { NouMenu } from '../menu/NouMenu'
 import { t } from 'i18next'
 import { MaterialButton } from '../button/IconButtons'
 import { share } from '@/lib/share'
+import { RetryImage } from '../image/RetryImage'
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
@@ -48,7 +48,7 @@ export const HistoryItem: React.FC<{ bookmark: History }> = ({ bookmark }) => {
     <View className="flex-row my-2 overflow-hidden px-2">
       <View className="flex-row items-center">
         <Pressable className={clsx('w-[120px]')} onPress={onPress}>
-          <Image
+          <RetryImage
             source={bookmark.thumbnail || getThumbnail(bookmark.url)}
             contentFit="cover"
             placeholder={{ blurhash }}

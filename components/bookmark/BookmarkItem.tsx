@@ -1,7 +1,6 @@
 import { View, Pressable } from 'react-native'
 import { memo } from 'react'
 import { Bookmark, bookmarks$ } from '@/states/bookmarks'
-import { Image } from 'expo-image'
 import { ui$, updateUrl } from '@/states/ui'
 import { NouText } from '../NouText'
 import { clsx, isWeb, isIos } from '@/lib/utils'
@@ -10,13 +9,14 @@ import { NouMenu } from '../menu/NouMenu'
 import { t } from 'i18next'
 import { MaterialButton } from '../button/IconButtons'
 import { share } from '@/lib/share'
+import { RetryImage } from '../image/RetryImage'
 
 /* https://www.youtube.com/watch?v=<id> */
 function getThumbnail(url: string) {
   try {
     const id = new URL(url).searchParams.get('v')
     return id ? getVideoThumbnail(id) : undefined
-  } catch (e) {
+  } catch {
     return undefined
   }
 }
@@ -31,13 +31,13 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = memo(({ bookmark }
   }
 
   const pageType = getPageType(bookmark.url)
-  const round = pageType?.type == 'channel'
-  const square = round || pageType?.home == 'yt-music'
+  const round = pageType?.type === 'channel'
+  const square = round || pageType?.home === 'yt-music'
 
   return (
     <View className="flex flex-row my-2 overflow-hidden px-2">
       <Pressable className={clsx(square ? 'w-[48px]' : 'w-[160px]')} onPress={onPress}>
-        <Image
+        <RetryImage
           source={bookmark.json?.thumbnail || getThumbnail(bookmark.url)}
           contentFit="cover"
           placeholder={{ blurhash }}
@@ -62,3 +62,5 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = memo(({ bookmark }
     </View>
   )
 })
+
+BookmarkItem.displayName = 'BookmarkItem'
