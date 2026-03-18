@@ -1,0 +1,3 @@
+- support voice search
+- redesigned feed modal with advanced filtering and management
+- improve syncing process

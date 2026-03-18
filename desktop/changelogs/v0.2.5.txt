@@ -1,0 +1,2 @@
+- Redesigned feed modal with advanced filtering and management
+- Improve syncing process
