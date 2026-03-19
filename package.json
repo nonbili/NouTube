@@ -76,8 +76,5 @@
     "eslint-config-expo": "~10.0.0",
     "ts-node": "^10.9.2",
     "typescript": "~5.9.2"
-  },
-  "patchedDependencies": {
-    "react-native-css-interop@0.1.22": "patches/react-native-css-interop@0.1.22.patch"
   }
 }
