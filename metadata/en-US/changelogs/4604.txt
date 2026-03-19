@@ -1,0 +1,2 @@
+- fix the 3-dot menu
+- redesign settings page
