@@ -1,9 +1,9 @@
 import { useCallback, useEffect } from 'react'
 
-export const useModal = (onClose: () => void) => {
+export const useModal = (onClose: () => void, enabled = true) => {
   const handleKeyUp = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key == 'Escape') {
+      if (e.key === 'Escape') {
         onClose()
       }
     },
@@ -11,10 +11,13 @@ export const useModal = (onClose: () => void) => {
   )
 
   useEffect(() => {
+    if (!enabled) {
+      return
+    }
     if (!window.addEventListener) {
       return
     }
     window.addEventListener('keyup', handleKeyUp)
     return () => window.removeEventListener('keyup', handleKeyUp)
-  }, [])
+  }, [enabled, handleKeyUp])
 }

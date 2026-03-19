@@ -1,20 +1,6 @@
-import {
-  Button,
-  Text,
-  Pressable,
-  View,
-  Switch,
-  TouchableOpacity,
-  ActivityIndicator,
-  Platform,
-  ScrollView,
-  Alert,
-} from 'react-native'
-import { NouText } from '../NouText'
-import { NouLink } from '../link/NouLink'
-import { version } from '../../package.json'
+import { ActivityIndicator, Platform, Pressable, Switch, View } from 'react-native'
 import { useState } from 'react'
-import { clsx, isWeb, nIf } from '@/lib/utils'
+import { clsx, isWeb } from '@/lib/utils'
 import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { Segmented } from '../picker/Segmented'
@@ -23,25 +9,208 @@ import { importCsv, importList, importZip } from '@/lib/import'
 import { onClearData$, ui$ } from '@/states/ui'
 import NouTubeViewModule from '@/modules/nou-tube-view/src/NouTubeViewModule'
 import { showToast } from '@/lib/toast'
-import { NouSwitch } from '../switch/NouSwitch'
-import { NouButton } from '../button/NouButton'
 import { showConfirm } from '@/lib/confirm'
 import JSZip from 'jszip'
-import { mainClient } from '@/desktop/src/renderer/ipc/main'
-import { shareAsync } from 'expo-sharing'
 import { bookmarks$ } from '@/states/bookmarks'
 import { t } from 'i18next'
 import { saveFile } from '@/lib/file'
+import { NouText } from '../NouText'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 
-const repo = 'https://github.com/nonbili/NouTube'
 const themes = [null, 'dark', 'light'] as const
+const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-800 bg-zinc-900/70'
+const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-500'
+const iconWrapCls = 'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-950'
 
-const rowCls = 'mb-6 flex-row justify-between items-center'
-const headerCls = 'mb-6 font-semibold text-gray-400'
-const labelCls = 'text-gray-200 flex-1 mr-4'
+const SettingsSection: React.FC<React.PropsWithChildren<{ label?: string }>> = ({ label, children }) => {
+  return (
+    <View>
+      {label ? <NouText className={sectionLabelCls}>{label}</NouText> : null}
+      {children}
+    </View>
+  )
+}
 
-export const SettingsModalTabSettings = () => {
+const SettingsToggleRow: React.FC<{
+  label: string
+  icon: keyof typeof MaterialIcons.glyphMap
+  value: boolean
+  onPress: () => void
+  isLast?: boolean
+}> = ({ label, icon, value, onPress, isLast = false }) => {
+  return (
+    <Pressable
+      onPress={onPress}
+      className={clsx('flex-row items-center gap-3 px-4 py-4 active:bg-zinc-800/80', !isLast && 'border-b border-zinc-800')}
+    >
+      <View className={iconWrapCls}>
+        <MaterialIcons name={icon} color="#d4d4d8" size={18} />
+      </View>
+      <NouText className="flex-1 font-medium">{label}</NouText>
+      <Switch
+        value={value}
+        onValueChange={onPress}
+        trackColor={{ false: '#52525b', true: '#1d4ed8' }}
+        thumbColor={value ? '#eff6ff' : '#f4f4f5'}
+        {...Platform.select({
+          web: {
+            activeThumbColor: '#eff6ff',
+          },
+        })}
+      />
+    </Pressable>
+  )
+}
+
+const SettingsActionRow: React.FC<{
+  label: string
+  description?: string
+  icon: keyof typeof MaterialIcons.glyphMap
+  onPress: () => void
+  isLast?: boolean
+  loading?: boolean
+}> = ({ label, description, icon, onPress, isLast = false, loading = false }) => {
+  return (
+    <Pressable
+      onPress={onPress}
+      className={clsx('flex-row items-center gap-3 px-4 py-4 active:bg-zinc-800/80', !isLast && 'border-b border-zinc-800')}
+    >
+      <View className={iconWrapCls}>
+        <MaterialIcons name={icon} color="#d4d4d8" size={18} />
+      </View>
+      <View className="flex-1">
+        <NouText className="font-medium">{label}</NouText>
+        {description ? <NouText className="mt-1 text-sm leading-5 text-zinc-400">{description}</NouText> : null}
+      </View>
+      {loading ? (
+        <ActivityIndicator color="#d4d4d8" />
+      ) : (
+        <MaterialIcons name="chevron-right" color="#71717a" size={20} />
+      )}
+    </Pressable>
+  )
+}
+
+export const SettingsPreferencesContent = () => {
   const settings = useValue(settings$)
+
+  return (
+    <SettingsSection label={t('settings.preferences')}>
+      <View className={surfaceCls}>
+        <SettingsToggleRow
+          label={t('settings.restoreOnStart')}
+          icon="restore"
+          value={settings.restoreOnStart}
+          onPress={() => settings$.restoreOnStart.set(!settings.restoreOnStart)}
+        />
+        <SettingsToggleRow
+          label={t('settings.hideShorts')}
+          icon="movie-filter"
+          value={settings.hideShorts}
+          onPress={() => settings$.hideShorts.set(!settings.hideShorts)}
+        />
+        <SettingsToggleRow
+          label="Sponsor block"
+          icon="block"
+          value={settings.sponsorBlock}
+          onPress={() => settings$.sponsorBlock.set(!settings.sponsorBlock)}
+        />
+        <SettingsToggleRow
+          label={t('settings.channelsFeed')}
+          icon="rss-feed"
+          value={settings.feedsEnabled}
+          onPress={() => settings$.feedsEnabled.set(!settings.feedsEnabled)}
+        />
+        <SettingsToggleRow
+          label={t('settings.watchHistory')}
+          icon="history"
+          value={settings.keepHistory}
+          onPress={() => settings$.keepHistory.set(!settings.keepHistory)}
+          isLast
+        />
+      </View>
+    </SettingsSection>
+  )
+}
+
+export const SettingsAppearanceContent = () => {
+  const theme = useValue(settings$.theme)
+
+  if (isWeb) {
+    return null
+  }
+
+  return (
+    <SettingsSection label={t('settings.appearance')}>
+      <View className={surfaceCls}>
+        <View className="px-4 py-4">
+          <View className="flex-row items-start gap-3">
+            <View className={iconWrapCls}>
+              <MaterialIcons name="palette" color="#d4d4d8" size={18} />
+            </View>
+            <View className="flex-1">
+              <NouText className="font-medium">{t('settings.theme.label')}</NouText>
+              <NouText className="mt-1 text-sm leading-5 text-zinc-400">{t('settings.theme.hint')}</NouText>
+            </View>
+          </View>
+        </View>
+        <View className="border-t border-zinc-800 px-4 py-4">
+          <View className="items-end">
+            <Segmented
+              options={[t('settings.theme.system'), t('settings.theme.dark'), t('settings.theme.light')]}
+              selectedIndex={themes.indexOf(theme)}
+              size={1}
+              onChange={(index) => settings$.theme.set(themes[index])}
+            />
+          </View>
+        </View>
+      </View>
+    </SettingsSection>
+  )
+}
+
+export const SettingsToolsContent = () => {
+  const clearWebviewData = () => {
+    showConfirm('Clear webview data', 'All cookies, browsing history will be removed.', () => {
+      onClearData$.fire()
+      showToast('WebView data cleared')
+    })
+  }
+
+  return (
+    <SettingsSection label={t('settings.tools')}>
+      <View className={surfaceCls}>
+        <SettingsActionRow
+          label={t('settings.openUrlLabel')}
+          description={t('settings.toolsHint')}
+          icon="travel-explore"
+          onPress={() => ui$.urlModalOpen.set(true)}
+        />
+        <SettingsActionRow
+          label={t('settings.webview.clearLabel')}
+          description="Cookies and browsing state"
+          icon="delete-sweep"
+          onPress={clearWebviewData}
+        />
+        <SettingsActionRow
+          label={t('settings.injectCookie')}
+          description={t('settings.injectCookieHint')}
+          icon="vpn-key"
+          onPress={() => ui$.cookieModalOpen.set(true)}
+        />
+        <SettingsActionRow
+          label={t('settings.userAgent.title')}
+          description={t('settings.userAgent.default')}
+          icon="devices"
+          onPress={() => ui$.userAgentModalOpen.set(true)}
+          isLast
+        />
+      </View>
+    </SettingsSection>
+  )
+}
+
+export const SettingsTransferContent = () => {
   const [importingList, setImportingList] = useState(false)
   const [importingTakeout, setImportingTakeout] = useState(false)
 
@@ -51,8 +220,8 @@ export const SettingsModalTabSettings = () => {
     try {
       const csv = res.assets?.[0]
       if (csv) {
-        const res = await fetch(csv.uri)
-        const text = await res.text()
+        const response = await fetch(csv.uri)
+        const text = await response.text()
         await importList(text)
       }
     } catch (e) {
@@ -67,7 +236,6 @@ export const SettingsModalTabSettings = () => {
       .get()
       .map((x) => x.url)
       .join('\n')
-    const date = new Date().toLocaleDateString()
     const filename = `NouTube_bookmarks_${Date.now()}.txt`
     await saveFile(filename, content)
   }
@@ -87,20 +255,20 @@ export const SettingsModalTabSettings = () => {
           if (Platform.OS === 'android') {
             const files = await NouTubeViewModule.extractTakeoutCsvFiles(asset.uri)
             for (const file of files) {
-              const res = await fetch(file.uri)
-              const text = await res.text()
+              const response = await fetch(file.uri)
+              const text = await response.text()
               await importCsv(text, file.name)
             }
           } else {
-            const res = await fetch(asset.uri)
-            const data = await res.arrayBuffer()
+            const response = await fetch(asset.uri)
+            const data = await response.arrayBuffer()
             const zip = new JSZip()
             await zip.loadAsync(data)
             await importZip(zip)
           }
         } else {
-          const res = await fetch(asset.uri)
-          const text = await res.text()
+          const response = await fetch(asset.uri)
+          const text = await response.text()
           await importCsv(text, asset.name)
         }
       }
@@ -112,125 +280,47 @@ export const SettingsModalTabSettings = () => {
     }
   }
 
-  const clearWebviewData = () => {
-    showConfirm('Clear webview data', 'All cookies, browsing history will be removed.', () => {
-      onClearData$.fire()
-      showToast('WebView data cleared')
-    })
-  }
-
   return (
-    <>
-      <NouText className={headerCls}>{t('settings.general')}</NouText>
-      <NouSwitch
-        className=""
-        label={t('settings.restoreOnStart')}
-        value={settings.restoreOnStart}
-        onPress={() => settings$.restoreOnStart.set(!settings.restoreOnStart)}
-      />
-      <NouSwitch
-        className="mt-6"
-        label={t('settings.hideShorts')}
-        value={settings.hideShorts}
-        onPress={() => settings$.hideShorts.set(!settings.hideShorts)}
-      />
-      <NouSwitch
-        className="mt-6"
-        label="Sponsor block"
-        value={settings.sponsorBlock}
-        onPress={() => settings$.sponsorBlock.set(!settings.sponsorBlock)}
-      />
-      <NouSwitch
-        className="mt-6"
-        label={t('settings.channelsFeed')}
-        value={settings.feedsEnabled}
-        onPress={() => settings$.feedsEnabled.set(!settings.feedsEnabled)}
-      />
-      <NouSwitch
-        className="my-6"
-        label={t('settings.watchHistory')}
-        value={settings.keepHistory}
-        onPress={() => settings$.keepHistory.set(!settings.keepHistory)}
-      />
-      {nIf(
-        !isWeb,
-        <View className="my-6">
-          <View className="items-center flex-row justify-between">
-            <NouText className="flex-1 font-medium mr-4">{t('settings.theme.label')}</NouText>
-            <Segmented
-              options={[t('settings.theme.system'), t('settings.theme.dark'), t('settings.theme.light')]}
-              selectedIndex={themes.indexOf(settings.theme)}
-              size={1}
-              onChange={(index) => settings$.theme.set(themes[index])}
+    <View className="gap-6">
+      <SettingsSection label={t('buttons.import')}>
+        <View className={surfaceCls}>
+          <SettingsActionRow
+            label={t('settings.importList')}
+            description="Plain text or copied links"
+            icon="playlist-add"
+            onPress={() => {
+              void onClickImportList()
+            }}
+            loading={importingList}
+          />
+          <SettingsActionRow
+            label={t('settings.importTakeout')}
+            description="Google Takeout zip or CSV"
+            icon="archive"
+            onPress={() => {
+              void onClickImportTakeout()
+            }}
+            loading={importingTakeout}
+            isLast
+          />
+        </View>
+      </SettingsSection>
+
+      {!isWeb ? (
+        <SettingsSection label={t('buttons.export')}>
+          <View className={surfaceCls}>
+            <SettingsActionRow
+              label={t('settings.exportLabel')}
+              description="Save starred links as a plain text list"
+              icon="upload-file"
+              onPress={() => {
+                void onClickExportList()
+              }}
+              isLast
             />
           </View>
-          <NouText className="mt-2 text-sm text-gray-400 text-right">{t('settings.theme.hint')}</NouText>
-        </View>,
-      )}
-      <View className="h-4" />
-
-      {nIf(
-        0 && isWeb,
-        <View className={rowCls}>
-          <NouText className={labelCls}>{t('settings.login.label')}</NouText>
-          <NouButton size="1" onPress={() => mainClient.openLoginWindow()}>
-            {t('settings.login.button')}
-          </NouButton>
-        </View>,
-      )}
-      <View className={rowCls}>
-        <NouText className={labelCls}>{t('settings.openUrlLabel')}</NouText>
-        <NouButton size="1" onPress={() => ui$.urlModalOpen.set(true)}>
-          {t('buttons.openUrl')}
-        </NouButton>
-      </View>
-      <View className={rowCls}>
-        <NouText className={labelCls}>{t('settings.webview.clearLabel')}</NouText>
-        <NouButton size="1" variant="outline" onPress={clearWebviewData}>
-          {t('buttons.clear')}
-        </NouButton>
-      </View>
-      <View className={rowCls}>
-        <NouText className={labelCls}>{t('settings.injectCookie')}</NouText>
-        <NouButton size="1" variant="outline" onPress={() => ui$.cookieModalOpen.set(true)}>
-          {t('buttons.open')}
-        </NouButton>
-      </View>
-      <View className={rowCls}>
-        <NouText className={labelCls}>{t('settings.userAgent.title')}</NouText>
-        <NouButton size="1" variant="outline" onPress={() => ui$.userAgentModalOpen.set(true)}>
-          {t('buttons.open')}
-        </NouButton>
-      </View>
-
-      <NouText className={clsx(headerCls, 'mt-4')}>{t('buttons.import')}</NouText>
-      <View className={rowCls}>
-        <NouText className={labelCls}>{t('settings.importList')}</NouText>
-        <NouButton size="1" variant="soft" loading={importingList} onPress={onClickImportList}>
-          {t('buttons.import')}
-        </NouButton>
-      </View>
-      <View className={rowCls}>
-        <NouText className={labelCls}>{t('settings.importTakeout')}</NouText>
-        <NouButton size="1" variant="soft" loading={importingTakeout} onPress={onClickImportTakeout}>
-          {t('buttons.import')}
-        </NouButton>
-      </View>
-
-      {nIf(
-        !isWeb,
-        <>
-          <NouText className={clsx(headerCls, 'mt-4')}>{t('buttons.export')}</NouText>
-          <View className={rowCls}>
-            <NouText className={labelCls}>{t('settings.exportLabel')}</NouText>
-            <NouButton size="1" variant="soft" loading={importingList} onPress={onClickExportList}>
-              {t('buttons.export')}
-            </NouButton>
-          </View>
-        </>,
-      )}
-
-      <View className="h-20" />
-    </>
+        </SettingsSection>
+      ) : null}
+    </View>
   )
 }

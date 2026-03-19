@@ -2,7 +2,8 @@
   "about": {
     "label": "About",
     "code": "Source code",
-    "donate": "Donate"
+    "donate": "Donate",
+    "hint": "Version info, source code, and support links."
   },
   "buttons": {
     "clear": "Clear",
@@ -79,7 +80,18 @@
   },
   "settings": {
     "label": "Settings",
+    "hubHint": "Playback, sync, imports, and webview tools in one place.",
     "general": "General",
+    "generalHint": "Playback defaults, appearance, tools, and data transfer.",
+    "preferences": "Preferences",
+    "preferencesHint": "Playback, feed, and history behavior.",
+    "appearance": "Appearance",
+    "appearanceHint": "Control how YouTube looks inside the app.",
+    "tools": "Tools",
+    "toolsHint": "Open URLs and manage the webview environment.",
+    "transfer": "Import & export",
+    "transferHint": "Bring bookmarks in or take them with you.",
+    "syncHintShort": "Account, plan, and device sync.",
     "restoreOnStart": "Restore last playing on start",
     "hideShorts": "Hide shorts",
     "channelsFeed": "Channels feed",

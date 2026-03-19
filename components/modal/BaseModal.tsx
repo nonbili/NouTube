@@ -1,19 +1,23 @@
 import { useModal } from '@/lib/hooks/useModal'
 import { clsx, isWeb } from '@/lib/utils'
 import { ReactNode } from 'react'
-import { Pressable, ScrollView, View } from 'react-native'
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Pressable, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
-export const BaseModal: React.FC<{ className?: string; children: ReactNode; onClose: () => void }> = ({
+export const BaseModal: React.FC<{
+  className?: string
+  children: ReactNode
+  onClose: () => void
+  useEscape?: boolean
+}> = ({
   className,
   children,
   onClose,
+  useEscape = true,
 }) => {
-  useModal(onClose)
+  useModal(onClose, useEscape)
 
-  const insets = useSafeAreaInsets()
-
-  const inner = isWeb ? children : <SafeAreaView className="max-h-full">{children}</SafeAreaView>
+  const inner = isWeb ? children : <SafeAreaView className="flex-1 max-h-full">{children}</SafeAreaView>
 
   return (
     <View className={clsx('absolute inset-0 z-10', className)}>
