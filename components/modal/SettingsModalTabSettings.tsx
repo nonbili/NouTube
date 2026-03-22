@@ -134,7 +134,8 @@ export const SettingsPreferencesContent = () => {
 }
 
 export const SettingsAppearanceContent = () => {
-  const theme = useValue(settings$.theme)
+  const settings = useValue(settings$)
+  const theme = settings.theme
 
   if (isWeb) {
     return null
@@ -143,6 +144,12 @@ export const SettingsAppearanceContent = () => {
   return (
     <SettingsSection label={t('settings.appearance')}>
       <View className={surfaceCls}>
+        <SettingsToggleRow
+          label={t('settings.autoHideHeader')}
+          icon="visibility-off"
+          value={settings.autoHideHeader}
+          onPress={() => settings$.autoHideHeader.set(!settings.autoHideHeader)}
+        />
         <View className="px-4 py-4">
           <View className="flex-row items-start gap-3">
             <View className={iconWrapCls}>

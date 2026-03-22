@@ -1,4 +1,5 @@
 import { TouchableOpacity, useWindowDimensions, View } from 'react-native'
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useValue, useObserveEffect } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { NouText } from '../NouText'
@@ -19,8 +20,9 @@ import { useEffect, useState } from 'react'
 import { t } from 'i18next'
 
 export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
+  const autoHideHeader = useValue(settings$.autoHideHeader)
   const isYTMusic = useValue(settings$.isYTMusic)
-  const { width } = useWindowDimensions()
+  const { width, height: windowHeight } = useWindowDimensions()
   const uiState = useValue(ui$)
   const feedsEnabled = useValue(settings$.feedsEnabled)
   const allStarred = useValue(library$.urls)
@@ -29,6 +31,8 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const queueSize = useValue(queue$.size)
   const [canGoBack, setCanGoBack] = useState(false)
   const [canGoForward, setCanGoForward] = useState(false)
+  const isHorizontal = width > windowHeight
+  const translateY = useSharedValue(0)
 
   useEffect(() => {
     if (!isWeb || !uiState.webview) {
@@ -56,65 +60,81 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
     }
   }
 
+  useEffect(() => {
+    const next = !isHorizontal && autoHideHeader && !uiState.headerShown ? -uiState.headerHeight : 0
+    translateY.value = withTiming(next)
+  }, [uiState.headerShown, uiState.headerHeight, autoHideHeader, isHorizontal])
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: translateY.value }],
+    }
+  })
+
   return (
-    <>
-      <View className="bg-zinc-800 flex-row lg:flex-col justify-between px-2 py-1 lg:px-1 lg:py-2">
-        <View className="flex-row lg:flex-col">
-          <MaterialButton
-            name={isYTMusic ? 'library-music' : 'video-library'}
-            onPress={() => ui$.libraryModalOpen.set(true)}
-          />
-          {nIf(
-            !isYTMusic && feedsEnabled,
-            <MaterialButton name="rss-feed" onPress={() => ui$.feedModalOpen.set(true)} />,
-          )}
-          {nIf(
-            isWeb,
-            <>
-              <View className="h-2 w-2" />
-              <MaterialButton
-                color={canGoBack ? colors.icon : colors.underlay}
-                name="arrow-back"
-                disabled={!canGoBack}
-                onPress={() => uiState.webview.goBack()}
-              />
-              <MaterialButton
-                color={canGoForward ? colors.icon : colors.underlay}
-                name="arrow-forward"
-                disabled={!canGoForward}
-                onPress={() => uiState.webview.goForward()}
-              />
-            </>,
-          )}
-        </View>
-        <View className="flex flex-row lg:flex-col lg:pb-1 items-center gap-2">
-          {nIf(
-            !isYTMusic && queueSize > 0,
-            <MaterialButton name="playlist-play" onPress={() => ui$.queueModalOpen.set(!ui$.queueModalOpen.get())} />,
-          )}
-          {nIf(
-            pageType?.canStar,
+    <Animated.View
+      style={animatedStyle}
+      onLayout={(e) => ui$.headerHeight.set(e.nativeEvent.layout.height)}
+      className={clsx(
+        'bg-zinc-800 flex-row lg:flex-col justify-between px-2 py-1 lg:px-1 lg:py-2',
+        autoHideHeader && !isHorizontal && 'absolute top-0 left-0 right-0 z-10',
+      )}
+    >
+      <View className="flex-row lg:flex-col">
+        <MaterialButton
+          name={isYTMusic ? 'library-music' : 'video-library'}
+          onPress={() => ui$.libraryModalOpen.set(true)}
+        />
+        {nIf(
+          !isYTMusic && feedsEnabled,
+          <MaterialButton name="rss-feed" onPress={() => ui$.feedModalOpen.set(true)} />,
+        )}
+        {nIf(
+          isWeb,
+          <>
+            <View className="h-2 w-2" />
             <MaterialButton
-              color={starred ? 'gold' : colors.icon}
-              name={starred ? 'star' : 'star-outline'}
-              onPress={onToggleStar}
-            />,
-          )}
-          <NouMenu
-            trigger={isWeb ? <MaterialButton name="more-vert" /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
-            items={[
-              { label: isYTMusic ? 'YouTube' : 'YouTube Music', handler: onToggleHome },
-              { label: t('modals.history'), handler: () => ui$.historyModalOpen.set(true) },
-              {
-                label: t('menus.reload'),
-                handler: () => uiState.webview.executeJavaScript('document.location.reload()'),
-              },
-              { label: t('menus.share'), handler: () => share(uiState.pageUrl) },
-              { label: t('settings.label'), handler: () => ui$.settingsModalOpen.set(true) },
-            ]}
-          />
-        </View>
+              color={canGoBack ? colors.icon : colors.underlay}
+              name="arrow-back"
+              disabled={!canGoBack}
+              onPress={() => uiState.webview.goBack()}
+            />
+            <MaterialButton
+              color={canGoForward ? colors.icon : colors.underlay}
+              name="arrow-forward"
+              disabled={!canGoForward}
+              onPress={() => uiState.webview.goForward()}
+            />
+          </>,
+        )}
       </View>
-    </>
+      <View className="flex flex-row lg:flex-col lg:pb-1 items-center gap-2">
+        {nIf(
+          !isYTMusic && queueSize > 0,
+          <MaterialButton name="playlist-play" onPress={() => ui$.queueModalOpen.set(!ui$.queueModalOpen.get())} />,
+        )}
+        {nIf(
+          pageType?.canStar,
+          <MaterialButton
+            color={starred ? 'gold' : colors.icon}
+            name={starred ? 'star' : 'star-outline'}
+            onPress={onToggleStar}
+          />,
+        )}
+        <NouMenu
+          trigger={isWeb ? <MaterialButton name="more-vert" /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
+          items={[
+            { label: isYTMusic ? 'YouTube' : 'YouTube Music', handler: onToggleHome },
+            { label: t('modals.history'), handler: () => ui$.historyModalOpen.set(true) },
+            {
+              label: t('menus.reload'),
+              handler: () => uiState.webview.executeJavaScript('document.location.reload()'),
+            },
+            { label: t('menus.share'), handler: () => share(uiState.pageUrl) },
+            { label: t('settings.label'), handler: () => ui$.settingsModalOpen.set(true) },
+          ]}
+        />
+      </View>
+    </Animated.View>
   )
 }

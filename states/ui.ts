@@ -1,12 +1,16 @@
 import { event, observable } from '@legendapp/state'
-import { Folder } from './folders'
-import { Bookmark } from './bookmarks'
+import type { Folder } from './folders'
+import type { Bookmark } from './bookmarks'
 import { unnormalizeUrl } from '@/lib/url'
 import { isWeb } from '@/lib/utils'
 
 interface Store {
   url: string
   pageUrl: string
+
+  // header
+  headerHeight: number
+  headerShown: boolean
 
   // modals
   bookmarkModalBookmark: Bookmark | undefined
@@ -30,6 +34,10 @@ interface Store {
 export const ui$ = observable<Store>({
   url: '',
   pageUrl: '',
+
+  // header
+  headerHeight: 0,
+  headerShown: true,
 
   // modals
   bookmarkModalBookmark: undefined,
