@@ -94,6 +94,21 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       case '[kotlin]':
         console.log(type, data)
         break
+      case 'scroll':
+        if (settings$.autoHideHeader.get()) {
+          const dy = data.dy
+          const headerHeight = ui$.headerHeight.get()
+          const headerShown = ui$.headerShown.get()
+          if (Math.abs(dy) <= headerHeight / 2) {
+            return
+          }
+          if (dy < 0 && headerShown) {
+            ui$.headerShown.set(false)
+          } else if (dy > 0 && !headerShown) {
+            ui$.headerShown.set(true)
+          }
+        }
+        break
       case 'onload':
         const webview = webviewRef.current || nativeRef.current
         restoreLastPlaying(webview)

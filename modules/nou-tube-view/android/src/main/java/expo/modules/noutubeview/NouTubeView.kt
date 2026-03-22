@@ -15,6 +15,8 @@ import android.provider.Settings
 import android.util.AttributeSet
 import android.view.ContextMenu
 import android.view.MenuItem
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.OrientationEventListener
 import android.view.View
 import android.view.ViewGroup
@@ -97,6 +99,20 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   private var customView: View? = null
   private lateinit var orientationListener: NouOrientationListener
 
+  private val gestureListener =
+    object : GestureDetector.SimpleOnGestureListener() {
+      override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+        var dy = distanceY
+        if (e1 != null) {
+          dy = (e2.y - e1.y) / context.resources.displayMetrics.density
+        }
+        emit("scroll", mapOf("dy" to dy))
+        return false
+      }
+    }
+
+  private val gestureDetector = GestureDetector(context, gestureListener)
+
   private var service: NouService? = null
 
   internal val currentActivity: Activity?
@@ -138,8 +154,11 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   internal val webView =
     NouWebView(context).apply {
       layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-      webViewClient =
-        object : WebViewClient() {
+      setOnTouchListener { _, event ->
+        gestureDetector.onTouchEvent(event)
+        false
+      }
+      webViewClient =        object : WebViewClient() {
           override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
             if (pageUrl != url) {
               pageUrl = url

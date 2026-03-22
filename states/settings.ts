@@ -6,6 +6,7 @@ interface Store {
   home: 'yt' | 'yt-music'
   isYTMusic: () => boolean
 
+  autoHideHeader: boolean
   feedsEnabled: boolean
   hideShorts: boolean
   keepHistory: boolean
@@ -19,6 +20,7 @@ export const settings$ = observable<Store>({
   home: 'yt',
   isYTMusic: (): boolean => settings$.home.get() == 'yt-music',
 
+  autoHideHeader: false,
   feedsEnabled: true,
   hideShorts: true,
   keepHistory: true,
