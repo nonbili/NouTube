@@ -232,6 +232,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
         override fun onShowCustomView(view: View, cllback: CustomViewCallback) {
           customView = view
+          view.setKeepScreenOn(true)
           val activity = currentActivity
           if (activity == null) {
             return
@@ -260,6 +261,8 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
           }
           val window = activity.window
           (window.decorView as FrameLayout).removeView(customView)
+          customView?.setKeepScreenOn(false)
+          customView = null
           activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER)
 
           val controller = WindowCompat.getInsetsController(window, window.decorView)
@@ -338,6 +341,10 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
   fun notifyProgress(playing: Boolean, pos: Long) {
     service?.notifyProgress(playing, pos)
+    currentActivity?.runOnUiThread {
+      webView.keepScreenOn = playing
+      customView?.keepScreenOn = playing
+    }
   }
 
   fun onOrientationChanged(orientation: Int) {
