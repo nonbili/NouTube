@@ -267,7 +267,9 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
           val controller = WindowCompat.getInsetsController(window, window.decorView)
           controller.show(WindowInsetsCompat.Type.systemBars())
+          controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
 
+          webView.requestFocus()
           orientationListener.disable()
         }
       }
