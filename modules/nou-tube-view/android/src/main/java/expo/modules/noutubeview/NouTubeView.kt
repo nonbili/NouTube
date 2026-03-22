@@ -151,7 +151,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
       menu.add("Copy link").setOnMenuItemClickListener(onCopyLink)
     }
   }
-  internal val webView =
+  internal val webView: NouWebView =
     NouWebView(context).apply {
       layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
       setOnTouchListener { _, event ->
@@ -269,7 +269,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
           controller.show(WindowInsetsCompat.Type.systemBars())
           controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
 
-          webView.requestFocus()
+          this@apply.requestFocus()
           orientationListener.disable()
         }
       }

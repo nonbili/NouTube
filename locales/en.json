@@ -94,7 +94,9 @@
     "syncHintShort": "Account, plan, and device sync.",
     "restoreOnStart": "Restore last playing on start",
     "autoHideHeader": "Auto-hide header on scroll",
-    "hideShorts": "Hide shorts",
+    "hideShorts": "Hide shorts in timeline",
+    "hideShortsInNavbar": "Hide shorts in navbar",
+    "hideMixPlaylist": "Hide mix playlist",
     "channelsFeed": "Channels feed",
     "watchHistory": "Watch history",
     "theme": {

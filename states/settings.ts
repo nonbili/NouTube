@@ -9,6 +9,8 @@ interface Store {
   autoHideHeader: boolean
   feedsEnabled: boolean
   hideShorts: boolean
+  hideShortsInNavbar: boolean
+  hideMixPlaylist: boolean
   keepHistory: boolean
   restoreOnStart: boolean
   sponsorBlock: boolean
@@ -23,6 +25,8 @@ export const settings$ = observable<Store>({
   autoHideHeader: false,
   feedsEnabled: true,
   hideShorts: true,
+  hideShortsInNavbar: false,
+  hideMixPlaylist: false,
   keepHistory: true,
   restoreOnStart: true,
   sponsorBlock: true,

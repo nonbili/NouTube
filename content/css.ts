@@ -126,3 +126,37 @@ ytd-rich-section-renderer,
 export function showShorts() {
   document.querySelector('style#noutube-shorts')?.remove()
 }
+
+export function hideShortsInNavbar() {
+  const style = document.createElement('style')
+  style.id = 'noutube-shorts-navbar'
+  style.type = 'text/css'
+  style.textContent = `
+.pivot-shorts {
+  display: none !important;
+}
+`
+  document.head.appendChild(style)
+}
+
+export function showShortsInNavbar() {
+  document.querySelector('style#noutube-shorts-navbar')?.remove()
+}
+
+export function hideMixPlaylist() {
+  const style = document.createElement('style')
+  style.id = 'noutube-mix-playlist'
+  style.type = 'text/css'
+  style.textContent = `
+ytm-compact-radio-renderer:has(yt-collections-stack),
+ytm-compact-playlist-renderer:has(yt-collections-stack),
+ytm-rich-item-renderer:has(yt-collections-stack) {
+  display: none !important;
+}
+`
+  document.head.appendChild(style)
+}
+
+export function showMixPlaylist() {
+  document.querySelector('style#noutube-mix-playlist')?.remove()
+}

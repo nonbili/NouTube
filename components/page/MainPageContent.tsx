@@ -38,6 +38,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const webviewRef = useRef<WebviewTag>(null)
   const webviewReadyRef = useRef(false)
   const hideShorts = useValue(settings$.hideShorts)
+  const hideShortsInNavbar = useValue(settings$.hideShortsInNavbar)
+  const hideMixPlaylist = useValue(settings$.hideMixPlaylist)
   const isYTMusic = useValue(settings$.isYTMusic)
   const customUserAgent = useValue(settings$.userAgent)
   const { userId, me } = useMe()
@@ -50,6 +52,28 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       }
       const ref = webviewRef.current || nativeRef.current
       ref?.executeJavaScript(hide ? 'NouTube.hideShorts()' : 'NouTube.showShorts()')
+    },
+    [nativeRef, webviewRef],
+  )
+
+  const toggleShortsInNavbar = useCallback(
+    (hide?: boolean) => {
+      if (webviewRef.current && !webviewReadyRef.current) {
+        return
+      }
+      const ref = webviewRef.current || nativeRef.current
+      ref?.executeJavaScript(hide ? 'NouTube.hideShortsInNavbar()' : 'NouTube.showShortsInNavbar()')
+    },
+    [nativeRef, webviewRef],
+  )
+
+  const toggleMixPlaylist = useCallback(
+    (hide?: boolean) => {
+      if (webviewRef.current && !webviewReadyRef.current) {
+        return
+      }
+      const ref = webviewRef.current || nativeRef.current
+      ref?.executeJavaScript(hide ? 'NouTube.hideMixPlaylist()' : 'NouTube.showMixPlaylist()')
     },
     [nativeRef, webviewRef],
   )
@@ -113,6 +137,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         const webview = webviewRef.current || nativeRef.current
         restoreLastPlaying(webview)
         toggleShorts(hideShorts)
+        toggleShortsInNavbar(hideShortsInNavbar)
+        toggleMixPlaylist(hideMixPlaylist)
         syncSettingsToWebview()
         if (isWeb) {
           uiState.webview.executeJavaScript('window.NouTube.bridgeShortcuts()')
@@ -226,6 +252,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   })
 
   useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
+  useObserveEffect(settings$.hideShortsInNavbar, ({ value }) => toggleShortsInNavbar(value))
+  useObserveEffect(settings$.hideMixPlaylist, ({ value }) => toggleMixPlaylist(value))
   useObserveEffect(settings$.sponsorBlock, () => syncSettingsToWebview())
 
   const onLoad = async (e: { nativeEvent: any }) => {

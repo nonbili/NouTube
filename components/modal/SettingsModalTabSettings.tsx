@@ -110,6 +110,18 @@ export const SettingsPreferencesContent = () => {
           onPress={() => settings$.hideShorts.set(!settings.hideShorts)}
         />
         <SettingsToggleRow
+          label={t('settings.hideShortsInNavbar')}
+          icon="vertical-split"
+          value={settings.hideShortsInNavbar}
+          onPress={() => settings$.hideShortsInNavbar.set(!settings.hideShortsInNavbar)}
+        />
+        <SettingsToggleRow
+          label={t('settings.hideMixPlaylist')}
+          icon="queue-music"
+          value={settings.hideMixPlaylist}
+          onPress={() => settings$.hideMixPlaylist.set(!settings.hideMixPlaylist)}
+        />
+        <SettingsToggleRow
           label="Sponsor block"
           icon="block"
           value={settings.sponsorBlock}
