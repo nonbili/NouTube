@@ -5,6 +5,16 @@
     "donate": "Donate",
     "hint": "Version info, source code, and support links."
   },
+  "changelog": {
+    "label": "Changelog",
+    "hint": "Recent releases and fixes from GitHub.",
+    "loading": "Loading release notes...",
+    "error": "Failed to load release notes.",
+    "retry": "Retry",
+    "empty": "No release notes found.",
+    "current": "Current",
+    "noNotes": "No release notes were provided for this version."
+  },
   "buttons": {
     "clear": "Clear",
     "import": "Import",

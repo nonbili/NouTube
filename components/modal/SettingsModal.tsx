@@ -15,6 +15,7 @@ import {
   SettingsToolsContent,
   SettingsTransferContent,
 } from './SettingsModalTabSettings'
+import { SettingsChangelogContent } from './SettingsModalTabChangelog'
 import { SettingsUserStylesContent } from './SettingsUserStylesContent'
 import { t } from 'i18next'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
@@ -33,7 +34,7 @@ const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-800 bg-zin
 const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-500'
 const iconWrapCls = 'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-950'
 
-type SettingsPage = 'home' | 'preferences' | 'appearance' | 'styles' | 'tools' | 'transfer' | 'sync' | 'about'
+type SettingsPage = 'home' | 'preferences' | 'appearance' | 'styles' | 'tools' | 'transfer' | 'sync' | 'about' | 'changelog'
 
 
 
@@ -209,6 +210,7 @@ export const SettingsModal = () => {
     transfer: { title: t('settings.transfer') },
     sync: { title: t('sync.label') },
     about: { title: t('about.label') },
+    changelog: { title: t('changelog.label') },
   } satisfies Record<SettingsPage, { title: string }>
 
   const renderPage = () => {
@@ -271,6 +273,12 @@ export const SettingsModal = () => {
           <SettingsSection label={t('about.label')}>
             <View className={surfaceCls}>
               <SettingsNavRow
+                title={t('changelog.label')}
+                description={t('changelog.hint')}
+                icon="history"
+                onPress={() => pushPage('changelog')}
+              />
+              <SettingsNavRow
                 title={t('about.label')}
                 description={t('about.hint')}
                 icon="info-outline"
@@ -306,6 +314,10 @@ export const SettingsModal = () => {
 
     if (currentPage === 'sync') {
       return <SettingsModalTabSync />
+    }
+
+    if (currentPage === 'changelog') {
+      return <SettingsChangelogContent />
     }
 
     return (
