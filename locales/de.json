@@ -13,7 +13,8 @@
     "openUrl": "URL öffnen",
     "move": "Verschieben",
     "save": "Speichern",
-    "signOut": "Abmelden"
+    "signOut": "Abmelden",
+    "remove": "Entfernen"
   },
   "library": {
     "videos": "Videos",

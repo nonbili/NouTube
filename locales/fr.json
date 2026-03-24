@@ -2,7 +2,8 @@
   "about": {
     "label": "À propos",
     "code": "Code source",
-    "donate": "Faire un don"
+    "donate": "Faire un don",
+    "hint": "Informations sur la version, code source et liens vers l'assistance."
   },
   "buttons": {
     "clear": "Effacer",
@@ -13,7 +14,9 @@
     "openUrl": "Ouvrir l'URL",
     "move": "Déplacer",
     "save": "Enregistrer",
-    "signOut": "Se déconnecter"
+    "signOut": "Se déconnecter",
+    "remove": "Supprimer",
+    "unsubscribe": "Se désabonner"
   },
   "library": {
     "videos": "Vidéos",
@@ -26,7 +29,8 @@
     "edit": "Modifier",
     "remove": "Supprimer",
     "reload": "Recharger",
-    "share": "Partager"
+    "share": "Partager",
+    "unsubscribe": "Se désabonner"
   },
   "modals": {
     "editBookmark": "Modifier le signet",
@@ -41,7 +45,7 @@
     "label": "Paramètres",
     "general": "Général",
     "restoreOnStart": "Restaurer la dernière lecture au démarrage",
-    "hideShorts": "Masquer les shorts",
+    "hideShorts": "Masquer les shorts dans la chronologie",
     "channelsFeed": "Flux des chaînes",
     "watchHistory": "Historique des visionnages",
     "theme": {
@@ -68,12 +72,63 @@
     "userAgent": {
       "title": "Agent utilisateur personnalisé",
       "default": "Agent utilisateur par défaut"
-    }
+    },
+    "hubHint": "Des outils de lecture, de synchronisation, d'importation et de visualisation Web, le tout en un seul endroit.",
+    "generalHint": "Paramètres par défaut de lecture, apparence, outils et transfert de données.",
+    "preferences": "Préférences",
+    "preferencesHint": "Comportement de la lecture, du flux et de l'historique.",
+    "appearance": "Apparence",
+    "appearanceHint": "Personnalisez l'apparence de YouTube dans l'application.",
+    "tools": "Outils",
+    "toolsHint": "Ouvrir des URL et gérer l'environnement WebView.",
+    "transfer": "Import & export",
+    "transferHint": "Importer vos marque-pages ou emportez-les avec vous.",
+    "syncHintShort": "Synchronisation des comptes, des forfaits et des appareils.",
+    "autoHideHeader": "Masquer automatiquement l'en-tête lors du défilement",
+    "hideShortsInNavbar": "Masquer les shorts dans la barre de navigation",
+    "hideMixPlaylist": "Masquer la playlist mixée"
   },
   "sync": {
     "label": "Synchronisation",
     "hint": "Synchronisez vos signets entre vos téléphones et vos ordinateurs en tant qu'utilisateur premium.",
     "currentPlan": "Plan actuel",
     "managePlan": "Gérer le plan"
+  },
+  "feeds": {
+    "updates": "Mises à jour",
+    "manage": "Gérer",
+    "sortLastVideo": "Dernière vidéo",
+    "sortFrequency": "Fréquence",
+    "lastVideoNewest": "Dernière vidéo : la plus récente en premier",
+    "lastVideoOldest": "Dernière vidéo : la plus ancienne en premier",
+    "frequencyHighest": "Fréquence : les plus élevées en premier",
+    "frequencyLowest": "Fréquence : les plus basses en premier",
+    "frequencyLabel": "Fréquence",
+    "lastVideoLabel": "Dernière vidéo",
+    "videosPerDay": "{{value}} vidéos/jour",
+    "never": "Jamais",
+    "allFolders": "Tout",
+    "newFolder": "+ Nouveau dossier",
+    "editFeed": "Modifier le flux",
+    "manageEmpty": "Aucun flux enregistré pour l'instant.",
+    "manageNoResults": "Aucun flux ne correspond aux critères de filtrage actuels.",
+    "updatesEmpty": "Aucune vidéo du flux ne correspond au filtre du dossier actuel.",
+    "filterDropdownPlaceholder": "Filtrer les dossiers et les chaînes",
+    "filterDropdownEmpty": "Aucun dossier ni canal ne correspond.",
+    "emptyTitleNoChannels": "Aucune chaîne étoilée",
+    "emptyBodyNoChannels": "Les mises à jour des chaînes YouTube que vous avez ajoutées à vos favoris s'afficheront ici.",
+    "emptyTitleFolder": "Aucune mise à jour dans {{folder}}",
+    "emptyTitleChannel": "Aucune mise à jour de la part de {{channel}}",
+    "emptyBodyFiltered": "Il n'y a actuellement aucune vidéo récente ici. Revenez plus tard ou sélectionnez « Toutes ».",
+    "emptyActionFetchNow": "Récupérer maintenant",
+    "fetchToastSuccess": "Flux actualisé",
+    "fetchToastRunning": "Actualisation en cours",
+    "fetchToastNotFound": "Impossible d'actualiser ce flux. Le flux a renvoyé une erreur 404.",
+    "fetchToastError": "Impossible d'actualiser cette chaîne",
+    "emptyActionAllFolders": "Tout afficher",
+    "emptyTitleWaiting": "En attente de mises à jour du flux",
+    "emptyBodyWaiting": "Vos chaînes enregistrées sont prêtes. Laissez l'application ouverte quelques instants ou rouvrez-la plus tard : les dernières vidéos mises en ligne s'afficheront ici.",
+    "removeTitle": "Supprimer {{title}} ?",
+    "removeMessage": "Cela supprime la chaîne de la bibliothèque et efface ses vidéos."
   }
 }
