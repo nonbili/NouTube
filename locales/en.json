@@ -97,6 +97,38 @@
     "hideShorts": "Hide shorts in timeline",
     "hideShortsInNavbar": "Hide shorts in navbar",
     "hideMixPlaylist": "Hide mix playlist",
+    "userStyles": {
+      "label": "User styles",
+      "hint": "Built-in CSS tweaks and your own site-specific CSS.",
+      "builtin": {
+        "label": "Built-in styles",
+        "hideMixPlaylist": {
+          "label": "Hide mix playlist"
+        }
+      },
+      "custom": {
+        "label": "Custom styles",
+        "empty": "No custom styles yet."
+      },
+      "add": "Add style",
+      "addTitle": "Add user style",
+      "editTitle": "Edit user style",
+      "nameLabel": "Name",
+      "namePlaceholder": "My style",
+      "hostGlobs": {
+        "label": "Host globs",
+        "placeholder": "m.youtube.com, www.youtube.com"
+      },
+      "validation": {
+        "hostGlobs": "Add at least one valid host glob",
+        "css": "CSS cannot be empty"
+      },
+      "deleteConfirm": "Remove this custom style?",
+      "copyCss": "Copy CSS",
+      "cssCopied": "CSS copied",
+      "copyFailed": "Failed to copy CSS",
+      "importFailed": "Failed to import CSS"
+    },
     "channelsFeed": "Channels feed",
     "watchHistory": "Watch history",
     "theme": {

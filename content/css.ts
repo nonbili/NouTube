@@ -1,3 +1,6 @@
+import { getEnabledUserStyleCss } from '../lib/user-styles'
+import { noutubeSettingsEvent, noutubeUserStylesEvent } from './noutube'
+
 const css = (strings: string[] | ArrayLike<string>, ...values: any[]) => String.raw({ raw: strings }, ...values)
 
 const cssContentMobile = css`
@@ -99,14 +102,25 @@ const cssContent = css`
   }
 `
 
+export const getCoreCss = () => cssContent + (window.NouTubeI ? cssContentMobile : '')
+
+export const getInjectedCss = (userStyles?: any) => {
+  return [getCoreCss(), getEnabledUserStyleCss(document.location.host, userStyles)].filter(Boolean).join('\n\n')
+}
+
 export function injectCSS() {
   const style = document.createElement('style')
-  style.type = 'text/css'
-  style.textContent = cssContent
-  if (window.NouTubeI) {
-    style.textContent += cssContentMobile
+
+  const update = () => {
+    const userStyles = window.NouTube?.getUserStyles?.()
+    style.textContent = getInjectedCss(userStyles)
   }
+
+  style.type = 'text/css'
+  update()
   document.head.appendChild(style)
+  window.addEventListener(noutubeSettingsEvent, update)
+  window.addEventListener(noutubeUserStylesEvent, update)
 }
 
 export function hideShorts() {
@@ -141,22 +155,4 @@ export function hideShortsInNavbar() {
 
 export function showShortsInNavbar() {
   document.querySelector('style#noutube-shorts-navbar')?.remove()
-}
-
-export function hideMixPlaylist() {
-  const style = document.createElement('style')
-  style.id = 'noutube-mix-playlist'
-  style.type = 'text/css'
-  style.textContent = `
-ytm-compact-radio-renderer:has(yt-collections-stack),
-ytm-compact-playlist-renderer:has(yt-collections-stack),
-ytm-rich-item-renderer:has(yt-collections-stack) {
-  display: none !important;
-}
-`
-  document.head.appendChild(style)
-}
-
-export function showMixPlaylist() {
-  document.querySelector('style#noutube-mix-playlist')?.remove()
 }

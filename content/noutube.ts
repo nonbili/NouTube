@@ -1,13 +1,18 @@
 import {
-  hideMixPlaylist,
   hideShorts,
   hideShortsInNavbar,
-  showMixPlaylist,
   showShorts,
   showShortsInNavbar,
 } from './css'
 import { playDefaultAudio, restoreLastPlaying } from './player'
-import { emit, log } from './utils'
+import { emit } from './utils'
+import { createDefaultUserStylesSnapshot, type UserStylesSnapshot } from '../lib/user-styles'
+
+export const noutubeSettingsEvent = 'noutube:settings'
+export const noutubeUserStylesEvent = 'noutube:user-styles'
+
+let settings = {}
+let userStyles = createDefaultUserStylesSnapshot()
 
 const getPlayer = (): any => document.getElementById('movie_player')
 
@@ -22,8 +27,32 @@ function bridgeShortcuts() {
   })
 }
 
+function getSettings() {
+  return settings
+}
+
+function setSettings(next: Record<string, unknown> = {}) {
+  settings = { ...settings, ...next }
+  window.dispatchEvent(new CustomEvent(noutubeSettingsEvent, { detail: settings }))
+  return settings
+}
+
+function getUserStyles() {
+  return userStyles
+}
+
+function setUserStyles(next?: UserStylesSnapshot) {
+  userStyles = next || createDefaultUserStylesSnapshot()
+  window.dispatchEvent(new CustomEvent(noutubeUserStylesEvent, { detail: userStyles }))
+  return userStyles
+}
+
 export function initNouTube() {
   return {
+    getSettings,
+    setSettings,
+    getUserStyles,
+    setUserStyles,
     shortsHidden: true,
     play: () => getPlayer()?.playVideo(),
     pause: () => getPlayer()?.pauseVideo(),
@@ -40,8 +69,6 @@ export function initNouTube() {
     },
     hideShortsInNavbar,
     showShortsInNavbar,
-    hideMixPlaylist,
-    showMixPlaylist,
     playDefaultAudio,
     restoreLastPlaying,
     bridgeShortcuts,

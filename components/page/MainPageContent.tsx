@@ -21,6 +21,7 @@ import { mainClient } from '@/desktop/src/renderer/ipc/main'
 import { resolveUserAgent } from '@/lib/useragent'
 import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
 import { history$ } from '@/states/history'
+import { getUserStylesSnapshot, userStyles$ } from '@/states/user-styles'
 
 let restored = false
 const logger = createLogger('sync')
@@ -39,9 +40,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const webviewReadyRef = useRef(false)
   const hideShorts = useValue(settings$.hideShorts)
   const hideShortsInNavbar = useValue(settings$.hideShortsInNavbar)
-  const hideMixPlaylist = useValue(settings$.hideMixPlaylist)
   const isYTMusic = useValue(settings$.isYTMusic)
   const customUserAgent = useValue(settings$.userAgent)
+  const userStyles = useValue(userStyles$)
   const { userId, me } = useMe()
   const userAgent = resolveUserAgent(isWeb ? window.electron.process.platform : 'android', customUserAgent)
 
@@ -67,16 +68,14 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     [nativeRef, webviewRef],
   )
 
-  const toggleMixPlaylist = useCallback(
-    (hide?: boolean) => {
-      if (webviewRef.current && !webviewReadyRef.current) {
-        return
-      }
-      const ref = webviewRef.current || nativeRef.current
-      ref?.executeJavaScript(hide ? 'NouTube.hideMixPlaylist()' : 'NouTube.showMixPlaylist()')
-    },
-    [nativeRef, webviewRef],
-  )
+  const syncUserStylesToWebview = useCallback(() => {
+    if (webviewRef.current && !webviewReadyRef.current) {
+      return
+    }
+    const ref = webviewRef.current || nativeRef.current
+    const value = JSON.stringify(getUserStylesSnapshot(userStyles))
+    ref?.executeJavaScript(`window.NouTube.setUserStyles(${value})`)
+  }, [nativeRef, userStyles, webviewRef])
 
   const syncSettingsToWebview = useCallback(() => {
     if (webviewRef.current && !webviewReadyRef.current) {
@@ -138,7 +137,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         restoreLastPlaying(webview)
         toggleShorts(hideShorts)
         toggleShortsInNavbar(hideShortsInNavbar)
-        toggleMixPlaylist(hideMixPlaylist)
+        syncUserStylesToWebview()
         syncSettingsToWebview()
         if (isWeb) {
           uiState.webview.executeJavaScript('window.NouTube.bridgeShortcuts()')
@@ -185,6 +184,12 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     const { type, data } = typeof payload == 'string' ? JSON.parse(payload) : payload
     onMessage(type, data)
   }
+
+  useEffect(() => {
+    if (settings$.hideMixPlaylist.get() && !userStyles$.builtins['hide-mix-playlist'].enabled.get()) {
+      userStyles$.setBuiltinEnabled('hide-mix-playlist', true)
+    }
+  }, [])
 
   useEffect(() => {
     const webview = webviewRef.current
@@ -253,8 +258,10 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
   useObserveEffect(settings$.hideShortsInNavbar, ({ value }) => toggleShortsInNavbar(value))
-  useObserveEffect(settings$.hideMixPlaylist, ({ value }) => toggleMixPlaylist(value))
   useObserveEffect(settings$.sponsorBlock, () => syncSettingsToWebview())
+  useEffect(() => {
+    syncUserStylesToWebview()
+  }, [syncUserStylesToWebview])
 
   const onLoad = async (e: { nativeEvent: any }) => {
     setPageUrl(e.nativeEvent.url)

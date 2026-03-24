@@ -15,6 +15,7 @@ import {
   SettingsToolsContent,
   SettingsTransferContent,
 } from './SettingsModalTabSettings'
+import { SettingsUserStylesContent } from './SettingsUserStylesContent'
 import { t } from 'i18next'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { auth$ } from '@/states/auth'
@@ -32,7 +33,7 @@ const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-800 bg-zin
 const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-500'
 const iconWrapCls = 'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-950'
 
-type SettingsPage = 'home' | 'preferences' | 'appearance' | 'tools' | 'transfer' | 'sync' | 'about'
+type SettingsPage = 'home' | 'preferences' | 'appearance' | 'styles' | 'tools' | 'transfer' | 'sync' | 'about'
 
 
 
@@ -203,6 +204,7 @@ export const SettingsModal = () => {
     home: { title: t('settings.label') },
     preferences: { title: t('settings.preferences') },
     appearance: { title: t('settings.appearance') },
+    styles: { title: t('settings.userStyles.label') },
     tools: { title: t('settings.tools') },
     transfer: { title: t('settings.transfer') },
     sync: { title: t('sync.label') },
@@ -229,9 +231,15 @@ export const SettingsModal = () => {
                   icon="palette"
                   meta={themeLabel}
                   onPress={() => pushPage('appearance')}
-                  isLast
                 />
               ) : null}
+              <SettingsNavRow
+                title={t('settings.userStyles.label')}
+                description={t('settings.userStyles.hint')}
+                icon="brush"
+                onPress={() => pushPage('styles')}
+                isLast
+              />
             </View>
           </SettingsSection>
 
@@ -282,6 +290,10 @@ export const SettingsModal = () => {
 
     if (currentPage === 'appearance') {
       return <SettingsAppearanceContent />
+    }
+
+    if (currentPage === 'styles') {
+      return <SettingsUserStylesContent />
     }
 
     if (currentPage === 'tools') {
