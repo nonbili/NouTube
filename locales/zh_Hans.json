@@ -14,7 +14,8 @@
     "move": "移动",
     "save": "保存",
     "signOut": "退出登录",
-    "remove": "移除"
+    "remove": "移除",
+    "unsubscribe": "取消订阅"
   },
   "library": {
     "videos": "视频",
@@ -27,7 +28,8 @@
     "edit": "编辑",
     "remove": "移除",
     "reload": "重新加载",
-    "share": "分享"
+    "share": "分享",
+    "unsubscribe": "取消订阅"
   },
   "modals": {
     "editBookmark": "编辑书签",
@@ -76,5 +78,9 @@
     "hint": "高级用户可在手机和电脑之间同步书签。",
     "currentPlan": "当前套餐",
     "managePlan": "管理套餐"
+  },
+  "feeds": {
+    "updates": "更新",
+    "manage": "管理"
   }
 }

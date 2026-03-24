@@ -2,7 +2,8 @@
   "about": {
     "label": "О приложении",
     "code": "Исходный код",
-    "donate": "Пожертвовать"
+    "donate": "Пожертвовать",
+    "hint": "Информация о версии, исходный код и ссылки на поддержку."
   },
   "buttons": {
     "clear": "Очистить",
@@ -13,7 +14,9 @@
     "openUrl": "Открыть ссылку",
     "move": "Переместить",
     "save": "Сохранить",
-    "signOut": "Выйти"
+    "signOut": "Выйти",
+    "remove": "Удалить",
+    "unsubscribe": "Отписаться"
   },
   "library": {
     "videos": "Видео",
@@ -26,7 +29,8 @@
     "edit": "Изменить",
     "remove": "Удалить",
     "reload": "Обновить",
-    "share": "Поделиться"
+    "share": "Поделиться",
+    "unsubscribe": "Отписаться"
   },
   "modals": {
     "editBookmark": "Изменить закладку",
@@ -41,7 +45,7 @@
     "label": "Настройки",
     "general": "Общие",
     "restoreOnStart": "Восстановить воспроизведение при запуске",
-    "hideShorts": "Скрыть Shorts",
+    "hideShorts": "Скрыть Shorts в ленте",
     "channelsFeed": "Лента каналов",
     "watchHistory": "История просмотра",
     "theme": {
@@ -68,12 +72,63 @@
     "userAgent": {
       "default": "User-Agent по умолчанию",
       "title": "Пользовательский User-Agent"
-    }
+    },
+    "hubHint": "Воспроизведение, синхронизация, импорт и инструменты webview в одном месте.",
+    "generalHint": "Настройки воспроизведения, внешний вид, инструменты и перенос данных.",
+    "preferences": "Параметры",
+    "preferencesHint": "Поведение воспроизведения, ленты и истории.",
+    "appearance": "Внешний вид",
+    "appearanceHint": "Управление внешним видом YouTube в приложении.",
+    "tools": "Инструменты",
+    "toolsHint": "Открытие ссылок и управление средой webview.",
+    "transfer": "Импорт и экспорт",
+    "transferHint": "Импортируйте закладки или перенесите их с собой.",
+    "syncHintShort": "Аккаунт, управление планом и синхронизация между устройствами.",
+    "autoHideHeader": "Автоскрытие заголовка при прокрутке",
+    "hideShortsInNavbar": "Скрыть Shorts в панели навигации",
+    "hideMixPlaylist": "Скрыть миксы"
   },
   "sync": {
     "label": "Синхронизация",
     "hint": "Синхронизируйте закладки между телефонами и компьютерами как премиум‑пользователь.",
     "currentPlan": "Текущий план",
     "managePlan": "Управление планом"
+  },
+  "feeds": {
+    "updates": "Обновления",
+    "manage": "Управление",
+    "sortLastVideo": "Последнее видео",
+    "sortFrequency": "Частота",
+    "lastVideoNewest": "Последнее видео: сначала новые",
+    "lastVideoOldest": "Последнее видео: сначала старые",
+    "frequencyHighest": "Частота: сначала частые",
+    "frequencyLowest": "Частота: сначала редкие",
+    "frequencyLabel": "Частота",
+    "lastVideoLabel": "Последнее видео",
+    "videosPerDay": "{{value}} видео в день",
+    "never": "Никогда",
+    "allFolders": "Все",
+    "newFolder": "+ Новая папка",
+    "editFeed": "Изменить ленту",
+    "manageEmpty": "Сохраненных лент пока нет.",
+    "manageNoResults": "Нет лент, соответствующих текущим фильтрам.",
+    "updatesEmpty": "Нет видео в ленте, соответствующих фильтру папки.",
+    "filterDropdownPlaceholder": "Фильтр папок и каналов",
+    "filterDropdownEmpty": "Нет подходящих папок или каналов.",
+    "emptyTitleNoChannels": "Нет избранных каналов",
+    "emptyBodyNoChannels": "Здесь будут показаны обновления избранных каналов YouTube.",
+    "emptyTitleFolder": "Нет обновлений в папке {{folder}}",
+    "emptyTitleChannel": "Нет обновлений с канала {{channel}}",
+    "emptyBodyFiltered": "Сейчас здесь нет новых видео. Загляните позже или переключитесь на «Все».",
+    "emptyActionFetchNow": "Обновить сейчас",
+    "fetchToastSuccess": "Лента обновлена",
+    "fetchToastRunning": "Обновление уже выполняется",
+    "fetchToastNotFound": "Не удалось обновить этот канал. Лента вернула ошибку 404.",
+    "fetchToastError": "Не удалось обновить этот канал",
+    "emptyActionAllFolders": "Показать все",
+    "emptyTitleWaiting": "Ожидание обновлений ленты",
+    "emptyBodyWaiting": "Ваши каналы сохранены. Оставьте приложение открытым ненадолго или зайдите позже, и здесь появятся новые видео.",
+    "removeTitle": "Удалить {{title}}?",
+    "removeMessage": "Это удалит канал из библиотеки и очистит его видео в ленте."
   }
 }

@@ -13,7 +13,8 @@
     "openUrl": "Abrir URL",
     "move": "Mover",
     "save": "Salvar",
-    "signOut": "Sair"
+    "signOut": "Sair",
+    "remove": "Remover"
   },
   "library": {
     "videos": "Vídeos",
