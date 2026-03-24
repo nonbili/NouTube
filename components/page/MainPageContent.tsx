@@ -39,7 +39,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const webviewRef = useRef<WebviewTag>(null)
   const webviewReadyRef = useRef(false)
   const hideShorts = useValue(settings$.hideShorts)
-  const hideShortsInNavbar = useValue(settings$.hideShortsInNavbar)
   const isYTMusic = useValue(settings$.isYTMusic)
   const customUserAgent = useValue(settings$.userAgent)
   const userStyles = useValue(userStyles$)
@@ -53,17 +52,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       }
       const ref = webviewRef.current || nativeRef.current
       ref?.executeJavaScript(hide ? 'NouTube.hideShorts()' : 'NouTube.showShorts()')
-    },
-    [nativeRef, webviewRef],
-  )
-
-  const toggleShortsInNavbar = useCallback(
-    (hide?: boolean) => {
-      if (webviewRef.current && !webviewReadyRef.current) {
-        return
-      }
-      const ref = webviewRef.current || nativeRef.current
-      ref?.executeJavaScript(hide ? 'NouTube.hideShortsInNavbar()' : 'NouTube.showShortsInNavbar()')
     },
     [nativeRef, webviewRef],
   )
@@ -136,7 +124,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         const webview = webviewRef.current || nativeRef.current
         restoreLastPlaying(webview)
         toggleShorts(hideShorts)
-        toggleShortsInNavbar(hideShortsInNavbar)
         syncUserStylesToWebview()
         syncSettingsToWebview()
         if (isWeb) {
@@ -188,6 +175,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useEffect(() => {
     if (settings$.hideMixPlaylist.get() && !userStyles$.builtins['hide-mix-playlist'].enabled.get()) {
       userStyles$.setBuiltinEnabled('hide-mix-playlist', true)
+    }
+    if (settings$.hideShortsInNavbar.get() && !userStyles$.builtins['hide-shorts-navbar'].enabled.get()) {
+      userStyles$.setBuiltinEnabled('hide-shorts-navbar', true)
     }
   }, [])
 
@@ -257,7 +247,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   })
 
   useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
-  useObserveEffect(settings$.hideShortsInNavbar, ({ value }) => toggleShortsInNavbar(value))
   useObserveEffect(settings$.sponsorBlock, () => syncSettingsToWebview())
   useEffect(() => {
     syncUserStylesToWebview()

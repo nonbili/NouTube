@@ -1,8 +1,6 @@
 import {
   hideShorts,
-  hideShortsInNavbar,
   showShorts,
-  showShortsInNavbar,
 } from './css'
 import { playDefaultAudio, restoreLastPlaying } from './player'
 import { emit } from './utils'
@@ -67,8 +65,6 @@ export function initNouTube() {
       showShorts()
       this.shortsHidden = false
     },
-    hideShortsInNavbar,
-    showShortsInNavbar,
     playDefaultAudio,
     restoreLastPlaying,
     bridgeShortcuts,

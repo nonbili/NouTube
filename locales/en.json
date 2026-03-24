@@ -112,6 +112,9 @@
       "hint": "Built-in CSS tweaks and your own site-specific CSS.",
       "builtin": {
         "label": "Built-in styles",
+        "hideShortsInNavbar": {
+          "label": "Hide Shorts in navbar"
+        },
         "hideMixPlaylist": {
           "label": "Hide mix playlist"
         }
@@ -125,12 +128,7 @@
       "editTitle": "Edit user style",
       "nameLabel": "Name",
       "namePlaceholder": "My style",
-      "hostGlobs": {
-        "label": "Host globs",
-        "placeholder": "m.youtube.com, www.youtube.com"
-      },
       "validation": {
-        "hostGlobs": "Add at least one valid host glob",
         "css": "CSS cannot be empty"
       },
       "deleteConfirm": "Remove this custom style?",

@@ -110,12 +110,6 @@ export const SettingsPreferencesContent = () => {
           onPress={() => settings$.hideShorts.set(!settings.hideShorts)}
         />
         <SettingsToggleRow
-          label={t('settings.hideShortsInNavbar')}
-          icon="vertical-split"
-          value={settings.hideShortsInNavbar}
-          onPress={() => settings$.hideShortsInNavbar.set(!settings.hideShortsInNavbar)}
-        />
-        <SettingsToggleRow
           label="Sponsor block"
           icon="block"
           value={settings.sponsorBlock}

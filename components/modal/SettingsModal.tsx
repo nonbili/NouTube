@@ -23,6 +23,8 @@ import { auth$ } from '@/states/auth'
 import { capitalize } from 'es-toolkit'
 import { settings$ } from '@/states/settings'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { queryClient } from '@/lib/query/client'
+import { getReleaseFeedQuery } from '@/lib/query/changelog'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const donateLinks = [
@@ -117,7 +119,10 @@ export const SettingsModal = () => {
   useEffect(() => {
     if (!settingsModalOpen) {
       setPageStack(['home'])
+      return
     }
+
+    void queryClient.prefetchQuery(getReleaseFeedQuery())
   }, [settingsModalOpen])
 
   const closeSettingsChildren = useCallback(() => {
@@ -273,17 +278,17 @@ export const SettingsModal = () => {
           <SettingsSection label={t('about.label')}>
             <View className={surfaceCls}>
               <SettingsNavRow
-                title={t('changelog.label')}
-                description={t('changelog.hint')}
-                icon="history"
-                onPress={() => pushPage('changelog')}
-              />
-              <SettingsNavRow
                 title={t('about.label')}
                 description={t('about.hint')}
                 icon="info-outline"
                 meta={`v${appVersion}`}
                 onPress={() => pushPage('about')}
+              />
+              <SettingsNavRow
+                title={t('changelog.label')}
+                description={t('changelog.hint')}
+                icon="history"
+                onPress={() => pushPage('changelog')}
                 isLast
               />
             </View>

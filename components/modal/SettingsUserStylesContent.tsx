@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Switch, TextInput, View } from 'react-native'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import * as Clipboard from 'expo-clipboard'
 import { getDocumentAsync } from 'expo-document-picker'
 import { useValue } from '@legendapp/state/react'
 import { t } from 'i18next'
@@ -12,7 +13,6 @@ import {
   builtinUserStyleDefinitions,
   type BuiltinUserStyleId,
   type CustomUserStyle,
-  sanitizeHostGlobs,
 } from '@/lib/user-styles'
 import { userStyles$ } from '@/states/user-styles'
 import { showToast } from '@/lib/toast'
@@ -27,11 +27,8 @@ type DraftState = {
   id: string | null
   name: string
   enabled: boolean
-  hostGlobsText: string
   css: string
 }
-
-const formatHostGlobs = (hostGlobs: string[]) => hostGlobs.join(', ')
 
 const cleanCss = (value: string) => {
   const lines = value
@@ -53,7 +50,6 @@ const createDraft = (style?: CustomUserStyle | null): DraftState => {
       id: null,
       name: '',
       enabled: true,
-      hostGlobsText: '',
       css: '',
     }
   }
@@ -62,7 +58,6 @@ const createDraft = (style?: CustomUserStyle | null): DraftState => {
     id: style.id,
     name: style.name,
     enabled: style.enabled,
-    hostGlobsText: style.hostGlobs.join(', '),
     css: style.css,
   }
 }
@@ -106,14 +101,22 @@ export const SettingsUserStylesContent = () => {
     }
   }
 
-  const onSave = () => {
-    if (!draft) {
+  const onCopyBuiltinCss = async () => {
+    if (!previewDefinition) {
       return
     }
 
-    const hostGlobs = sanitizeHostGlobs(draft.hostGlobsText.split(','))
-    if (!hostGlobs.length) {
-      showToast(t('settings.userStyles.validation.hostGlobs'))
+    try {
+      await Clipboard.setStringAsync(previewDefinition.css.trim())
+      showToast(t('settings.userStyles.cssCopied'))
+    } catch (error) {
+      console.warn('[SettingsUserStylesContent] failed to copy css', error)
+      showToast(t('settings.userStyles.copyFailed'))
+    }
+  }
+
+  const onSave = () => {
+    if (!draft) {
       return
     }
 
@@ -125,7 +128,6 @@ export const SettingsUserStylesContent = () => {
     const input = {
       name: draft.name.trim(),
       enabled: draft.enabled,
-      hostGlobs,
       css: draft.css,
     }
 
@@ -157,21 +159,15 @@ export const SettingsUserStylesContent = () => {
                 <NouText className="font-medium" numberOfLines={1}>
                   {t(definition.labelKey)}
                 </NouText>
-                <View className="mt-1.5 flex-row items-center gap-1.5">
-                  <MaterialIcons name="language" color="#71717a" size={12} />
-                  <NouText className="flex-1 text-xs text-zinc-400" numberOfLines={1}>
-                    {formatHostGlobs(definition.hostGlobs)}
-                  </NouText>
-                </View>
               </View>
               <Switch
                 value={builtins[definition.id]?.enabled ?? true}
                 onValueChange={() => userStyles$.toggleBuiltin(definition.id)}
-                trackColor={{ false: '#27272a', true: '#1d4ed8' }}
-                thumbColor={(builtins[definition.id]?.enabled ?? true) ? '#dbeafe' : '#71717a'}
+                trackColor={{ false: '#27272a', true: '#3730a3' }}
+                thumbColor={(builtins[definition.id]?.enabled ?? true) ? '#818cf8' : '#71717a'}
                 {...Platform.select({
                   web: {
-                    activeThumbColor: '#dbeafe',
+                    activeThumbColor: '#818cf8',
                   },
                   ios: {
                     style: { transform: [{ scale: 0.8 }] },
@@ -188,10 +184,10 @@ export const SettingsUserStylesContent = () => {
           <NouText className={subheaderCls}>{t('settings.userStyles.custom.label')}</NouText>
           <Pressable
             onPress={() => setDraft(createDraft())}
-            className="flex-row items-center gap-1 rounded-full bg-blue-600/10 px-3 py-1.5 active:bg-blue-600/20"
+            className="flex-row items-center gap-1 rounded-full bg-indigo-600/10 px-3 py-1.5 active:bg-indigo-600/20"
           >
-            <MaterialIcons name="add" color="#60a5fa" size={18} />
-            <NouText className="text-xs font-semibold text-blue-400">{t('settings.userStyles.add')}</NouText>
+            <MaterialIcons name="add" color="#818cf8" size={18} />
+            <NouText className="text-xs font-semibold text-indigo-400">{t('settings.userStyles.add')}</NouText>
           </Pressable>
         </View>
         <View className={surfaceCls}>
@@ -219,21 +215,15 @@ export const SettingsUserStylesContent = () => {
                 <NouText className={clsx('font-medium', !style.enabled && 'text-zinc-500')} numberOfLines={1}>
                   {style.name}
                 </NouText>
-                <View className="mt-1.5 flex-row items-center gap-1.5">
-                  <MaterialIcons name="language" color="#71717a" size={12} />
-                  <NouText className="flex-1 text-xs text-zinc-400" numberOfLines={1}>
-                    {formatHostGlobs(style.hostGlobs)}
-                  </NouText>
-                </View>
               </View>
               <Switch
                 value={style.enabled}
                 onValueChange={() => userStyles$.toggleCustomStyle(style.id)}
-                trackColor={{ false: '#27272a', true: '#1d4ed8' }}
-                thumbColor={style.enabled ? '#dbeafe' : '#71717a'}
+                trackColor={{ false: '#27272a', true: '#3730a3' }}
+                thumbColor={style.enabled ? '#818cf8' : '#71717a'}
                 {...Platform.select({
                   web: {
-                    activeThumbColor: '#dbeafe',
+                    activeThumbColor: '#818cf8',
                   },
                   ios: {
                     style: { transform: [{ scale: 0.8 }] },
@@ -246,123 +236,104 @@ export const SettingsUserStylesContent = () => {
       </View>
 
       {draft ? (
-        <BaseCenterModal onClose={closeDraft} className="px-4">
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} enabled={Platform.OS === 'ios'}>
-            <ScrollView className="max-h-[80vh]">
-              <View className="p-6">
-                <View className="flex-row items-center gap-3">
-                  <View className="h-10 w-10 items-center justify-center rounded-xl bg-blue-600/10">
-                    <MaterialIcons name="auto-fix-high" color="#60a5fa" size={20} />
-                  </View>
-                  <NouText className="text-xl font-bold tracking-tight">
-                    {draft.id ? t('settings.userStyles.editTitle') : t('settings.userStyles.addTitle')}
-                  </NouText>
+        <BaseCenterModal onClose={closeDraft} containerClassName="lg:w-[50rem] xl:w-[60rem] max-w-[95vw]">
+          <ScrollView className="max-h-[80vh]">
+            <View className="p-6">
+              <View className="flex-row items-center gap-3">
+                <View className="h-10 w-10 items-center justify-center rounded-xl bg-indigo-600/10">
+                  <MaterialIcons name="auto-fix-high" color="#818cf8" size={20} />
                 </View>
-
-                <View className="mt-8">
-                  <NouText className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-500">
-                    {t('settings.userStyles.nameLabel')}
-                  </NouText>
-                  <TextInput
-                    className={textInputCls}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    onChangeText={(name) => setDraft((value) => (value ? { ...value, name } : value))}
-                    placeholder={t('settings.userStyles.namePlaceholder')}
-                    placeholderTextColor="#71717a"
-                    value={draft.name}
-                  />
-                </View>
-
-                <View className="mt-6">
-                  <NouText className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-500">
-                    {t('settings.userStyles.hostGlobs.label')}
-                  </NouText>
-                  <TextInput
-                    className={textInputCls}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    onChangeText={(hostGlobsText) => setDraft((value) => (value ? { ...value, hostGlobsText } : value))}
-                    placeholder={t('settings.userStyles.hostGlobs.placeholder')}
-                    placeholderTextColor="#71717a"
-                    value={draft.hostGlobsText}
-                  />
-                </View>
-
-                <View className="mt-6">
-                  <NouText className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-500">CSS</NouText>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} className="rounded-2xl border border-zinc-800 bg-zinc-950">
-                    <TextInput
-                      className="min-h-[300px] p-4 text-xs text-white"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      multiline
-                      onChangeText={(css) => setDraft((value) => (value ? { ...value, css } : value))}
-                      placeholder={`body {\n  font-size: 18px;\n}`}
-                      placeholderTextColor="#71717a"
-                      style={{
-                        textAlignVertical: 'top',
-                        fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-                        minWidth: 800,
-                      }}
-                      value={draft.css}
-                    />
-                  </ScrollView>
-                </View>
-
-                <View className="mt-10 flex-row items-center justify-between gap-4">
-                  <View className="flex-row items-center gap-2">
-                    <Pressable onPress={closeDraft} className="rounded-full border border-zinc-800 px-5 py-2.5 active:bg-zinc-900">
-                      <NouText className="text-sm font-semibold text-zinc-400">{t('buttons.cancel')}</NouText>
-                    </Pressable>
-                    <Pressable onPress={onImportCss} className="h-10 w-10 items-center justify-center rounded-full bg-zinc-900 active:bg-zinc-800">
-                      <MaterialIcons name="file-upload" color="#a1a1aa" size={20} />
-                    </Pressable>
-                    {draft.id ? (
-                      <Pressable
-                        onPress={() => {
-                          Alert.alert(t('menus.remove'), t('settings.userStyles.deleteConfirm'), [
-                            { text: t('buttons.cancel'), style: 'cancel' },
-                            {
-                              text: t('buttons.remove'),
-                              style: 'destructive',
-                              onPress: () => {
-                                userStyles$.deleteCustomStyle(draft.id!)
-                                closeDraft()
-                              },
-                            },
-                          ])
-                        }}
-                        className="h-10 w-10 items-center justify-center rounded-full bg-zinc-900 active:bg-red-900/30"
-                      >
-                        <MaterialIcons name="delete-outline" color="#ef4444" size={20} />
-                      </Pressable>
-                    ) : null}
-                  </View>
-                  <Pressable onPress={onSave} className="rounded-full bg-blue-600 px-8 py-2.5 active:bg-blue-700">
-                    <NouText className="text-sm font-bold text-white">{t('buttons.save')}</NouText>
-                  </Pressable>
-                </View>
+                <NouText className="text-xl font-bold tracking-tight">
+                  {draft.id ? t('settings.userStyles.editTitle') : t('settings.userStyles.addTitle')}
+                </NouText>
               </View>
-            </ScrollView>
-          </KeyboardAvoidingView>
+
+              <View className="mt-8">
+                <NouText className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+                  {t('settings.userStyles.nameLabel')}
+                </NouText>
+                <TextInput
+                  className={textInputCls}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  onChangeText={(name) => setDraft((value) => (value ? { ...value, name } : value))}
+                  placeholder={t('settings.userStyles.namePlaceholder')}
+                  placeholderTextColor="#71717a"
+                  value={draft.name}
+                />
+              </View>
+
+              <View className="mt-6">
+                <NouText className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-500">CSS</NouText>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="rounded-2xl border border-zinc-800 bg-zinc-950">
+                  <TextInput
+                    className="min-h-[300px] p-4 text-xs text-white"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    multiline
+                    onChangeText={(css) => setDraft((value) => (value ? { ...value, css } : value))}
+                    placeholder={`body {\n  font-size: 18px;\n}`}
+                    placeholderTextColor="#71717a"
+                    style={{
+                      textAlignVertical: 'top',
+                      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+                      minWidth: 800,
+                    }}
+                    value={draft.css}
+                  />
+                </ScrollView>
+              </View>
+
+              <View className="mt-10 flex-row items-center justify-between gap-4">
+                <View className="flex-row items-center gap-2">
+                  <Pressable onPress={closeDraft} className="rounded-full border border-zinc-800 px-5 py-2.5 active:bg-zinc-900">
+                    <NouText className="text-sm font-semibold text-zinc-400">{t('buttons.cancel')}</NouText>
+                  </Pressable>
+                  <Pressable onPress={onImportCss} className="h-10 w-10 items-center justify-center rounded-full bg-zinc-900 active:bg-zinc-800">
+                    <MaterialIcons name="file-upload" color="#a1a1aa" size={20} />
+                  </Pressable>
+                  {draft.id ? (
+                    <Pressable
+                      onPress={() => {
+                        Alert.alert(t('menus.remove'), t('settings.userStyles.deleteConfirm'), [
+                          { text: t('buttons.cancel'), style: 'cancel' },
+                          {
+                            text: t('buttons.remove'),
+                            style: 'destructive',
+                            onPress: () => {
+                              userStyles$.deleteCustomStyle(draft.id!)
+                              closeDraft()
+                            },
+                          },
+                        ])
+                      }}
+                      className="h-10 w-10 items-center justify-center rounded-full bg-zinc-900 active:bg-red-900/30"
+                    >
+                      <MaterialIcons name="delete-outline" color="#ef4444" size={20} />
+                    </Pressable>
+                  ) : null}
+                </View>
+                <Pressable onPress={onSave} className="rounded-full bg-indigo-600 px-8 py-2.5 active:bg-indigo-700">
+                  <NouText className="text-sm font-bold text-white">{t('buttons.save')}</NouText>
+                </Pressable>
+              </View>
+            </View>
+          </ScrollView>
         </BaseCenterModal>
       ) : null}
 
       {previewDefinition ? (
-        <BaseCenterModal onClose={() => setPreviewBuiltinId(null)} className="px-4">
+        <BaseCenterModal
+          onClose={() => setPreviewBuiltinId(null)}
+          containerClassName="lg:w-[50rem] xl:w-[60rem] max-w-[95vw]"
+        >
           <View className="p-6">
             <View className="flex-row items-center gap-3">
               <View className="h-10 w-10 items-center justify-center rounded-xl bg-zinc-950">
-                <MaterialIcons name="code" color="#60a5fa" size={20} />
+                <MaterialIcons name="code" color="#818cf8" size={20} />
               </View>
               <View className="flex-1">
                 <NouText className="text-lg font-bold">{t(previewDefinition.labelKey)}</NouText>
-                <View className="mt-0.5 flex-row flex-wrap">
-                  <NouText className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-                    {formatHostGlobs(previewDefinition.hostGlobs)}
-                  </NouText>
-                </View>
               </View>
             </View>
 
@@ -371,7 +342,7 @@ export const SettingsUserStylesContent = () => {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <View className="items-start p-4">
                     <NouText
-                      className="font-mono text-[11px] leading-5 text-blue-300"
+                      className="font-mono text-[11px] leading-5 text-indigo-300"
                       style={{ fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' }}
                     >
                       {cleanCss(previewDefinition.css)}
@@ -387,6 +358,13 @@ export const SettingsUserStylesContent = () => {
                 className="rounded-full border border-zinc-800 px-6 py-2.5 active:bg-zinc-900"
               >
                 <NouText className="text-sm font-semibold text-zinc-400">{t('buttons.cancel')}</NouText>
+              </Pressable>
+              <Pressable
+                onPress={onCopyBuiltinCss}
+                className="flex-row items-center gap-2 rounded-full bg-indigo-600 px-6 py-2.5 active:bg-indigo-700"
+              >
+                <MaterialIcons name="content-copy" color="white" size={16} />
+                <NouText className="text-sm font-bold text-white">{t('settings.userStyles.copyCss')}</NouText>
               </Pressable>
             </View>
           </View>

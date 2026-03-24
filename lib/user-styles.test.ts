@@ -17,11 +17,13 @@ describe('user styles', () => {
       normalizeUserStyles({
         builtins: {
           'hide-mix-playlist': { enabled: true },
+          'hide-shorts-navbar': { enabled: true },
         },
       }),
     )
 
     expect(css).toContain('ytm-compact-radio-renderer')
+    expect(css).toContain('.pivot-shorts')
   })
 
   it('filters out invalid custom styles', () => {

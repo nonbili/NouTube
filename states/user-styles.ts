@@ -94,7 +94,6 @@ export const getUserStylesSnapshot = (value: Partial<Store> | undefined = userSt
     id: style.id,
     name: style.name,
     enabled: style.enabled,
-    hostGlobs: [...style.hostGlobs],
     css: style.css,
   })),
 })
