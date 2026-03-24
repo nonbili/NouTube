@@ -20,9 +20,11 @@ Find Linux, macOS, Windows versions in [NouTube-Desktop](https://github.com/nonb
 - Plays in the background
 - Manage video/music library without login
 - Manage watch history without login
+- RSS feed reader for YouTube channels
 - Hide shorts
 - Live chat
 - Play original audio
+- Customize with CSS
 
 ## How it works
 

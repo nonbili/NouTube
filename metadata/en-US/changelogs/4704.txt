@@ -1,0 +1,6 @@
+- Support custom user styles (CSS)
+- Add option to hide mix playlist
+- Add option to hide header on scroll
+- Add in-app changelog
+- Keep screen on when playing
+- Fix keyboard not showing up

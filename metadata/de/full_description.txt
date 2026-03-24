@@ -1,5 +1,5 @@
 YouTube und YouTube Music in einer einzigen App. Keine Werbung, Wiedergabe im Hintergrund.
-<ul><li>Merkliste und Musikbibliothek verwalten (ohne Anmeldung)</li><li>Wiedergabeverlauf verwalten (ohne Anmeldung)</li><li>Kurzvideos ausblenden</li><li>Live-Chat</li><li>Originalton abspielen</li></ul>
+<ul><li>Merkliste und Musikbibliothek verwalten (ohne Anmeldung)</li><li>Wiedergabeverlauf verwalten (ohne Anmeldung)</li><li>RSS-Feed-Reader für YouTube-Kanäle</li><li>Kurzvideos ausblenden</li><li>Live-Chat</li><li>Originalton abspielen</li><li>Mit CSS anpassen</li></ul>
 <h2>So funktioniert's</h2>
 <ul><li>https://m.youtube.com und https://music.youtube.com in die Android-Webansicht einbinden</li><li>Code zum Blockieren von Werbung einfügen</li><li>Wiedergabesteuerung integrieren und Hintergrundwiedergabe unterstützen</li></ul>
 <h2>Desktop-Version</h2>
