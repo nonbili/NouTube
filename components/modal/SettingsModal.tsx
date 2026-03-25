@@ -126,6 +126,7 @@ export const SettingsModal = () => {
   }, [settingsModalOpen])
 
   const closeSettingsChildren = useCallback(() => {
+    ui$.sleepTimerModalOpen.set(false)
     ui$.urlModalOpen.set(false)
     ui$.cookieModalOpen.set(false)
     ui$.userAgentModalOpen.set(false)
@@ -137,6 +138,10 @@ export const SettingsModal = () => {
   }, [closeSettingsChildren])
 
   const closeTopOverlay = useCallback(() => {
+    if (ui$.sleepTimerModalOpen.get()) {
+      ui$.sleepTimerModalOpen.set(false)
+      return true
+    }
     if (userAgentModalOpen) {
       ui$.userAgentModalOpen.set(false)
       return true

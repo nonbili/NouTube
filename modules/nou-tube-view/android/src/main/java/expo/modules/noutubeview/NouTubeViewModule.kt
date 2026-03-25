@@ -16,12 +16,15 @@ class NouTubeViewModule : Module() {
     nouController.logFn = { msg: String ->
       sendEvent("log", mapOf("msg" to msg))
     }
+    nouController.sleepTimerEventFn = { payload ->
+      sendEvent("sleepTimer", payload)
+    }
   }
 
   override fun definition() = ModuleDefinition {
     Name("NouTubeView")
 
-    Events("log")
+    Events("log", "sleepTimer")
 
     Function("setTheme") { theme: String? ->
       var mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
@@ -35,6 +38,18 @@ class NouTubeViewModule : Module() {
 
     Function("exit") {
       nouController.exit()
+    }
+
+    AsyncFunction("setSleepTimer") { durationMs: Long ->
+      nouController.setSleepTimer(durationMs)
+    }
+
+    AsyncFunction("clearSleepTimer") {
+      nouController.clearSleepTimer()
+    }
+
+    AsyncFunction("getSleepTimerRemainingMs") {
+      nouController.getSleepTimerRemainingMs()
     }
 
     AsyncFunction("extractTakeoutCsvFiles") { uri: String ->

@@ -51,6 +51,24 @@
     "history": "History",
     "queue": "Queue"
   },
+  "sleepTimer": {
+    "label": "Sleep timer",
+    "hint": "Pause playback after a preset duration or your own minute value.",
+    "activeHint": "Playback will pause after this countdown ends.",
+    "off": "Off",
+    "endsIn": "Ends in {{value}}",
+    "preset": "{{value}} min",
+    "customPlaceholder": "Custom minutes",
+    "set": "Set timer",
+    "cancel": "Cancel timer",
+    "replace": "Replace",
+    "validation": {
+      "minutes": "Enter a whole number of minutes from 1 to 1440"
+    },
+    "setToast": "Sleep timer set for {{value}} minutes",
+    "cancelToast": "Sleep timer canceled",
+    "expiredToast": "Sleep timer expired"
+  },
   "feeds": {
     "updates": "Updates",
     "manage": "Manage",

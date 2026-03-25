@@ -7,7 +7,6 @@ import { Segmented } from '../picker/Segmented'
 import { getDocumentAsync } from 'expo-document-picker'
 import { importCsv, importList, importZip } from '@/lib/import'
 import { onClearData$, ui$ } from '@/states/ui'
-import NouTubeViewModule from '@/modules/nou-tube-view/src/NouTubeViewModule'
 import { showToast } from '@/lib/toast'
 import { showConfirm } from '@/lib/confirm'
 import JSZip from 'jszip'
@@ -16,6 +15,8 @@ import { t } from 'i18next'
 import { saveFile } from '@/lib/file'
 import { NouText } from '../NouText'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import { formatSleepTimerRemaining, useSleepTimerStatus } from '@/lib/sleep-timer'
+import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
 
 const themes = [null, 'dark', 'light'] as const
 const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-800 bg-zinc-900/70'
@@ -177,6 +178,9 @@ export const SettingsAppearanceContent = () => {
 }
 
 export const SettingsToolsContent = () => {
+  const sleepTimerSupported = hasSleepTimerNativeSupport()
+  const { active, remainingMs } = useSleepTimerStatus(sleepTimerSupported)
+
   const clearWebviewData = () => {
     showConfirm('Clear webview data', 'All cookies, browsing history will be removed.', () => {
       onClearData$.fire()
@@ -187,6 +191,14 @@ export const SettingsToolsContent = () => {
   return (
     <SettingsSection label={t('settings.tools')}>
       <View className={surfaceCls}>
+        {sleepTimerSupported ? (
+          <SettingsActionRow
+            label={t('sleepTimer.label')}
+            description={active ? t('sleepTimer.endsIn', { value: formatSleepTimerRemaining(remainingMs) }) : t('sleepTimer.off')}
+            icon="bedtime"
+            onPress={() => ui$.sleepTimerModalOpen.set(true)}
+          />
+        ) : null}
         <SettingsActionRow
           label={t('settings.openUrlLabel')}
           description={t('settings.toolsHint')}

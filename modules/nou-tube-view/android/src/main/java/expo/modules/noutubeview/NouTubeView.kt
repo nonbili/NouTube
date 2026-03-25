@@ -302,6 +302,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
         service = nouBinder.getService()
         service?.initialize(webView, activity)
         nouController.service = service
+        nouController.applyPendingSleepTimer()
       }
 
       override fun onServiceDisconnected(name: ComponentName) {

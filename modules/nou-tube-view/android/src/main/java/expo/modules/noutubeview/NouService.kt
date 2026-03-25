@@ -16,6 +16,9 @@ import android.media.AudioManager
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -44,6 +47,9 @@ class NouService : Service() {
   private var stateBuilder: PlaybackStateCompat.Builder? = null
   private var activity: Activity? = null
   private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+  private val mainHandler = Handler(Looper.getMainLooper())
+  private var sleepTimerDeadlineMs: Long? = null
+  private var sleepTimerRunnable: Runnable? = null
   private val NOTIFICATION_ID = 777
   private val CHANNEL_ID = "noutube"
 
@@ -71,6 +77,35 @@ class NouService : Service() {
     filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
     val noisyReceiver = NoisyAudioReceiver(view)
     _activity.registerReceiver(noisyReceiver, filter)
+  }
+
+  fun setSleepTimerDeadline(deadlineMs: Long) {
+    val remainingMs = maxOf(0L, deadlineMs - SystemClock.elapsedRealtime())
+    sleepTimerDeadlineMs = SystemClock.elapsedRealtime() + remainingMs
+    sleepTimerRunnable?.let(mainHandler::removeCallbacks)
+    val runnable = Runnable {
+      sleepTimerRunnable = null
+      sleepTimerDeadlineMs = null
+      webView.evaluateJavascript("NouTube.pause()", null)
+      nouController.emitSleepTimerExpired()
+    }
+    sleepTimerRunnable = runnable
+    mainHandler.postDelayed(runnable, remainingMs)
+    nouController.emitSleepTimerSet(getSleepTimerRemainingMs())
+  }
+
+  fun clearSleepTimer(emitEvent: Boolean = true) {
+    sleepTimerRunnable?.let(mainHandler::removeCallbacks)
+    sleepTimerRunnable = null
+    sleepTimerDeadlineMs = null
+    if (emitEvent) {
+      nouController.emitSleepTimerCleared()
+    }
+  }
+
+  fun getSleepTimerRemainingMs(): Long? {
+    val deadlineMs = sleepTimerDeadlineMs ?: return null
+    return maxOf(0L, deadlineMs - SystemClock.elapsedRealtime())
   }
 
   fun initCallback() {
@@ -230,6 +265,7 @@ class NouService : Service() {
   }
 
   fun exit() {
+    clearSleepTimer(false)
     notificationManager?.deleteNotificationChannel(CHANNEL_ID)
     notificationManager = null
     stopSelf()

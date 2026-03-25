@@ -1,10 +1,8 @@
-import { TouchableOpacity, useWindowDimensions, View } from 'react-native'
+import { useWindowDimensions, View } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
-import { useValue, useObserveEffect } from '@legendapp/state/react'
+import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
-import { NouText } from '../NouText'
 import { colors } from '@/lib/colors'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { NouMenu } from '../menu/NouMenu'
 import { clsx, isIos, isWeb, nIf } from '@/lib/utils'
 import { ui$, updateUrl } from '@/states/ui'
@@ -18,6 +16,8 @@ import { library$ } from '@/states/library'
 import { normalizeUrl } from '@/lib/url'
 import { useEffect, useState } from 'react'
 import { t } from 'i18next'
+import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
+import { useSleepTimerStatus } from '@/lib/sleep-timer'
 
 export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const autoHideHeader = useValue(settings$.autoHideHeader)
@@ -29,6 +29,8 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const starred = allStarred.has(normalizeUrl(uiState.pageUrl))
   const bookmark = useValue(bookmarks$.getBookmarkByUrl(normalizeUrl(uiState.pageUrl)))
   const queueSize = useValue(queue$.size)
+  const sleepTimerSupported = hasSleepTimerNativeSupport()
+  const { active: sleepTimerActive } = useSleepTimerStatus(sleepTimerSupported)
   const [canGoBack, setCanGoBack] = useState(false)
   const [canGoForward, setCanGoForward] = useState(false)
   const isHorizontal = width > windowHeight
@@ -109,6 +111,10 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
         )}
       </View>
       <View className="flex flex-row lg:flex-col lg:pb-1 items-center gap-2">
+        {nIf(
+          sleepTimerSupported && sleepTimerActive,
+          <MaterialButton name="bedtime" color="#60a5fa" onPress={() => ui$.sleepTimerModalOpen.set(true)} />,
+        )}
         {nIf(
           !isYTMusic && queueSize > 0,
           <MaterialButton name="playlist-play" onPress={() => ui$.queueModalOpen.set(!ui$.queueModalOpen.get())} />,

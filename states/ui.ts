@@ -23,6 +23,7 @@ interface Store {
   libraryModalTab: string
   queueModalOpen: boolean
   settingsModalOpen: boolean
+  sleepTimerModalOpen: boolean
   urlModalOpen: boolean
   cookieModalOpen: boolean
   userAgentModalOpen: boolean
@@ -50,6 +51,7 @@ export const ui$ = observable<Store>({
   libraryModalTab: '',
   queueModalOpen: false,
   settingsModalOpen: false,
+  sleepTimerModalOpen: false,
   urlModalOpen: false,
   cookieModalOpen: false,
   userAgentModalOpen: false,

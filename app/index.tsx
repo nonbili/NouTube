@@ -7,8 +7,12 @@ import { Asset } from 'expo-asset'
 import { useShareIntent } from 'expo-share-intent'
 import * as Linking from 'expo-linking'
 import { MainPage } from '@/components/page/MainPage'
-import { nIf } from '@/lib/utils'
+import { isAndroid, nIf } from '@/lib/utils'
 import NouTubeViewModule from '@/modules/nou-tube-view'
+import { sleepTimer$ } from '@/states/sleep-timer'
+import { showToast } from '@/lib/toast'
+import { t } from 'i18next'
+import { addSleepTimerListener, getNativeSleepTimerRemainingMs, hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
 
 export default function HomeScreen() {
   const [scriptOnStart, setScriptOnStart] = useState('')
@@ -36,13 +40,34 @@ export default function HomeScreen() {
       console.log('[kotlin]', evt.msg)
     })
 
-    const subscription = BackHandler.addEventListener('hardwareBackPress', function () {
+    let sleepTimerSubscription: { remove?: () => void } | undefined
+    if (isAndroid && hasSleepTimerNativeSupport()) {
+      void getNativeSleepTimerRemainingMs()
+        .then((remainingMs) => sleepTimer$.setRemainingMs(remainingMs))
+        .catch((error) => {
+          console.error('getSleepTimerRemainingMs failed', error)
+        })
+
+      sleepTimerSubscription = addSleepTimerListener((evt) => {
+        sleepTimer$.setRemainingMs(evt.remainingMs ?? null)
+        if (evt.reason === 'expired') {
+          showToast(t('sleepTimer.expiredToast'))
+        }
+      })
+    } else {
+      sleepTimer$.clear()
+    }
+
+    const backSubscription = BackHandler.addEventListener('hardwareBackPress', function () {
       const webview = ui$.webview.get()
       webview?.goBack()
       return true
     })
 
-    return () => subscription.remove()
+    return () => {
+      sleepTimerSubscription?.remove?.()
+      backSubscription.remove()
+    }
   }, [])
 
   useEffect(() => {
