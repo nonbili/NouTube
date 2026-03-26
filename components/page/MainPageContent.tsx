@@ -70,8 +70,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       return
     }
     const ref = webviewRef.current || nativeRef.current
-    const { sponsorBlock } = settings$.get()
-    const value = JSON.stringify({ sponsorBlock })
+    const { sponsorBlock, playbackRate } = settings$.get()
+    const value = JSON.stringify({ sponsorBlock, playbackRate })
     ref?.executeJavaScript(`localStorage.setItem('nou:settings', '${value}')`)
   }, [nativeRef, webviewRef])
 
@@ -146,6 +146,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           current: data.current,
           duration: data.duration,
         })
+        break
+      case 'playback-rate':
+        if (typeof data?.playbackRate == 'number' && Number.isFinite(data.playbackRate)) {
+          settings$.playbackRate.set(data.playbackRate)
+        }
         break
       case 'playback-end':
         const videoId = getVideoId(uiState.pageUrl)
@@ -248,6 +253,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
   useObserveEffect(settings$.sponsorBlock, () => syncSettingsToWebview())
+  useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
   useEffect(() => {
     syncUserStylesToWebview()
   }, [syncUserStylesToWebview])

@@ -10,6 +10,32 @@ let skipSegments: { videoId: string; segments: Segment[] } = { videoId: '', segm
 
 const keys = {
   playing: 'nou:playing',
+  settings: 'nou:settings',
+}
+
+function getSettings() {
+  return parseJson(localStorage.getItem(keys.settings), {}) as {
+    playbackRate?: number
+    sponsorBlock?: boolean
+  }
+}
+
+function getSavedPlaybackRate() {
+  const { playbackRate } = getSettings()
+  return typeof playbackRate == 'number' && Number.isFinite(playbackRate) ? playbackRate : 1
+}
+
+function applySavedPlaybackRate(player: any) {
+  const playbackRate = getSavedPlaybackRate()
+  try {
+    const availableRates = player.getAvailablePlaybackRates?.()
+    if (Array.isArray(availableRates) && !availableRates.includes(playbackRate)) {
+      return
+    }
+    player.setPlaybackRate?.(playbackRate)
+  } catch (e) {
+    log('failed to apply playback rate', e)
+  }
 }
 
 export function handleMutations(mutations: MutationRecord[]) {
@@ -71,6 +97,9 @@ export function handleVideoPlayer(el: any) {
         ;['play', 'pause', 'timeupdate'].forEach((evt) => {
           video.addEventListener(evt, notifyProgress)
         })
+        video.addEventListener('ratechange', () => {
+          emit('playback-rate', { playbackRate: video.playbackRate })
+        })
         progressBinded = true
       }
     }
@@ -96,6 +125,8 @@ export function handleVideoPlayer(el: any) {
       if (isSponsorBlockEnabled()) {
         skipSegments = await getSkipSegments(videoId)
       }
+
+      applySavedPlaybackRate(player)
     }
   })
 }
