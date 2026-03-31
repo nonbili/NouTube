@@ -12,7 +12,7 @@ export const PlaybackSpeedModal = () => {
   const currentRate = use$(ui$.playbackRate)
 
   const onSelect = (rate: number) => {
-    ui$.webview.get()?.executeJavaScript(`NouTube.setPlaybackRate(${rate})`)
+    ui$.webview.get()?.executeJavaScript(`window.NouTube.setPlaybackRate(${rate})`)
     ui$.playbackSpeedModalOpen.set(false)
   }
 
