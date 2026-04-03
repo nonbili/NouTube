@@ -3,6 +3,7 @@ import { emit, log, isYTMusic, nouPolicy, parseJson } from './utils'
 import { hideLiveChat, showLiveChatButton } from './livechat'
 import { originalLabels } from './audio'
 import { getSkipSegments, isSponsorBlockEnabled, Segment } from './sponsorblock'
+import { playbackRates } from '../lib/playback-rate'
 
 export let player: any
 let curVideoId = ''
@@ -23,6 +24,42 @@ function getSettings() {
 function getSavedPlaybackRate() {
   const { playbackRate } = getSettings()
   return typeof playbackRate == 'number' && Number.isFinite(playbackRate) ? playbackRate : 1
+}
+
+function getVideoElement(player: any) {
+  const video = document.querySelector('#movie_player video') || player?.querySelector?.('video') || document.querySelector('video')
+  return video instanceof HTMLVideoElement ? video : null
+}
+
+function extendPlaybackRates(player: any) {
+  if (!player || player.__nouPlaybackRatesExtended) {
+    return
+  }
+
+  try {
+    const originalGetRates = player.getAvailablePlaybackRates?.bind(player)
+    const originalSetRate = player.setPlaybackRate?.bind(player)
+    if (!originalGetRates || !originalSetRate) {
+      return
+    }
+
+    player.getAvailablePlaybackRates = () => playbackRates
+    player.setPlaybackRate = (rate: number) => {
+      const video = getVideoElement(player)
+      if (video) {
+        video.playbackRate = rate
+      }
+
+      if (rate <= 2) {
+        originalSetRate(rate)
+      }
+
+      emit('playback-rate', { playbackRate: rate })
+    }
+    player.__nouPlaybackRatesExtended = true
+  } catch (e) {
+    log('failed to extend playback rates', e)
+  }
 }
 
 function applySavedPlaybackRate(player: any) {
@@ -50,7 +87,8 @@ export function handleMutations(mutations: MutationRecord[]) {
 }
 
 export function handleVideoPlayer(el: any) {
-  const player = el
+  player = el
+  extendPlaybackRates(player)
   let title = ''
   let duration = 0
 
@@ -92,7 +130,7 @@ export function handleVideoPlayer(el: any) {
       return
     }
     if (!progressBinded) {
-      const video = el.querySelector('video')
+      const video = getVideoElement(player)
       if (video) {
         ;['play', 'pause', 'timeupdate'].forEach((evt) => {
           video.addEventListener(evt, notifyProgress)

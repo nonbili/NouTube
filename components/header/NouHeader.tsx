@@ -1,4 +1,4 @@
-import { useWindowDimensions, View } from 'react-native'
+import { Pressable, useWindowDimensions, View } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
@@ -19,11 +19,13 @@ import { t } from 'i18next'
 import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
 import { useSleepTimerStatus } from '@/lib/sleep-timer'
 import { NouText } from '../NouText'
+import { formatPlaybackRate } from '@/lib/playback-rate'
 
 export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const autoHideHeader = useValue(settings$.autoHideHeader)
   const isYTMusic = useValue(settings$.isYTMusic)
   const playbackRate = useValue(settings$.playbackRate)
+  const showPlaybackSpeedControl = useValue(settings$.showPlaybackSpeedControl)
   const { width, height: windowHeight } = useWindowDimensions()
   const uiState = useValue(ui$)
   const feedsEnabled = useValue(settings$.feedsEnabled)
@@ -74,8 +76,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
       transform: [{ translateY: translateY.value }],
     }
   })
-  const showPlaybackRate = Number.isFinite(playbackRate) && playbackRate !== 1
-  const playbackRateLabel = `${playbackRate.toFixed(2).replace(/\.?0+$/, '')}x`
+  const playbackRateLabel = formatPlaybackRate(playbackRate)
 
   return (
     <Animated.View
@@ -116,10 +117,15 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
       </View>
       <View className="flex flex-row lg:flex-col lg:pb-1 items-center gap-2">
         {nIf(
-          showPlaybackRate,
-          <View className="px-2 py-1 rounded-full bg-zinc-700/80 min-w-11 items-center">
-            <NouText className="text-xs font-medium">{playbackRateLabel}</NouText>
-          </View>,
+          showPlaybackSpeedControl,
+          <Pressable
+            onPress={() => ui$.playbackSpeedModalOpen.set(true)}
+            className="h-11 min-w-11 px-1 items-center justify-center"
+          >
+            <View className="px-2 py-1 rounded-full border border-zinc-600 bg-zinc-700/80">
+              <NouText className="text-xs font-medium">{playbackRateLabel}</NouText>
+            </View>
+          </Pressable>,
         )}
         {nIf(
           sleepTimerSupported && sleepTimerActive,

@@ -17,6 +17,7 @@ import { UrlModal } from '../modal/UrlModal'
 import { CookieModal } from '../modal/CookieModal'
 import { UserAgentModal } from '../modal/UserAgentModal'
 import { SleepTimerModal } from '../modal/SleepTimerModal'
+import { PlaybackSpeedModal } from '../modal/PlaybackSpeedModal'
 import { Locale, useLocales } from 'expo-localization'
 import i18n from 'i18next'
 
@@ -66,6 +67,7 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
       <CookieModal />
       <UserAgentModal />
       <SleepTimerModal />
+      <PlaybackSpeedModal />
     </QueryClientProvider>
   )
 }

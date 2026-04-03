@@ -24,6 +24,7 @@ interface Store {
   queueModalOpen: boolean
   settingsModalOpen: boolean
   sleepTimerModalOpen: boolean
+  playbackSpeedModalOpen: boolean
   urlModalOpen: boolean
   cookieModalOpen: boolean
   userAgentModalOpen: boolean
@@ -52,6 +53,7 @@ export const ui$ = observable<Store>({
   queueModalOpen: false,
   settingsModalOpen: false,
   sleepTimerModalOpen: false,
+  playbackSpeedModalOpen: false,
   urlModalOpen: false,
   cookieModalOpen: false,
   userAgentModalOpen: false,

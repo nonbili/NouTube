@@ -15,6 +15,7 @@ interface Store {
   playbackRate: number
   restoreOnStart: boolean
   sponsorBlock: boolean
+  showPlaybackSpeedControl: boolean
   userAgent: string
   theme: null | 'dark' | 'light'
 }
@@ -32,6 +33,7 @@ export const settings$ = observable<Store>({
   playbackRate: 1,
   restoreOnStart: true,
   sponsorBlock: true,
+  showPlaybackSpeedControl: false,
   userAgent: '',
   theme: null,
 })

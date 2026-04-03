@@ -7,6 +7,7 @@ import { Segmented } from '../picker/Segmented'
 import { getDocumentAsync } from 'expo-document-picker'
 import { importCsv, importList, importZip } from '@/lib/import'
 import { onClearData$, ui$ } from '@/states/ui'
+import NouTubeViewModule from '@/modules/nou-tube-view'
 import { showToast } from '@/lib/toast'
 import { showConfirm } from '@/lib/confirm'
 import JSZip from 'jszip'
@@ -150,6 +151,12 @@ export const SettingsAppearanceContent = () => {
           icon="visibility-off"
           value={settings.autoHideHeader}
           onPress={() => settings$.autoHideHeader.set(!settings.autoHideHeader)}
+        />
+        <SettingsToggleRow
+          label="Show playback speed control"
+          icon="speed"
+          value={settings.showPlaybackSpeedControl}
+          onPress={() => settings$.showPlaybackSpeedControl.set(!settings.showPlaybackSpeedControl)}
         />
         <View className="px-4 py-4">
           <View className="flex-row items-start gap-3">
