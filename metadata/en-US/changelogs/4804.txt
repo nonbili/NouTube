@@ -1,0 +1,6 @@
+- Support sleep timer
+- Support playback speed controls (up to 4x)
+- Support light mode
+- Add setting to hide toolbar on scroll
+- Persist playback speed
+- Update translations
