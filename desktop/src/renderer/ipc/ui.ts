@@ -1,8 +1,10 @@
 import { handleDeeplink } from '../lib/deeplink.js'
+import { downloadProgress } from '../lib/download-progress.js'
 import { UI_CHANNEL } from 'main/ipc/constants.js'
 
 const interfaces = {
   handleDeeplink,
+  downloadProgress,
 }
 
 export type UiInterface = typeof interfaces

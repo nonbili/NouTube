@@ -17,5 +17,10 @@ export function handleShortcuts(event: KeyboardEvent) {
     case 'o':
       ui$.urlModalOpen.set(true)
       break
+    case 'd': {
+      const pageUrl = ui$.pageUrl.get()
+      if (pageUrl) ui$.toolsModalUrl.set(pageUrl)
+      break
+    }
   }
 }

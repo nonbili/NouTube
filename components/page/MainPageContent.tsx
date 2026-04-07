@@ -187,6 +187,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       case 'embed':
         ui$.embedVideoId.set(data)
         break
+      case 'download':
+        if (isWeb) {
+          ui$.toolsModalUrl.set(data.url)
+        }
+        break
       case 'keyup':
         handleShortcuts(data)
         break

@@ -81,7 +81,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
     return {
       transform: [{ translateY: translateY.value }],
     }
-  })
+  }, [translateY])
   const playbackRateLabel = formatPlaybackRate(playbackRate)
 
   return (
@@ -176,6 +176,16 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
               systemImage: 'square.and.arrow.up',
               handler: () => share(uiState.pageUrl),
             },
+            ...(isWeb
+              ? [
+                  {
+                    label: t('menus.tools', 'Tools'),
+                    icon: <MaterialIcons name="download" size={18} color={headerControlColor} />,
+                    systemImage: 'arrow.down.circle',
+                    handler: () => ui$.toolsModalOpen.set(true),
+                  },
+                ]
+              : []),
             {
               label: t('settings.label'),
               icon: <MaterialIcons name="settings" size={18} color={headerControlColor} />,

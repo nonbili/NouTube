@@ -19,6 +19,7 @@ interface Store {
   showPlaybackSpeedControl: boolean
   userAgent: string
   theme: null | 'dark' | 'light'
+  downloadPath: string
 }
 
 export const settings$ = observable<Store>({
@@ -38,6 +39,7 @@ export const settings$ = observable<Store>({
   showPlaybackSpeedControl: false,
   userAgent: '',
   theme: null,
+  downloadPath: '',
 })
 
 syncObservable(settings$, {

@@ -28,6 +28,8 @@ interface Store {
   urlModalOpen: boolean
   cookieModalOpen: boolean
   userAgentModalOpen: boolean
+  toolsModalOpen: boolean
+  toolsModalUrl: string
 
   // webview
   webview: any
@@ -57,6 +59,8 @@ export const ui$ = observable<Store>({
   urlModalOpen: false,
   cookieModalOpen: false,
   userAgentModalOpen: false,
+  toolsModalOpen: false,
+  toolsModalUrl: '',
 
   // webview
   webview: undefined,

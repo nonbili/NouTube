@@ -54,17 +54,19 @@ const SettingsToggleRow: React.FC<{
         <MaterialIcons name={icon} color={isDark ? '#d4d4d8' : '#475569'} size={18} />
       </View>
       <NouText className="flex-1 font-medium">{label}</NouText>
-      <Switch
-        value={value}
-        onValueChange={onPress}
-        trackColor={{ false: '#52525b', true: '#1d4ed8' }}
-        thumbColor={value ? '#eff6ff' : '#f4f4f5'}
-        {...Platform.select({
-          web: {
-            activeThumbColor: '#eff6ff',
-          },
-        })}
-      />
+      <View {...(isWeb ? { onClick: (e: any) => e.stopPropagation() } : {})}>
+        <Switch
+          value={value}
+          onValueChange={onPress}
+          trackColor={{ false: '#52525b', true: '#1d4ed8' }}
+          thumbColor={value ? '#eff6ff' : '#f4f4f5'}
+          {...Platform.select({
+            web: {
+              activeThumbColor: '#eff6ff',
+            },
+          })}
+        />
+      </View>
     </Pressable>
   )
 }
@@ -151,31 +153,31 @@ export const SettingsAppearanceContent = () => {
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
 
-  if (isWeb) {
-    return null
-  }
-
   return (
     <SettingsSection label={t('settings.appearance')}>
       <View className={surfaceCls}>
-        <SettingsToggleRow
-          label={t('settings.autoHideHeader')}
-          icon="visibility-off"
-          value={settings.autoHideHeader}
-          onPress={() => settings$.autoHideHeader.set(!settings.autoHideHeader)}
-        />
-        <SettingsToggleRow
-          label={t('settings.hideToolbarWhenScrolled')}
-          icon="vertical-align-top"
-          value={settings.hideToolbarWhenScrolled}
-          onPress={() => settings$.hideToolbarWhenScrolled.set(!settings.hideToolbarWhenScrolled)}
-        />
-        <SettingsToggleRow
-          label="Show playback speed control"
-          icon="speed"
-          value={settings.showPlaybackSpeedControl}
-          onPress={() => settings$.showPlaybackSpeedControl.set(!settings.showPlaybackSpeedControl)}
-        />
+        {!isWeb && (
+          <>
+            <SettingsToggleRow
+              label={t('settings.autoHideHeader')}
+              icon="visibility-off"
+              value={settings.autoHideHeader}
+              onPress={() => settings$.autoHideHeader.set(!settings.autoHideHeader)}
+            />
+            <SettingsToggleRow
+              label={t('settings.hideToolbarWhenScrolled')}
+              icon="vertical-align-top"
+              value={settings.hideToolbarWhenScrolled}
+              onPress={() => settings$.hideToolbarWhenScrolled.set(!settings.hideToolbarWhenScrolled)}
+            />
+            <SettingsToggleRow
+              label="Show playback speed control"
+              icon="speed"
+              value={settings.showPlaybackSpeedControl}
+              onPress={() => settings$.showPlaybackSpeedControl.set(!settings.showPlaybackSpeedControl)}
+            />
+          </>
+        )}
         <View className="px-4 py-4">
           <View className="flex-row items-start gap-3">
             <View className={iconWrapCls}>

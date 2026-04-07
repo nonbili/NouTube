@@ -5,6 +5,8 @@ const iconAddQueue = `<svg height="16" viewBox="0 0 24 24" width="16" focusable=
 
 const iconStar = `<svg height="24" viewBox="0 -960 960 960" width="24" style="transform:scale(1.25)"><path d="m354-287 126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143Zm-61 83.92 49.62-212.54-164.93-142.84 217.23-18.85L480-777.69l85.08 200.38 217.23 18.85-164.93 142.84L667-203.08 480-315.92 293-203.08ZM480-470Z"/></svg>`
 
+const iconDownload = `<svg height="24" viewBox="0 -960 960 960" width="24" style="transform:scale(1.25)"><path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></svg>`
+
 const makeMenuItem = ({ icon, label }: { icon: string; label: string }) =>
   nouPolicy.createHTML(/* HTML */ `
     <button class="menu-item-button">
@@ -141,6 +143,49 @@ export function handleMenu() {
         }
       }
       menu.prepend(menuItem)
+
+      if (window.electron) {
+        const downloadCls = '_inks_download_'
+        menu.querySelectorAll(`.${downloadCls}`).forEach((el) => el.remove())
+        const downloadItemData = { icon: iconDownload, label: 'Download' }
+        let downloadMenuItem: HTMLElement
+        switch (menu.tagName.toLowerCase()) {
+          case 'yt-list-view-model':
+            downloadMenuItem = document.createElement('ytm-list-item-view-model')
+            downloadMenuItem.classList.add(downloadCls)
+            downloadMenuItem.innerHTML = makeListItem(downloadItemData)
+            break
+          case 'tp-yt-paper-listbox':
+            downloadMenuItem = document.createElement('ytd-menu-service-item-renderer')
+            downloadMenuItem.classList.add(downloadCls)
+            downloadMenuItem.innerHTML = makePaperItem(downloadItemData)
+            break
+          default:
+            downloadMenuItem = document.createElement('ytm-menu-item')
+            downloadMenuItem.innerHTML = makeMenuItem(downloadItemData)
+        }
+        downloadMenuItem.onclick = () => {
+          if (url) emit('download', { url })
+        }
+        menu.prepend(downloadMenuItem)
+
+        if (menu.tagName.toLowerCase() == 'tp-yt-paper-listbox') {
+          const label = downloadMenuItem.querySelector('yt-formatted-string')
+          if (label?.hasAttribute('is-empty')) {
+            label.textContent = downloadItemData.label + ' 🦦'
+            label.removeAttribute('is-empty')
+          }
+          const icon = downloadMenuItem.querySelector('yt-icon')
+          if (icon?.hasAttribute('hidden')) {
+            icon.innerHTML = nouPolicy.createHTML(/* HTML */ `
+              <span class="yt-icon-shape style-scope yt-icon ytSpecIconShapeHost">
+                <div style="width: 100%; height: 100%; display: block; fill: currentcolor;">${downloadItemData.icon}</div>
+              </span>
+            `)
+            icon.removeAttribute('hidden')
+          }
+        }
+      }
 
       if (menu.tagName.toLowerCase() == 'tp-yt-paper-listbox') {
         const label = menuItem.querySelector('yt-formatted-string')
