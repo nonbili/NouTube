@@ -86,7 +86,37 @@
     "syncHintShort": "Synchronisation des comptes, des forfaits et des appareils.",
     "autoHideHeader": "Masquer automatiquement l'en-tête lors du défilement",
     "hideShortsInNavbar": "Masquer les shorts dans la barre de navigation",
-    "hideMixPlaylist": "Masquer la playlist mixée"
+    "hideMixPlaylist": "Masquer la playlist mixée",
+    "userStyles": {
+      "label": "Styles personnalisés",
+      "hint": "Réglages CSS intégrés et votre propre feuille de style CSS spécifique au site.",
+      "builtin": {
+        "label": "Styles intégrés",
+        "hideShortsInNavbar": {
+          "label": "Masquer les « Shorts » dans la barre de navigation"
+        },
+        "hideMixPlaylist": {
+          "label": "Masquer la playlist « Mix »"
+        }
+      },
+      "custom": {
+        "label": "Styles personnalisés",
+        "empty": "Il n'y a pas encore de styles personnalisés."
+      },
+      "add": "Ajouter une touche de style",
+      "addTitle": "Ajouter un style utilisateur",
+      "editTitle": "Modifier le style de l'utilisateur",
+      "nameLabel": "Nom",
+      "namePlaceholder": "Mon style",
+      "validation": {
+        "css": "Le CSS ne peut pas être vide"
+      },
+      "deleteConfirm": "Supprimer ce style personnalisé ?",
+      "copyCss": "Copier le CSS",
+      "cssCopied": "CSS copié",
+      "copyFailed": "Échec de la copie du CSS",
+      "importFailed": "Échec de l'importation du CSS"
+    }
   },
   "sync": {
     "label": "Synchronisation",
@@ -130,5 +160,33 @@
     "emptyBodyWaiting": "Vos chaînes enregistrées sont prêtes. Laissez l'application ouverte quelques instants ou rouvrez-la plus tard : les dernières vidéos mises en ligne s'afficheront ici.",
     "removeTitle": "Supprimer {{title}} ?",
     "removeMessage": "Cela supprime la chaîne de la bibliothèque et efface ses vidéos."
+  },
+  "changelog": {
+    "label": "Journal des modifications",
+    "hint": "Dernières versions et corrections publiées sur GitHub.",
+    "loading": "Chargement des notes de mise à jour...",
+    "error": "Impossible de charger les notes de mise à jour.",
+    "retry": "Réessayer",
+    "empty": "Aucune note de mise à jour trouvée.",
+    "current": "Actuel",
+    "noNotes": "Aucune note de mise à jour n'a été fournie pour cette version."
+  },
+  "sleepTimer": {
+    "label": "Minuterie de mise en veille",
+    "hint": "Mettez la lecture en pause après une durée prédéfinie ou après le nombre de minutes de votre choix.",
+    "activeHint": "La lecture s'interrompra à la fin de ce compte à rebours.",
+    "off": "Off",
+    "endsIn": "Se termine dans {{value}}",
+    "preset": "{{value}} min",
+    "customPlaceholder": "Minutes personnalisées",
+    "set": "Régler le minuteur",
+    "cancel": "Annuler le minuteur",
+    "replace": "Remplacer",
+    "validation": {
+      "minutes": "Entrez un nombre entier de minutes compris entre 1 et 1 440"
+    },
+    "setToast": "Minuterie de mise en veille réglée sur {{value}} minutes",
+    "cancelToast": "Minuterie de mise en veille désactivée",
+    "expiredToast": "La minuterie de mise en veille a expiré"
   }
 }

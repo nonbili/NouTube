@@ -2,7 +2,8 @@
   "about": {
     "label": "Sobre",
     "code": "Código-fonte",
-    "donate": "Doações"
+    "donate": "Doações",
+    "hint": "Informações sobre a versão, código-fonte e links de suporte."
   },
   "buttons": {
     "clear": "Limpar",
@@ -14,7 +15,8 @@
     "move": "Mover",
     "save": "Salvar",
     "signOut": "Sair",
-    "remove": "Remover"
+    "remove": "Remover",
+    "unsubscribe": "Cancelar inscrição"
   },
   "library": {
     "videos": "Vídeos",
@@ -27,7 +29,8 @@
     "edit": "Editar",
     "remove": "Remover",
     "reload": "Recarregar",
-    "share": "Compartilhar"
+    "share": "Compartilhar",
+    "unsubscribe": "Cancelar inscrição"
   },
   "modals": {
     "editBookmark": "Editar favorito",
@@ -42,7 +45,7 @@
     "label": "Configurações",
     "general": "Geral",
     "restoreOnStart": "Restaurar a última reprodução ao iniciar",
-    "hideShorts": "Oculta Shorts",
+    "hideShorts": "Oculta Shorts na tela inicial",
     "channelsFeed": "Feed de canais",
     "watchHistory": "Histórico de reprodução",
     "theme": {
@@ -54,7 +57,7 @@
     },
     "login": {
       "label": "Tente isto se não conseguir fazer login a partir do Webview",
-      "button": "Login do YouTube"
+      "button": "Autenticar com YouTube"
     },
     "openUrlLabel": "Abrir URL suportado diretamente",
     "webview": {
@@ -69,6 +72,50 @@
     "userAgent": {
       "title": "User-Agent personalizado",
       "default": "User-Agent padrão"
+    },
+    "hubHint": "Ferramentas de reprodução, sincronização, importação e WebView, tudo em um só lugar.",
+    "generalHint": "Configurações padrão de reprodução, aparência, ferramentas e transferência de dados.",
+    "preferences": "Preferências",
+    "preferencesHint": "Comportamento da reprodução, do feed e do histórico.",
+    "appearance": "Aparência",
+    "appearanceHint": "Controle a aparência do YouTube dentro do aplicativo.",
+    "tools": "Ferramentas",
+    "toolsHint": "Abrir URLs e gerenciar o ambiente do WebView.",
+    "transfer": "Importação & Exportação",
+    "transferHint": "Traga seus vídeos favoritos ou leve-os com você.",
+    "syncHintShort": "Sincronização da conta, plano e dispositivo.",
+    "autoHideHeader": "Ocultar automaticamente o cabeçalho ao rolar a tela",
+    "hideShortsInNavbar": "Oculta Shorts na barra de navegação",
+    "hideMixPlaylist": "Ocultar playlist mistas",
+    "userStyles": {
+      "label": "CSS do usuário",
+      "custom": {
+        "label": "CSS personalizado",
+        "empty": "Ainda não há CSS personalizados."
+      },
+      "add": "Adicionar CSS",
+      "addTitle": "Adicionar CSS do usuário",
+      "editTitle": "Editar CSS do usuário",
+      "nameLabel": "Nome",
+      "namePlaceholder": "Meu CSS",
+      "validation": {
+        "css": "O CSS não pode estar vazio"
+      },
+      "deleteConfirm": "Deseja remover este CSS personalizado?",
+      "copyCss": "Copiar CSS",
+      "cssCopied": "CSS copiado",
+      "copyFailed": "Não foi possível copiar o CSS",
+      "importFailed": "Falha ao importar CSS",
+      "hint": "Ajustes de CSS integrados e CSS específico para o seu site.",
+      "builtin": {
+        "label": "CSS personalizados",
+        "hideShortsInNavbar": {
+          "label": "Ocultar Shorts na barra de navegação"
+        },
+        "hideMixPlaylist": {
+          "label": "Ocultar playlist mistas"
+        }
+      }
     }
   },
   "sync": {
@@ -76,5 +123,70 @@
     "hint": "Sincronizar favoritos entre seus telefones e computadores como usuário premium.",
     "currentPlan": "Plano atual",
     "managePlan": "Gerenciar plano"
+  },
+  "changelog": {
+    "label": "Histórico de atualização",
+    "hint": "Atualizações e correções recentes do GitHub.",
+    "loading": "Carregando informações da atualização...",
+    "error": "Não foi possível carregar as informações da atualização.",
+    "retry": "Tentar novamente",
+    "empty": "Não foram encontradas informações da atualização.",
+    "current": "Atual",
+    "noNotes": "Não foram fornecidas informações da atualização para esta versão."
+  },
+  "feeds": {
+    "updates": "Atualizações",
+    "manage": "Gerenciar",
+    "sortLastVideo": "Último vídeo",
+    "sortFrequency": "Frequência",
+    "lastVideoNewest": "Último vídeo: mais recentes primeiro",
+    "lastVideoOldest": "Último vídeo: do mais antigo para o mais recente",
+    "frequencyHighest": "Frequência: da mais alta para a mais baixa",
+    "frequencyLowest": "Frequência: da menor para a maior",
+    "frequencyLabel": "Frequência",
+    "lastVideoLabel": "Último vídeo",
+    "videosPerDay": "{{value}} vídeos por dia",
+    "never": "Nunca",
+    "allFolders": "Todos",
+    "newFolder": "+ Nova pasta",
+    "editFeed": "Editar feed",
+    "manageEmpty": "Ainda não há feeds salvos.",
+    "manageNoResults": "Nenhum feed corresponde aos filtros atuais.",
+    "updatesEmpty": "Não há vídeos no feed que correspondam ao filtro da pasta atual.",
+    "filterDropdownPlaceholder": "Filtrar pastas e canais",
+    "filterDropdownEmpty": "Não há pastas ou canais correspondentes.",
+    "emptyTitleNoChannels": "Não há canais favoritos",
+    "emptyBodyNoChannels": "Atualizações sobre canais do YouTube que você marcou como favoritos aparecerão aqui.",
+    "emptyTitleFolder": "Não há atualizações em {{folder}}",
+    "emptyTitleChannel": "Não há atualizações para {{channel}}",
+    "emptyBodyFiltered": "No momento, não há vídeos recentes aqui. Volte mais tarde ou selecione “Todos”.",
+    "emptyActionFetchNow": "Buscar agora",
+    "fetchToastSuccess": "Feed atualizado",
+    "fetchToastRunning": "Atualização em andamento",
+    "fetchToastNotFound": "Não foi possível atualizar este canal. O feed retornou um erro 404.",
+    "fetchToastError": "Não foi possível atualizar este canal",
+    "emptyActionAllFolders": "Mostrar todos",
+    "emptyTitleWaiting": "Aguardando atualizações do feed",
+    "emptyBodyWaiting": "Seus canais salvos estão prontos. Deixe o aplicativo aberto por um tempo ou reabra-o mais tarde, e os vídeos enviados recentemente aparecerão aqui.",
+    "removeTitle": "Remover {{title}}?",
+    "removeMessage": "Isso remove o canal da Biblioteca e apaga os vídeos do feed."
+  },
+  "sleepTimer": {
+    "hint": "Pause a reprodução após uma duração predefinida ou um valor em minutos definido por você.",
+    "label": "Lembrete para fazer uma pausa",
+    "activeHint": "A reprodução será pausada assim que esta contagem regressiva terminar.",
+    "off": "Desativar",
+    "endsIn": "Termina em {{value}}",
+    "preset": "{{value}} min",
+    "customPlaceholder": "Definir minutos",
+    "set": "Ajustar temporizador",
+    "cancel": "Cancelar temporizador",
+    "replace": "Substituir",
+    "validation": {
+      "minutes": "Insira um número em minutos entre 1 e 1440"
+    },
+    "setToast": "Lembrete para fazer uma pausa definido para {{value}} minutos",
+    "cancelToast": "Lembrete para fazer uma pausa cancelado",
+    "expiredToast": "Lembrete para fazer uma pausa expirou"
   }
 }
