@@ -153,6 +153,12 @@ export const SettingsAppearanceContent = () => {
           onPress={() => settings$.autoHideHeader.set(!settings.autoHideHeader)}
         />
         <SettingsToggleRow
+          label={t('settings.hideToolbarWhenScrolled')}
+          icon="vertical-align-top"
+          value={settings.hideToolbarWhenScrolled}
+          onPress={() => settings$.hideToolbarWhenScrolled.set(!settings.hideToolbarWhenScrolled)}
+        />
+        <SettingsToggleRow
           label="Show playback speed control"
           icon="speed"
           value={settings.showPlaybackSpeedControl}

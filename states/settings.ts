@@ -7,6 +7,7 @@ interface Store {
   isYTMusic: () => boolean
 
   autoHideHeader: boolean
+  hideToolbarWhenScrolled: boolean
   feedsEnabled: boolean
   hideShorts: boolean
   hideShortsInNavbar: boolean
@@ -25,6 +26,7 @@ export const settings$ = observable<Store>({
   isYTMusic: (): boolean => settings$.home.get() == 'yt-music',
 
   autoHideHeader: false,
+  hideToolbarWhenScrolled: false,
   feedsEnabled: true,
   hideShorts: true,
   hideShortsInNavbar: false,

@@ -23,6 +23,7 @@ import { formatPlaybackRate } from '@/lib/playback-rate'
 
 export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const autoHideHeader = useValue(settings$.autoHideHeader)
+  const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
   const isYTMusic = useValue(settings$.isYTMusic)
   const playbackRate = useValue(settings$.playbackRate)
   const showPlaybackSpeedControl = useValue(settings$.showPlaybackSpeedControl)
@@ -67,9 +68,10 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   }
 
   useEffect(() => {
-    const next = !isHorizontal && autoHideHeader && !uiState.headerShown ? -uiState.headerHeight : 0
+    const shouldHide = !isHorizontal && (autoHideHeader || hideToolbarWhenScrolled) && !uiState.headerShown
+    const next = shouldHide ? -uiState.headerHeight : 0
     translateY.value = withTiming(next)
-  }, [uiState.headerShown, uiState.headerHeight, autoHideHeader, isHorizontal])
+  }, [uiState.headerShown, uiState.headerHeight, autoHideHeader, hideToolbarWhenScrolled, isHorizontal])
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -84,7 +86,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
       onLayout={(e) => ui$.headerHeight.set(e.nativeEvent.layout.height)}
       className={clsx(
         'bg-zinc-800 flex-row lg:flex-col justify-between px-2 py-1 lg:px-1 lg:py-2',
-        autoHideHeader && !isHorizontal && 'absolute top-0 left-0 right-0 z-10',
+        (autoHideHeader || hideToolbarWhenScrolled) && !isHorizontal && 'absolute top-0 left-0 right-0 z-10',
       )}
     >
       <View className="flex-row lg:flex-col">

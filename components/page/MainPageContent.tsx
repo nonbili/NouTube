@@ -26,6 +26,38 @@ import { getUserStylesSnapshot, userStyles$ } from '@/states/user-styles'
 let restored = false
 const logger = createLogger('sync')
 
+const onScroll = ({
+  dy,
+  y,
+  autoHideHeader,
+  hideToolbarWhenScrolled,
+}: {
+  dy?: number
+  y?: number
+  autoHideHeader: boolean
+  hideToolbarWhenScrolled: boolean
+}) => {
+  if (hideToolbarWhenScrolled && typeof y === 'number') {
+    ui$.headerShown.set(y <= 0)
+    return
+  }
+
+  if (!autoHideHeader || typeof dy !== 'number') {
+    return
+  }
+
+  const headerHeight = ui$.headerHeight.get()
+  const headerShown = ui$.headerShown.get()
+  if (Math.abs(dy) <= headerHeight / 2) {
+    return
+  }
+  if (dy < 0 && headerShown) {
+    ui$.headerShown.set(false)
+  } else if (dy > 0 && !headerShown) {
+    ui$.headerShown.set(true)
+  }
+}
+
 function restoreLastPlaying(webview: any) {
   if (settings$.restoreOnStart.get() && !restored) {
     restored = true
@@ -40,6 +72,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const webviewReadyRef = useRef(false)
   const hideShorts = useValue(settings$.hideShorts)
   const isYTMusic = useValue(settings$.isYTMusic)
+  const autoHideHeader = useValue(settings$.autoHideHeader)
+  const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
   const customUserAgent = useValue(settings$.userAgent)
   const userStyles = useValue(userStyles$)
   const { userId, me } = useMe()
@@ -106,19 +140,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         console.log(type, data)
         break
       case 'scroll':
-        if (settings$.autoHideHeader.get()) {
-          const dy = data.dy
-          const headerHeight = ui$.headerHeight.get()
-          const headerShown = ui$.headerShown.get()
-          if (Math.abs(dy) <= headerHeight / 2) {
-            return
-          }
-          if (dy < 0 && headerShown) {
-            ui$.headerShown.set(false)
-          } else if (dy > 0 && !headerShown) {
-            ui$.headerShown.set(true)
-          }
-        }
+        onScroll({ dy: data.dy, y: data.y, autoHideHeader, hideToolbarWhenScrolled })
         break
       case 'onload':
         const webview = webviewRef.current || nativeRef.current
@@ -169,7 +191,16 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         handleShortcuts(data)
         break
     }
-  }, [])
+  }, [
+    autoHideHeader,
+    hideShorts,
+    hideToolbarWhenScrolled,
+    syncSettingsToWebview,
+    syncUserStylesToWebview,
+    toggleShorts,
+    uiState.pageUrl,
+    uiState.webview,
+  ])
 
   const onNativeMessage = async (e: { nativeEvent: { payload: string } }) => {
     const { payload } = e.nativeEvent

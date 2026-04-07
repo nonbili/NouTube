@@ -106,7 +106,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
         if (e1 != null) {
           dy = (e2.y - e1.y) / context.resources.displayMetrics.density
         }
-        emit("scroll", mapOf("dy" to dy))
+        emit("scroll", mapOf("dy" to dy, "y" to webView.scrollY))
         return false
       }
     }

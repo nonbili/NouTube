@@ -54,7 +54,7 @@ export const builtinUserStyleDefinitions: BuiltinUserStyleDefinition[] = [
     id: 'hide-shorts-navbar',
     labelKey: 'settings.userStyles.builtin.hideShortsInNavbar.label',
     css: css`
-      .pivot-shorts {
+      ytm-pivot-bar-item-renderer:has(.pivot-shorts) {
         display: none !important;
       }
     `,
@@ -96,7 +96,10 @@ export const getEnabledUserStyleCss = (host: string, snapshot?: UserStylesSnapsh
   return [...builtinCss, ...customCss].join('\n\n')
 }
 
-const normalizeCustomUserStyle = (style: Partial<CustomUserStyle> | null | undefined, index: number): CustomUserStyle | null => {
+const normalizeCustomUserStyle = (
+  style: Partial<CustomUserStyle> | null | undefined,
+  index: number,
+): CustomUserStyle | null => {
   if (!style) {
     return null
   }
@@ -122,7 +125,8 @@ export const normalizeUserStyles = (data?: Partial<UserStylesSnapshot>): UserSty
 
   for (const id of builtinUserStyleIds) {
     builtins[id] = {
-      enabled: typeof data?.builtins?.[id]?.enabled === 'boolean' ? data.builtins[id].enabled : defaults.builtins[id].enabled,
+      enabled:
+        typeof data?.builtins?.[id]?.enabled === 'boolean' ? data.builtins[id].enabled : defaults.builtins[id].enabled,
     }
   }
 
