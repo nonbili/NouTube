@@ -17,6 +17,7 @@
   },
   "buttons": {
     "clear": "Clear",
+    "clearAll": "Clear all",
     "import": "Import",
     "export": "Export",
     "open": "Open",
@@ -26,7 +27,11 @@
     "save": "Save",
     "remove": "Remove",
     "unsubscribe": "Unsubscribe",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "next": "Next",
+    "show": "Show",
+    "download": "Download",
+    "browse": "Browse"
   },
   "library": {
     "videos": "Videos",
@@ -40,7 +45,8 @@
     "remove": "Remove",
     "unsubscribe": "Unsubscribe",
     "reload": "Reload",
-    "share": "Share"
+    "share": "Share",
+    "tools": "Tools"
   },
   "modals": {
     "editBookmark": "Edit bookmark",
@@ -51,7 +57,13 @@
     "history": "History",
     "queue": "Queue",
     "downloadVideo": "Download video",
-    "downloadsFolder": "Downloads folder"
+    "downloadsFolder": "Downloads folder",
+    "activeDownloads": "Active Downloads",
+    "starting": "Starting...",
+    "downloadComplete": "Download complete",
+    "downloadFailed": "Download failed",
+    "failedToLoadFormats": "Failed to load formats",
+    "playbackSpeed": "Playback speed"
   },
   "sleepTimer": {
     "label": "Sleep timer",

@@ -1,12 +1,15 @@
-type ProgressPayload = { line: string; done: boolean; error?: boolean; filePath?: string }
+type ProgressPayload = { url: string; line: string; done: boolean; error?: boolean; filePath?: string }
 type ProgressListener = (payload: ProgressPayload) => void
 
-let listener: ProgressListener | null = null
+const listeners = new Set<ProgressListener>()
 
-export function onDownloadProgress(fn: ProgressListener | null) {
-  listener = fn
+export function onDownloadProgress(fn: ProgressListener) {
+  listeners.add(fn)
+  return () => {
+    listeners.delete(fn)
+  }
 }
 
 export function downloadProgress(payload: ProgressPayload) {
-  listener?.(payload)
+  listeners.forEach((l) => l(payload))
 }

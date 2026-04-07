@@ -1,6 +1,7 @@
 import { observable } from '@legendapp/state'
 import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
+import { isWeb } from '@/lib/utils'
 
 interface Store {
   home: 'yt' | 'yt-music'
@@ -38,7 +39,7 @@ export const settings$ = observable<Store>({
   sponsorBlock: true,
   showPlaybackSpeedControl: false,
   userAgent: '',
-  theme: null,
+  theme: isWeb ? 'dark' : null,
   downloadPath: '',
 })
 

@@ -18,6 +18,8 @@ import { auth$ } from '@/states/auth'
 import { useMe } from '@/lib/hooks/useMe'
 import { ObservableHint } from '@legendapp/state'
 import { mainClient } from '@/desktop/src/renderer/ipc/main'
+import { onDownloadProgress } from '@/desktop/src/renderer/lib/download-progress'
+import { downloads$ } from '@/states/downloads'
 import { resolveUserAgent } from '@/lib/useragent'
 import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
 import { history$ } from '@/states/history'
@@ -78,6 +80,29 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const userStyles = useValue(userStyles$)
   const { userId, me } = useMe()
   const userAgent = resolveUserAgent(isWeb ? window.electron.process.platform : 'android', customUserAgent)
+
+  useEffect(() => {
+    if (!isWeb) return
+    return onDownloadProgress((payload) => {
+      const current = downloads$[payload.url].get()
+      if (!current) return
+
+      if (payload.line) downloads$[payload.url].progressLine.set(payload.line)
+      if (payload.done) {
+        if (payload.error) {
+          downloads$[payload.url].assign({
+            phase: 'error',
+            errorMsg: 'Download failed',
+          })
+        } else {
+          downloads$[payload.url].assign({
+            savedPath: payload.filePath || '',
+            phase: 'done',
+          })
+        }
+      }
+    })
+  }, [])
 
   const toggleShorts = useCallback(
     (hide?: boolean) => {
@@ -190,6 +215,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       case 'download':
         if (isWeb) {
           ui$.toolsModalUrl.set(data.url)
+          ui$.toolsModalOpen.set(true)
         }
         break
       case 'keyup':

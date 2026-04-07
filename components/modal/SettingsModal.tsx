@@ -263,7 +263,6 @@ export const SettingsModal = () => {
                 description={t('settings.preferencesHint')}
                 icon="toggle-on"
                 onPress={() => pushPage('preferences')}
-                isLast={isWeb}
               />
               <SettingsNavRow
                 title={t('settings.appearance')}

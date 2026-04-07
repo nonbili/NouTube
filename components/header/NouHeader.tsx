@@ -22,6 +22,8 @@ import { NouText } from '../NouText'
 import { formatPlaybackRate } from '@/lib/playback-rate'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 
+import { downloads$ } from '@/states/downloads'
+
 export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const autoHideHeader = useValue(settings$.autoHideHeader)
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
@@ -35,6 +37,9 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const starred = allStarred.has(normalizeUrl(uiState.pageUrl))
   const bookmark = useValue(bookmarks$.getBookmarkByUrl(normalizeUrl(uiState.pageUrl)))
   const queueSize = useValue(queue$.size)
+  const downloads = useValue(downloads$)
+  const hasDownloads = Object.keys(downloads).length > 0
+  const isDownloading = Object.values(downloads).some((d) => d.phase === 'downloading')
   const sleepTimerSupported = hasSleepTimerNativeSupport()
   const { active: sleepTimerActive } = useSleepTimerStatus(sleepTimerSupported)
   const [canGoBack, setCanGoBack] = useState(false)
@@ -145,6 +150,14 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
         {nIf(
           !isYTMusic && queueSize > 0,
           <MaterialButton name="playlist-play" onPress={() => ui$.queueModalOpen.set(!ui$.queueModalOpen.get())} />,
+        )}
+        {nIf(
+          isWeb && hasDownloads,
+          <MaterialButton
+            name="download"
+            color={isDownloading ? '#60a5fa' : headerControlColor}
+            onPress={() => ui$.toolsModalOpen.set(true)}
+          />,
         )}
         {nIf(
           pageType?.canStar,

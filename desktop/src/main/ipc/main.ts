@@ -75,16 +75,16 @@ const interfaces = {
         const destMatch = text.match(/\[(?:download|ExtractAudio)\] Destination: (.+)/)
         if (mergerMatch) filePath = mergerMatch[1].trim()
         else if (destMatch) filePath = destMatch[1].trim()
-        uiClient.downloadProgress({ line: text.trim(), done: false })
+        uiClient.downloadProgress({ url, line: text.trim(), done: false })
       }
       proc.stdout.on('data', onData)
       proc.stderr.on('data', onData)
       proc.on('close', (code) => {
         if (code === 0) {
-          uiClient.downloadProgress({ line: '', done: true, filePath })
+          uiClient.downloadProgress({ url, line: '', done: true, filePath })
           resolve()
         } else {
-          uiClient.downloadProgress({ line: '', done: true, error: true })
+          uiClient.downloadProgress({ url, line: '', done: true, error: true })
           reject(new Error(`yt-dlp exited with code ${code}`))
         }
       })

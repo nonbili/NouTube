@@ -8,10 +8,11 @@ import { NouText } from '../NouText'
 import { NouButton } from '../button/NouButton'
 import { mainClient } from '@/desktop/src/renderer/ipc/main'
 import { onDownloadProgress } from '@/desktop/src/renderer/lib/download-progress'
+import { downloads$ } from '@/states/downloads'
 import { t } from 'i18next'
 import type { FormatOption } from '@/desktop/src/main/ipc/main'
 
-type Phase = 'idle' | 'loading' | 'choosing' | 'downloading' | 'done' | 'error'
+type Phase = 'idle' | 'loading' | 'choosing' | 'error'
 
 export const ToolsModal = () => {
   const toolsModalOpen = useValue(ui$.toolsModalOpen)
@@ -22,9 +23,8 @@ export const ToolsModal = () => {
   const [resolvedDownloadsPath, setResolvedDownloadsPath] = useState('')
   const [phase, setPhase] = useState<Phase>('idle')
   const [formats, setFormats] = useState<FormatOption[]>([])
-  const [progressLine, setProgressLine] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
-  const [savedPath, setSavedPath] = useState('')
+  const activeDownloads = useValue(downloads$)
   const loadingUrlRef = useRef('')
   const isDark = useColorScheme() !== 'light'
   const effectiveDownloadPath = downloadPath || resolvedDownloadsPath
@@ -43,10 +43,7 @@ export const ToolsModal = () => {
       setUrl('')
       setPhase('idle')
       setFormats([])
-      setProgressLine('')
       setErrorMsg('')
-      setSavedPath('')
-      onDownloadProgress(null)
       return
     }
     if (toolsModalUrl) {
@@ -75,42 +72,45 @@ export const ToolsModal = () => {
   }
 
   const handleDownload = (formatId: string) => {
-    setPhase('downloading')
-    setProgressLine('')
-
-    onDownloadProgress(({ line, done, error, filePath }) => {
-      if (line) setProgressLine(line)
-      if (done) {
-        onDownloadProgress(null)
-        if (error) {
-          setPhase('error')
-          setErrorMsg('Download failed')
-        } else {
-          setSavedPath(filePath || '')
-          setPhase('done')
-        }
-      }
+    const targetUrl = toolsModalUrl || url
+    downloads$[targetUrl].set({
+      url: targetUrl,
+      phase: 'downloading',
+      progressLine: '',
+      errorMsg: '',
+      savedPath: '',
     })
+    setPhase('idle')
+    setUrl('')
+    ui$.toolsModalUrl.set('')
 
-    mainClient.downloadVideo(toolsModalUrl || url, formatId, effectiveDownloadPath).catch(() => {
+    mainClient.downloadVideo(targetUrl, formatId, effectiveDownloadPath).catch(() => {
       // handled via downloadProgress done+error
     })
   }
 
   if (!isOpen) return null
 
+  const activeDownloadUrls = Object.keys(activeDownloads)
+
   return (
     <BaseModal onClose={onClose}>
       <View className="p-5 gap-4">
-        <NouText className="text-lg font-semibold">
-          {phase === 'done'
-            ? 'Download complete'
-            : phase === 'downloading'
-              ? 'Downloading...'
-              : t('modals.downloadVideo', 'Download video')}
-        </NouText>
+        <View className="flex-row items-center justify-between">
+          <NouText className="text-lg font-semibold">{t('modals.downloadVideo', 'Download video')}</NouText>
+          {activeDownloadUrls.length > 0 && (
+            <Pressable
+              onPress={() => {
+                downloads$.set({})
+              }}
+              className="px-2 py-1 rounded-md active:bg-zinc-200 dark:active:bg-zinc-800"
+            >
+              <NouText className="text-xs text-zinc-500 font-medium">{t('buttons.clearAll')}</NouText>
+            </Pressable>
+          )}
+        </View>
 
-        {(phase === 'done' || phase === 'downloading') ? null : <View className="gap-1">
+        <View className="gap-1">
           <NouText className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">URL</NouText>
           <TextInput
             className="rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-2 text-sm text-zinc-900 dark:text-zinc-100"
@@ -123,11 +123,11 @@ export const ToolsModal = () => {
             placeholder="https://www.youtube.com/watch?v=..."
             placeholderTextColor={isDark ? '#71717a' : '#a1a1aa'}
           />
-        </View>}
+        </View>
 
         {(phase === 'idle' || phase === 'choosing') && (
           <View className="gap-1">
-            <NouText className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Save to</NouText>
+            <NouText className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">{t('settings.transfer')}</NouText>
             <Pressable
               className="flex-row items-center gap-2 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-2 active:bg-zinc-100 dark:active:bg-zinc-800"
               onPress={async () => {
@@ -136,9 +136,9 @@ export const ToolsModal = () => {
               }}
             >
               <NouText className="flex-1 text-sm text-zinc-700 dark:text-zinc-300" numberOfLines={1}>
-                {effectiveDownloadPath || t('modals.downloadsFolder', 'Downloads folder')}
+                {effectiveDownloadPath || t('modals.downloadsFolder')}
               </NouText>
-              <NouText className="text-xs text-zinc-400 dark:text-zinc-500">Browse</NouText>
+              <NouText className="text-xs text-zinc-400 dark:text-zinc-500">{t('buttons.browse')}</NouText>
             </Pressable>
           </View>
         )}
@@ -146,7 +146,7 @@ export const ToolsModal = () => {
         {phase === 'idle' && (
           <View className="flex-row justify-end">
             <NouButton disabled={!url.trim()} onPress={() => loadFormats(url.trim())}>
-              Next
+              {t('buttons.next')}
             </NouButton>
           </View>
         )}
@@ -156,47 +156,90 @@ export const ToolsModal = () => {
         {phase === 'choosing' && (
           <View className="gap-3">
             {formats.map((opt) => (
-              <View key={opt.formatId} className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 p-4 gap-3">
+              <View
+                key={opt.formatId}
+                className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 p-4 gap-3"
+              >
                 <View className="gap-1">
                   <NouText className="font-semibold">{opt.label}</NouText>
                   <NouText className="text-sm text-zinc-500 dark:text-zinc-400">{opt.description}</NouText>
                 </View>
-                <NouButton onPress={() => handleDownload(opt.formatId)}>Download</NouButton>
+                <NouButton onPress={() => handleDownload(opt.formatId)}>{t('buttons.download')}</NouButton>
               </View>
             ))}
           </View>
         )}
 
-        {phase === 'downloading' && (
-          <NouText className="text-sm text-zinc-500 dark:text-zinc-400 font-mono" numberOfLines={2}>
-            {progressLine || ' '}
-          </NouText>
-        )}
-
-        {phase === 'done' && (
-          <View className="gap-4">
-            <NouText className="text-sm text-zinc-500 dark:text-zinc-400 font-mono" numberOfLines={3}>
-              {savedPath || 'Saved to Downloads folder'}
-            </NouText>
-            <View className="flex-row justify-end gap-3">
-              {!!savedPath && (
-                <NouButton variant="soft" onPress={() => mainClient.openFolder(savedPath)}>
-                  Show in folder
-                </NouButton>
-              )}
-              <NouButton onPress={onClose}>Done</NouButton>
-            </View>
+        {phase === 'error' && (
+          <View className="gap-3">
+            <NouText className="text-sm text-red-500 dark:text-red-400">{errorMsg || t('modals.failedToLoadFormats')}</NouText>
           </View>
         )}
 
-        {phase === 'error' && (
-          <View className="gap-3">
-            <NouText className="text-sm text-red-500 dark:text-red-400">{errorMsg}</NouText>
-            <View className="flex-row justify-end">
-              <NouButton variant="outline" onPress={onClose}>
-                Close
-              </NouButton>
-            </View>
+        {activeDownloadUrls.length > 0 && (
+          <View className="mt-4 gap-4">
+            <NouText className="text-sm font-bold uppercase tracking-widest text-zinc-500">{t('modals.activeDownloads')}</NouText>
+            {activeDownloadUrls.map((dUrl) => {
+              const d = activeDownloads[dUrl]
+              return (
+                <View
+                  key={dUrl}
+                  className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 p-4 gap-2"
+                >
+                  <NouText className="text-xs text-zinc-500" numberOfLines={1}>
+                    {dUrl}
+                  </NouText>
+                  {d.phase === 'downloading' && (
+                    <NouText className="text-sm text-zinc-500 dark:text-zinc-400 font-mono" numberOfLines={2}>
+                      {d.progressLine || t('modals.starting')}
+                    </NouText>
+                  )}
+                  {d.phase === 'done' && (
+                    <View className="gap-2">
+                      <NouText className="text-sm text-green-600 dark:text-green-400 font-medium">
+                        {t('modals.downloadComplete')}
+                      </NouText>
+                      <NouText className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono" numberOfLines={2}>
+                        {d.savedPath}
+                      </NouText>
+                      <View className="flex-row justify-end gap-3 mt-1">
+                        {!!d.savedPath && (
+                          <Pressable
+                            onPress={() => mainClient.openFolder(d.savedPath)}
+                            className="bg-zinc-200 dark:bg-zinc-800 px-3 py-1.5 rounded-lg active:bg-zinc-300 dark:active:bg-zinc-700"
+                          >
+                            <NouText className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">{t('buttons.show')}</NouText>
+                          </Pressable>
+                        )}
+                        <Pressable
+                          onPress={() => {
+                            downloads$[dUrl].delete()
+                          }}
+                          className="bg-zinc-200 dark:bg-zinc-800 px-3 py-1.5 rounded-lg active:bg-zinc-300 dark:active:bg-zinc-700"
+                        >
+                          <NouText className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">{t('buttons.clear')}</NouText>
+                        </Pressable>
+                      </View>
+                    </View>
+                  )}
+                  {d.phase === 'error' && (
+                    <View className="gap-2">
+                      <NouText className="text-sm text-red-500 dark:text-red-400">{d.errorMsg || t('modals.downloadFailed')}</NouText>
+                      <View className="flex-row justify-end mt-1">
+                        <Pressable
+                          onPress={() => {
+                            downloads$[dUrl].delete()
+                          }}
+                          className="bg-zinc-200 dark:bg-zinc-800 px-3 py-1.5 rounded-lg active:bg-zinc-300 dark:active:bg-zinc-700"
+                        >
+                          <NouText className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">{t('buttons.clear')}</NouText>
+                        </Pressable>
+                      </View>
+                    </View>
+                  )}
+                </View>
+              )
+            })}
           </View>
         )}
       </View>

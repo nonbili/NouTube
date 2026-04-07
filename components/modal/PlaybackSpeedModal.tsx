@@ -8,6 +8,8 @@ import { clsx } from '@/lib/utils'
 import { formatPlaybackRate, playbackRates } from '@/lib/playback-rate'
 import { NouButton } from '../button/NouButton'
 
+import { t } from 'i18next'
+
 export const PlaybackSpeedModal = () => {
   const playbackSpeedModalOpen = useValue(ui$.playbackSpeedModalOpen)
   const currentRate = useValue(settings$.playbackRate)
@@ -25,7 +27,7 @@ export const PlaybackSpeedModal = () => {
   return (
     <BaseCenterModal onClose={() => ui$.playbackSpeedModalOpen.set(false)} containerClassName="w-[24rem] max-w-[88vw]">
       <View className="p-6">
-        <NouText className="text-lg font-semibold text-center">Playback speed</NouText>
+        <NouText className="text-lg font-semibold text-center">{t('modals.playbackSpeed')}</NouText>
         <View className="mt-6 flex-row flex-wrap justify-center gap-x-3 gap-y-4">
           {playbackRates.map((rate) => {
             const active = currentRate === rate
