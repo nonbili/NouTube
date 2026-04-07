@@ -13,6 +13,7 @@ import { NouMenu } from '../menu/NouMenu'
 import { isIos, isWeb } from '@/lib/utils'
 import { t } from 'i18next'
 import { RetryImage } from '../image/RetryImage'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 
 dayjs.extend(relativeTime)
 
@@ -53,12 +54,19 @@ export const FeedItem: React.FC<{
             {channel.title}
           </NouText>
         </Pressable>
-        <NouText className="ml-2 text-gray-400 text-sm whitespace-nowrap">
+        <NouText className="ml-2 text-sm whitespace-nowrap text-zinc-500 dark:text-gray-400">
           {dayjs(bookmark.created_at).fromNow()}
         </NouText>
         <NouMenu
           trigger={isWeb ? <MaterialButton name="more-vert" size={20} /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
-          items={[{ label: t('menus.share'), handler: () => share(bookmark.url) }]}
+          items={[
+            {
+              label: t('menus.share'),
+              icon: <MaterialIcons name="share" size={18} color="#475569" />,
+              systemImage: 'square.and.arrow.up',
+              handler: () => share(bookmark.url),
+            },
+          ]}
         />
       </View>
       <View className="flex-row mb-4 overflow-hidden px-2">

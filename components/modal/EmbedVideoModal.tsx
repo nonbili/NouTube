@@ -1,15 +1,11 @@
-import { Modal, Text, Pressable, View, Switch, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native'
+import { View, TouchableOpacity } from 'react-native'
 import { NouText } from '../NouText'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { NouTubeView } from '@/modules/nou-tube-view'
 import { resolveUserAgent } from '@/lib/useragent'
 import { settings$ } from '@/states/settings'
 import { useValue } from '@legendapp/state/react'
 import { isWeb } from '@/lib/utils'
-
-const repo = 'https://github.com/nonbili/NouTube'
-const tabs = ['Settings', 'About']
-const themes = [null, 'dark', 'light'] as const
 
 export const EmbedVideoModal: React.FC<{ videoId: string; scriptOnStart: string; onClose: () => void }> = ({
   videoId,
@@ -22,7 +18,7 @@ export const EmbedVideoModal: React.FC<{ videoId: string; scriptOnStart: string;
   const ref = useRef<any>(null)
   useEffect(() => {
     ref.current?.loadUrl(url)
-  }, [ref])
+  }, [ref, url])
 
   const onLoad = () => {
     ref.current?.executeJavaScript('NouTube.playDefaultAudio()')
@@ -31,7 +27,7 @@ export const EmbedVideoModal: React.FC<{ videoId: string; scriptOnStart: string;
 
   return (
     <View className="absolute inset-0">
-      <View className="flex-1 bg-zinc-800">
+      <View className="flex-1 bg-zinc-100 dark:bg-zinc-800">
         <NouTubeView
           ref={ref}
           style={{ flex: 1 }}
@@ -42,7 +38,7 @@ export const EmbedVideoModal: React.FC<{ videoId: string; scriptOnStart: string;
         />
         <View className="items-center my-4">
           <TouchableOpacity onPress={onClose}>
-            <NouText className="py-2 px-6 text-center bg-gray-700 rounded-full">Close</NouText>
+            <NouText className="rounded-full bg-zinc-200 px-6 py-2 text-center dark:bg-gray-700">Close</NouText>
           </TouchableOpacity>
         </View>
       </View>

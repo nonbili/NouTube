@@ -1,12 +1,10 @@
-import { View, Text, Pressable, ScrollView } from 'react-native'
+import { View, Pressable, useColorScheme } from 'react-native'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import { observer, useValue, useObservable } from '@legendapp/state/react'
-import { Folder, folders$, removeFolder } from '@/states/folders'
-import { ui$, updateUrl } from '@/states/ui'
-import { Button, ContextMenu } from '@expo/ui/jetpack-compose'
+import { Folder, removeFolder } from '@/states/folders'
+import { ui$ } from '@/states/ui'
 import { colors } from '@/lib/colors'
 import { NouText } from '../NouText'
-import { clsx, nIf, isWeb, isIos } from '@/lib/utils'
+import { nIf, isWeb, isIos } from '@/lib/utils'
 import { NouMenu } from '../menu/NouMenu'
 import { MaterialButton } from '../button/IconButtons'
 import { t } from 'i18next'
@@ -16,10 +14,13 @@ export const FolderItem: React.FC<{ folder: Folder; readOnly?: boolean; onPress:
   readOnly,
   onPress,
 }) => {
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
+
   return (
     <View className="flex-row overflow-hidden">
       <Pressable className="flex-1 flex-row items-center gap-2 ml-3 py-2" onPress={onPress}>
-        <MaterialIcons name="folder-open" color={colors.icon} size={20} />
+        <MaterialIcons name="folder-open" color={isDark ? colors.icon : colors.iconLight} size={20} />
         <NouText className="leading-6" numberOfLines={4} ellipsizeMode="tail">
           {folder.name}
         </NouText>
@@ -38,8 +39,18 @@ export const FolderItem: React.FC<{ folder: Folder; readOnly?: boolean; onPress:
               )
             }
             items={[
-              { label: t('menus.edit'), handler: () => ui$.folderModalFolder.set(folder) },
-              { label: t('menus.remove'), handler: () => removeFolder(folder) },
+              {
+                label: t('menus.edit'),
+                icon: <MaterialIcons name="edit" size={18} color={isDark ? '#d4d4d8' : '#475569'} />,
+                systemImage: 'pencil',
+                handler: () => ui$.folderModalFolder.set(folder),
+              },
+              {
+                label: t('menus.remove'),
+                icon: <MaterialIcons name="delete-outline" size={18} color={isDark ? '#d4d4d8' : '#475569'} />,
+                systemImage: 'trash',
+                handler: () => removeFolder(folder),
+              },
             ]}
           />
         </View>,

@@ -66,7 +66,7 @@ export const LibraryModal = () => {
   if (!libraryModalOpen) return null
 
   return (
-    <BaseModal onClose={() => ui$.libraryModalOpen.set(false)}>
+    <BaseModal onClose={() => ui$.libraryModalOpen.set(false)} useNativeModal={false}>
       <View className={clsx('px-2 flex-row justify-between items-center mb-4', isWeb && 'mt-4')}>
         {isWeb ? <NouText /> : null}
         <Segmented options={tabs.map((x) => x.label)} selectedIndex={tabIndex} onChange={setTabIndex} />

@@ -1,4 +1,4 @@
-import { View, Pressable } from 'react-native'
+import { View } from 'react-native'
 import { BaseCenterModal } from './BaseCenterModal'
 import { ui$ } from '@/states/ui'
 import { settings$ } from '@/states/settings'
@@ -6,6 +6,7 @@ import { NouText } from '../NouText'
 import { useValue } from '@legendapp/state/react'
 import { clsx } from '@/lib/utils'
 import { formatPlaybackRate, playbackRates } from '@/lib/playback-rate'
+import { NouButton } from '../button/NouButton'
 
 export const PlaybackSpeedModal = () => {
   const playbackSpeedModalOpen = useValue(ui$.playbackSpeedModalOpen)
@@ -25,22 +26,25 @@ export const PlaybackSpeedModal = () => {
     <BaseCenterModal onClose={() => ui$.playbackSpeedModalOpen.set(false)} containerClassName="w-[24rem] max-w-[88vw]">
       <View className="p-6">
         <NouText className="text-lg font-semibold text-center">Playback speed</NouText>
-        <View className="mt-5 flex-row flex-wrap justify-center gap-3">
+        <View className="mt-6 flex-row flex-wrap justify-center gap-x-3 gap-y-4">
           {playbackRates.map((rate) => {
             const active = currentRate === rate
             return (
-              <Pressable
+              <NouButton
                 key={rate}
                 onPress={() => onSelect(rate)}
+                variant={active ? 'solid' : 'outline'}
+                size="1"
                 className={clsx(
-                  'min-w-[72px] rounded-xl border px-4 py-3 items-center',
-                  active ? 'border-blue-500 bg-blue-600' : 'border-zinc-800 bg-zinc-900',
+                  'min-w-[72px] rounded-xl items-center justify-center',
+                  active
+                    ? 'bg-indigo-600 dark:bg-indigo-500'
+                    : 'border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900',
                 )}
+                textClassName={active ? 'text-white' : 'text-zinc-800 dark:text-zinc-200'}
               >
-                <NouText className={clsx('font-medium', active ? 'text-white' : 'text-zinc-200')}>
-                  {formatPlaybackRate(rate)}
-                </NouText>
-              </Pressable>
+                {formatPlaybackRate(rate)}
+              </NouButton>
             )
           })}
         </View>

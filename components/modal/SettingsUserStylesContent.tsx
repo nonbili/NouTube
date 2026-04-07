@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Switch, TextInput, View } from 'react-native'
+import { Alert, Platform, Pressable, ScrollView, Switch, TextInput, View, useColorScheme } from 'react-native'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import * as Clipboard from 'expo-clipboard'
 import { getDocumentAsync } from 'expo-document-picker'
@@ -16,12 +16,16 @@ import {
 } from '@/lib/user-styles'
 import { userStyles$ } from '@/states/user-styles'
 import { showToast } from '@/lib/toast'
+import { NouButton } from '../button/NouButton'
+import { MaterialButton } from '../button/IconButtons'
 
-const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-800 bg-zinc-900/70'
-const subheaderCls = 'mb-3 text-xs uppercase tracking-[0.18em] text-gray-500'
+const surfaceCls =
+  'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
+const subheaderCls = 'mb-3 text-xs uppercase tracking-[0.18em] text-zinc-600 dark:text-gray-500'
 const rowCls = 'px-4 py-4'
-const rowBorderCls = 'border-b border-zinc-800'
-const textInputCls = 'rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-white'
+const rowBorderCls = 'border-b border-zinc-300 dark:border-zinc-800'
+const textInputCls =
+  'rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 px-4 py-4 text-zinc-900 dark:text-white'
 
 type DraftState = {
   id: string | null
@@ -81,6 +85,8 @@ export const SettingsUserStylesContent = () => {
   const builtins = useValue(userStyles$.builtins)
   const [draft, setDraft] = useState<DraftState | null>(null)
   const [previewBuiltinId, setPreviewBuiltinId] = useState<BuiltinUserStyleId | null>(null)
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
 
   const previewDefinition = previewBuiltinId ? builtinUserStyleDefinitionById[previewBuiltinId] : null
   const hasStyles = customStyles.length > 0
@@ -151,7 +157,7 @@ export const SettingsUserStylesContent = () => {
               onPress={() => setPreviewBuiltinId(definition.id)}
               className={clsx(
                 rowCls,
-                'flex-row items-center justify-between active:bg-zinc-800/50',
+                'flex-row items-center justify-between active:bg-zinc-200/50 dark:active:bg-zinc-800/50',
                 index !== sortedBuiltins.length - 1 && rowBorderCls,
               )}
             >
@@ -193,10 +199,10 @@ export const SettingsUserStylesContent = () => {
         <View className={surfaceCls}>
           {!hasStyles ? (
             <View className="items-center justify-center px-6 py-10">
-              <View className="h-12 w-12 items-center justify-center rounded-2xl bg-zinc-950">
+              <View className="h-12 w-12 items-center justify-center rounded-2xl bg-zinc-200 dark:bg-zinc-950">
                 <MaterialIcons name="brush" color="#3f3f46" size={24} />
               </View>
-              <NouText className="mt-4 text-center text-sm leading-6 text-zinc-500">
+              <NouText className="mt-4 text-center text-sm leading-6 text-zinc-600 dark:text-zinc-500">
                 {t('settings.userStyles.custom.empty')}
               </NouText>
             </View>
@@ -207,7 +213,7 @@ export const SettingsUserStylesContent = () => {
               onPress={() => setDraft(createDraft(style))}
               className={clsx(
                 rowCls,
-                'flex-row items-center justify-between active:bg-zinc-800/50',
+                'flex-row items-center justify-between active:bg-zinc-200/50 dark:active:bg-zinc-800/50',
                 index !== customStyles.length - 1 && rowBorderCls,
               )}
             >
@@ -249,7 +255,7 @@ export const SettingsUserStylesContent = () => {
               </View>
 
               <View className="mt-8">
-                <NouText className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+                <NouText className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-600 dark:text-zinc-500">
                   {t('settings.userStyles.nameLabel')}
                 </NouText>
                 <TextInput
@@ -264,10 +270,16 @@ export const SettingsUserStylesContent = () => {
               </View>
 
               <View className="mt-6">
-                <NouText className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-500">CSS</NouText>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="rounded-2xl border border-zinc-800 bg-zinc-950">
+                <NouText className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-600 dark:text-zinc-500">
+                  CSS
+                </NouText>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  className="rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950"
+                >
                   <TextInput
-                    className="min-h-[300px] p-4 text-xs text-white"
+                    className="min-h-[300px] p-4 text-xs text-zinc-900 dark:text-white"
                     autoCapitalize="none"
                     autoCorrect={false}
                     multiline
@@ -286,14 +298,15 @@ export const SettingsUserStylesContent = () => {
 
               <View className="mt-10 flex-row items-center justify-between gap-4">
                 <View className="flex-row items-center gap-2">
-                  <Pressable onPress={closeDraft} className="rounded-full border border-zinc-800 px-5 py-2.5 active:bg-zinc-900">
-                    <NouText className="text-sm font-semibold text-zinc-400">{t('buttons.cancel')}</NouText>
-                  </Pressable>
-                  <Pressable onPress={onImportCss} className="h-10 w-10 items-center justify-center rounded-full bg-zinc-900 active:bg-zinc-800">
-                    <MaterialIcons name="file-upload" color="#a1a1aa" size={20} />
-                  </Pressable>
+                  <NouButton variant="outline" size="1" onPress={closeDraft}>
+                    {t('buttons.cancel')}
+                  </NouButton>
+                  <MaterialButton name="file-upload" size={20} onPress={onImportCss} />
                   {draft.id ? (
-                    <Pressable
+                    <MaterialButton
+                      name="delete-outline"
+                      size={20}
+                      color="#ef4444"
                       onPress={() => {
                         Alert.alert(t('menus.remove'), t('settings.userStyles.deleteConfirm'), [
                           { text: t('buttons.cancel'), style: 'cancel' },
@@ -307,15 +320,10 @@ export const SettingsUserStylesContent = () => {
                           },
                         ])
                       }}
-                      className="h-10 w-10 items-center justify-center rounded-full bg-zinc-900 active:bg-red-900/30"
-                    >
-                      <MaterialIcons name="delete-outline" color="#ef4444" size={20} />
-                    </Pressable>
+                    />
                   ) : null}
                 </View>
-                <Pressable onPress={onSave} className="rounded-full bg-indigo-600 px-8 py-2.5 active:bg-indigo-700">
-                  <NouText className="text-sm font-bold text-white">{t('buttons.save')}</NouText>
-                </Pressable>
+                <NouButton onPress={onSave}>{t('buttons.save')}</NouButton>
               </View>
             </View>
           </ScrollView>
@@ -329,7 +337,7 @@ export const SettingsUserStylesContent = () => {
         >
           <View className="p-6">
             <View className="flex-row items-center gap-3">
-              <View className="h-10 w-10 items-center justify-center rounded-xl bg-zinc-950">
+              <View className="h-10 w-10 items-center justify-center rounded-xl bg-zinc-200 dark:bg-zinc-950">
                 <MaterialIcons name="code" color="#818cf8" size={20} />
               </View>
               <View className="flex-1">
@@ -337,12 +345,12 @@ export const SettingsUserStylesContent = () => {
               </View>
             </View>
 
-            <View className="mt-6 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
+            <View className="mt-6 overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950">
               <ScrollView className="max-h-[400px]" showsVerticalScrollIndicator={false}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <View className="items-start p-4">
                     <NouText
-                      className="font-mono text-[11px] leading-5 text-indigo-300"
+                      className="font-mono text-[11px] leading-5 text-indigo-700 dark:text-indigo-300"
                       style={{ fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' }}
                     >
                       {cleanCss(previewDefinition.css)}
@@ -353,19 +361,13 @@ export const SettingsUserStylesContent = () => {
             </View>
 
             <View className="mt-6 flex-row items-center justify-end gap-3">
-              <Pressable
-                onPress={() => setPreviewBuiltinId(null)}
-                className="rounded-full border border-zinc-800 px-6 py-2.5 active:bg-zinc-900"
-              >
-                <NouText className="text-sm font-semibold text-zinc-400">{t('buttons.cancel')}</NouText>
-              </Pressable>
-              <Pressable
-                onPress={onCopyBuiltinCss}
-                className="flex-row items-center gap-2 rounded-full bg-indigo-600 px-6 py-2.5 active:bg-indigo-700"
-              >
+              <NouButton variant="outline" size="1" onPress={() => setPreviewBuiltinId(null)}>
+                {t('buttons.cancel')}
+              </NouButton>
+              <NouButton onPress={onCopyBuiltinCss}>
                 <MaterialIcons name="content-copy" color="white" size={16} />
-                <NouText className="text-sm font-bold text-white">{t('settings.userStyles.copyCss')}</NouText>
-              </Pressable>
+                {t('settings.userStyles.copyCss')}
+              </NouButton>
             </View>
           </View>
         </BaseCenterModal>

@@ -1,4 +1,4 @@
-import { Pressable, View } from 'react-native'
+import { Pressable, View, useColorScheme } from 'react-native'
 import { Image } from 'expo-image'
 import { NouText } from '../NouText'
 import { memo } from 'react'
@@ -24,10 +24,13 @@ export const FeedManageItem: React.FC<{
   item: FeedManagementItem
   onPress: () => void
 }> = memo(({ item, onPress }) => {
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
+
   return (
     <Pressable
       onPress={onPress}
-      className="mx-3 my-1.5 rounded-2xl border border-zinc-800 bg-zinc-900/80 px-3 py-3 active:bg-zinc-800"
+      className="mx-3 my-1.5 rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/80 px-3 py-3 active:bg-zinc-200 dark:active:bg-zinc-800"
     >
       <View className="flex-row items-start gap-3">
         <Image
@@ -44,18 +47,18 @@ export const FeedManageItem: React.FC<{
             <MaterialIcons name="chevron-right" color="#71717a" size={18} />
           </View>
           <View className="mt-2 flex-row flex-wrap items-center gap-2">
-            <View className="flex-row items-center gap-1 rounded-full bg-zinc-800 px-3 py-1">
-              <MaterialIcons name="folder-open" color="#d4d4d8" size={12} />
-              <NouText className="text-xs text-zinc-300">{item.folder?.name || t('modals.ungrouped')}</NouText>
+            <View className="flex-row items-center gap-1 rounded-full bg-zinc-200 dark:bg-zinc-800 px-3 py-1">
+              <MaterialIcons name="folder-open" color={isDark ? '#d4d4d8' : '#475569'} size={12} />
+              <NouText className="text-xs text-zinc-700 dark:text-zinc-300">{item.folder?.name || t('modals.ungrouped')}</NouText>
             </View>
-            <View className="flex-row items-center gap-1 rounded-full bg-zinc-950 px-3 py-1">
-              <MaterialIcons name="trending-up" color="#d4d4d8" size={12} />
-              <NouText className="text-xs text-zinc-300">
+            <View className="flex-row items-center gap-1 rounded-full bg-zinc-100 dark:bg-zinc-950 px-3 py-1">
+              <MaterialIcons name="trending-up" color={isDark ? '#d4d4d8' : '#475569'} size={12} />
+              <NouText className="text-xs text-zinc-700 dark:text-zinc-300">
                 {t('feeds.videosPerDay', { value: item.videosPerDay30d.toFixed(1) })}
               </NouText>
             </View>
           </View>
-          <NouText className="mt-2 text-xs text-zinc-500" numberOfLines={1}>
+          <NouText className="mt-2 text-xs text-zinc-500 dark:text-zinc-500" numberOfLines={1}>
             {t('feeds.lastVideoLabel')}: {formatTimestamp(item.lastVideoAt)}
           </NouText>
         </View>

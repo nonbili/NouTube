@@ -138,10 +138,10 @@ export const FeedEditorSheet: React.FC<{
   const content = (
     <Animated.View
       className={clsx(
-        'bg-zinc-950',
+        'bg-zinc-100 dark:bg-zinc-950',
         isNarrowNative
           ? 'max-h-[92vh] rounded-t-[28px] px-5 pb-6 pt-4'
-          : 'w-[32rem] max-w-[92vw] rounded-[28px] border border-zinc-700 bg-zinc-900 px-6 pb-6 pt-6',
+          : 'w-[32rem] max-w-[92vw] rounded-[28px] border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 px-6 pb-6 pt-6',
       )}
       style={
         isNarrowNative
@@ -157,18 +157,18 @@ export const FeedEditorSheet: React.FC<{
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 8 }}>
         {isNarrowNative ? (
           <View className="mb-5 items-center py-2" {...panResponder.panHandlers}>
-            <View className="h-1.5 w-14 rounded-full bg-zinc-700" />
+            <View className="h-1.5 w-14 rounded-full bg-zinc-300 dark:bg-zinc-700" />
           </View>
         ) : null}
         <NouText className="text-xl font-semibold">{t('feeds.editFeed')}</NouText>
-        <NouText className={clsx('text-sm text-zinc-400', isNarrowNative ? 'mt-1' : 'mt-2')}>
+        <NouText className={clsx('text-sm text-zinc-600 dark:text-zinc-400', isNarrowNative ? 'mt-1' : 'mt-2')}>
           {bookmark.url}
         </NouText>
 
         <View className="mt-6">
-          <NouText className="mb-2 font-semibold text-zinc-300">{t('modals.title')}</NouText>
+          <NouText className="mb-2 font-semibold text-zinc-700 dark:text-zinc-300">{t('modals.title')}</NouText>
           <TextInput
-            className="rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white"
+            className="rounded-2xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 px-4 py-3 text-zinc-900 dark:text-white"
             value={title}
             onChangeText={setTitle}
             placeholder={t('modals.title')}
@@ -177,22 +177,22 @@ export const FeedEditorSheet: React.FC<{
         </View>
 
         <View className="mt-5">
-          <NouText className="mb-2 font-semibold text-zinc-300">{t('modals.folder')}</NouText>
+          <NouText className="mb-2 font-semibold text-zinc-700 dark:text-zinc-300">{t('modals.folder')}</NouText>
           <Pressable
             onPress={() => setFolderPickerShown((value) => !value)}
-            className="rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-3"
+            className="rounded-2xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 px-4 py-3"
           >
             <NouText>{currentFolder?.name || t('modals.ungrouped')}</NouText>
           </Pressable>
           {folderPickerShown ? (
-            <View className="mt-3 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
+            <View className="mt-3 overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900">
               {folderOptions.map((item, index) => (
                 <Pressable
                   key={item.id}
                   onPress={() => onPickFolder(item.id)}
                   className={clsx(
-                    'px-4 py-3 active:bg-zinc-800',
-                    index < folderOptions.length - 1 && 'border-b border-zinc-800',
+                    'px-4 py-3 active:bg-zinc-200 dark:active:bg-zinc-800',
+                    index < folderOptions.length - 1 && 'border-b border-zinc-300 dark:border-zinc-800',
                   )}
                 >
                   <NouText>{item.name}</NouText>

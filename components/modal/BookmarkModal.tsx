@@ -129,16 +129,16 @@ export const BookmarkModal = () => {
         <NouText className="text-lg font-semibold mb-4">
           {bookmarkModalMode === 'feed' ? t('feeds.editFeed') : t('modals.editBookmark')}
         </NouText>
-        <NouText className="mb-1 font-semibold text-gray-300">{t('modals.title')}</NouText>
+        <NouText className="mb-1 font-semibold text-zinc-700 dark:text-gray-300">{t('modals.title')}</NouText>
         <TextInput
-          className="border border-gray-600 rounded mb-3 text-white p-2 text-sm"
+          className="border border-zinc-300 dark:border-gray-600 bg-white dark:bg-zinc-900 rounded mb-3 text-zinc-900 dark:text-white p-2 text-sm"
           value={title}
           onChangeText={setTitle}
           placeholder="Later"
           placeholderTextColor={gray.gray11}
         />
         <NouText className="text-sm">{draftBookmark.url}</NouText>
-        <NouText className="mt-5 mb-1 font-semibold text-gray-300">{t('modals.folder')}</NouText>
+        <NouText className="mt-5 mb-1 font-semibold text-zinc-700 dark:text-gray-300">{t('modals.folder')}</NouText>
         <View className="flex-row items-center gap-3">
           <NouText className="text-sm">{folder?.name || t('modals.ungrouped')}</NouText>
           <NouButton variant="soft" size="1" onPress={() => setFolderPickerShown(!folderPickerShown)}>
@@ -147,7 +147,7 @@ export const BookmarkModal = () => {
         </View>
         {folderPickerShown ? (
           <FlatList
-            className="border border-gray-600 rounded my-2 max-h-[200px]"
+            className="border border-zinc-300 dark:border-gray-600 bg-zinc-100 dark:bg-zinc-900 rounded my-2 max-h-[200px]"
             data={filteredFolders}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => <FolderItem folder={item} onPress={() => onChangeFolder(item)} readOnly />}

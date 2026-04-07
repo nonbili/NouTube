@@ -1,4 +1,4 @@
-import { BackHandler, Pressable, ScrollView, View, useWindowDimensions } from 'react-native'
+import { BackHandler, Pressable, ScrollView, View, useColorScheme, useWindowDimensions } from 'react-native'
 import { NouText } from '../NouText'
 import { NouLink } from '../link/NouLink'
 import { version } from '../../package.json'
@@ -32,9 +32,9 @@ const donateLinks = [
   { label: 'Liberapay', detail: 'liberapay.com/rnons', url: 'https://liberapay.com/rnons' },
   { label: 'PayPal', detail: 'paypal.me/rnons', url: 'https://paypal.me/rnons' },
 ]
-const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-800 bg-zinc-900/70'
-const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-500'
-const iconWrapCls = 'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-950'
+const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
+const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500'
+const iconWrapCls = 'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-950'
 
 type SettingsPage = 'home' | 'preferences' | 'appearance' | 'styles' | 'tools' | 'transfer' | 'sync' | 'about' | 'changelog'
 
@@ -57,22 +57,27 @@ const SettingsNavRow: React.FC<{
   onPress: () => void
   isLast?: boolean
 }> = ({ title, description, icon, meta, onPress, isLast = false }) => {
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
   return (
     <Pressable
       onPress={onPress}
-      className={clsx('flex-row items-center gap-3 px-4 py-4 active:bg-zinc-800/80', !isLast && 'border-b border-zinc-800')}
+      className={clsx(
+        'flex-row items-center gap-3 px-4 py-4 active:bg-zinc-200/80 dark:active:bg-zinc-800/80',
+        !isLast && 'border-b border-zinc-300 dark:border-zinc-800',
+      )}
     >
       <View className={iconWrapCls}>
-        <MaterialIcons name={icon} color="#d4d4d8" size={18} />
+        <MaterialIcons name={icon} color={isDark ? '#d4d4d8' : '#475569'} size={18} />
       </View>
       <View className="flex-1">
         <View className="flex-row items-center gap-2">
           <NouText className="flex-1 font-medium">{title}</NouText>
-          {meta ? <NouText className="text-xs uppercase tracking-[0.16em] text-zinc-500">{meta}</NouText> : null}
+          {meta ? <NouText className="text-xs uppercase tracking-[0.16em] text-zinc-600 dark:text-zinc-500">{meta}</NouText> : null}
         </View>
-        <NouText className="mt-1 text-sm leading-5 text-zinc-400">{description}</NouText>
+        <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{description}</NouText>
       </View>
-      <MaterialIcons name="chevron-right" color="#71717a" size={20} />
+      <MaterialIcons name="chevron-right" color={isDark ? '#71717a' : '#52525b'} size={20} />
     </Pressable>
   )
 }
@@ -84,17 +89,19 @@ const SettingsExternalRow: React.FC<{
   icon?: keyof typeof MaterialIcons.glyphMap
   isLast?: boolean
 }> = ({ title, detail, href, icon = 'open-in-new', isLast = false }) => {
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
   return (
     <NouLink href={href}>
-      <View className={clsx('flex-row items-center gap-3 px-4 py-4', !isLast && 'border-b border-zinc-800')}>
+      <View className={clsx('flex-row items-center gap-3 px-4 py-4', !isLast && 'border-b border-zinc-300 dark:border-zinc-800')}>
         <View className={iconWrapCls}>
-          <MaterialIcons name={icon} color="#d4d4d8" size={18} />
+          <MaterialIcons name={icon} color={isDark ? '#d4d4d8' : '#475569'} size={18} />
         </View>
         <View className="flex-1">
           <NouText className="font-medium">{title}</NouText>
-          <NouText className="mt-1 text-sm leading-5 text-zinc-400">{detail}</NouText>
+          <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{detail}</NouText>
         </View>
-        <MaterialIcons name="chevron-right" color="#71717a" size={20} />
+        <MaterialIcons name="chevron-right" color={isDark ? '#71717a' : '#52525b'} size={20} />
       </View>
     </NouLink>
   )
@@ -111,6 +118,8 @@ export const SettingsModal = () => {
   const userAgentModalOpen = useValue(ui$.userAgentModalOpen)
   const theme = useValue(settings$.theme)
   const { user, plan } = useValue(auth$)
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
   const { width } = useWindowDimensions()
   const [pageStack, setPageStack] = useState<SettingsPage[]>(['home'])
 
@@ -332,8 +341,8 @@ export const SettingsModal = () => {
 
     return (
       <View className="gap-6">
-        <View className="rounded-[28px] border border-zinc-800 bg-zinc-900/80 px-5 py-5">
-          <NouText className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">NouTube</NouText>
+        <View className="rounded-[28px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/80 px-5 py-5">
+          <NouText className="text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500">NouTube</NouText>
           <NouText className="mt-2 text-xl font-semibold tracking-tight">v{appVersion}</NouText>
         </View>
 
@@ -365,11 +374,11 @@ export const SettingsModal = () => {
   }
 
   const content = (
-    <View className="flex-1 bg-zinc-950">
-      <View className="border-b border-zinc-800 px-3 py-3">
+    <View className="flex-1 bg-zinc-100 dark:bg-zinc-950">
+      <View className="border-b border-zinc-300 dark:border-zinc-800 px-3 py-3">
         <View className="flex-row items-center gap-2">
-          <Pressable onPress={handleBack} className="h-11 w-11 items-center justify-center rounded-full bg-zinc-900">
-            <MaterialIcons name={canGoBack ? 'arrow-back' : 'close'} color="white" size={22} />
+          <Pressable onPress={handleBack} className="h-11 w-11 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-900">
+            <MaterialIcons name={canGoBack ? 'arrow-back' : 'close'} color={isDark ? 'white' : '#111827'} size={22} />
           </Pressable>
           <View className="flex-1">
             <NouText className="text-lg font-semibold">{pageMeta[currentPage].title}</NouText>
@@ -387,7 +396,7 @@ export const SettingsModal = () => {
   )
 
   return isNarrowNative ? (
-    <View className="absolute inset-0 z-10 bg-zinc-950">
+    <View className="absolute inset-0 z-10 bg-zinc-100 dark:bg-zinc-950">
       <SafeAreaView className="flex-1" edges={['top']}>
         {content}
       </SafeAreaView>

@@ -1,4 +1,4 @@
-import { ActivityIndicator, Platform, Pressable, Switch, View } from 'react-native'
+import { ActivityIndicator, Platform, Pressable, Switch, View, useColorScheme } from 'react-native'
 import { useState } from 'react'
 import { clsx, isWeb } from '@/lib/utils'
 import { useValue } from '@legendapp/state/react'
@@ -20,9 +20,9 @@ import { formatSleepTimerRemaining, useSleepTimerStatus } from '@/lib/sleep-time
 import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
 
 const themes = [null, 'dark', 'light'] as const
-const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-800 bg-zinc-900/70'
-const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-500'
-const iconWrapCls = 'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-950'
+const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
+const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500'
+const iconWrapCls = 'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-950'
 
 const SettingsSection: React.FC<React.PropsWithChildren<{ label?: string }>> = ({ label, children }) => {
   return (
@@ -40,13 +40,18 @@ const SettingsToggleRow: React.FC<{
   onPress: () => void
   isLast?: boolean
 }> = ({ label, icon, value, onPress, isLast = false }) => {
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
   return (
     <Pressable
       onPress={onPress}
-      className={clsx('flex-row items-center gap-3 px-4 py-4 active:bg-zinc-800/80', !isLast && 'border-b border-zinc-800')}
+      className={clsx(
+        'flex-row items-center gap-3 px-4 py-4 active:bg-zinc-200/80 dark:active:bg-zinc-800/80',
+        !isLast && 'border-b border-zinc-300 dark:border-zinc-800',
+      )}
     >
       <View className={iconWrapCls}>
-        <MaterialIcons name={icon} color="#d4d4d8" size={18} />
+        <MaterialIcons name={icon} color={isDark ? '#d4d4d8' : '#475569'} size={18} />
       </View>
       <NouText className="flex-1 font-medium">{label}</NouText>
       <Switch
@@ -72,22 +77,27 @@ const SettingsActionRow: React.FC<{
   isLast?: boolean
   loading?: boolean
 }> = ({ label, description, icon, onPress, isLast = false, loading = false }) => {
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
   return (
     <Pressable
       onPress={onPress}
-      className={clsx('flex-row items-center gap-3 px-4 py-4 active:bg-zinc-800/80', !isLast && 'border-b border-zinc-800')}
+      className={clsx(
+        'flex-row items-center gap-3 px-4 py-4 active:bg-zinc-200/80 dark:active:bg-zinc-800/80',
+        !isLast && 'border-b border-zinc-300 dark:border-zinc-800',
+      )}
     >
       <View className={iconWrapCls}>
-        <MaterialIcons name={icon} color="#d4d4d8" size={18} />
+        <MaterialIcons name={icon} color={isDark ? '#d4d4d8' : '#475569'} size={18} />
       </View>
       <View className="flex-1">
         <NouText className="font-medium">{label}</NouText>
-        {description ? <NouText className="mt-1 text-sm leading-5 text-zinc-400">{description}</NouText> : null}
+        {description ? <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{description}</NouText> : null}
       </View>
       {loading ? (
-        <ActivityIndicator color="#d4d4d8" />
+        <ActivityIndicator color={isDark ? '#d4d4d8' : '#475569'} />
       ) : (
-        <MaterialIcons name="chevron-right" color="#71717a" size={20} />
+        <MaterialIcons name="chevron-right" color={isDark ? '#71717a' : '#52525b'} size={20} />
       )}
     </Pressable>
   )
@@ -138,6 +148,8 @@ export const SettingsPreferencesContent = () => {
 export const SettingsAppearanceContent = () => {
   const settings = useValue(settings$)
   const theme = settings.theme
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
 
   if (isWeb) {
     return null
@@ -167,15 +179,15 @@ export const SettingsAppearanceContent = () => {
         <View className="px-4 py-4">
           <View className="flex-row items-start gap-3">
             <View className={iconWrapCls}>
-              <MaterialIcons name="palette" color="#d4d4d8" size={18} />
+              <MaterialIcons name="palette" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
             </View>
             <View className="flex-1">
               <NouText className="font-medium">{t('settings.theme.label')}</NouText>
-              <NouText className="mt-1 text-sm leading-5 text-zinc-400">{t('settings.theme.hint')}</NouText>
+              <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{t('settings.theme.hint')}</NouText>
             </View>
           </View>
         </View>
-        <View className="border-t border-zinc-800 px-4 py-4">
+        <View className="border-t border-zinc-300 dark:border-zinc-800 px-4 py-4">
           <View className="items-end">
             <Segmented
               options={[t('settings.theme.system'), t('settings.theme.dark'), t('settings.theme.light')]}

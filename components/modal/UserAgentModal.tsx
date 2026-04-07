@@ -30,7 +30,7 @@ export const UserAgentModal = () => {
   }, [userAgentModalOpen, userAgent])
 
   const onSubmit = () => {
-    if (mode == 'default') {
+    if (mode === 'default') {
       settings$.userAgent.set('')
       onClose()
       return
@@ -48,7 +48,7 @@ export const UserAgentModal = () => {
     return null
   }
 
-  const checkedCls = 'w-5 h-5 rounded-full border border-white items-center justify-center'
+  const checkedCls = 'w-5 h-5 rounded-full border border-zinc-400 dark:border-white items-center justify-center'
 
   return (
     <BaseCenterModal onClose={onClose}>
@@ -58,22 +58,22 @@ export const UserAgentModal = () => {
         <TouchableOpacity className="mb-4" onPress={() => setMode('default')}>
           <View className="flex-row items-center">
             <View className={checkedCls}>
-              {mode == 'default' && <View className="w-2.5 h-2.5 rounded-full bg-white" />}
+              {mode === 'default' && <View className="w-2.5 h-2.5 rounded-full bg-zinc-700 dark:bg-white" />}
             </View>
             <NouText className="ml-3 font-medium">{t('settings.userAgent.default')}</NouText>
           </View>
-          <NouText className="ml-8 mt-2 text-gray-400 text-sm">{defaultUserAgent}</NouText>
+          <NouText className="ml-8 mt-2 text-zinc-600 dark:text-gray-400 text-sm">{defaultUserAgent}</NouText>
         </TouchableOpacity>
 
         <TouchableOpacity className="mb-3" onPress={() => setMode('custom')}>
           <View className="flex-row items-center">
             <View className={checkedCls}>
-              {mode == 'custom' && <View className="w-2.5 h-2.5 rounded-full bg-white" />}
+              {mode === 'custom' && <View className="w-2.5 h-2.5 rounded-full bg-zinc-700 dark:bg-white" />}
             </View>
             <NouText className="ml-3 font-medium">{t('settings.userAgent.title')}</NouText>
           </View>
           <TextInput
-            className="ml-8 mt-2 border border-gray-600 rounded text-white text-sm min-h-24 p-2"
+            className="ml-8 mt-2 border border-zinc-300 dark:border-gray-600 bg-white dark:bg-zinc-900 rounded text-zinc-900 dark:text-white text-sm min-h-24 p-2"
             value={text}
             onChangeText={(value) => {
               setText(value)

@@ -1,6 +1,6 @@
-import { View, Text, Pressable } from 'react-native'
+import { View, Pressable } from 'react-native'
 import { NouText } from '../NouText'
-import { clsx } from '@/lib/utils'
+import { clsx, isIos } from '@/lib/utils'
 
 export const Segmented: React.FC<{
   options: string[]
@@ -9,22 +9,29 @@ export const Segmented: React.FC<{
   onChange: (index: number) => void
 }> = ({ options, selectedIndex, size = 2, onChange }) => {
   return (
-    <View className="flex-row">
+    <View className="flex-row rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-200/80 dark:bg-zinc-800/70 p-1">
       {options.map((tab, index) => {
-        const active = index == selectedIndex
+        const active = index === selectedIndex
         return (
           <Pressable
             key={tab}
             onPress={() => onChange(index)}
             className={clsx(
-              size == 1 ? 'px-3 py-1' : 'px-4 py-2',
-              active ? 'bg-zinc-100' : 'bg-zinc-700',
-              index == 0 && 'rounded-l-md',
-              index < options.length - 1 && 'border-r',
-              index == options.length - 1 && 'rounded-r-md',
+              size === 1 ? 'px-3 py-1.5' : 'px-4 py-2',
+              active ? 'bg-zinc-50 dark:bg-zinc-700' : 'bg-transparent',
+              !isIos && index === 0 && 'rounded-l-lg',
+              !isIos && index === options.length - 1 && 'rounded-r-lg',
             )}
           >
-            <NouText className={clsx('font-medium', size == 1 && 'text-sm', active && 'text-gray-900')}>{tab}</NouText>
+            <NouText
+              className={clsx(
+                'font-medium text-zinc-600 dark:text-zinc-300',
+                size === 1 && 'text-sm',
+                active && 'text-zinc-900 dark:text-zinc-100',
+              )}
+            >
+              {tab}
+            </NouText>
           </Pressable>
         )
       })}

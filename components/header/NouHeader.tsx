@@ -1,4 +1,4 @@
-import { Pressable, useWindowDimensions, View } from 'react-native'
+import { Pressable, useColorScheme, useWindowDimensions, View } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
@@ -20,6 +20,7 @@ import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
 import { useSleepTimerStatus } from '@/lib/sleep-timer'
 import { NouText } from '../NouText'
 import { formatPlaybackRate } from '@/lib/playback-rate'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 
 export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const autoHideHeader = useValue(settings$.autoHideHeader)
@@ -39,6 +40,9 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const [canGoBack, setCanGoBack] = useState(false)
   const [canGoForward, setCanGoForward] = useState(false)
   const isHorizontal = width > windowHeight
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
+  const headerControlColor = isDark ? colors.icon : colors.iconLight
   const translateY = useSharedValue(0)
 
   useEffect(() => {
@@ -71,7 +75,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
     const shouldHide = !isHorizontal && (autoHideHeader || hideToolbarWhenScrolled) && !uiState.headerShown
     const next = shouldHide ? -uiState.headerHeight : 0
     translateY.value = withTiming(next)
-  }, [uiState.headerShown, uiState.headerHeight, autoHideHeader, hideToolbarWhenScrolled, isHorizontal])
+  }, [uiState.headerShown, uiState.headerHeight, autoHideHeader, hideToolbarWhenScrolled, isHorizontal, translateY])
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -85,7 +89,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
       style={animatedStyle}
       onLayout={(e) => ui$.headerHeight.set(e.nativeEvent.layout.height)}
       className={clsx(
-        'bg-zinc-800 flex-row lg:flex-col justify-between px-2 py-1 lg:px-1 lg:py-2',
+        'bg-zinc-100 dark:bg-zinc-800 flex-row lg:flex-col justify-between px-2 py-1 lg:px-1 lg:py-2',
         (autoHideHeader || hideToolbarWhenScrolled) && !isHorizontal && 'absolute top-0 left-0 right-0 z-10',
       )}
     >
@@ -103,13 +107,13 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
           <>
             <View className="h-2 w-2" />
             <MaterialButton
-              color={canGoBack ? colors.icon : colors.underlay}
+              color={canGoBack ? headerControlColor : isDark ? colors.underlay : '#94a3b8'}
               name="arrow-back"
               disabled={!canGoBack}
               onPress={() => uiState.webview.goBack()}
             />
             <MaterialButton
-              color={canGoForward ? colors.icon : colors.underlay}
+              color={canGoForward ? headerControlColor : isDark ? colors.underlay : '#94a3b8'}
               name="arrow-forward"
               disabled={!canGoForward}
               onPress={() => uiState.webview.goForward()}
@@ -124,7 +128,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
             onPress={() => ui$.playbackSpeedModalOpen.set(true)}
             className="h-11 min-w-11 px-1 items-center justify-center"
           >
-            <View className="px-2 py-1 rounded-full border border-zinc-600 bg-zinc-700/80">
+            <View className="px-2 py-1 rounded-full border border-zinc-300 dark:border-zinc-600 bg-zinc-200/80 dark:bg-zinc-700/80">
               <NouText className="text-xs font-medium">{playbackRateLabel}</NouText>
             </View>
           </Pressable>,
@@ -140,7 +144,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
         {nIf(
           pageType?.canStar,
           <MaterialButton
-            color={starred ? 'gold' : colors.icon}
+            color={starred ? 'gold' : headerControlColor}
             name={starred ? 'star' : 'star-outline'}
             onPress={onToggleStar}
           />,
@@ -148,14 +152,36 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
         <NouMenu
           trigger={isWeb ? <MaterialButton name="more-vert" /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
           items={[
-            { label: isYTMusic ? 'YouTube' : 'YouTube Music', handler: onToggleHome },
-            { label: t('modals.history'), handler: () => ui$.historyModalOpen.set(true) },
+            {
+              label: isYTMusic ? 'YouTube' : 'YouTube Music',
+              icon: <MaterialIcons name={isYTMusic ? 'video-library' : 'library-music'} size={18} color={headerControlColor} />,
+              systemImage: isYTMusic ? 'play.rectangle.stack' : 'music.note.house',
+              handler: onToggleHome,
+            },
+            {
+              label: t('modals.history'),
+              icon: <MaterialIcons name="history" size={18} color={headerControlColor} />,
+              systemImage: 'clock.arrow.circlepath',
+              handler: () => ui$.historyModalOpen.set(true),
+            },
             {
               label: t('menus.reload'),
+              icon: <MaterialIcons name="refresh" size={18} color={headerControlColor} />,
+              systemImage: 'arrow.clockwise',
               handler: () => uiState.webview.executeJavaScript('document.location.reload()'),
             },
-            { label: t('menus.share'), handler: () => share(uiState.pageUrl) },
-            { label: t('settings.label'), handler: () => ui$.settingsModalOpen.set(true) },
+            {
+              label: t('menus.share'),
+              icon: <MaterialIcons name="share" size={18} color={headerControlColor} />,
+              systemImage: 'square.and.arrow.up',
+              handler: () => share(uiState.pageUrl),
+            },
+            {
+              label: t('settings.label'),
+              icon: <MaterialIcons name="settings" size={18} color={headerControlColor} />,
+              systemImage: 'gearshape',
+              handler: () => ui$.settingsModalOpen.set(true),
+            },
           ]}
         />
       </View>
