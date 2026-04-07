@@ -136,7 +136,7 @@ export const ToolsModal = () => {
               }}
             >
               <NouText className="flex-1 text-sm text-zinc-700 dark:text-zinc-300" numberOfLines={1}>
-                {effectiveDownloadPath || '…'}
+                {effectiveDownloadPath || t('modals.downloadsFolder', 'Downloads folder')}
               </NouText>
               <NouText className="text-xs text-zinc-400 dark:text-zinc-500">Browse</NouText>
             </Pressable>

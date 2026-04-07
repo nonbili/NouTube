@@ -49,7 +49,9 @@
     "ungrouped": "Ungrouped",
     "feeds": "Feeds",
     "history": "History",
-    "queue": "Queue"
+    "queue": "Queue",
+    "downloadVideo": "Download video",
+    "downloadsFolder": "Downloads folder"
   },
   "sleepTimer": {
     "label": "Sleep timer",

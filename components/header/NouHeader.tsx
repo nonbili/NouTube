@@ -72,6 +72,9 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   }
 
   useEffect(() => {
+    if (isWeb) {
+      return
+    }
     const shouldHide = !isHorizontal && (autoHideHeader || hideToolbarWhenScrolled) && !uiState.headerShown
     const next = shouldHide ? -uiState.headerHeight : 0
     translateY.value = withTiming(next)
@@ -84,9 +87,11 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   }, [translateY])
   const playbackRateLabel = formatPlaybackRate(playbackRate)
 
+  const Root = isWeb ? View : Animated.View
+
   return (
-    <Animated.View
-      style={animatedStyle}
+    <Root
+      style={isWeb ? undefined : animatedStyle}
       onLayout={(e) => ui$.headerHeight.set(e.nativeEvent.layout.height)}
       className={clsx(
         'bg-zinc-100 dark:bg-zinc-800 flex-row lg:flex-col justify-between px-2 py-1 lg:px-1 lg:py-2',
@@ -195,6 +200,6 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
           ]}
         />
       </View>
-    </Animated.View>
+    </Root>
   )
 }

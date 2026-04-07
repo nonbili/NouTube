@@ -32,13 +32,22 @@ const donateLinks = [
   { label: 'Liberapay', detail: 'liberapay.com/rnons', url: 'https://liberapay.com/rnons' },
   { label: 'PayPal', detail: 'paypal.me/rnons', url: 'https://paypal.me/rnons' },
 ]
-const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
+const surfaceCls =
+  'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
 const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500'
-const iconWrapCls = 'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-950'
+const iconWrapCls =
+  'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-950'
 
-type SettingsPage = 'home' | 'preferences' | 'appearance' | 'styles' | 'tools' | 'transfer' | 'sync' | 'about' | 'changelog'
-
-
+type SettingsPage =
+  | 'home'
+  | 'preferences'
+  | 'appearance'
+  | 'styles'
+  | 'tools'
+  | 'transfer'
+  | 'sync'
+  | 'about'
+  | 'changelog'
 
 const SettingsSection: React.FC<React.PropsWithChildren<{ label?: string }>> = ({ label, children }) => {
   return (
@@ -73,7 +82,9 @@ const SettingsNavRow: React.FC<{
       <View className="flex-1">
         <View className="flex-row items-center gap-2">
           <NouText className="flex-1 font-medium">{title}</NouText>
-          {meta ? <NouText className="text-xs uppercase tracking-[0.16em] text-zinc-600 dark:text-zinc-500">{meta}</NouText> : null}
+          {meta ? (
+            <NouText className="text-xs uppercase tracking-[0.16em] text-zinc-600 dark:text-zinc-500">{meta}</NouText>
+          ) : null}
         </View>
         <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{description}</NouText>
       </View>
@@ -93,7 +104,12 @@ const SettingsExternalRow: React.FC<{
   const isDark = colorScheme !== 'light'
   return (
     <NouLink href={href}>
-      <View className={clsx('flex-row items-center gap-3 px-4 py-4', !isLast && 'border-b border-zinc-300 dark:border-zinc-800')}>
+      <View
+        className={clsx(
+          'flex-row items-center gap-3 px-4 py-4',
+          !isLast && 'border-b border-zinc-300 dark:border-zinc-800',
+        )}
+      >
         <View className={iconWrapCls}>
           <MaterialIcons name={icon} color={isDark ? '#d4d4d8' : '#475569'} size={18} />
         </View>
@@ -171,7 +187,11 @@ export const SettingsModal = () => {
   const canGoBack = pageStack.length > 1
   const appVersion = isWeb ? desktopVersion : version
   const themeLabel =
-    theme === 'dark' ? t('settings.theme.dark') : theme === 'light' ? t('settings.theme.light') : t('settings.theme.system')
+    theme === 'dark'
+      ? t('settings.theme.dark')
+      : theme === 'light'
+        ? t('settings.theme.light')
+        : t('settings.theme.system')
 
   const pushPage = useCallback((page: SettingsPage) => {
     setPageStack((stack) => (stack[stack.length - 1] === page ? stack : stack.concat(page)))
@@ -245,15 +265,13 @@ export const SettingsModal = () => {
                 onPress={() => pushPage('preferences')}
                 isLast={isWeb}
               />
-              {!isWeb ? (
-                <SettingsNavRow
-                  title={t('settings.appearance')}
-                  description={t('settings.appearanceHint')}
-                  icon="palette"
-                  meta={themeLabel}
-                  onPress={() => pushPage('appearance')}
-                />
-              ) : null}
+              <SettingsNavRow
+                title={t('settings.appearance')}
+                description={t('settings.appearanceHint')}
+                icon="palette"
+                meta={themeLabel}
+                onPress={() => pushPage('appearance')}
+              />
               <SettingsNavRow
                 title={t('settings.userStyles.label')}
                 description={t('settings.userStyles.hint')}
@@ -342,7 +360,9 @@ export const SettingsModal = () => {
     return (
       <View className="gap-6">
         <View className="rounded-[28px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/80 px-5 py-5">
-          <NouText className="text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500">NouTube</NouText>
+          <NouText className="text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500">
+            NouTube
+          </NouText>
           <NouText className="mt-2 text-xl font-semibold tracking-tight">v{appVersion}</NouText>
         </View>
 
@@ -377,7 +397,10 @@ export const SettingsModal = () => {
     <View className="flex-1 bg-zinc-100 dark:bg-zinc-950">
       <View className="border-b border-zinc-300 dark:border-zinc-800 px-3 py-3">
         <View className="flex-row items-center gap-2">
-          <Pressable onPress={handleBack} className="h-11 w-11 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-900">
+          <Pressable
+            onPress={handleBack}
+            className="h-11 w-11 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-900"
+          >
             <MaterialIcons name={canGoBack ? 'arrow-back' : 'close'} color={isDark ? 'white' : '#111827'} size={22} />
           </Pressable>
           <View className="flex-1">
