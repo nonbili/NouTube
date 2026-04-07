@@ -225,10 +225,10 @@ export async function playDefaultAudio() {
     i++
   }
 
-  let container = document.querySelector('div#_inks_audio_picker')
+  let container = document.querySelector('div#_nou_audio_picker')
   if (!container) {
     container = document.createElement('div')
-    container.id = '_inks_audio_picker'
+    container.id = '_nou_audio_picker'
     document.body.append(container)
   }
   container.innerHTML = nouPolicy.createHTML(/* HTML */ `
@@ -271,7 +271,7 @@ async function renderPlayOriginalAudioBtn() {
   }
 
   const container = document.createElement('div')
-  container.id = '_inks_audio_btn'
+  container.id = '_nou_audio_btn'
   container.innerHTML = nouPolicy.createHTML(/* HTML */ `
     Play original audio 🦦
   `)

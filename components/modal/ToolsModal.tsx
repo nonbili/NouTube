@@ -24,6 +24,7 @@ export const ToolsModal = () => {
   const [resolvedDownloadsPath, setResolvedDownloadsPath] = useState('')
   const [phase, setPhase] = useState<Phase>('idle')
   const [formats, setFormats] = useState<FormatOption[]>([])
+  const [parsedTitle, setParsedTitle] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
   const activeDownloads = useValue(downloads$)
   const loadingUrlRef = useRef('')
@@ -44,6 +45,7 @@ export const ToolsModal = () => {
       setUrl('')
       setPhase('idle')
       setFormats([])
+      setParsedTitle('')
       setErrorMsg('')
       return
     }
@@ -57,17 +59,19 @@ export const ToolsModal = () => {
     loadingUrlRef.current = targetUrl
     setPhase('loading')
     setFormats([])
+    setParsedTitle('')
     setErrorMsg('')
     mainClient
       .listFormats(targetUrl)
       .then((result) => {
         if (loadingUrlRef.current !== targetUrl) return
-        setFormats(result)
+        setFormats(result.formats)
+        setParsedTitle(result.title)
         setPhase('choosing')
       })
       .catch((err: any) => {
         if (loadingUrlRef.current !== targetUrl) return
-        setErrorMsg(err?.message || 'Failed to load formats')
+        setErrorMsg(err?.message || t('modals.failedToLoadFormats'))
         setPhase('error')
       })
   }
@@ -156,6 +160,11 @@ export const ToolsModal = () => {
 
         {phase === 'choosing' && (
           <View className="gap-3">
+            {!!parsedTitle && (
+              <NouText className="text-sm font-medium text-zinc-600 dark:text-zinc-400 italic px-1">
+                {parsedTitle}
+              </NouText>
+            )}
             {formats.map((opt) => (
               <View
                 key={opt.formatId}

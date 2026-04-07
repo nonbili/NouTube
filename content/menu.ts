@@ -9,42 +9,41 @@ const iconDownload = `<svg height="24" viewBox="0 -960 960 960" width="24" style
 
 const makeMenuItem = ({ icon, label }: { icon: string; label: string }) =>
   nouPolicy.createHTML(/* HTML */ `
-    <button class="menu-item-button">
-      <c3-icon fill-icon="false">
-        <span class="yt-icon-shape yt-spec-icon-shape">
-          <div style="width: 100%; height: 100%; display: block; fill: currentcolor;">${icon}</div>
+    <button class="menu-item-button" style="display: flex; align-items: center; width: 100%; padding: 0 16px; min-height: 48px; background: none; border: none; font-family: inherit; font-size: 14px; text-align: left; cursor: pointer;">
+      <c3-icon fill-icon="false" style="margin-right: 16px; flex-shrink: 0; width: 24px; height: 24px;">
+        <span class="yt-icon-shape yt-spec-icon-shape" style="width: 24px; height: 24px; display: block;">
+          <div style="width: 24px; height: 24px; display: block; fill: currentcolor;">${icon}</div>
         </span>
       </c3-icon>
-      <span class="yt-core-attributed-string" role="text">${label} 🦦</span>
+      <span class="yt-core-attributed-string" role="text" style="flex: 1; font-size: 14px;">${label} 🦦</span>
     </button>
   `)
 
 const makeListItem = ({ icon, label }: { icon: string; label: string }) =>
   nouPolicy.createHTML(/* HTML */ `
-    <div
-      class="yt-list-item-view-model__label yt-list-item-view-model__container yt-list-item-view-model__container--compact yt-list-item-view-model__container--tappable yt-list-item-view-model__container--in-popup"
-    >
-      <div aria-hidden="true" class="yt-list-item-view-model__image-container yt-list-item-view-model__leading">
-        <span
-          class="ytIconWrapperHost yt-list-item-view-model__accessory yt-list-item-view-model__image"
-          role="img"
-          aria-label=""
-          aria-hidden="true"
-          style=""
-        >
-          <span class="yt-icon-shape ytSpecIconShapeHost">
-            <div style="width: 100%; height: 100%; display: block; fill: currentcolor;">${icon}</div>
-          </span>
-        </span>
-      </div>
-      <div class="yt-list-item-view-model__text-wrapper">
-        <div class="yt-list-item-view-model__title-wrapper">
+    <div class="yt-list-item-view-model__layout-wrapper yt-list-item-view-model__container yt-list-item-view-model__container--compact yt-list-item-view-model__container--tappable yt-list-item-view-model__container--in-popup">
+      <div class="yt-list-item-view-model__main-container" style="display: flex; align-items: center; width: 100%;">
+        <div aria-hidden="true" class="yt-list-item-view-model__image-container yt-list-item-view-model__leading" style="flex-shrink: 0;">
           <span
-            class="yt-core-attributed-string yt-list-item-view-model__title yt-core-attributed-string--white-space-pre-wrap"
-            role="text"
+            class="ytIconWrapperHost yt-list-item-view-model__accessory yt-list-item-view-model__image"
+            role="img"
+            style="width: 24px; height: 24px; display: block;"
           >
-            ${label} 🦦
+            <span class="yt-icon-shape ytSpecIconShapeHost" style="width: 24px; height: 24px; display: block;">
+              <div style="width: 24px; height: 24px; display: block; fill: currentcolor;">${icon}</div>
+            </span>
           </span>
+        </div>
+        <div class="yt-list-item-view-model__text-wrapper" style="flex: 1;">
+          <div class="yt-list-item-view-model__title-wrapper">
+            <span
+              class="yt-core-attributed-string yt-list-item-view-model__title yt-core-attributed-string--white-space-pre-wrap"
+              role="text"
+              style="font-size: 14px; line-height: 2rem;"
+            >
+              ${label} 🦦
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -54,22 +53,15 @@ const makePaperItem = ({ icon, label }: { icon: string; label: string }) =>
   nouPolicy.createHTML(/* HTML */ `
     <tp-yt-paper-item
       class="style-scope ytd-menu-service-item-renderer"
-      style-target="host"
       role="option"
-      tabindex="0"
-      aria-disabled="false"
+      style="display: flex; align-items: center; width: 100%; padding: 0 16px; min-height: 40px; cursor: pointer;"
     >
-      <yt-icon class="style-scope ytd-menu-service-item-renderer">
-        <span class="yt-icon-shape style-scope yt-icon ytSpecIconShapeHost">
-          <div style="width: 100%; height: 100%; display: block; fill: currentcolor;">${icon}</div>
+      <yt-icon class="style-scope ytd-menu-service-item-renderer" style="margin-right: 16px; flex-shrink: 0; width: 24px; height: 24px;">
+        <span class="yt-icon-shape style-scope yt-icon ytSpecIconShapeHost" style="width: 24px; height: 24px; display: block;">
+          <div style="width: 24px; height: 24px; display: block; fill: currentcolor;">${icon}</div>
         </span>
       </yt-icon>
-      <yt-formatted-string class="style-scope ytd-menu-service-item-renderer">${label}</yt-formatted-string>
-      <ytd-badge-supported-renderer class="style-scope ytd-menu-service-item-renderer" system-icons="" hidden="">
-        <dom-repeat id="repeat" as="badge" class="style-scope ytd-badge-supported-renderer">
-          <template is="dom-repeat"></template>
-        </dom-repeat>
-      </ytd-badge-supported-renderer>
+      <yt-formatted-string class="style-scope ytd-menu-service-item-renderer" style="flex: 1; font-size: 14px;">${label} 🦦</yt-formatted-string>
     </tp-yt-paper-item>
   `)
 
@@ -116,13 +108,13 @@ export function handleMenu() {
         menu.prepend(menuItem)
       }
 
-      const itemCls = '_inks_menu_'
+      const itemCls = '_nou_menu_'
       menu.querySelectorAll(`.${itemCls}`).forEach((el) => el.remove())
       const item = { icon: iconStar, label: 'Star' }
       switch (menu.tagName.toLowerCase()) {
         case 'yt-list-view-model':
           // desktop home page
-          menuItem = document.createElement('ytm-list-item-view-model')
+          menuItem = document.createElement('yt-list-item-view-model')
           menuItem.classList.add(itemCls)
           menuItem.innerHTML = makeListItem(item)
           break
@@ -145,13 +137,13 @@ export function handleMenu() {
       menu.prepend(menuItem)
 
       if (window.electron) {
-        const downloadCls = '_inks_download_'
+        const downloadCls = '_nou_download_'
         menu.querySelectorAll(`.${downloadCls}`).forEach((el) => el.remove())
         const downloadItemData = { icon: iconDownload, label: 'Download' }
         let downloadMenuItem: HTMLElement
         switch (menu.tagName.toLowerCase()) {
           case 'yt-list-view-model':
-            downloadMenuItem = document.createElement('ytm-list-item-view-model')
+            downloadMenuItem = document.createElement('yt-list-item-view-model')
             downloadMenuItem.classList.add(downloadCls)
             downloadMenuItem.innerHTML = makeListItem(downloadItemData)
             break

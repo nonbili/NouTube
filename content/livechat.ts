@@ -5,11 +5,11 @@ const iconCross = `<svg height="24" viewBox="0 0 24 24" width="24"><path d="m12.
 const iconLiveChat = `<svg height="20" viewBox="0 0 24 24" width="20" fill="currentColor"><path d="M16 3v11H7.59L5 16.59V3h11m1-1H4v17l4-4h9V2zM8 18h8l4 4V6h-1v13.59L16.41 17H8v1z"></path></svg>`
 
 function showLiveChat(videoId: string) {
-  let container = document.querySelector('div#_inks_livechat')
+  let container = document.querySelector('div#_nou_livechat')
   const existed = !!container
   if (!container) {
     container = document.createElement('div')
-    container.id = '_inks_livechat'
+    container.id = '_nou_livechat'
   }
   container.innerHTML = nouPolicy.createHTML(/* HTML */ `
     <div>Loading...</div>
@@ -28,17 +28,17 @@ function showLiveChat(videoId: string) {
 }
 
 export function hideLiveChat() {
-  document.querySelector('div#_inks_livechat')?.remove()
-  document.querySelector('button#_inks_livechat_btn')?.remove()
+  document.querySelector('div#_nou_livechat')?.remove()
+  document.querySelector('button#_nou_livechat_btn')?.remove()
 }
 
 export function showLiveChatButton(videoId: string) {
-  let btn = document.querySelector('button#_inks_livechat_btn') as HTMLButtonElement
+  let btn = document.querySelector('button#_nou_livechat_btn') as HTMLButtonElement
   const existed = !!btn
 
   if (!btn) {
     btn = document.createElement('button')
-    btn.id = '_inks_livechat_btn'
+    btn.id = '_nou_livechat_btn'
     btn.innerHTML = nouPolicy.createHTML(`${iconLiveChat} Live chat`)
     btn.onclick = () => showLiveChat(videoId)
   }

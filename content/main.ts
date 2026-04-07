@@ -6,6 +6,7 @@ import { emit } from './utils'
 import { handleDialogs } from './dialogs'
 import { handleMenu } from './menu'
 import { pinchToZoom } from './pinch'
+import { handleWatchPage } from './watch'
 
 try {
   window.NouTube = initNouTube()
@@ -41,6 +42,7 @@ async function initObserver() {
       handleMutations(mutations)
     }
     handleDialogs()
+    handleWatchPage()
   })
   observer.observe(document.documentElement, {
     childList: true,

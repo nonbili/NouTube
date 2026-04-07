@@ -28,7 +28,7 @@ const interfaces = {
   toggleInterception,
   openLoginWindow,
   updateYtDlp,
-  listFormats: async (url: string): Promise<FormatOption[]> => {
+  listFormats: async (url: string): Promise<{ title: string; formats: FormatOption[] }> => {
     const binary = await ensureYtDlp()
     return new Promise((resolve, reject) => {
       const proc = spawn(binary, ['--dump-json', '--no-playlist', url])
@@ -42,7 +42,11 @@ const interfaces = {
           return
         }
         try {
-          resolve(buildFormatOptions(JSON.parse(stdout)))
+          const info = JSON.parse(stdout)
+          resolve({
+            title: info.title || '',
+            formats: buildFormatOptions(info),
+          })
         } catch {
           reject(new Error('Failed to parse yt-dlp output'))
         }

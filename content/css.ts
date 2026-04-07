@@ -21,7 +21,7 @@ const cssContent = css`
     display: none !important;
   }
 
-  #_inks_livechat {
+  #_nou_livechat {
     width: 100%;
     height: 50vh;
     position: fixed;
@@ -32,7 +32,7 @@ const cssContent = css`
     background: white;
     z-index: 10;
   }
-  #_inks_livechat.right {
+  #_nou_livechat.right {
     width: 36vw;
     height: 100%;
     top: 0;
@@ -42,27 +42,27 @@ const cssContent = css`
     border-left: 1px solid #e5e5e5;
   }
 
-  #_inks_livechat button {
+  #_nou_livechat button {
     position: absolute;
     top: 1.25rem;
     left: 50%;
     transform: translateX(-50%);
   }
 
-  #_inks_livechat div {
+  #_nou_livechat div {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
   }
 
-  #_inks_livechat iframe {
+  #_nou_livechat iframe {
     position: relative;
     flex: 1;
     border: none;
   }
 
-  #_inks_livechat_btn {
+  #_nou_livechat_btn {
     padding: 0.75rem 1rem;
     background: #e1002d;
     color: white;
@@ -80,7 +80,7 @@ const cssContent = css`
     display: none !important;
   }
 
-  #_inks_audio_btn {
+  #_nou_audio_btn {
     display: flex;
     align-items: center;
     background: #34d399;
@@ -89,12 +89,12 @@ const cssContent = css`
     border-radius: 4px;
     margin-left: 8px;
   }
-  #_inks_audio_picker {
+  #_nou_audio_picker {
     position: absolute;
     top: 1rem;
     left: 1rem;
   }
-  #_inks_audio_picker select {
+  #_nou_audio_picker select {
     border: none;
     background: #a7f3d0;
     color: #44403c;
