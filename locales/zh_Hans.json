@@ -2,7 +2,8 @@
   "about": {
     "label": "关于",
     "code": "源代码",
-    "donate": "捐赠"
+    "donate": "捐赠",
+    "hint": "版本信息、源代码和支持链接。"
   },
   "buttons": {
     "clear": "清除",
@@ -10,7 +11,7 @@
     "export": "导出",
     "open": "打开",
     "cancel": "取消",
-    "openUrl": "打开 URL",
+    "openUrl": "打开网址",
     "move": "移动",
     "save": "保存",
     "signOut": "退出登录",
@@ -44,7 +45,7 @@
     "label": "设置",
     "general": "常规",
     "restoreOnStart": "启动时恢复上次播放",
-    "hideShorts": "隐藏 Shorts 短视频",
+    "hideShorts": "在时间线中隐藏 Shorts 短视频",
     "channelsFeed": "频道订阅源",
     "watchHistory": "观看历史",
     "theme": {
@@ -58,7 +59,7 @@
       "button": "登录 YouTube",
       "label": "如果无法通过 WebView 登录，请尝试此操作"
     },
-    "openUrlLabel": "直接打开支持的 URL",
+    "openUrlLabel": "直接打开支持的网址",
     "webview": {
       "clearLabel": "清除 WebView 数据"
     },
@@ -71,6 +72,50 @@
     "userAgent": {
       "title": "自定义用户代理",
       "default": "默认用户代理"
+    },
+    "hubHint": "播放、同步、导入和 WebView 工具集于一处。",
+    "generalHint": "播放默认设置、外观、工具和数据传输。",
+    "preferences": "偏好设置",
+    "preferencesHint": "播放、订阅源和历史记录的行为设置。",
+    "appearance": "外观",
+    "appearanceHint": "控制应用内 YouTube 的外观显示。",
+    "tools": "工具",
+    "toolsHint": "打开网址以及管理 WebView 环境。",
+    "transfer": "导入和导出",
+    "transferHint": "导入书签或导出书签随时使用。",
+    "syncHintShort": "账号、套餐和设备同步。",
+    "autoHideHeader": "滚动时自动隐藏标题栏",
+    "hideShortsInNavbar": "在导航栏中隐藏 Shorts 短视频",
+    "hideMixPlaylist": "隐藏合辑播放列表",
+    "userStyles": {
+      "label": "用户样式",
+      "hint": "内置 CSS 调整以及您专属站点自定义 CSS。",
+      "builtin": {
+        "label": "内置样式",
+        "hideShortsInNavbar": {
+          "label": "在导航栏中隐藏 Shorts 短视频"
+        },
+        "hideMixPlaylist": {
+          "label": "隐藏合辑播放列表"
+        }
+      },
+      "custom": {
+        "label": "自定义样式",
+        "empty": "暂无自定义样式。"
+      },
+      "add": "添加样式",
+      "addTitle": "添加用户样式",
+      "editTitle": "编辑用户样式",
+      "nameLabel": "名称",
+      "namePlaceholder": "我的样式",
+      "validation": {
+        "css": "CSS 不能为空"
+      },
+      "deleteConfirm": "移除此自定义样式？",
+      "copyCss": "复制 CSS",
+      "cssCopied": "CSS 已复制",
+      "copyFailed": "无法复制 CSS",
+      "importFailed": "无法导入 CSS"
     }
   },
   "sync": {
@@ -81,6 +126,67 @@
   },
   "feeds": {
     "updates": "更新",
-    "manage": "管理"
+    "manage": "管理",
+    "sortLastVideo": "最后视频",
+    "sortFrequency": "频率",
+    "lastVideoNewest": "最后视频：从新到旧",
+    "lastVideoOldest": "最后视频：从旧到新",
+    "frequencyHighest": "频率：从高到低",
+    "frequencyLowest": "频率：从低到高",
+    "frequencyLabel": "频率",
+    "lastVideoLabel": "最后视频",
+    "videosPerDay": "{{value}} 个视频/天",
+    "never": "从不",
+    "allFolders": "全部",
+    "newFolder": "+ 新文件夹",
+    "editFeed": "编辑订阅源",
+    "manageEmpty": "尚未保存任何订阅源。",
+    "manageNoResults": "没有符合当前筛选条件的订阅源。",
+    "updatesEmpty": "没有符合当前文件夹筛选条件的订阅源视频。",
+    "filterDropdownPlaceholder": "筛选文件夹和频道",
+    "filterDropdownEmpty": "无匹配的文件夹或频道。",
+    "emptyTitleNoChannels": "无收藏的频道",
+    "emptyBodyNoChannels": "收藏的 YouTube 频道的更新将显示在此处。",
+    "emptyTitleFolder": "{{folder}} 中无更新",
+    "emptyTitleChannel": "{{channel}} 无更新",
+    "emptyBodyFiltered": "当前无近期视频。请稍后查看或切换到全部。",
+    "emptyActionFetchNow": "立即获取",
+    "fetchToastSuccess": "订阅源已刷新",
+    "fetchToastRunning": "刷新已在进行中",
+    "fetchToastNotFound": "无法刷新此频道。订阅源返回 404 错误。",
+    "fetchToastError": "无法刷新此频道",
+    "emptyActionAllFolders": "全部显示",
+    "emptyTitleWaiting": "等待订阅源更新",
+    "emptyBodyWaiting": "您保存的频道已准备就绪。请保持应用打开片刻或稍后重新打开，近期上传内容将显示在此处。",
+    "removeTitle": "移除 {{title}}？",
+    "removeMessage": "这将从媒体库中移除该频道并清除其订阅源视频。"
+  },
+  "changelog": {
+    "label": "更新日志",
+    "hint": "GitHub 上的最新版本和修复。",
+    "loading": "正在加载发行说明…",
+    "error": "无法加载发行说明。",
+    "retry": "重试",
+    "empty": "未找到发行说明。",
+    "current": "当前",
+    "noNotes": "此版本未提供发行说明。"
+  },
+  "sleepTimer": {
+    "label": "睡眠定时器",
+    "hint": "在预设时长或您自定义的分钟数后暂停播放。",
+    "activeHint": "倒计时结束后将暂停播放。",
+    "off": "关闭",
+    "endsIn": "{{value}} 后结束",
+    "preset": "{{value}} 分钟",
+    "customPlaceholder": "自定义分钟数",
+    "set": "设置定时器",
+    "cancel": "取消定时器",
+    "replace": "替换",
+    "validation": {
+      "minutes": "请输入 1 到 1440 之间的整数分钟数"
+    },
+    "setToast": "睡眠定时器已设置为 {{value}} 分钟",
+    "cancelToast": "睡眠定时器已取消",
+    "expiredToast": "睡眠定时器已到期"
   }
 }
