@@ -13,7 +13,10 @@ const interfaces = {
   },
   fetchFeed: async (url: string) => {
     try {
-      const res = await fetch(url)
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 10000)
+      const res = await fetch(url, { signal: controller.signal })
+      clearTimeout(timeout)
       return {
         ok: res.ok,
         status: res.status,
@@ -73,23 +76,46 @@ const interfaces = {
         '--merge-output-format', 'mp4',
       ])
       let filePath = ''
+      let buffer = ''
+      let lastUpdate = 0
+      const THROTTLE_MS = 200
+
       const onData = (d: Buffer) => {
-        const text = d.toString()
-        // Parse final output path from yt-dlp progress lines
-        const mergerMatch = text.match(/\[Merger\] Merging formats into "(.+)"/)
-        const destMatch = text.match(/\[(?:download|ExtractAudio)\] Destination: (.+)/)
-        if (mergerMatch) filePath = mergerMatch[1].trim()
-        else if (destMatch) filePath = destMatch[1].trim()
-        uiClient.downloadProgress({ url, line: text.trim(), done: false })
+        buffer += d.toString()
+        const lines = buffer.split(/\r?\n/)
+        buffer = lines.pop() || ''
+
+        for (const line of lines) {
+          if (!line.trim()) continue
+
+          // Parse final output path from yt-dlp progress lines
+          const mergerMatch = line.match(/\[Merger\] Merging formats into "(.+)"/)
+          const destMatch = line.match(/\[(?:download|ExtractAudio)\] Destination: (.+)/)
+          if (mergerMatch) filePath = mergerMatch[1].trim()
+          else if (destMatch) filePath = destMatch[1].trim()
+
+          const now = Date.now()
+          if (now - lastUpdate > THROTTLE_MS) {
+            uiClient.downloadProgress({ url, line: line.trim(), done: false })
+            lastUpdate = now
+          }
+        }
       }
       proc.stdout.on('data', onData)
       proc.stderr.on('data', onData)
       proc.on('close', (code) => {
+        // Final update with the last line if any, and done=true
+        uiClient.downloadProgress({
+          url,
+          line: buffer.trim(),
+          done: true,
+          filePath,
+          error: code !== 0,
+        })
+
         if (code === 0) {
-          uiClient.downloadProgress({ url, line: '', done: true, filePath })
           resolve()
         } else {
-          uiClient.downloadProgress({ url, line: '', done: true, error: true })
           reject(new Error(`yt-dlp exited with code ${code}`))
         }
       })
