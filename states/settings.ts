@@ -21,6 +21,7 @@ interface Store {
   userAgent: string
   theme: null | 'dark' | 'light'
   downloadPath: string
+  lastYtDlpUpdate: number
 }
 
 export const settings$ = observable<Store>({
@@ -41,6 +42,7 @@ export const settings$ = observable<Store>({
   userAgent: '',
   theme: isWeb ? 'dark' : null,
   downloadPath: '',
+  lastYtDlpUpdate: 0,
 })
 
 syncObservable(settings$, {

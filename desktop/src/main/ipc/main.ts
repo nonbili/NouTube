@@ -1,6 +1,6 @@
 import { toggleInterception } from 'main/lib/intercept.js'
 import { openLoginWindow } from 'main/lib/login-window.js'
-import { ensureYtDlp } from 'main/lib/ytdlp.js'
+import { ensureYtDlp, updateYtDlp } from 'main/lib/ytdlp.js'
 import { MAIN_CHANNEL } from './constants.js'
 import { uiClient } from './ui.js'
 import { ipcMain, session, app, shell, dialog } from 'electron'
@@ -27,6 +27,7 @@ const interfaces = {
   },
   toggleInterception,
   openLoginWindow,
+  updateYtDlp,
   listFormats: async (url: string): Promise<FormatOption[]> => {
     const binary = await ensureYtDlp()
     return new Promise((resolve, reject) => {

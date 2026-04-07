@@ -83,6 +83,17 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   useEffect(() => {
     if (!isWeb) return
+
+    // Background yt-dlp update every 2 weeks
+    const TWO_WEEKS = 14 * 24 * 60 * 60 * 1000
+    const now = Date.now()
+    const lastUpdate = settings$.lastYtDlpUpdate.get()
+    if (now - lastUpdate > TWO_WEEKS) {
+      mainClient.updateYtDlp().then(() => {
+        settings$.lastYtDlpUpdate.set(now)
+      })
+    }
+
     return onDownloadProgress((payload) => {
       const current = downloads$[payload.url].get()
       if (!current) return

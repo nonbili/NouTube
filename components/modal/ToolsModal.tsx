@@ -11,6 +11,7 @@ import { onDownloadProgress } from '@/desktop/src/renderer/lib/download-progress
 import { downloads$ } from '@/states/downloads'
 import { t } from 'i18next'
 import type { FormatOption } from '@/desktop/src/main/ipc/main'
+import { showToast } from '@/lib/toast'
 
 type Phase = 'idle' | 'loading' | 'choosing' | 'error'
 

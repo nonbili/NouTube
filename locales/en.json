@@ -31,7 +31,10 @@
     "next": "Next",
     "show": "Show",
     "download": "Download",
-    "browse": "Browse"
+    "browse": "Browse",
+    "updateYtDlp": "Update yt-dlp",
+    "updating": "Updating...",
+    "ytDlpUpdated": "yt-dlp is up to date"
   },
   "library": {
     "videos": "Videos",

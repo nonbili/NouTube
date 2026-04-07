@@ -18,6 +18,7 @@ import { NouText } from '../NouText'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { formatSleepTimerRemaining, useSleepTimerStatus } from '@/lib/sleep-timer'
 import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
+import { mainClient } from '@/desktop/src/renderer/ipc/main'
 
 const themes = [null, 'dark', 'light'] as const
 const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
@@ -207,12 +208,25 @@ export const SettingsAppearanceContent = () => {
 export const SettingsToolsContent = () => {
   const sleepTimerSupported = hasSleepTimerNativeSupport()
   const { active, remainingMs } = useSleepTimerStatus(sleepTimerSupported)
+  const [updatingYtDlp, setUpdatingYtDlp] = useState(false)
 
   const clearWebviewData = () => {
     showConfirm('Clear webview data', 'All cookies, browsing history will be removed.', () => {
       onClearData$.fire()
       showToast('WebView data cleared')
     })
+  }
+
+  const handleUpdateYtDlp = async () => {
+    setUpdatingYtDlp(true)
+    try {
+      await mainClient.updateYtDlp()
+      showToast(t('buttons.ytDlpUpdated'))
+    } catch (e: any) {
+      showToast(e.message || 'Failed to update yt-dlp')
+    } finally {
+      setUpdatingYtDlp(false)
+    }
   }
 
   return (
@@ -249,8 +263,17 @@ export const SettingsToolsContent = () => {
           description={t('settings.userAgent.default')}
           icon="devices"
           onPress={() => ui$.userAgentModalOpen.set(true)}
-          isLast
         />
+        {isWeb && (
+          <SettingsActionRow
+            label={t('buttons.updateYtDlp')}
+            description="Download the latest version from GitHub"
+            icon="download-for-offline"
+            onPress={handleUpdateYtDlp}
+            loading={updatingYtDlp}
+            isLast
+          />
+        )}
       </View>
     </SettingsSection>
   )
