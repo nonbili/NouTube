@@ -1,0 +1,5 @@
+- Support downloading videos 
+- Support light mode and user-defined styles
+- Support hiding mix playlists
+- Redesign settings modal and improve user styles dialog
+- Add in-app changelog

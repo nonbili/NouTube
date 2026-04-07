@@ -22,6 +22,7 @@
       <li>Manage video/music library without login</li>
       <li>Manage watch history without login</li>
       <li>No ads</li>
+      <li>Download video</li>
       <li>Hide shorts</li>
       <li>Sponsor block</li>
     </ul>
@@ -32,6 +33,7 @@
     <keyword>youtube-music</keyword>
     <keyword>yt</keyword>
     <keyword>yt-music</keyword>
+    <keyword>yt-dlp</keyword>
   </keywords>
 
   <launchable type="desktop-id">jp.nonbili.noutube.desktop</launchable>
@@ -57,6 +59,17 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.2.6" date="2026-04-07">
+      <description>
+        <ul>
+          <li>Support downloading videos</li>
+          <li>Support light mode and user-defined styles</li>
+          <li>Support hiding mix playlists</li>
+          <li>Redesign settings modal and improve user styles dialog</li>
+          <li>Add in-app changelog</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.2.5" date="2026-03-18">
       <description>
         <ul>
