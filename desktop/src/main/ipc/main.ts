@@ -4,7 +4,8 @@ import { ensureYtDlp, updateYtDlp } from 'main/lib/ytdlp.js'
 import { MAIN_CHANNEL } from './constants.js'
 import { uiClient } from './ui.js'
 import { ipcMain, session, app, shell, dialog } from 'electron'
-import { spawn } from 'child_process'
+import { spawn, exec } from 'child_process'
+import path from 'path'
 
 const interfaces = {
   clearData: () => {

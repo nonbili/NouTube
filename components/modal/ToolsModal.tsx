@@ -132,7 +132,7 @@ export const ToolsModal = () => {
 
         {(phase === 'idle' || phase === 'choosing') && (
           <View className="gap-1">
-            <NouText className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">{t('settings.transfer')}</NouText>
+            <NouText className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">{t('modals.folder')}</NouText>
             <Pressable
               className="flex-row items-center gap-2 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-2 active:bg-zinc-100 dark:active:bg-zinc-800"
               onPress={async () => {
