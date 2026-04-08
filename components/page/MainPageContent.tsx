@@ -17,8 +17,8 @@ import { syncSupabase } from '@/lib/supabase/sync'
 import { auth$ } from '@/states/auth'
 import { useMe } from '@/lib/hooks/useMe'
 import { ObservableHint } from '@legendapp/state'
-import { mainClient } from '@/desktop/src/renderer/ipc/main'
-import { onDownloadProgress } from '@/desktop/src/renderer/lib/download-progress'
+import { mainClient } from '@/lib/main-client'
+import { onDownloadProgress } from '@/lib/download-progress'
 import { downloads$ } from '@/states/downloads'
 import { resolveUserAgent } from '@/lib/useragent'
 import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
@@ -82,8 +82,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const userAgent = resolveUserAgent(isWeb ? window.electron.process.platform : 'android', customUserAgent)
 
   useEffect(() => {
-    if (!isWeb) return
-
     // Background yt-dlp update every 2 weeks
     const TWO_WEEKS = 14 * 24 * 60 * 60 * 1000
     const now = Date.now()
@@ -99,14 +97,17 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       if (!current) return
 
       if (payload.line) downloads$[payload.url].progressLine.set(payload.line)
+      if (typeof payload.progress === 'number') downloads$[payload.url].progress.set(payload.progress)
       if (payload.done) {
         if (payload.error) {
+          console.error('download error', payload)
           downloads$[payload.url].assign({
             phase: 'error',
-            errorMsg: 'Download failed',
+            errorMsg: payload.line || 'Download failed',
           })
         } else {
           downloads$[payload.url].assign({
+            progress: 100,
             savedPath: payload.filePath || '',
             phase: 'done',
           })
@@ -173,7 +174,13 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     switch (type) {
       case '[content]':
       case '[kotlin]':
+      case 'log':
         console.log(type, data)
+        if (data.msg === 'YoutubeDL initialized successfully') {
+          showToast(data.msg)
+        } else if (typeof data.msg === 'string' && data.msg.startsWith('YoutubeDL initialization failed')) {
+          showToast(data.msg)
+        }
         break
       case 'scroll':
         onScroll({ dy: data.dy, y: data.y, autoHideHeader, hideToolbarWhenScrolled })
@@ -224,10 +231,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         ui$.embedVideoId.set(data)
         break
       case 'download':
-        if (isWeb) {
-          ui$.toolsModalUrl.set(data.url)
-          ui$.toolsModalOpen.set(true)
-        }
+        ui$.toolsModalUrl.set(data.url)
+        ui$.toolsModalOpen.set(true)
         break
       case 'keyup':
         handleShortcuts(data)
@@ -270,7 +275,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
       ui$.webview.set(ObservableHint.opaque(webview))
       webviewReadyRef.current = true
-      webview.executeJavaScript(contentJs)
+      webview.executeJavaScript(`window.isAndroid = false;\n${contentJs}`)
     })
     webview.addEventListener('did-navigate', (e) => {
       const { host } = new URL(e.url)
@@ -352,7 +357,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
             ref={nativeRef}
             style={{ flex: 1 }}
             useragent={userAgent}
-            scriptOnStart={contentJs}
+            scriptOnStart={`window.isAndroid = true;\n${contentJs}`}
             onLoad={onLoad}
             onMessage={onNativeMessage}
           />
@@ -361,7 +366,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           uiState.embedVideoId,
           <EmbedVideoModal
             videoId={uiState.embedVideoId}
-            scriptOnStart={contentJs}
+            scriptOnStart={`${isWeb ? 'window.isAndroid = false;' : 'window.isAndroid = true;'}\n${contentJs}`}
             onClose={() => ui$.embedVideoId.set('')}
           />,
         )}

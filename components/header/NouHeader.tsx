@@ -152,7 +152,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
           <MaterialButton name="playlist-play" onPress={() => ui$.queueModalOpen.set(!ui$.queueModalOpen.get())} />,
         )}
         {nIf(
-          isWeb && hasDownloads,
+          hasDownloads,
           <MaterialButton
             name="download"
             color={isDownloading ? '#60a5fa' : headerControlColor}
@@ -194,16 +194,12 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
               systemImage: 'square.and.arrow.up',
               handler: () => share(uiState.pageUrl),
             },
-            ...(isWeb
-              ? [
-                  {
-                    label: t('menus.tools', 'Tools'),
-                    icon: <MaterialIcons name="download" size={18} color={headerControlColor} />,
-                    systemImage: 'arrow.down.circle',
-                    handler: () => ui$.toolsModalOpen.set(true),
-                  },
-                ]
-              : []),
+            {
+              label: t('menus.tools', 'Tools'),
+              icon: <MaterialIcons name="download" size={18} color={headerControlColor} />,
+              systemImage: 'arrow.down.circle',
+              handler: () => ui$.toolsModalOpen.set(true),
+            },
             {
               label: t('settings.label'),
               icon: <MaterialIcons name="settings" size={18} color={headerControlColor} />,

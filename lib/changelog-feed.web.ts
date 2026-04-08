@@ -1,4 +1,4 @@
-import { mainClient } from '@/desktop/src/renderer/ipc/main'
+import { mainClient } from '@/lib/main-client'
 
 const DESKTOP_RELEASES_FEED_URL = 'https://github.com/nonbili/NouTube-Desktop/releases.atom'
 

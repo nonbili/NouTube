@@ -9,6 +9,7 @@ interface NouTubeI {
 declare global {
   interface Window {
     _lact: number
+    isAndroid: boolean
     NouTubeI: NouTubeI
     NouTube: any
     trustedTypes: any

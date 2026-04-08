@@ -1,7 +1,15 @@
 import { ConfigPlugin } from '@expo/config-plugins'
-import { withAppBuildGradle } from '@expo/config-plugins/build/plugins/android-plugins.js'
+import { withAndroidManifest, withAppBuildGradle } from '@expo/config-plugins/build/plugins/android-plugins.js'
 
 const withAndroidSigningConfig: ConfigPlugin = (config) => {
+  config = withAndroidManifest(config, (config: any) => {
+    const app = config.modResults.manifest.application?.[0]
+    if (app) {
+      app.$['android:extractNativeLibs'] = 'true'
+    }
+    return config
+  })
+
   return withAppBuildGradle(config, (config) => {
     // https://www.reddit.com/r/expo/comments/1j4v323/comment/mit9b2a/
     config.modResults.contents = config.modResults.contents

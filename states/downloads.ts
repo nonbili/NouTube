@@ -4,7 +4,9 @@ export type DownloadPhase = 'downloading' | 'done' | 'error'
 
 export interface DownloadState {
   url: string
+  title: string
   phase: DownloadPhase
+  progress: number
   progressLine: string
   errorMsg: string
   savedPath: string

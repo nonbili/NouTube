@@ -1,11 +1,6 @@
 import { retry } from 'es-toolkit'
+import { iconAddQueue, iconDownload, iconStar } from './icons'
 import { emit, nouPolicy } from './utils'
-
-const iconAddQueue = `<svg height="16" viewBox="0 0 24 24" width="16" focusable="false" aria-hidden="true" style="pointer-events: none; display: inherit; width: 100%; height: 100%;"><path d="M21 16h-7v-1h7v1zm0-5H9v1h12v-1zm0-4H3v1h18V7zm-11 8-7-4v8l7-4z"></path></svg>`
-
-const iconStar = `<svg height="24" viewBox="0 -960 960 960" width="24" style="transform:scale(1.25)"><path d="m354-287 126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143Zm-61 83.92 49.62-212.54-164.93-142.84 217.23-18.85L480-777.69l85.08 200.38 217.23 18.85-164.93 142.84L667-203.08 480-315.92 293-203.08ZM480-470Z"/></svg>`
-
-const iconDownload = `<svg height="24" viewBox="0 -960 960 960" width="24" style="transform:scale(1.25)"><path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></svg>`
 
 const makeMenuItem = ({ icon, label }: { icon: string; label: string }) =>
   nouPolicy.createHTML(/* HTML */ `
@@ -136,7 +131,7 @@ export function handleMenu() {
       }
       menu.prepend(menuItem)
 
-      if (window.electron) {
+      {
         const downloadCls = '_nou_download_'
         menu.querySelectorAll(`.${downloadCls}`).forEach((el) => el.remove())
         const downloadItemData = { icon: iconDownload, label: 'Download' }

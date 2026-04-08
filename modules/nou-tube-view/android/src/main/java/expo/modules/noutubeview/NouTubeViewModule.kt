@@ -1,6 +1,7 @@
 package expo.modules.noutubeview
 
 import android.net.Uri
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import expo.modules.kotlin.functions.Coroutine
 import expo.modules.kotlin.modules.Module
@@ -12,6 +13,11 @@ import java.io.InputStream
 import java.util.zip.ZipInputStream
 
 class NouTubeViewModule : Module() {
+  private fun ytDlp(): NouYtDlp {
+    val context = appContext.reactContext?.applicationContext ?: throw Exception("Application context is unavailable")
+    return NouYtDlp(context)
+  }
+
   init {
     nouController.logFn = { msg: String ->
       sendEvent("log", mapOf("msg" to msg))
@@ -24,7 +30,18 @@ class NouTubeViewModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("NouTubeView")
 
-    Events("log", "sleepTimer")
+    Events("log", "sleepTimer", "downloadProgress")
+
+    OnCreate {
+      try {
+        ytDlp().ensureInitialized()
+        sendEvent("log", mapOf("msg" to "YoutubeDL initialized successfully"))
+      } catch (e: Exception) {
+        // Log it, but the actual error will be thrown in the AsyncFunctions
+        Log.e("NouTubeView", "YoutubeDL initialization in OnCreate failed", e)
+        sendEvent("log", mapOf("msg" to "YoutubeDL initialization failed: ${e.message}"))
+      }
+    }
 
     Function("setTheme") { theme: String? ->
       var mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
@@ -54,6 +71,53 @@ class NouTubeViewModule : Module() {
 
     AsyncFunction("extractTakeoutCsvFiles") { uri: String ->
       extractTakeoutCsvFiles(uri)
+    }
+
+    AsyncFunction("listFormats") Coroutine { url: String ->
+      return@Coroutine ytDlp().listFormats(url)
+    }
+
+    AsyncFunction("downloadVideo") Coroutine { url: String, formatId: String, outputDir: String ->
+      try {
+        val result = ytDlp().downloadVideo(url, formatId, outputDir) { progress, etaInSeconds, line ->
+          sendEvent("downloadProgress", mapOf(
+            "url" to url,
+            "progress" to progress,
+            "eta" to etaInSeconds,
+            "line" to line,
+            "done" to false,
+            "error" to false
+          ))
+        }
+
+        sendEvent("downloadProgress", mapOf(
+          "url" to url,
+          "progress" to 100f,
+          "eta" to 0L,
+          "line" to if (result.lastLine.isNotBlank()) result.lastLine else "Download complete",
+          "done" to true,
+          "error" to false,
+          "filePath" to result.savedPath
+        ))
+      } catch (e: Exception) {
+        sendEvent("downloadProgress", mapOf(
+          "url" to url,
+          "progress" to 0f,
+          "eta" to 0L,
+          "line" to (e.message ?: "Download failed"),
+          "done" to true,
+          "error" to true
+        ))
+        throw e
+      }
+    }
+
+    AsyncFunction("getDownloadsPath") {
+      android.os.Environment.DIRECTORY_DOWNLOADS
+    }
+
+    AsyncFunction("updateYtDlp") {
+      ytDlp().update()
     }
 
     View(NouTubeView::class) {

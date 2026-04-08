@@ -3,6 +3,7 @@ import type { Folder } from './folders'
 import type { Bookmark } from './bookmarks'
 import { unnormalizeUrl } from '@/lib/url'
 import { isWeb } from '@/lib/utils'
+import { mainClient } from '@/lib/main-client'
 
 interface Store {
   url: string
@@ -82,7 +83,6 @@ onClearData$.on(async () => {
     return
   }
   if (isWeb) {
-    const { mainClient } = await import('../desktop/src/renderer/ipc/main')
     mainClient.clearData()
     webview.executeJavaScript('document.location.reload()')
   } else {

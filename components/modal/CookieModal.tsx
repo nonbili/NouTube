@@ -10,6 +10,7 @@ import { t } from 'i18next'
 import { showToast } from '@/lib/toast'
 import { isWeb } from '@/lib/utils'
 import { getDocumentAsync } from 'expo-document-picker'
+import { mainClient } from '@/lib/main-client'
 
 const parseCookies = (text: string) => {
   const lines = text.split('\n')
@@ -75,7 +76,6 @@ export const CookieModal = () => {
     }
 
     if (isWeb) {
-      const { mainClient } = await import('@/desktop/src/renderer/ipc/main')
       await mainClient.setCookie(cookie)
       webview.executeJavaScript('location.reload()')
     } else {
