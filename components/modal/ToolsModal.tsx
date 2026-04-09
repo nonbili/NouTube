@@ -1,5 +1,5 @@
 import { ActivityIndicator, Pressable, ScrollView, TextInput, View, useColorScheme } from 'react-native'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useValue } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { settings$ } from '@/states/settings'
@@ -36,19 +36,7 @@ export const ToolsModal = () => {
     ui$.toolsModalUrl.set('')
   }
 
-  useEffect(() => {
-    mainClient.getDownloadsPath().then(setResolvedDownloadsPath)
-  }, [])
-
-  useEffect(() => {
-    if (!isOpen) return
-    if (toolsModalUrl) {
-      setUrl(toolsModalUrl)
-      loadFormats(toolsModalUrl)
-    }
-  }, [isOpen, toolsModalUrl])
-
-  const loadFormats = (targetUrl: string) => {
+  const loadFormats = useCallback((targetUrl: string) => {
     loadingUrlRef.current = targetUrl
     setPhase('loading')
     setFormats([])
@@ -67,7 +55,23 @@ export const ToolsModal = () => {
         setErrorMsg(err?.message || t('modals.failedToLoadFormats'))
         setPhase('error')
       })
-  }
+  }, [])
+
+  useEffect(() => {
+    mainClient.getDownloadsPath().then(setResolvedDownloadsPath)
+  }, [])
+
+  useEffect(() => {
+    if (!isOpen) return
+    if (toolsModalUrl) {
+      setUrl(toolsModalUrl)
+      loadFormats(toolsModalUrl)
+    } else {
+      setUrl('')
+      setPhase('idle')
+    }
+    setFormats([])
+  }, [isOpen, toolsModalUrl, loadFormats])
 
   const handleDownload = (formatId: string) => {
     const targetUrl = toolsModalUrl || url
@@ -96,23 +100,9 @@ export const ToolsModal = () => {
 
   return (
     <BaseModal onClose={onClose}>
-      <ScrollView
-        className="flex-1"
-        contentContainerClassName="p-5 gap-4"
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView className="flex-1" contentContainerClassName="p-5 gap-4" keyboardShouldPersistTaps="handled">
         <View className="flex-row items-center justify-between">
           <NouText className="text-lg font-semibold">{t('modals.downloadVideo', 'Download video')}</NouText>
-          {activeDownloadUrls.length > 0 && (
-            <Pressable
-              onPress={() => {
-                downloads$.set({})
-              }}
-              className="px-2 py-1 rounded-md active:bg-zinc-200 dark:active:bg-zinc-800"
-            >
-              <NouText className="text-xs text-zinc-500 font-medium">{t('buttons.clearAll')}</NouText>
-            </Pressable>
-          )}
         </View>
 
         <View className="gap-1">
@@ -135,7 +125,8 @@ export const ToolsModal = () => {
           />
         </View>
 
-        {nIf(!isAndroid && (phase === 'idle' || phase === 'choosing'), (
+        {nIf(
+          !isAndroid && (phase === 'idle' || phase === 'choosing'),
           <View className="gap-1">
             <NouText className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">{t('modals.folder')}</NouText>
             <Pressable
@@ -150,8 +141,8 @@ export const ToolsModal = () => {
               </NouText>
               <NouText className="text-xs text-zinc-400 dark:text-zinc-500">{t('buttons.browse')}</NouText>
             </Pressable>
-          </View>
-        ))}
+          </View>,
+        )}
 
         {phase === 'idle' && (
           <View className="flex-row justify-end">
@@ -194,13 +185,27 @@ export const ToolsModal = () => {
 
         {phase === 'error' && (
           <View className="gap-3">
-            <NouText className="text-sm text-red-500 dark:text-red-400">{errorMsg || t('modals.failedToLoadFormats')}</NouText>
+            <NouText className="text-sm text-red-500 dark:text-red-400">
+              {errorMsg || t('modals.failedToLoadFormats')}
+            </NouText>
           </View>
         )}
 
         {activeDownloadUrls.length > 0 && (
           <View className="mt-4 gap-4">
-            <NouText className="text-sm font-bold uppercase tracking-widest text-zinc-500">{t('modals.downloadHistory')}</NouText>
+            <View className="flex-row items-center justify-between">
+              <NouText className="text-sm font-bold uppercase tracking-widest text-zinc-500">
+                {t('modals.downloadHistory')}
+              </NouText>
+              <Pressable
+                onPress={() => {
+                  downloads$.set({})
+                }}
+                className="px-2 py-1 rounded-md active:bg-zinc-200 dark:active:bg-zinc-800"
+              >
+                <NouText className="text-xs text-zinc-500 font-medium">{t('buttons.clearAll')}</NouText>
+              </Pressable>
+            </View>
             {activeDownloadUrls.map((dUrl) => {
               const d = activeDownloads[dUrl]
               return (
@@ -220,8 +225,14 @@ export const ToolsModal = () => {
                         {d.title || dUrl}
                       </NouText>
                     </View>
-                    {nIf(d.phase === 'error', <MaterialIcons name="error-outline" size={18} color={isDark ? '#f87171' : '#dc2626'} />)}
-                    {nIf(d.phase === 'downloading', <ActivityIndicator size="small" color={isDark ? '#7dd3fc' : '#0284c7'} />)}
+                    {nIf(
+                      d.phase === 'error',
+                      <MaterialIcons name="error-outline" size={18} color={isDark ? '#f87171' : '#dc2626'} />,
+                    )}
+                    {nIf(
+                      d.phase === 'downloading',
+                      <ActivityIndicator size="small" color={isDark ? '#7dd3fc' : '#0284c7'} />,
+                    )}
                   </View>
                   {d.phase === 'downloading' && (
                     <View className="h-2 overflow-hidden rounded-full bg-sky-100 dark:bg-sky-950">
@@ -250,7 +261,9 @@ export const ToolsModal = () => {
                             onPress={() => mainClient.openFolder(d.savedPath)}
                             className="bg-zinc-200 dark:bg-zinc-800 px-3 py-1.5 rounded-lg active:bg-zinc-300 dark:active:bg-zinc-700"
                           >
-                            <NouText className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">{t('buttons.show')}</NouText>
+                            <NouText className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                              {t('buttons.show')}
+                            </NouText>
                           </Pressable>
                         )}
                         <Pressable
@@ -259,14 +272,18 @@ export const ToolsModal = () => {
                           }}
                           className="bg-zinc-200 dark:bg-zinc-800 px-3 py-1.5 rounded-lg active:bg-zinc-300 dark:active:bg-zinc-700"
                         >
-                          <NouText className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">{t('buttons.clear')}</NouText>
+                          <NouText className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                            {t('buttons.clear')}
+                          </NouText>
                         </Pressable>
                       </View>
                     </View>
                   )}
                   {d.phase === 'error' && (
                     <View className="gap-2">
-                      <NouText className="text-sm text-red-700 dark:text-red-300 font-medium">{d.errorMsg || t('modals.downloadFailed')}</NouText>
+                      <NouText className="text-sm text-red-700 dark:text-red-300 font-medium">
+                        {d.errorMsg || t('modals.downloadFailed')}
+                      </NouText>
                       <View className="flex-row justify-end mt-1">
                         <Pressable
                           onPress={() => {
@@ -274,7 +291,9 @@ export const ToolsModal = () => {
                           }}
                           className="bg-zinc-200 dark:bg-zinc-800 px-3 py-1.5 rounded-lg active:bg-zinc-300 dark:active:bg-zinc-700"
                         >
-                          <NouText className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">{t('buttons.clear')}</NouText>
+                          <NouText className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                            {t('buttons.clear')}
+                          </NouText>
                         </Pressable>
                       </View>
                     </View>

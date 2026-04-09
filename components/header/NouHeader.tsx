@@ -152,11 +152,16 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
           <MaterialButton name="playlist-play" onPress={() => ui$.queueModalOpen.set(!ui$.queueModalOpen.get())} />,
         )}
         {nIf(
-          hasDownloads,
+          pageType?.type === 'watch' || hasDownloads,
           <MaterialButton
             name="download"
             color={isDownloading ? '#60a5fa' : headerControlColor}
-            onPress={() => ui$.toolsModalOpen.set(true)}
+            onPress={() => {
+              if (pageType?.type === 'watch') {
+                ui$.toolsModalUrl.set(uiState.pageUrl)
+              }
+              ui$.toolsModalOpen.set(true)
+            }}
           />,
         )}
         {nIf(
@@ -198,7 +203,9 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
               label: t('menus.tools', 'Tools'),
               icon: <MaterialIcons name="download" size={18} color={headerControlColor} />,
               systemImage: 'arrow.down.circle',
-              handler: () => ui$.toolsModalOpen.set(true),
+              handler: () => {
+                ui$.toolsModalOpen.set(true)
+              },
             },
             {
               label: t('settings.label'),
