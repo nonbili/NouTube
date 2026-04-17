@@ -242,12 +242,6 @@ export const SettingsToolsContent = () => {
           />
         ) : null}
         <SettingsActionRow
-          label={t('settings.openUrlLabel')}
-          description={t('settings.toolsHint')}
-          icon="travel-explore"
-          onPress={() => ui$.urlModalOpen.set(true)}
-        />
-        <SettingsActionRow
           label={t('settings.webview.clearLabel')}
           description="Cookies and browsing state"
           icon="delete-sweep"

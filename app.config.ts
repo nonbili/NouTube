@@ -3,17 +3,17 @@ import 'ts-node/register'
 import { ExpoConfig } from 'expo/config'
 import { version, versionCode } from './package.json'
 
-const intentFilters = ['youtube.com', 'm.youtube.com', 'music.youtube.com', 'www.youtube.com', 'youtu.be'].map(
-  (host) => ({
+const intentFilters = [
+  {
     autoVerify: false,
     action: 'VIEW',
-    data: {
+    data: ['youtube.com', 'm.youtube.com', 'music.youtube.com', 'www.youtube.com', 'youtu.be'].map((host) => ({
       scheme: 'https',
       host,
-    },
+    })),
     category: ['BROWSABLE', 'DEFAULT'],
-  }),
-)
+  },
+]
 
 module.exports = ({ config }: { config: ExpoConfig }) => {
   return {

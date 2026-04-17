@@ -134,7 +134,7 @@
     "appearance": "Appearance",
     "appearanceHint": "Control how YouTube looks inside the app.",
     "tools": "Tools",
-    "toolsHint": "Open URLs and manage the webview environment.",
+    "toolsHint": "Manage the webview environment and other tools.",
     "transfer": "Import & export",
     "transferHint": "Bring bookmarks in or take them with you.",
     "syncHintShort": "Account, plan, and device sync.",

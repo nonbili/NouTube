@@ -194,6 +194,12 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
               handler: () => uiState.webview.executeJavaScript('document.location.reload()'),
             },
             {
+              label: 'Open URL',
+              icon: <MaterialIcons name="link" size={18} color={headerControlColor} />,
+              systemImage: 'link',
+              handler: () => ui$.urlModalOpen.set(true),
+            },
+            {
               label: t('menus.share'),
               icon: <MaterialIcons name="share" size={18} color={headerControlColor} />,
               systemImage: 'square.and.arrow.up',
