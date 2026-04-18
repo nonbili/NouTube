@@ -1,4 +1,4 @@
-# NouTube
+# <img src="desktop/icon.png" align="top" height="44"> NouTube
 
 Android and Desktop app for YouTube and YouTube Music.
 
@@ -44,3 +44,7 @@ You can find [contributing instructions here](/CONTRIBUTING.md)
 ## Translation
 
 Translation is supported by [Weblate](https://hosted.weblate.org/projects/noutube).
+
+## Note
+
+We're not affiliated with any .org websites.

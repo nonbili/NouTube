@@ -1,0 +1,3 @@
+- Add menu item to switch to desktop mode for YouTube Music
+- Support downloading as MP3
+- Move "Open URL" from settings to the top menu
