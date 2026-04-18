@@ -16,7 +16,15 @@
     "save": "Salvar",
     "signOut": "Sair",
     "remove": "Remover",
-    "unsubscribe": "Cancelar inscrição"
+    "unsubscribe": "Cancelar inscrição",
+    "clearAll": "Limpar tudo",
+    "next": "Próximo",
+    "show": "Mostrar",
+    "download": "Download",
+    "browse": "Navegar",
+    "updateYtDlp": "Atualizar yt-dlp",
+    "updating": "Atualizando…",
+    "ytDlpUpdated": "yt-dlp atualizado"
   },
   "library": {
     "videos": "Vídeos",
@@ -30,7 +38,8 @@
     "remove": "Remover",
     "reload": "Recarregar",
     "share": "Compartilhar",
-    "unsubscribe": "Cancelar inscrição"
+    "unsubscribe": "Cancelar inscrição",
+    "tools": "Ferramentas"
   },
   "modals": {
     "editBookmark": "Editar favorito",
@@ -39,7 +48,16 @@
     "ungrouped": "Desagrupado",
     "feeds": "Feeds",
     "history": "Histórico",
-    "queue": "Fila"
+    "queue": "Fila",
+    "downloadVideo": "Baixar vídeo",
+    "downloadsFolder": "Pasta de downloads",
+    "starting": "Iniciando…",
+    "downloadComplete": "Download concluído",
+    "downloadFailed": "Falha no download",
+    "failedToLoadFormats": "Erro ao carregar os formatos",
+    "playbackSpeed": "Velocidade de reprodução",
+    "activeDownloads": "Downloads em andamento",
+    "downloadHistory": "Histórico de downloads"
   },
   "settings": {
     "label": "Configurações",
@@ -84,7 +102,7 @@
     "transfer": "Importação & Exportação",
     "transferHint": "Traga seus vídeos favoritos ou leve-os com você.",
     "syncHintShort": "Sincronização da conta, plano e dispositivo.",
-    "autoHideHeader": "Ocultar automaticamente o cabeçalho ao rolar a tela",
+    "autoHideHeader": "Ocultar e exibir a barra de ferramentas de acordo com a direção da rolagem",
     "hideShortsInNavbar": "Oculta Shorts na barra de navegação",
     "hideMixPlaylist": "Ocultar playlist mistas",
     "userStyles": {
@@ -116,7 +134,8 @@
           "label": "Ocultar playlist mistas"
         }
       }
-    }
+    },
+    "hideToolbarWhenScrolled": "Ocultar a barra de ferramentas quando a página não estiver no topo"
   },
   "sync": {
     "label": "Sincronizar",
@@ -175,12 +194,12 @@
     "hint": "Pause a reprodução após uma duração predefinida ou um valor em minutos definido por você.",
     "label": "Lembrete para fazer uma pausa",
     "activeHint": "A reprodução será pausada assim que esta contagem regressiva terminar.",
-    "off": "Desativar",
+    "off": "Desativado",
     "endsIn": "Termina em {{value}}",
     "preset": "{{value}} min",
     "customPlaceholder": "Definir minutos",
-    "set": "Ajustar temporizador",
-    "cancel": "Cancelar temporizador",
+    "set": "Definir",
+    "cancel": "Cancelar",
     "replace": "Substituir",
     "validation": {
       "minutes": "Insira um número em minutos entre 1 e 1440"

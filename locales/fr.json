@@ -16,7 +16,15 @@
     "save": "Enregistrer",
     "signOut": "Se déconnecter",
     "remove": "Supprimer",
-    "unsubscribe": "Se désabonner"
+    "unsubscribe": "Se désabonner",
+    "clearAll": "Tout effacer",
+    "next": "Suivant",
+    "show": "Afficher",
+    "download": "Télécharger",
+    "browse": "Parcourir",
+    "updateYtDlp": "Mise à jour yt-dlp",
+    "updating": "Mise à jour en cours...",
+    "ytDlpUpdated": "yt-dlp est à jour"
   },
   "library": {
     "videos": "Vidéos",
@@ -30,7 +38,8 @@
     "remove": "Supprimer",
     "reload": "Recharger",
     "share": "Partager",
-    "unsubscribe": "Se désabonner"
+    "unsubscribe": "Se désabonner",
+    "tools": "Outils"
   },
   "modals": {
     "editBookmark": "Modifier le signet",
@@ -39,7 +48,16 @@
     "ungrouped": "Non regroupé",
     "feeds": "Flux",
     "history": "Historique",
-    "queue": "File d'attente"
+    "queue": "File d'attente",
+    "downloadVideo": "Télécharger la vidéo",
+    "downloadsFolder": "Télécharger le dossier",
+    "activeDownloads": "Téléchargements actifs",
+    "starting": "C'est parti...",
+    "downloadComplete": "Téléchargement complet",
+    "downloadFailed": "Échec du téléchargement",
+    "failedToLoadFormats": "Échec du chargement des formats",
+    "playbackSpeed": "Vitesse de lecture",
+    "downloadHistory": "Historique des téléchargements"
   },
   "settings": {
     "label": "Paramètres",
@@ -84,7 +102,7 @@
     "transfer": "Import & export",
     "transferHint": "Importer vos marque-pages ou emportez-les avec vous.",
     "syncHintShort": "Synchronisation des comptes, des forfaits et des appareils.",
-    "autoHideHeader": "Masquer automatiquement l'en-tête lors du défilement",
+    "autoHideHeader": "Afficher ou masquer la barre d'outils en fonction du sens de défilement",
     "hideShortsInNavbar": "Masquer les shorts dans la barre de navigation",
     "hideMixPlaylist": "Masquer la playlist mixée",
     "userStyles": {
@@ -116,7 +134,8 @@
       "cssCopied": "CSS copié",
       "copyFailed": "Échec de la copie du CSS",
       "importFailed": "Échec de l'importation du CSS"
-    }
+    },
+    "hideToolbarWhenScrolled": "Masquer la barre d'outils lorsque la page n'est pas en haut de page"
   },
   "sync": {
     "label": "Synchronisation",

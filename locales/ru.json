@@ -16,7 +16,15 @@
     "save": "Сохранить",
     "signOut": "Выйти",
     "remove": "Удалить",
-    "unsubscribe": "Отписаться"
+    "unsubscribe": "Отписаться",
+    "clearAll": "Очистить всё",
+    "next": "Далее",
+    "show": "Показать",
+    "download": "Скачать",
+    "browse": "Обзор",
+    "updateYtDlp": "Обновить yt-dlp",
+    "updating": "Обновление...",
+    "ytDlpUpdated": "yt-dlp уже обновлён"
   },
   "library": {
     "videos": "Видео",
@@ -30,7 +38,8 @@
     "remove": "Удалить",
     "reload": "Обновить",
     "share": "Поделиться",
-    "unsubscribe": "Отписаться"
+    "unsubscribe": "Отписаться",
+    "tools": "Инструменты"
   },
   "modals": {
     "editBookmark": "Изменить закладку",
@@ -39,7 +48,16 @@
     "ungrouped": "Без группы",
     "feeds": "Ленты",
     "history": "История",
-    "queue": "Очередь"
+    "queue": "Очередь",
+    "downloadVideo": "Скачать видео",
+    "downloadsFolder": "Папка загрузок",
+    "activeDownloads": "Активные загрузки",
+    "starting": "Запускаем...",
+    "downloadComplete": "Загрузка завершена",
+    "downloadFailed": "Ошибка загрузки",
+    "failedToLoadFormats": "Не удалось загрузить форматы",
+    "playbackSpeed": "Скорость воспроизведения",
+    "downloadHistory": "История загрузок"
   },
   "settings": {
     "label": "Настройки",
@@ -84,7 +102,7 @@
     "transfer": "Импорт и экспорт",
     "transferHint": "Импортируйте закладки или перенесите их с собой.",
     "syncHintShort": "Аккаунт, управление планом и синхронизация между устройствами.",
-    "autoHideHeader": "Автоскрытие заголовка при прокрутке",
+    "autoHideHeader": "Скрывать или показывать панель при прокрутке",
     "hideShortsInNavbar": "Скрыть Shorts в панели навигации",
     "hideMixPlaylist": "Скрыть миксы",
     "userStyles": {
@@ -116,7 +134,8 @@
       "cssCopied": "CSS скопирован",
       "copyFailed": "Не удалось скопировать CSS",
       "importFailed": "Не удалось импортировать CSS"
-    }
+    },
+    "hideToolbarWhenScrolled": "Скрывать панель, если страница не вверху"
   },
   "sync": {
     "label": "Синхронизация",

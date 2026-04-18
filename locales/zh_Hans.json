@@ -16,7 +16,15 @@
     "save": "保存",
     "signOut": "退出登录",
     "remove": "移除",
-    "unsubscribe": "取消订阅"
+    "unsubscribe": "取消订阅",
+    "clearAll": "全部清除",
+    "next": "下一个",
+    "show": "显示",
+    "download": "下载",
+    "browse": "浏览",
+    "updateYtDlp": "更新 yt-dlp",
+    "updating": "正在更新…",
+    "ytDlpUpdated": "yt-dlp 已是最新版本"
   },
   "library": {
     "videos": "视频",
@@ -30,7 +38,8 @@
     "remove": "移除",
     "reload": "重新加载",
     "share": "分享",
-    "unsubscribe": "取消订阅"
+    "unsubscribe": "取消订阅",
+    "tools": "工具"
   },
   "modals": {
     "editBookmark": "编辑书签",
@@ -39,7 +48,16 @@
     "ungrouped": "未分组",
     "feeds": "订阅源",
     "history": "历史记录",
-    "queue": "待播列表"
+    "queue": "待播列表",
+    "downloadVideo": "下载视频",
+    "downloadsFolder": "下载文件夹",
+    "activeDownloads": "正在下载",
+    "starting": "正在启动…",
+    "downloadComplete": "下载完成",
+    "downloadFailed": "下载失败",
+    "failedToLoadFormats": "无法加载格式",
+    "playbackSpeed": "播放速度",
+    "downloadHistory": "下载记录"
   },
   "settings": {
     "label": "设置",
@@ -47,7 +65,7 @@
     "restoreOnStart": "启动时恢复上次播放",
     "hideShorts": "在时间线中隐藏 Shorts 短视频",
     "channelsFeed": "频道订阅源",
-    "watchHistory": "观看历史",
+    "watchHistory": "观看记录",
     "theme": {
       "label": "YouTube 主题",
       "system": "系统",
@@ -84,7 +102,7 @@
     "transfer": "导入和导出",
     "transferHint": "导入书签或导出书签随时使用。",
     "syncHintShort": "账号、套餐和设备同步。",
-    "autoHideHeader": "滚动时自动隐藏标题栏",
+    "autoHideHeader": "随滚动方向隐藏和显示工具栏",
     "hideShortsInNavbar": "在导航栏中隐藏 Shorts 短视频",
     "hideMixPlaylist": "隐藏合辑播放列表",
     "userStyles": {
@@ -116,7 +134,8 @@
       "cssCopied": "CSS 已复制",
       "copyFailed": "无法复制 CSS",
       "importFailed": "无法导入 CSS"
-    }
+    },
+    "hideToolbarWhenScrolled": "页面不在顶部时隐藏工具栏"
   },
   "sync": {
     "label": "同步",
