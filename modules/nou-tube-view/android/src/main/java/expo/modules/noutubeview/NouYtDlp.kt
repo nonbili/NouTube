@@ -104,12 +104,25 @@ internal class NouYtDlp(private val context: Context) {
       )
     }
 
-    if (formats.any { it.optString("vcodec") == "none" && it.optString("acodec") != "none" }) {
+    val audioFormats = formats.filter {
+      it.optString("vcodec") == "none" && it.optString("acodec") != "none"
+    }
+    if (audioFormats.isNotEmpty()) {
+      val best = audioFormats.maxByOrNull { it.optDouble("abr", it.optDouble("tbr", 0.0)) }
+      val ext = best?.optString("ext").orEmpty()
+      val label = if (ext.isNotBlank()) "Audio ($ext)" else "Audio only"
       options.add(
         mapOf(
           "formatId" to "bestaudio/best",
-          "label" to "Audio only",
+          "label" to label,
           "description" to "Best audio stream",
+        ),
+      )
+      options.add(
+        mapOf(
+          "formatId" to "bestaudio-mp3",
+          "label" to "Audio (mp3)",
+          "description" to "Best audio transcoded to MP3",
         ),
       )
     }
@@ -130,10 +143,16 @@ internal class NouYtDlp(private val context: Context) {
 
     val tempDir = File(context.cacheDir, "yt-dlp-download-${System.currentTimeMillis()}").apply { mkdirs() }
     val request = YoutubeDLRequest(url)
-    request.addOption("-f", formatId)
+    val isMp3 = formatId == "bestaudio-mp3"
+    request.addOption("-f", if (isMp3) "bestaudio/best" else formatId)
     request.addOption("-o", "${tempDir.absolutePath}/%(title)s.%(ext)s")
     request.addOption("--no-playlist")
-    request.addOption("--merge-output-format", "mp4")
+    if (isMp3) {
+      request.addOption("--extract-audio")
+      request.addOption("--audio-format", "mp3")
+    } else {
+      request.addOption("--merge-output-format", "mp4")
+    }
     var lastLine = ""
 
     try {
