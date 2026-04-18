@@ -202,6 +202,18 @@
     "injectCookieTitle": "Inject auth cookie into the webview",
     "injectCookieHint": "Copy the Cookie header value from your PC browser. This is a workaround when you couldn't login with email/password."
   },
+  "native": {
+    "format_bestQuality": "Best quality",
+    "format_bestQualityDesc": "Up to {{height}}p video + audio",
+    "format_1080pDesc": "1080p video + audio",
+    "format_720pDesc": "720p video + audio",
+    "format_audioOnly": "Audio only",
+    "format_audio": "Audio ({{ext}})",
+    "format_audioStreamDesc": "Best audio stream",
+    "format_audioMp3Desc": "Best audio transcoded to MP3",
+    "download_complete": "Download complete",
+    "download_failed": "Download failed"
+  },
   "sync": {
     "label": "Sync",
     "hint": "Sync bookmarks across your phones and computers as a premium user.",

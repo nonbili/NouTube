@@ -10,6 +10,7 @@ declare class NouTubeViewModule extends NativeModule {
   downloadVideo(url: string, formatId: string, outputDir: string): Promise<void>
   getDownloadsPath(): Promise<string>
   updateYtDlp(): Promise<void>
+  setLocaleStrings(strings: Record<string, string>): void
 }
 
 export default requireNativeModule<NouTubeViewModule>('NouTubeView')

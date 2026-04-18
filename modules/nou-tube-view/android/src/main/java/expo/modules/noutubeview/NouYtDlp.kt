@@ -78,8 +78,8 @@ internal class NouYtDlp(private val context: Context) {
       options.add(
         mapOf(
           "formatId" to "bestvideo+bestaudio/best",
-          "label" to "Best quality",
-          "description" to "Up to ${maxHeight}p video + audio",
+          "label" to nouController.t("format_bestQuality"),
+          "description" to nouController.t("format_bestQualityDesc").replace("{{height}}", maxHeight.toString()),
         ),
       )
     }
@@ -89,7 +89,7 @@ internal class NouYtDlp(private val context: Context) {
         mapOf(
           "formatId" to "bestvideo[height<=1080]+bestaudio/best[height<=1080]",
           "label" to "1080p",
-          "description" to "1080p video + audio",
+          "description" to nouController.t("format_1080pDesc"),
         ),
       )
     }
@@ -99,7 +99,7 @@ internal class NouYtDlp(private val context: Context) {
         mapOf(
           "formatId" to "bestvideo[height<=720]+bestaudio/best[height<=720]",
           "label" to "720p",
-          "description" to "720p video + audio",
+          "description" to nouController.t("format_720pDesc"),
         ),
       )
     }
@@ -110,19 +110,23 @@ internal class NouYtDlp(private val context: Context) {
     if (audioFormats.isNotEmpty()) {
       val best = audioFormats.maxByOrNull { it.optDouble("abr", it.optDouble("tbr", 0.0)) }
       val ext = best?.optString("ext").orEmpty()
-      val label = if (ext.isNotBlank()) "Audio ($ext)" else "Audio only"
+      val label = if (ext.isNotBlank()) {
+        nouController.t("format_audio").replace("{{ext}}", ext)
+      } else {
+        nouController.t("format_audioOnly")
+      }
       options.add(
         mapOf(
           "formatId" to "bestaudio/best",
           "label" to label,
-          "description" to "Best audio stream",
+          "description" to nouController.t("format_audioStreamDesc"),
         ),
       )
       options.add(
         mapOf(
           "formatId" to "bestaudio-mp3",
-          "label" to "Audio (mp3)",
-          "description" to "Best audio transcoded to MP3",
+          "label" to nouController.t("format_audio").replace("{{ext}}", "mp3"),
+          "description" to nouController.t("format_audioMp3Desc"),
         ),
       )
     }

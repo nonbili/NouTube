@@ -21,6 +21,8 @@ import { PlaybackSpeedModal } from '../modal/PlaybackSpeedModal'
 import { ToolsModal } from '../modal/ToolsModal'
 import { Locale, useLocales } from 'expo-localization'
 import i18n from 'i18next'
+import NouTubeViewModule from '@/modules/nou-tube-view'
+import { isWeb } from '@/lib/utils'
 
 function expoLocaleToI18nLocale(locale: Locale): string | undefined {
   const { languageCode, languageScriptCode } = locale
@@ -37,7 +39,14 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   const locales = useLocales()
 
   useEffect(() => {
-    i18n.changeLanguage(expoLocaleToI18nLocale(locales[0]))
+    const apply = async () => {
+      await i18n.changeLanguage(expoLocaleToI18nLocale(locales[0]))
+      if (!isWeb) {
+        const strings = i18n.t('native', { returnObjects: true }) as Record<string, string>
+        NouTubeViewModule.setLocaleStrings(strings)
+      }
+    }
+    void apply()
   }, [locales[0]])
 
   useEffect(() => {

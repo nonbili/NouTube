@@ -13,11 +13,16 @@ class NouController {
   internal var service: NouService? = null
   internal var logFn: LogFn? = null
   internal var sleepTimerEventFn: SleepTimerEventFn? = null
+  internal var i18nStrings = mutableMapOf<String, String>()
   private var pendingSleepTimerDeadlineMs: Long? = null
   private var hasPendingSleepTimerChange = false
 
   fun log(msg: String) {
     logFn?.invoke(msg)
+  }
+
+  fun t(key: String): String {
+    return i18nStrings[key] ?: "Missed translation: $key"
   }
 
   fun setSleepTimer(durationMs: Long) {

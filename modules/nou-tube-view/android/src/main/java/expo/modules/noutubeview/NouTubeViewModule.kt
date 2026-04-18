@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import expo.modules.kotlin.functions.Coroutine
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
+import expo.modules.kotlin.jni.JavaScriptObject
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -57,6 +58,12 @@ class NouTubeViewModule : Module() {
       nouController.exit()
     }
 
+    Function("setLocaleStrings") { v: JavaScriptObject ->
+      v.getPropertyNames().forEach {
+        nouController.i18nStrings[it] = v[it]!!.getString()
+      }
+    }
+
     AsyncFunction("setSleepTimer") { durationMs: Long ->
       nouController.setSleepTimer(durationMs)
     }
@@ -94,7 +101,7 @@ class NouTubeViewModule : Module() {
           "url" to url,
           "progress" to 100f,
           "eta" to 0L,
-          "line" to if (result.lastLine.isNotBlank()) result.lastLine else "Download complete",
+          "line" to if (result.lastLine.isNotBlank()) result.lastLine else nouController.t("download_complete"),
           "done" to true,
           "error" to false,
           "filePath" to result.savedPath
@@ -104,7 +111,7 @@ class NouTubeViewModule : Module() {
           "url" to url,
           "progress" to 0f,
           "eta" to 0L,
-          "line" to (e.message ?: "Download failed"),
+          "line" to (e.message ?: nouController.t("download_failed")),
           "done" to true,
           "error" to true
         ))
