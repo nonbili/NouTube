@@ -49,7 +49,10 @@
     "unsubscribe": "Unsubscribe",
     "reload": "Reload",
     "share": "Share",
-    "tools": "Tools"
+    "tools": "Tools",
+    "desktop": "Desktop site",
+    "on": "On",
+    "off": "Off"
   },
   "modals": {
     "editBookmark": "Edit bookmark",

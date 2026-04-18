@@ -28,6 +28,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const autoHideHeader = useValue(settings$.autoHideHeader)
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
   const isYTMusic = useValue(settings$.isYTMusic)
+  const desktopMode = useValue(settings$.desktopMode)
   const playbackRate = useValue(settings$.playbackRate)
   const showPlaybackSpeedControl = useValue(settings$.showPlaybackSpeedControl)
   const { width, height: windowHeight } = useWindowDimensions()
@@ -193,6 +194,39 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
               systemImage: 'arrow.clockwise',
               handler: () => uiState.webview.executeJavaScript('document.location.reload()'),
             },
+            ...(isYTMusic && !isWeb
+              ? [
+                  {
+                    label: t('menus.desktop'),
+                    icon: <MaterialIcons name="desktop-windows" size={18} color={headerControlColor} />,
+                    systemImage: 'desktopcomputer',
+                    metaLabel: desktopMode ? t('menus.on') : t('menus.off'),
+                    meta: (
+                      <View
+                        className={clsx(
+                          'rounded-full px-2 py-1',
+                          desktopMode
+                            ? 'bg-indigo-500/20 border border-indigo-400/40'
+                            : 'bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700',
+                        )}
+                      >
+                        <NouText
+                          className={clsx(
+                            'text-[11px] font-medium',
+                            desktopMode ? 'text-indigo-200' : 'text-zinc-400',
+                          )}
+                        >
+                          {desktopMode ? t('menus.on') : t('menus.off')}
+                        </NouText>
+                      </View>
+                    ),
+                    handler: () => {
+                      settings$.desktopMode.set(!desktopMode)
+                      uiState.webview.executeJavaScript('document.location.reload()')
+                    },
+                  },
+                ]
+              : []),
             {
               label: 'Open URL',
               icon: <MaterialIcons name="link" size={18} color={headerControlColor} />,

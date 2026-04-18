@@ -19,6 +19,7 @@ interface Store {
   sponsorBlock: boolean
   showPlaybackSpeedControl: boolean
   userAgent: string
+  desktopMode: boolean
   theme: null | 'dark' | 'light'
   downloadPath: string
   lastYtDlpUpdate: number
@@ -40,6 +41,7 @@ export const settings$ = observable<Store>({
   sponsorBlock: true,
   showPlaybackSpeedControl: false,
   userAgent: '',
+  desktopMode: false,
   theme: isWeb ? 'dark' : null,
   downloadPath: '',
   lastYtDlpUpdate: 0,

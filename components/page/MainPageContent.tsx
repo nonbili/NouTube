@@ -77,9 +77,14 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const autoHideHeader = useValue(settings$.autoHideHeader)
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
   const customUserAgent = useValue(settings$.userAgent)
+  const desktopMode = useValue(settings$.desktopMode)
   const userStyles = useValue(userStyles$)
   const { userId, me } = useMe()
-  const userAgent = resolveUserAgent(isWeb ? window.electron.process.platform : 'android', customUserAgent)
+  const userAgent = resolveUserAgent(
+    isWeb ? window.electron.process.platform : 'android',
+    customUserAgent,
+    desktopMode,
+  )
 
   useEffect(() => {
     // Background yt-dlp update every 2 weeks
