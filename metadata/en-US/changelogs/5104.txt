@@ -1,0 +1,2 @@
+- Apply custom styles without requiring a page reload
+- Avoid injecting download button on watch page
