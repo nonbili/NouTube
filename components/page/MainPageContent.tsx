@@ -78,7 +78,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
   const customUserAgent = useValue(settings$.userAgent)
   const desktopMode = useValue(settings$.desktopMode)
-  const userStyles = useValue(userStyles$)
   const { userId, me } = useMe()
   const userAgent = resolveUserAgent(
     isWeb ? window.electron.process.platform : 'android',
@@ -137,9 +136,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       return
     }
     const ref = webviewRef.current || nativeRef.current
-    const value = JSON.stringify(getUserStylesSnapshot(userStyles))
+    const value = JSON.stringify(getUserStylesSnapshot())
     ref?.executeJavaScript(`window.NouTube.setUserStyles(${value})`)
-  }, [nativeRef, userStyles, webviewRef])
+  }, [nativeRef, webviewRef])
 
   const syncSettingsToWebview = useCallback(() => {
     if (webviewRef.current && !webviewReadyRef.current) {
@@ -337,9 +336,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
   useObserveEffect(settings$.sponsorBlock, () => syncSettingsToWebview())
   useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
-  useEffect(() => {
-    syncUserStylesToWebview()
-  }, [syncUserStylesToWebview])
+  useObserveEffect(userStyles$, () => syncUserStylesToWebview())
 
   const onLoad = async (e: { nativeEvent: any }) => {
     setPageUrl(e.nativeEvent.url)

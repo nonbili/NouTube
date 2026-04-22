@@ -1,6 +1,8 @@
 import { getEnabledUserStyleCss } from '../lib/user-styles'
 import { noutubeSettingsEvent, noutubeUserStylesEvent } from './noutube'
 
+const injectedStyleId = '_nou_injected_css'
+
 const css = (strings: string[] | ArrayLike<string>, ...values: any[]) => String.raw({ raw: strings }, ...values)
 
 const cssContentMobile = css`
@@ -109,16 +111,17 @@ export const getInjectedCss = (userStyles?: any) => {
 }
 
 export function injectCSS() {
-  const style = document.createElement('style')
+  const style = document.querySelector<HTMLStyleElement>(`#${injectedStyleId}`) || document.createElement('style')
 
   const update = () => {
     const userStyles = window.NouTube?.getUserStyles?.()
     style.textContent = getInjectedCss(userStyles)
   }
 
+  style.id = injectedStyleId
   style.type = 'text/css'
   update()
-  document.head.appendChild(style)
+  ;(document.head || document.documentElement).appendChild(style)
   window.addEventListener(noutubeSettingsEvent, update)
   window.addEventListener(noutubeUserStylesEvent, update)
 }
