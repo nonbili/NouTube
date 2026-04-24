@@ -183,6 +183,10 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
           override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
             val uri = Uri.parse(url)
+            if (uri.scheme == "vnd.youtube.music") {
+              emit("yt-music-desktop", mapOf<String, Any>())
+              return true
+            }
             if (uri.host in VIEW_HOSTS ||
               (uri.host?.startsWith("accounts.google.") == true) ||
               (uri.host?.startsWith("gds.google.") == true) ||

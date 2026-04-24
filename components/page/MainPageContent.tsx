@@ -241,6 +241,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       case 'keyup':
         handleShortcuts(data)
         break
+      case 'yt-music-desktop':
+        if (settings$.desktopMode.get()) break
+        settings$.desktopMode.set(true)
+        ui$.url.set('https://music.youtube.com')
+        break
     }
   }, [
     autoHideHeader,
