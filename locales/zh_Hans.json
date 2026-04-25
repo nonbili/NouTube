@@ -39,7 +39,10 @@
     "reload": "重新加载",
     "share": "分享",
     "unsubscribe": "取消订阅",
-    "tools": "工具"
+    "tools": "工具",
+    "desktop": "桌面版网站",
+    "on": "开启",
+    "off": "关闭"
   },
   "modals": {
     "editBookmark": "编辑书签",
@@ -98,7 +101,7 @@
     "appearance": "外观",
     "appearanceHint": "控制应用内 YouTube 的外观显示。",
     "tools": "工具",
-    "toolsHint": "打开网址以及管理 WebView 环境。",
+    "toolsHint": "管理 WebView 环境及其他工具。",
     "transfer": "导入和导出",
     "transferHint": "导入书签或导出书签随时使用。",
     "syncHintShort": "账号、套餐和设备同步。",
@@ -207,5 +210,17 @@
     "setToast": "睡眠定时器已设置为 {{value}} 分钟",
     "cancelToast": "睡眠定时器已取消",
     "expiredToast": "睡眠定时器已到期"
+  },
+  "native": {
+    "format_bestQuality": "最佳质量",
+    "format_bestQualityDesc": "最高 {{height}}p 视频 + 音频",
+    "format_1080pDesc": "1080p 视频 + 音频",
+    "format_720pDesc": "720p 视频 + 音频",
+    "format_audioOnly": "仅音频",
+    "format_audio": "音频（{{ext}}）",
+    "format_audioStreamDesc": "最佳音频流",
+    "format_audioMp3Desc": "最佳音频转码为 MP3",
+    "download_complete": "下载完成",
+    "download_failed": "下载失败"
   }
 }

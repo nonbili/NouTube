@@ -39,7 +39,10 @@
     "reload": "Recharger",
     "share": "Partager",
     "unsubscribe": "Se désabonner",
-    "tools": "Outils"
+    "tools": "Outils",
+    "desktop": "Site pour ordinateur",
+    "off": "Désactivé",
+    "on": "Activé"
   },
   "modals": {
     "editBookmark": "Modifier le signet",
@@ -98,7 +101,7 @@
     "appearance": "Apparence",
     "appearanceHint": "Personnalisez l'apparence de YouTube dans l'application.",
     "tools": "Outils",
-    "toolsHint": "Ouvrir des URL et gérer l'environnement WebView.",
+    "toolsHint": "Gérer l'environnement WebView et les autres outils.",
     "transfer": "Import & export",
     "transferHint": "Importer vos marque-pages ou emportez-les avec vous.",
     "syncHintShort": "Synchronisation des comptes, des forfaits et des appareils.",
@@ -207,5 +210,17 @@
     "setToast": "Minuterie de mise en veille réglée sur {{value}} minutes",
     "cancelToast": "Minuterie de mise en veille désactivée",
     "expiredToast": "La minuterie de mise en veille a expiré"
+  },
+  "native": {
+    "format_bestQuality": "Qualité optimale",
+    "format_bestQualityDesc": "Jusqu'à {{height}}p en vidéo et audio",
+    "format_1080pDesc": "Vidéo 1080p + audio",
+    "format_720pDesc": "Vidéo 720p + audio",
+    "format_audioOnly": "Audio uniquement",
+    "format_audio": "Audio ({{ext}})",
+    "format_audioStreamDesc": "Meilleur flux audio",
+    "format_audioMp3Desc": "Meilleure version audio transcodée en MP3",
+    "download_complete": "Téléchargement complet",
+    "download_failed": "Échec du téléchargement"
   }
 }
