@@ -224,7 +224,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       case 'playback-end':
         const videoId = getVideoId(uiState.pageUrl)
         const bookmarks = queue$.bookmarks.get()
-        if (videoId && bookmarks.length) {
+        const hasPlaylistParam = uiState.pageUrl.includes('list=')
+        if (videoId && bookmarks.length && !hasPlaylistParam) {
           const queueIndex = bookmarks.findIndex((x) => getVideoId(x.url) == videoId)
           if (queueIndex != bookmarks.length - 1) {
             ui$.url.set(bookmarks[queueIndex + 1].url)
