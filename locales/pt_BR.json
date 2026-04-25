@@ -39,7 +39,10 @@
     "reload": "Recarregar",
     "share": "Compartilhar",
     "unsubscribe": "Cancelar inscrição",
-    "tools": "Ferramentas"
+    "tools": "Ferramentas",
+    "desktop": "Site para computador",
+    "on": "Ativar",
+    "off": "Desativar"
   },
   "modals": {
     "editBookmark": "Editar favorito",
@@ -98,8 +101,8 @@
     "appearance": "Aparência",
     "appearanceHint": "Controle a aparência do YouTube dentro do aplicativo.",
     "tools": "Ferramentas",
-    "toolsHint": "Abrir URLs e gerenciar o ambiente do WebView.",
-    "transfer": "Importação & Exportação",
+    "toolsHint": "Gerenciar o ambiente do WebView e outras ferramentas.",
+    "transfer": "Importar & Exportar",
     "transferHint": "Traga seus vídeos favoritos ou leve-os com você.",
     "syncHintShort": "Sincronização da conta, plano e dispositivo.",
     "autoHideHeader": "Ocultar e exibir a barra de ferramentas de acordo com a direção da rolagem",
@@ -207,5 +210,17 @@
     "setToast": "Lembrete para fazer uma pausa definido para {{value}} minutos",
     "cancelToast": "Lembrete para fazer uma pausa cancelado",
     "expiredToast": "Lembrete para fazer uma pausa expirou"
+  },
+  "native": {
+    "format_bestQuality": "Melhor qualidade",
+    "format_bestQualityDesc": "Vídeo e áudio com até {{height}}p",
+    "format_1080pDesc": "Vídeo e áudio em 1080p",
+    "format_720pDesc": "Vídeo e áudio em 720p",
+    "format_audioOnly": "Somente áudio",
+    "format_audio": "Áudio ({{ext}})",
+    "format_audioStreamDesc": "Melhor transmissão de áudio",
+    "format_audioMp3Desc": "Melhor áudio transcodificado para MP3",
+    "download_complete": "Download concluído",
+    "download_failed": "Falha no download"
   }
 }

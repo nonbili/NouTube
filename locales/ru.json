@@ -36,14 +36,17 @@
   "menus": {
     "edit": "Изменить",
     "remove": "Удалить",
-    "reload": "Обновить",
+    "reload": "Перезагрузить",
     "share": "Поделиться",
     "unsubscribe": "Отписаться",
-    "tools": "Инструменты"
+    "tools": "Инструменты",
+    "desktop": "Версия для ПК",
+    "on": "Вкл",
+    "off": "Выкл"
   },
   "modals": {
     "editBookmark": "Изменить закладку",
-    "title": "Название",
+    "title": "Заголовок",
     "folder": "Папка",
     "ungrouped": "Без группы",
     "feeds": "Ленты",
@@ -98,12 +101,12 @@
     "appearance": "Внешний вид",
     "appearanceHint": "Управление внешним видом YouTube в приложении.",
     "tools": "Инструменты",
-    "toolsHint": "Открытие ссылок и управление средой webview.",
+    "toolsHint": "Управление средой webview и другими инструментами.",
     "transfer": "Импорт и экспорт",
     "transferHint": "Импортируйте закладки или перенесите их с собой.",
     "syncHintShort": "Аккаунт, управление планом и синхронизация между устройствами.",
     "autoHideHeader": "Скрывать или показывать панель при прокрутке",
-    "hideShortsInNavbar": "Скрыть Shorts в панели навигации",
+    "hideShortsInNavbar": "Скрыть shorts в панели навигации",
     "hideMixPlaylist": "Скрыть миксы",
     "userStyles": {
       "label": "Пользовательские стили",
@@ -207,5 +210,17 @@
     "setToast": "Таймер сна установлен на {{value}} мин",
     "cancelToast": "Таймер сна отменён",
     "expiredToast": "Время таймера сна истекло"
+  },
+  "native": {
+    "format_bestQuality": "Лучшее качество",
+    "format_bestQualityDesc": "Видео до {{height}}p + аудио",
+    "format_1080pDesc": "Видео 1080p + аудио",
+    "format_720pDesc": "Видео 720p + аудио",
+    "format_audioOnly": "Только аудио",
+    "format_audio": "Аудио ({{ext}})",
+    "format_audioStreamDesc": "Лучший аудиопоток",
+    "format_audioMp3Desc": "Лучшее аудио с конвертацией в MP3",
+    "download_complete": "Загрузка завершена",
+    "download_failed": "Ошибка загрузки"
   }
 }
