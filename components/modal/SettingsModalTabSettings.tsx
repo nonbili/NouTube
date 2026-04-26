@@ -1,9 +1,11 @@
 import { ActivityIndicator, Platform, Pressable, Switch, View, useColorScheme } from 'react-native'
 import { useState } from 'react'
+import { useLocales } from 'expo-localization'
 import { clsx, isWeb } from '@/lib/utils'
 import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { Segmented } from '../picker/Segmented'
+import { NouMenu } from '../menu/NouMenu'
 import { getDocumentAsync } from 'expo-document-picker'
 import { importCsv, importList, importZip } from '@/lib/import'
 import { onClearData$, ui$ } from '@/states/ui'
@@ -15,10 +17,12 @@ import { bookmarks$ } from '@/states/bookmarks'
 import { t } from 'i18next'
 import { saveFile } from '@/lib/file'
 import { NouText } from '../NouText'
+import { NouButton } from '../button/NouButton'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { formatSleepTimerRemaining, useSleepTimerStatus } from '@/lib/sleep-timer'
 import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
 import { mainClient } from '@/lib/main-client'
+import { i18nLanguageNativeNames, resolveI18nLanguageFromExpoLocale, supportedI18nLanguages } from '@/lib/i18n'
 
 const themes = [null, 'dark', 'light'] as const
 const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
@@ -157,6 +161,26 @@ export const SettingsAppearanceContent = () => {
   const theme = settings.theme
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
+  const locales = useLocales()
+  const systemLanguage = resolveI18nLanguageFromExpoLocale(locales[0]) || 'en'
+  const effectiveLanguage = settings.language || systemLanguage
+  const isSystemLanguageSelected = settings.language == null
+  const toLanguageLabel = (code: string) => i18nLanguageNativeNames[code as keyof typeof i18nLanguageNativeNames] || code
+  const currentLanguageLabel = settings.language
+    ? toLanguageLabel(settings.language)
+    : `${t('settings.language.system')} (${toLanguageLabel(effectiveLanguage)})`
+  const languageMenuItems = [
+    {
+      label: `${t('settings.language.system')} (${toLanguageLabel(systemLanguage)})`,
+      handler: () => settings$.setLanguage(null),
+      metaLabel: isSystemLanguageSelected ? '✓' : undefined,
+    },
+    ...supportedI18nLanguages.map((language) => ({
+      label: toLanguageLabel(language),
+      handler: () => settings$.setLanguage(language),
+      metaLabel: settings.language === language ? '✓' : undefined,
+    })),
+  ]
 
   return (
     <SettingsSection label={t('settings.appearance')}>
@@ -183,6 +207,27 @@ export const SettingsAppearanceContent = () => {
             />
           </>
         )}
+        <View className={clsx('flex-row items-center justify-between gap-3 px-4 py-4', 'border-b border-zinc-300 dark:border-zinc-800')}>
+          <View className={iconWrapCls}>
+            <MaterialIcons name="translate" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+          </View>
+          <View className="flex-1">
+            <NouText className="font-medium">{t('settings.language.label')}</NouText>
+            <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{t('settings.language.hint')}</NouText>
+          </View>
+          <NouMenu
+            trigger={
+              isWeb ? (
+                <NouButton size="1" variant="outline" textClassName="max-w-48 truncate" onPress={() => {}}>
+                  {currentLanguageLabel}
+                </NouButton>
+              ) : (
+                'ellipsis'
+              )
+            }
+            items={languageMenuItems}
+          />
+        </View>
         <View className="px-4 py-4">
           <View className="flex-row items-start gap-3">
             <View className={iconWrapCls}>

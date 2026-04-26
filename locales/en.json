@@ -186,6 +186,11 @@
       "light": "Light",
       "hint": "Restart manually if change not reflected in webview."
     },
+    "language": {
+      "label": "Language",
+      "system": "System",
+      "hint": "Choose a language or follow system language."
+    },
     "login": {
       "label": "Try this if couldn't login from webview",
       "button": "Login YouTube"
