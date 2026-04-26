@@ -170,7 +170,7 @@ export function handleVideoPlayer(el: any) {
 }
 
 screen.orientation.addEventListener('change', (event) => {
-  if (document.location.pathname != '/watch') {
+  if (document.location.pathname != '/watch' || document.visibilityState != 'visible') {
     return
   }
 
