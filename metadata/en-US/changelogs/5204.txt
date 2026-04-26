@@ -1,0 +1,4 @@
+- Add in-app language settings
+- Fix playback pausing on Android when rotated in background
+- Fix queue autoplay issue for playlist videos
+- Load YT Music in desktop mode automatically when needed 
