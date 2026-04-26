@@ -138,6 +138,8 @@ export const SettingsModal = () => {
   const isDark = colorScheme !== 'light'
   const { width } = useWindowDimensions()
   const [pageStack, setPageStack] = useState<SettingsPage[]>(['home'])
+  const [importingList, setImportingList] = useState(false)
+  const [importingTakeout, setImportingTakeout] = useState(false)
 
   const isNarrowNative = !isWeb && width < 768
 
@@ -345,7 +347,14 @@ export const SettingsModal = () => {
     }
 
     if (currentPage === 'transfer') {
-      return <SettingsTransferContent />
+      return (
+        <SettingsTransferContent
+          importingList={importingList}
+          setImportingList={setImportingList}
+          importingTakeout={importingTakeout}
+          setImportingTakeout={setImportingTakeout}
+        />
+      )
     }
 
     if (currentPage === 'sync') {

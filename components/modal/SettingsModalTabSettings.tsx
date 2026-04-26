@@ -79,14 +79,18 @@ const SettingsActionRow: React.FC<{
   onPress: () => void
   isLast?: boolean
   loading?: boolean
-}> = ({ label, description, icon, onPress, isLast = false, loading = false }) => {
+  disabled?: boolean
+}> = ({ label, description, icon, onPress, isLast = false, loading = false, disabled = false }) => {
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
+  const isDisabled = disabled || loading
   return (
     <Pressable
       onPress={onPress}
+      disabled={isDisabled}
       className={clsx(
         'flex-row items-center gap-3 px-4 py-4 active:bg-zinc-200/80 dark:active:bg-zinc-800/80',
+        isDisabled && 'opacity-70',
         !isLast && 'border-b border-zinc-300 dark:border-zinc-800',
       )}
     >
@@ -272,11 +276,18 @@ export const SettingsToolsContent = () => {
   )
 }
 
-export const SettingsTransferContent = () => {
-  const [importingList, setImportingList] = useState(false)
-  const [importingTakeout, setImportingTakeout] = useState(false)
+export const SettingsTransferContent: React.FC<{
+  importingList: boolean
+  setImportingList: React.Dispatch<React.SetStateAction<boolean>>
+  importingTakeout: boolean
+  setImportingTakeout: React.Dispatch<React.SetStateAction<boolean>>
+}> = ({ importingList, setImportingList, importingTakeout, setImportingTakeout }) => {
+  const isImporting = importingList || importingTakeout
 
   const onClickImportList = async () => {
+    if (isImporting) {
+      return
+    }
     const res = await getDocumentAsync({ copyToCacheDirectory: true, type: 'text/*' })
     setImportingList(true)
     try {
@@ -303,6 +314,9 @@ export const SettingsTransferContent = () => {
   }
 
   const onClickImportTakeout = async () => {
+    if (isImporting) {
+      return
+    }
     const res = await getDocumentAsync({ copyToCacheDirectory: true, type: ['application/zip', 'text/*'] })
     setImportingTakeout(true)
     try {
@@ -354,6 +368,7 @@ export const SettingsTransferContent = () => {
               void onClickImportList()
             }}
             loading={importingList}
+            disabled={isImporting}
           />
           <SettingsActionRow
             label={t('settings.importTakeout')}
@@ -363,6 +378,7 @@ export const SettingsTransferContent = () => {
               void onClickImportTakeout()
             }}
             loading={importingTakeout}
+            disabled={isImporting}
             isLast
           />
         </View>
