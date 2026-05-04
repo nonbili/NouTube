@@ -375,10 +375,14 @@ export const SettingsTransferContent: React.FC<{
         if (isZip) {
           if (Platform.OS === 'android') {
             const files = await NouTubeViewModule.extractTakeoutCsvFiles(asset.uri)
+            let total = 0
             for (const file of files) {
               const response = await fetch(file.uri)
               const text = await response.text()
-              await importCsv(text, file.name)
+              total += await importCsv(text, file.name)
+            }
+            if (total === 0) {
+              showToast("Nothing recognized in zip — make sure it's a YouTube Takeout export")
             }
           } else {
             const response = await fetch(asset.uri)
@@ -390,7 +394,10 @@ export const SettingsTransferContent: React.FC<{
         } else {
           const response = await fetch(asset.uri)
           const text = await response.text()
-          await importCsv(text, asset.name)
+          const count = await importCsv(text, asset.name)
+          if (count === 0) {
+            showToast(`Unrecognized CSV: ${asset.name}`)
+          }
         }
       }
     } catch (e) {

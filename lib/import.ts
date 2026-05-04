@@ -46,84 +46,107 @@ async function getOg(
   return {}
 }
 
+const channelIdRe = /^UC[A-Za-z0-9_-]{22}$/
+const videoIdRe = /^[A-Za-z0-9_-]{11}$/
+const isoTimestampRe = /^\d{4}-\d{2}-\d{2}T/
+
+type CsvShape = 'subscriptions' | 'playlist-videos' | 'music-songs' | null
+
+function detectShape(row: string[]): CsvShape {
+  const [c0, c1] = row
+  if (!c0) return null
+  if (channelIdRe.test(c0) && c1 && /youtube\.com\/channel\//i.test(c1)) {
+    return 'subscriptions'
+  }
+  if (videoIdRe.test(c0)) {
+    if (c1 && isoTimestampRe.test(c1)) return 'playlist-videos'
+    return 'music-songs'
+  }
+  return null
+}
+
 /**
  * Visit https://myaccount.google.com/u/0/yourdata/youtube, in the "Your YouTube
  * dashboard" panel, click More -> Download Data. You will get a few csv files.
+ *
+ * Detection is based on row shape rather than header text, so localized
+ * Takeout exports (non-English column headers and filenames) work too.
  */
-export async function importCsv(csv: string, filename?: string) {
+export async function importCsv(csv: string, filename?: string): Promise<number> {
   const res = pp.parse<string[]>(csv.trim())
-  if (!res.data || res.data.length < 2) return
+  if (!res.data || res.data.length < 1) return 0
 
-  const [col0, col1] = res.data[0]
-  const items = res.data.slice(1)
+  // First row may be a localized header; skip it if it doesn't match an ID pattern.
+  let items = res.data
+  if (items[0] && !channelIdRe.test(items[0][0] || '') && !videoIdRe.test(items[0][0] || '')) {
+    items = items.slice(1)
+  }
+  if (!items.length) return 0
 
+  const shape = detectShape(items[0])
   let bookmarks: Bookmark[] = []
-  const col0Lower = col0?.toLowerCase()
-  const col1Lower = col1?.toLowerCase()
 
-  if (col0Lower === 'channel id' && col1Lower === 'channel url') {
-    // subscriptions.csv
+  if (shape === 'subscriptions') {
     for (const [id, url, title] of items) {
       if (!id || !url) continue
       const { thumbnail } = await getOg(url, 'yt-channel')
       bookmarks.push(newBookmark({ url, title, json: { thumbnail, id } }))
     }
-  } else if (col0Lower === 'video id') {
-    if (col1Lower === 'playlist video creation timestamp') {
-      // YouTube [playlist]-videos.csv
-      for (const [id] of items) {
-        if (!id) continue
-        const url = `https://m.youtube.com/watch?v=${id}`
-        const { thumbnail, title } = await getOg(url, 'yt-video')
-        let folder = undefined
-        if (filename) {
-          const playlistName = filename?.split('-')[0]
-          if (playlistName) {
-            folder = folders$.getOrCreateFolder('watch', playlistName)
-          }
-        }
-        bookmarks.push(newBookmark({ url, title: title || '', json: { folder: folder?.id } }))
-      }
-    } else if (col1Lower === 'song title') {
-      // "music library songs.csv"
-      for (const [id, title] of items) {
-        if (!id) continue
-        const url = `https://music.youtube.com/watch?v=${id}`
-        bookmarks.push(newBookmark({ url, title }))
+  } else if (shape === 'playlist-videos') {
+    let folder = undefined
+    if (filename) {
+      const playlistName = filename.split('-')[0]
+      if (playlistName) {
+        folder = folders$.getOrCreateFolder('watch', playlistName)
       }
     }
+    for (const [id] of items) {
+      if (!id) continue
+      const url = `https://m.youtube.com/watch?v=${id}`
+      const { thumbnail, title } = await getOg(url, 'yt-video')
+      bookmarks.push(newBookmark({ url, title: title || '', json: { folder: folder?.id } }))
+    }
+  } else if (shape === 'music-songs') {
+    for (const [id, title] of items) {
+      if (!id) continue
+      const url = `https://music.youtube.com/watch?v=${id}`
+      bookmarks.push(newBookmark({ url, title }))
+    }
   } else {
-    console.log('failed to parse', filename, col0, col1)
+    return 0
   }
 
-  if (bookmarks.length) {
-    const count = bookmarks$.importBookmarks(bookmarks)
-    showToast(`🎉 Imported ${count} links from ${filename}`)
-  }
+  if (!bookmarks.length) return 0
+  bookmarks$.importBookmarks(bookmarks)
+  showToast(`🎉 Imported ${bookmarks.length} links from ${filename}`)
+  return bookmarks.length
 }
 
 export async function importZip(zip: JSZip) {
   const files: JSZip.JSZipObject[] = []
   zip.forEach((_, file) => {
-    const slugs = file.name.split('/')
-    // Takeout/YouTube and YouTube Music/channels/channel.csv
-    const folder = slugs[2]
-    if (file.name.endsWith('.csv') && ['music (library and uploads)', 'playlists', 'subscriptions'].includes(folder)) {
+    // Folder names inside Takeout are localized, so don't filter by them.
+    // importCsv detects the CSV type by row shape and ignores the rest.
+    if (file.name.toLowerCase().endsWith('.csv')) {
       files.push(file)
     }
   })
 
   // Process sequentially to save memory
+  let total = 0
   for (const file of files) {
     try {
       const csv = await file.async('string')
       const slugs = file.name.split('/')
-      await importCsv(csv, slugs.at(-1))
+      total += await importCsv(csv, slugs.at(-1))
       // Small pause to allow GC to work
       await new Promise((resolve) => setTimeout(resolve, 50))
     } catch (e) {
       console.error(`Failed to process ${file.name} from zip:`, e)
     }
+  }
+  if (total === 0) {
+    showToast("Nothing recognized in zip — make sure it's a YouTube Takeout export")
   }
 }
 

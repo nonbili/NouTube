@@ -164,7 +164,6 @@ class NouTubeViewModule : Module() {
     val cacheDir = requireNotNull(appContext.reactContext?.cacheDir) { "Cache directory is unavailable" }
     val importDir = File(cacheDir, "takeout-import-${System.currentTimeMillis()}").apply { mkdirs() }
     val results = mutableListOf<Map<String, String>>()
-    val targetFolders = setOf("music (library and uploads)", "playlists", "subscriptions")
 
     openInputStream(uri).use { input ->
       ZipInputStream(input.buffered()).use { zip ->
@@ -172,9 +171,10 @@ class NouTubeViewModule : Module() {
         while (entry != null) {
           if (!entry.isDirectory) {
             val slugs = entry.name.split("/")
-            val folder = slugs.getOrNull(2)?.lowercase()
             val basename = slugs.lastOrNull()
-            if (basename != null && basename.endsWith(".csv", ignoreCase = true) && folder in targetFolders) {
+            // Folder names inside Takeout are localized; importCsv (JS side)
+            // detects the CSV type by row shape, so extract every .csv.
+            if (basename != null && basename.endsWith(".csv", ignoreCase = true)) {
               val output = uniqueFile(importDir, basename)
               FileOutputStream(output).use { out ->
                 zip.copyTo(out, DEFAULT_BUFFER_SIZE)
