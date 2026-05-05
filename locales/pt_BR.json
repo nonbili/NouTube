@@ -41,8 +41,8 @@
     "unsubscribe": "Cancelar inscrição",
     "tools": "Ferramentas",
     "desktop": "Site para computador",
-    "on": "Ativar",
-    "off": "Desativar"
+    "on": "Ativado",
+    "off": "Desativado"
   },
   "modals": {
     "editBookmark": "Editar favorito",
@@ -138,7 +138,12 @@
         }
       }
     },
-    "hideToolbarWhenScrolled": "Ocultar a barra de ferramentas quando a página não estiver no topo"
+    "hideToolbarWhenScrolled": "Ocultar a barra de ferramentas quando a página não estiver no topo",
+    "language": {
+      "label": "Idioma",
+      "system": "Sistema",
+      "hint": "Escolha um idioma ou use o idioma do sistema."
+    }
   },
   "sync": {
     "label": "Sincronizar",
