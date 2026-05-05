@@ -138,7 +138,12 @@
       "copyFailed": "Échec de la copie du CSS",
       "importFailed": "Échec de l'importation du CSS"
     },
-    "hideToolbarWhenScrolled": "Masquer la barre d'outils lorsque la page n'est pas en haut de page"
+    "hideToolbarWhenScrolled": "Masquer la barre d'outils lorsque la page n'est pas en haut de page",
+    "language": {
+      "label": "Langue",
+      "system": "Système",
+      "hint": "Choisissez une langue ou utilisez la langue du système."
+    }
   },
   "sync": {
     "label": "Synchronisation",

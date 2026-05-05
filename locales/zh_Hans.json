@@ -138,7 +138,12 @@
       "copyFailed": "无法复制 CSS",
       "importFailed": "无法导入 CSS"
     },
-    "hideToolbarWhenScrolled": "页面不在顶部时隐藏工具栏"
+    "hideToolbarWhenScrolled": "页面不在顶部时隐藏工具栏",
+    "language": {
+      "hint": "选择一种语言或使用系统语言。",
+      "label": "语言",
+      "system": "系统"
+    }
   },
   "sync": {
     "label": "同步",
