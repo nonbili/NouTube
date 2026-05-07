@@ -1,0 +1,3 @@
+- Support floating mini player on YouTube
+- Support importing localized takeout data
+- Add Spanish translation

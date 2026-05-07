@@ -3,6 +3,7 @@ import type { Resource } from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import enText from '@/locales/en.json'
 import deText from '@/locales/de.json'
+import esText from '@/locales/es.json'
 import frText from '@/locales/fr.json'
 import idText from '@/locales/id.json'
 import ptBRText from '@/locales/pt_BR.json'
@@ -10,12 +11,13 @@ import ruText from '@/locales/ru.json'
 import zhHansText from '@/locales/zh_Hans.json'
 import type { Locale } from 'expo-localization'
 
-export const supportedI18nLanguages = ['de', 'en', 'fr', 'id', 'pt_BR', 'ru', 'zh_Hans'] as const
+export const supportedI18nLanguages = ['de', 'en', 'es', 'fr', 'id', 'pt_BR', 'ru', 'zh_Hans'] as const
 export type SupportedI18nLanguage = (typeof supportedI18nLanguages)[number]
 
 export const i18nLanguageNativeNames: Record<SupportedI18nLanguage, string> = {
   de: 'Deutsch',
   en: 'English',
+  es: 'Español',
   fr: 'Français',
   id: 'Bahasa Indonesia',
   pt_BR: 'Português (Brasil)',
@@ -29,6 +31,9 @@ const resources: Resource = {
   },
   de: {
     translation: deText,
+  },
+  es: {
+    translation: esText,
   },
   fr: {
     translation: frText,
