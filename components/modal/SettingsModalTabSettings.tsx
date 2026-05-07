@@ -1,7 +1,7 @@
 import { ActivityIndicator, Platform, Pressable, Switch, View, useColorScheme } from 'react-native'
 import { useState } from 'react'
 import { useLocales } from 'expo-localization'
-import { clsx, isWeb } from '@/lib/utils'
+import { clsx, isAndroid, isWeb } from '@/lib/utils'
 import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { Segmented } from '../picker/Segmented'
@@ -149,8 +149,17 @@ export const SettingsPreferencesContent = () => {
           icon="history"
           value={settings.keepHistory}
           onPress={() => settings$.keepHistory.set(!settings.keepHistory)}
-          isLast
+          isLast={!isAndroid}
         />
+        {isAndroid ? (
+          <SettingsToggleRow
+            label={t('settings.miniPlayer')}
+            icon="picture-in-picture-alt"
+            value={settings.miniPlayer}
+            onPress={() => settings$.miniPlayer.set(!settings.miniPlayer)}
+            isLast
+          />
+        ) : null}
       </View>
     </SettingsSection>
   )

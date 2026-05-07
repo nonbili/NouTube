@@ -4,6 +4,7 @@ const MINI_STAGE_ID = '_nou_mini_player_stage'
 const MINI_CORNER_KEY = 'nou:mini-player-corner'
 const MINI_MARGIN = 12
 const MINI_DRAG_THRESHOLD = 8
+const SETTINGS_KEY = 'nou:settings'
 
 type MiniCorner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 
@@ -12,15 +13,27 @@ type MiniState = {
   iframe: HTMLIFrameElement
   playing: boolean
   playButton: HTMLButtonElement
+  currentTime: number
+  lastProgressAt: number
 }
 
 let miniState: MiniState | null = null
+let miniMessageListenerInstalled = false
 
 function isWatch(href: string): boolean {
   try {
     return new URL(href, location.href).pathname.startsWith('/watch')
   } catch {
     return false
+  }
+}
+
+function isMiniPlayerEnabled(): boolean {
+  try {
+    const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')
+    return settings.miniPlayer !== false
+  } catch {
+    return true
   }
 }
 
@@ -59,6 +72,13 @@ function getStartSeconds(watchUrl: string): number {
   } catch {
     return 0
   }
+}
+
+function buildWatchUrlWithTime(watchUrl: string, seconds: number): string {
+  const url = new URL(watchUrl)
+  if (seconds > 0) url.searchParams.set('t', `${Math.floor(seconds)}s`)
+  url.searchParams.set('autoplay', '1')
+  return url.href
 }
 
 function buildEmbedUrl(watchUrl: string): string | null {
@@ -284,8 +304,15 @@ function destroyMini() {
   miniState = null
 }
 
+function getEstimatedMiniCurrentTime(): number {
+  if (!miniState) return 0
+  if (!miniState.playing) return miniState.currentTime
+  const elapsed = (Date.now() - miniState.lastProgressAt) / 1000
+  return miniState.currentTime + Math.max(0, elapsed)
+}
+
 function restoreWatchPage() {
-  const watchUrl = miniState?.watchUrl
+  const watchUrl = miniState ? buildWatchUrlWithTime(miniState.watchUrl, getEstimatedMiniCurrentTime()) : null
   destroyMini()
   if (watchUrl) location.href = watchUrl
 }
@@ -303,6 +330,8 @@ function postMiniPlayerCommand(command: 'playVideo' | 'pauseVideo') {
 
 function setMiniPlaying(playing: boolean) {
   if (!miniState) return
+  miniState.currentTime = getEstimatedMiniCurrentTime()
+  miniState.lastProgressAt = Date.now()
   miniState.playing = playing
   miniState.playButton.classList.toggle('_nou_paused', !playing)
   miniState.playButton.setAttribute('aria-label', playing ? 'Pause mini player' : 'Play mini player')
@@ -315,18 +344,53 @@ function toggleMiniPlayback() {
   setMiniPlaying(playing)
 }
 
+function installMiniMessageListener() {
+  if (miniMessageListenerInstalled) return
+  miniMessageListenerInstalled = true
+
+  window.addEventListener('message', (event) => {
+    if (!miniState || event.source !== miniState.iframe.contentWindow) return
+
+    let data: any
+    try {
+      data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data
+    } catch {
+      return
+    }
+
+    const info = data?.info
+    if (!info) return
+
+    if (typeof info.currentTime === 'number' && Number.isFinite(info.currentTime)) {
+      miniState.currentTime = info.currentTime
+      miniState.lastProgressAt = Date.now()
+    }
+
+    if (info.playerState === 1) {
+      setMiniPlaying(true)
+    } else if (info.playerState === 2 || info.playerState === 0) {
+      setMiniPlaying(false)
+    }
+  })
+}
+
 function enterMiniFromWatch(watchUrl: string) {
+  if (!isMiniPlayerEnabled()) return
+
   const embedUrl = buildEmbedUrl(watchUrl)
   if (!embedUrl) return
 
   if (miniState) {
     miniState.watchUrl = watchUrl
     miniState.iframe.src = embedUrl
+    miniState.currentTime = getStartSeconds(watchUrl)
+    miniState.lastProgressAt = Date.now()
     setMiniPlaying(true)
     return
   }
 
   ensureMiniStyle()
+  installMiniMessageListener()
   pauseMainPlayer()
 
   const root = document.createElement('div')
@@ -376,7 +440,7 @@ function enterMiniFromWatch(watchUrl: string) {
   root.append(stage, restoreButton, playButton, closeButton)
   installDragHandlers(root)
   document.body.appendChild(root)
-  miniState = { watchUrl, iframe, playing: true, playButton }
+  miniState = { watchUrl, iframe, playing: true, playButton, currentTime: getStartSeconds(watchUrl), lastProgressAt: Date.now() }
 }
 
 function resolveHistoryUrl(url: unknown): string {
@@ -403,6 +467,10 @@ export function installMiniPlayerInterceptor() {
     }
 
     if (!isWatch(prev) || isWatch(next)) return
+    if (!isMiniPlayerEnabled()) {
+      destroyMini()
+      return
+    }
 
     const watchUrl = buildResumeWatchUrl(prev)
     if (watchUrl) enterMiniFromWatch(watchUrl)
@@ -427,6 +495,8 @@ export function installMiniPlayerInterceptor() {
 }
 
 export function enterMini() {
+  if (!isMiniPlayerEnabled()) return
+
   const watchUrl = buildResumeWatchUrl(location.href)
   if (watchUrl) enterMiniFromWatch(watchUrl)
 }
@@ -436,5 +506,5 @@ export function exitMini() {
 }
 
 export function getMiniCurrentTime(): number {
-  return getCurrentTime()
+  return miniState ? Math.floor(getEstimatedMiniCurrentTime()) : getCurrentTime()
 }

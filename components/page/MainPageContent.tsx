@@ -145,9 +145,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       return
     }
     const ref = webviewRef.current || nativeRef.current
-    const { sponsorBlock, playbackRate } = settings$.get()
-    const value = JSON.stringify({ sponsorBlock, playbackRate })
-    ref?.executeJavaScript(`localStorage.setItem('nou:settings', '${value}')`)
+    const { sponsorBlock, playbackRate, miniPlayer } = settings$.get()
+    const value = JSON.stringify({ sponsorBlock, playbackRate, miniPlayer })
+    ref?.executeJavaScript(`localStorage.setItem('nou:settings', '${value}'); if (!${miniPlayer}) window.NouTube?.exitMini?.()`)
   }, [nativeRef, webviewRef])
 
   useEffect(() => {
@@ -342,6 +342,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
   useObserveEffect(settings$.sponsorBlock, () => syncSettingsToWebview())
   useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
+  useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
   useObserveEffect(userStyles$, () => syncUserStylesToWebview())
 
   const onLoad = async (e: { nativeEvent: any }) => {

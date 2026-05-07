@@ -17,6 +17,7 @@ interface Store {
   hideShortsInNavbar: boolean
   hideMixPlaylist: boolean
   keepHistory: boolean
+  miniPlayer: boolean
   playbackRate: number
   restoreOnStart: boolean
   sponsorBlock: boolean
@@ -51,6 +52,7 @@ export const settings$ = observable<Store>({
   hideShortsInNavbar: false,
   hideMixPlaylist: false,
   keepHistory: true,
+  miniPlayer: true,
   playbackRate: 1,
   restoreOnStart: true,
   sponsorBlock: true,

@@ -147,6 +147,7 @@
     "hideShorts": "Hide shorts in timeline",
     "hideShortsInNavbar": "Hide shorts in navbar",
     "hideMixPlaylist": "Hide mix playlist",
+    "miniPlayer": "YouTube mini player",
     "userStyles": {
       "label": "User styles",
       "hint": "Built-in CSS tweaks and your own site-specific CSS.",

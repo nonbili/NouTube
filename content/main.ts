@@ -13,7 +13,9 @@ try {
 
   if (!window.electron) {
     intercept()
-    installMiniPlayerInterceptor()
+    if (window.isAndroid) {
+      installMiniPlayerInterceptor()
+    }
   }
 
   ;(window.NouTube as any).enterMini = enterMini
