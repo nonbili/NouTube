@@ -6,13 +6,19 @@ import { emit } from './utils'
 import { handleDialogs } from './dialogs'
 import { handleMenu } from './menu'
 import { pinchToZoom } from './pinch'
+import { enterMini, exitMini, getMiniCurrentTime, installMiniPlayerInterceptor } from './mini-player'
 
 try {
   window.NouTube = initNouTube()
 
   if (!window.electron) {
     intercept()
+    installMiniPlayerInterceptor()
   }
+
+  ;(window.NouTube as any).enterMini = enterMini
+  ;(window.NouTube as any).exitMini = exitMini
+  ;(window.NouTube as any).getMiniCurrentTime = getMiniCurrentTime
 
   if (document.documentElement) {
     injectCSS()
