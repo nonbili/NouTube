@@ -1,0 +1,2 @@
+- Support avoiding clickbait thumbnails
+- Support forcing H.264 video codec (h264ify)
