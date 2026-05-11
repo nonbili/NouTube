@@ -78,6 +78,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
   const customUserAgent = useValue(settings$.userAgent)
   const desktopMode = useValue(settings$.desktopMode)
+  const preferH264 = useValue(settings$.preferH264)
+  const buildPrelude = () => `window.NouTubePreferH264 = ${settings$.preferH264.get() ? 'true' : 'false'};`
+  const preludeJs = `window.NouTubePreferH264 = ${preferH264 ? 'true' : 'false'};`
   const { userId, me } = useMe()
   const userAgent = resolveUserAgent(
     isWeb ? window.electron.process.platform : 'android',
@@ -285,7 +288,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
       ui$.webview.set(ObservableHint.opaque(webview))
       webviewReadyRef.current = true
-      webview.executeJavaScript(`window.isAndroid = false;\n${contentJs}`)
+      webview.executeJavaScript(`window.isAndroid = false;\n${buildPrelude()}\n${contentJs}`)
     })
     webview.addEventListener('did-navigate', (e) => {
       const { host } = new URL(e.url)
@@ -343,6 +346,16 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(settings$.sponsorBlock, () => syncSettingsToWebview())
   useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
+  useObserveEffect(settings$.preferH264, ({ previous }) => {
+    if (previous === undefined) return
+    const webview = webviewRef.current
+    const native = nativeRef.current
+    if (webview) {
+      webview.reload()
+    } else if (native) {
+      native.executeJavaScript('document.location.reload()')
+    }
+  })
   useObserveEffect(userStyles$, () => syncUserStylesToWebview())
 
   const onLoad = async (e: { nativeEvent: any }) => {
@@ -366,7 +379,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
             ref={nativeRef}
             style={{ flex: 1 }}
             useragent={userAgent}
-            scriptOnStart={`window.isAndroid = true;\n${contentJs}`}
+            scriptOnStart={`window.isAndroid = true;\n${preludeJs}\n${contentJs}`}
             onLoad={onLoad}
             onMessage={onNativeMessage}
           />
@@ -375,7 +388,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           uiState.embedVideoId,
           <EmbedVideoModal
             videoId={uiState.embedVideoId}
-            scriptOnStart={`${isWeb ? 'window.isAndroid = false;' : 'window.isAndroid = true;'}\n${contentJs}`}
+            scriptOnStart={`${isWeb ? 'window.isAndroid = false;' : 'window.isAndroid = true;'}\n${preludeJs}\n${contentJs}`}
             onClose={() => ui$.embedVideoId.set('')}
           />,
         )}

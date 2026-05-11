@@ -1,4 +1,5 @@
 import { intercept } from './intercept'
+import { installH264ify } from './h264ify'
 import { injectCSS } from './css'
 import { initNouTube } from './noutube'
 import { handleMutations, handleVideoPlayer } from './player'
@@ -9,6 +10,10 @@ import { pinchToZoom } from './pinch'
 import { enterMini, exitMini, getMiniCurrentTime, installMiniPlayerInterceptor } from './mini-player'
 
 try {
+  if ((window as any).NouTubePreferH264) {
+    installH264ify()
+  }
+
   window.NouTube = initNouTube()
 
   if (!window.electron) {

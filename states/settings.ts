@@ -18,6 +18,7 @@ interface Store {
   hideMixPlaylist: boolean
   keepHistory: boolean
   miniPlayer: boolean
+  preferH264: boolean
   playbackRate: number
   restoreOnStart: boolean
   sponsorBlock: boolean
@@ -53,6 +54,7 @@ export const settings$ = observable<Store>({
   hideMixPlaylist: false,
   keepHistory: true,
   miniPlayer: true,
+  preferH264: false,
   playbackRate: 1,
   restoreOnStart: true,
   sponsorBlock: true,

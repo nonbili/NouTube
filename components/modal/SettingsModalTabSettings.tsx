@@ -157,9 +157,15 @@ export const SettingsPreferencesContent = () => {
             icon="picture-in-picture-alt"
             value={settings.miniPlayer}
             onPress={() => settings$.miniPlayer.set(!settings.miniPlayer)}
-            isLast
           />
         ) : null}
+        <SettingsToggleRow
+          label={t('settings.preferH264')}
+          icon="hd"
+          value={settings.preferH264}
+          onPress={() => settings$.preferH264.set(!settings.preferH264)}
+          isLast
+        />
       </View>
     </SettingsSection>
   )

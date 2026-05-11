@@ -148,6 +148,7 @@
     "hideShortsInNavbar": "Hide shorts in navbar",
     "hideMixPlaylist": "Hide mix playlist",
     "miniPlayer": "YouTube mini player",
+    "preferH264": "Prefer H.264 (block VP9/AV1)",
     "userStyles": {
       "label": "User styles",
       "hint": "Built-in CSS tweaks and your own site-specific CSS.",
