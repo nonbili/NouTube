@@ -19,6 +19,7 @@ interface Store {
   keepHistory: boolean
   miniPlayer: boolean
   preferH264: boolean
+  clickbaitThumbnail: 'default' | 'hq1' | 'hq2' | 'hq3'
   playbackRate: number
   restoreOnStart: boolean
   sponsorBlock: boolean
@@ -55,6 +56,7 @@ export const settings$ = observable<Store>({
   keepHistory: true,
   miniPlayer: true,
   preferH264: false,
+  clickbaitThumbnail: 'default',
   playbackRate: 1,
   restoreOnStart: true,
   sponsorBlock: true,

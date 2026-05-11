@@ -114,8 +114,26 @@ const SettingsActionRow: React.FC<{
   )
 }
 
+const clickbaitOptions = ['default', 'hq1', 'hq2', 'hq3'] as const
+
+const clickbaitLabel = (value: (typeof clickbaitOptions)[number]) => {
+  if (value === 'default') return t('settings.clickbaitThumbnail.optionDefault')
+  return t('settings.clickbaitThumbnail.optionFrame', { n: Number(value.slice(2)) })
+}
+
 export const SettingsPreferencesContent = () => {
   const settings = useValue(settings$)
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
+
+  const clickbaitMenuItems = clickbaitOptions.map((option) => ({
+    label: clickbaitLabel(option),
+    handler: () => settings$.clickbaitThumbnail.set(option),
+    meta:
+      settings.clickbaitThumbnail === option ? (
+        <MaterialIcons name="check" size={18} color={isDark ? '#60a5fa' : '#1d4ed8'} />
+      ) : undefined,
+  }))
 
   return (
     <SettingsSection label={t('settings.preferences')}>
@@ -164,8 +182,30 @@ export const SettingsPreferencesContent = () => {
           icon="hd"
           value={settings.preferH264}
           onPress={() => settings$.preferH264.set(!settings.preferH264)}
-          isLast
         />
+        <View className="flex-row items-center gap-3 px-4 py-4">
+          <View className={iconWrapCls}>
+            <MaterialIcons name="image" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+          </View>
+          <View className="flex-1">
+            <NouText className="font-medium">{t('settings.clickbaitThumbnail.label')}</NouText>
+            <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
+              {t('settings.clickbaitThumbnail.hint')}
+            </NouText>
+          </View>
+          <NouMenu
+            trigger={
+              isWeb ? (
+                <NouButton size="1" variant="outline" onPress={() => {}}>
+                  {clickbaitLabel(settings.clickbaitThumbnail)}
+                </NouButton>
+              ) : (
+                'ellipsis'
+              )
+            }
+            items={clickbaitMenuItems}
+          />
+        </View>
       </View>
     </SettingsSection>
   )

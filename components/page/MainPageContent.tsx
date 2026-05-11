@@ -79,8 +79,13 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const customUserAgent = useValue(settings$.userAgent)
   const desktopMode = useValue(settings$.desktopMode)
   const preferH264 = useValue(settings$.preferH264)
-  const buildPrelude = () => `window.NouTubePreferH264 = ${settings$.preferH264.get() ? 'true' : 'false'};`
-  const preludeJs = `window.NouTubePreferH264 = ${preferH264 ? 'true' : 'false'};`
+  const clickbaitThumbnail = useValue(settings$.clickbaitThumbnail)
+  const buildPrelude = () =>
+    `window.NouTubePreferH264 = ${settings$.preferH264.get() ? 'true' : 'false'};` +
+    `window.NouTubeClickbaitThumbnail = ${JSON.stringify(settings$.clickbaitThumbnail.get())};`
+  const preludeJs =
+    `window.NouTubePreferH264 = ${preferH264 ? 'true' : 'false'};` +
+    `window.NouTubeClickbaitThumbnail = ${JSON.stringify(clickbaitThumbnail)};`
   const { userId, me } = useMe()
   const userAgent = resolveUserAgent(
     isWeb ? window.electron.process.platform : 'android',
@@ -347,6 +352,16 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
   useObserveEffect(settings$.preferH264, ({ previous }) => {
+    if (previous === undefined) return
+    const webview = webviewRef.current
+    const native = nativeRef.current
+    if (webview) {
+      webview.reload()
+    } else if (native) {
+      native.executeJavaScript('document.location.reload()')
+    }
+  })
+  useObserveEffect(settings$.clickbaitThumbnail, ({ previous }) => {
     if (previous === undefined) return
     const webview = webviewRef.current
     const native = nativeRef.current

@@ -1,5 +1,6 @@
 import { intercept } from './intercept'
 import { installH264ify } from './h264ify'
+import { installClickbaitThumbnails } from './clickbait'
 import { injectCSS } from './css'
 import { initNouTube } from './noutube'
 import { handleMutations, handleVideoPlayer } from './player'
@@ -12,6 +13,11 @@ import { enterMini, exitMini, getMiniCurrentTime, installMiniPlayerInterceptor }
 try {
   if ((window as any).NouTubePreferH264) {
     installH264ify()
+  }
+
+  const clickbaitTarget = (window as any).NouTubeClickbaitThumbnail
+  if (clickbaitTarget && clickbaitTarget !== 'default') {
+    installClickbaitThumbnails(clickbaitTarget)
   }
 
   window.NouTube = initNouTube()
