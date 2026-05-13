@@ -1,0 +1,7 @@
+- support h264ify
+- support avoiding clickbait thumbnail
+- implement in app language setting
+- support importing localized takeout data
+- support downloading mp3
+- apply custom style without needing to reload page
+- disable queue autoplay when video belongs to playlist

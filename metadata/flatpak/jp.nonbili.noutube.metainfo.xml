@@ -59,6 +59,19 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.2.8" date="2026-05-13">
+      <description>
+        <ul>
+          <li>Support h264ify</li>
+          <li>Support avoiding clickbait thumbnail</li>
+          <li>Implement in app language setting</li>
+          <li>Support importing localized takeout data</li>
+          <li>Support downloading mp3</li>
+          <li>Apply custom style without needing to reload page</li>
+          <li>Disable queue autoplay when video belongs to playlist</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.2.7" date="2026-04-07">
       <description>
         <ul>
