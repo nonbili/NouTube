@@ -24,7 +24,7 @@ try {
 
   if (!window.electron) {
     intercept()
-    if (window.isAndroid) {
+    if (window.isAndroid && location.host === 'm.youtube.com') {
       installMiniPlayerInterceptor()
     }
   }
