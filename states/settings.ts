@@ -26,6 +26,7 @@ interface Store {
   showPlaybackSpeedControl: boolean
   userAgent: string
   desktopMode: boolean
+  desktopModeYT: boolean
   theme: null | 'dark' | 'light'
   downloadPath: string
   lastYtDlpUpdate: number
@@ -63,6 +64,7 @@ export const settings$ = observable<Store>({
   showPlaybackSpeedControl: false,
   userAgent: '',
   desktopMode: false,
+  desktopModeYT: false,
   theme: isWeb ? 'dark' : null,
   downloadPath: '',
   lastYtDlpUpdate: 0,

@@ -77,7 +77,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const autoHideHeader = useValue(settings$.autoHideHeader)
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
   const customUserAgent = useValue(settings$.userAgent)
-  const desktopMode = useValue(settings$.desktopMode)
+  const desktopModeYTMusic = useValue(settings$.desktopMode)
+  const desktopModeYT = useValue(settings$.desktopModeYT)
+  const desktopMode = isYTMusic ? desktopModeYTMusic : desktopModeYT
   const preferH264 = useValue(settings$.preferH264)
   const clickbaitThumbnail = useValue(settings$.clickbaitThumbnail)
   const buildPrelude = () =>

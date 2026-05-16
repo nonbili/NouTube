@@ -28,7 +28,9 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const autoHideHeader = useValue(settings$.autoHideHeader)
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
   const isYTMusic = useValue(settings$.isYTMusic)
-  const desktopMode = useValue(settings$.desktopMode)
+  const desktopModeYTMusic = useValue(settings$.desktopMode)
+  const desktopModeYT = useValue(settings$.desktopModeYT)
+  const desktopMode = isYTMusic ? desktopModeYTMusic : desktopModeYT
   const playbackRate = useValue(settings$.playbackRate)
   const showPlaybackSpeedControl = useValue(settings$.showPlaybackSpeedControl)
   const { width, height: windowHeight } = useWindowDimensions()
@@ -194,7 +196,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
               systemImage: 'arrow.clockwise',
               handler: () => uiState.webview.executeJavaScript('document.location.reload()'),
             },
-            ...(isYTMusic && !isWeb
+            ...(!isWeb
               ? [
                   {
                     label: t('menus.desktop'),
@@ -221,7 +223,8 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
                       </View>
                     ),
                     handler: () => {
-                      settings$.desktopMode.set(!desktopMode)
+                      const key = isYTMusic ? settings$.desktopMode : settings$.desktopModeYT
+                      key.set(!desktopMode)
                       uiState.webview.executeJavaScript('document.location.reload()')
                     },
                   },
