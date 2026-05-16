@@ -165,6 +165,9 @@
         },
         "hideMixPlaylist": {
           "label": "Hide mix playlist"
+        },
+        "hideCommunityPosts": {
+          "label": "Hide community posts"
         }
       },
       "custom": {

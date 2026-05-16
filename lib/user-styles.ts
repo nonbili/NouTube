@@ -1,6 +1,6 @@
 export const USER_STYLES_SCHEMA_VERSION = 1
 
-export const builtinUserStyleIds = ['hide-mix-playlist', 'hide-shorts-navbar'] as const
+export const builtinUserStyleIds = ['hide-mix-playlist', 'hide-shorts-navbar', 'hide-community-posts'] as const
 
 export type BuiltinUserStyleId = (typeof builtinUserStyleIds)[number]
 
@@ -59,6 +59,20 @@ export const builtinUserStyleDefinitions: BuiltinUserStyleDefinition[] = [
       }
     `,
   },
+  {
+    id: 'hide-community-posts',
+    labelKey: 'settings.userStyles.builtin.hideCommunityPosts.label',
+    css: css`
+      ytd-rich-section-renderer:has(ytd-post-renderer),
+      ytd-post-renderer,
+      ytd-backstage-post-thread-renderer,
+      ytm-rich-section-renderer:has(ytm-post-renderer),
+      ytm-post-renderer,
+      ytm-backstage-post-thread-renderer {
+        display: none !important;
+      }
+    `,
+  },
 ]
 
 export const builtinUserStyleDefinitionById = builtinUserStyleDefinitions.reduce(
@@ -72,6 +86,7 @@ export const builtinUserStyleDefinitionById = builtinUserStyleDefinitions.reduce
 export const createDefaultBuiltinUserStyles = (): Record<BuiltinUserStyleId, BuiltinUserStyleState> => ({
   'hide-mix-playlist': { enabled: false },
   'hide-shorts-navbar': { enabled: false },
+  'hide-community-posts': { enabled: false },
 })
 
 export const createDefaultUserStylesSnapshot = (): UserStylesSnapshot => ({
