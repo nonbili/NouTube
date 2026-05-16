@@ -1,0 +1,3 @@
+- Support YouTube desktop mode
+- Support hiding community posts
+- Limit mini player to m.youtube.com on Android
