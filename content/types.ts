@@ -10,6 +10,7 @@ declare global {
   interface Window {
     _lact: number
     isAndroid: boolean
+    NouTubeBlocklist?: import('../lib/blocklist').BlocklistSnapshot
     NouTubeI: NouTubeI
     NouTube: any
     trustedTypes: any

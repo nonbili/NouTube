@@ -17,6 +17,7 @@ import {
 } from './SettingsModalTabSettings'
 import { SettingsChangelogContent } from './SettingsModalTabChangelog'
 import { SettingsUserStylesContent } from './SettingsUserStylesContent'
+import { SettingsBlocklistContent } from './SettingsBlocklistContent'
 import { t } from 'i18next'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { auth$ } from '@/states/auth'
@@ -42,6 +43,7 @@ type SettingsPage =
   | 'home'
   | 'preferences'
   | 'appearance'
+  | 'blocklist'
   | 'styles'
   | 'tools'
   | 'transfer'
@@ -246,6 +248,7 @@ export const SettingsModal = () => {
     home: { title: t('settings.label') },
     preferences: { title: t('settings.preferences') },
     appearance: { title: t('settings.appearance') },
+    blocklist: { title: t('settings.blocklist.label') },
     styles: { title: t('settings.userStyles.label') },
     tools: { title: t('settings.tools') },
     transfer: { title: t('settings.transfer') },
@@ -272,6 +275,12 @@ export const SettingsModal = () => {
                 icon="palette"
                 meta={themeLabel}
                 onPress={() => pushPage('appearance')}
+              />
+              <SettingsNavRow
+                title={t('settings.blocklist.label')}
+                description={t('settings.blocklist.hint')}
+                icon="block"
+                onPress={() => pushPage('blocklist')}
               />
               <SettingsNavRow
                 title={t('settings.userStyles.label')}
@@ -336,6 +345,10 @@ export const SettingsModal = () => {
 
     if (currentPage === 'appearance') {
       return <SettingsAppearanceContent />
+    }
+
+    if (currentPage === 'blocklist') {
+      return <SettingsBlocklistContent />
     }
 
     if (currentPage === 'styles') {
@@ -433,7 +446,7 @@ export const SettingsModal = () => {
       </SafeAreaView>
     </View>
   ) : (
-    <BaseModal onClose={closeSettingsTree} useEscape={false} className="bg-transparent">
+    <BaseModal onClose={closeSettingsTree} className="bg-transparent">
       {content}
     </BaseModal>
   )

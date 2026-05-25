@@ -2,10 +2,18 @@ import { app, net, protocol, session } from 'electron'
 import * as cheerio from 'cheerio'
 import {
   RE_INTERCEPT,
+  transformBrowseResponse,
   transformGetWatchResponse,
   transformPlayerResponse,
   transformSearchResponse,
 } from 'noutube/lib/intercept'
+import { createDefaultBlocklistSnapshot, normalizeBlocklist, type BlocklistSnapshot } from 'noutube/lib/blocklist'
+
+let currentBlocklist = createDefaultBlocklistSnapshot()
+
+export function setInterceptionBlocklist(blocklist?: BlocklistSnapshot) {
+  currentBlocklist = normalizeBlocklist(blocklist)
+}
 
 function transformHtml(html: string) {
   const $ = cheerio.load(html)
@@ -71,12 +79,17 @@ export function interceptHttpRequest() {
       }
 
       if (match) {
-        const fn =
-          {
-            get_watch: transformGetWatchResponse,
-            search: transformSearchResponse,
-          }[match[1]] || transformPlayerResponse
-        return new Response(fn(text), responseInit)
+        switch (match[1]) {
+          case 'browse':
+          case 'next':
+            return new Response(transformBrowseResponse(text, currentBlocklist), responseInit)
+          case 'search':
+            return new Response(transformSearchResponse(text, currentBlocklist), responseInit)
+          case 'get_watch':
+            return new Response(transformGetWatchResponse(text), responseInit)
+          default:
+            return new Response(transformPlayerResponse(text), responseInit)
+        }
       }
     } catch (e) {
       console.error(e)

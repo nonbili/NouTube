@@ -5,12 +5,15 @@ import {
 import { playDefaultAudio, restoreLastPlaying } from './player'
 import { emit } from './utils'
 import { createDefaultUserStylesSnapshot, type UserStylesSnapshot } from '../lib/user-styles'
+import { createDefaultBlocklistSnapshot, type BlocklistSnapshot } from '../lib/blocklist'
 
 export const noutubeSettingsEvent = 'noutube:settings'
 export const noutubeUserStylesEvent = 'noutube:user-styles'
+export const noutubeBlocklistEvent = 'noutube:blocklist'
 
 let settings = {}
 let userStyles = createDefaultUserStylesSnapshot()
+let blocklist = createDefaultBlocklistSnapshot()
 
 const getPlayer = (): any => document.getElementById('movie_player')
 
@@ -45,12 +48,28 @@ function setUserStyles(next?: UserStylesSnapshot) {
   return userStyles
 }
 
+function getBlocklist() {
+  return blocklist
+}
+
+function setBlocklist(next?: BlocklistSnapshot) {
+  blocklist = next || createDefaultBlocklistSnapshot()
+  window.dispatchEvent(new CustomEvent(noutubeBlocklistEvent, { detail: blocklist }))
+  return blocklist
+}
+
 export function initNouTube() {
+  if (window.NouTubeBlocklist) {
+    setBlocklist(window.NouTubeBlocklist)
+  }
+
   return {
     getSettings,
     setSettings,
     getUserStyles,
     setUserStyles,
+    getBlocklist,
+    setBlocklist,
     shortsHidden: true,
     play: () => getPlayer()?.playVideo(),
     pause: () => getPlayer()?.pauseVideo(),

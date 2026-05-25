@@ -155,6 +155,17 @@
       "optionDefault": "Default",
       "optionFrame": "Frame {{n}}"
     },
+    "blocklist": {
+      "label": "Blocklist",
+      "hint": "Hide YouTube videos by channel or title keyword.",
+      "channels": "Channels",
+      "keywords": "Keywords",
+      "channelPlaceholder": "Channel name, handle, or URL",
+      "keywordPlaceholder": "Title keyword",
+      "emptyChannels": "No blocked channels yet.",
+      "emptyKeywords": "No blocked keywords yet.",
+      "add": "Add"
+    },
     "userStyles": {
       "label": "User Styles & Scripts",
       "hint": "Built-in CSS tweaks and your own site-specific CSS.",

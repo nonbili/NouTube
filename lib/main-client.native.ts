@@ -13,6 +13,7 @@ export interface MainClient {
   updateYtDlp(): Promise<void>
   fetchFeed(url: string): Promise<{ ok: boolean; status: number; statusText: string; body: string }>
   setCookie(cookie: string): Promise<void>
+  setBlocklist(blocklist: unknown): Promise<void> | void
 }
 
 type NouTubeDownloadClient = {
@@ -69,4 +70,5 @@ export const mainClient: MainClient = {
     }
   },
   async setCookie() {},
+  async setBlocklist() {},
 }

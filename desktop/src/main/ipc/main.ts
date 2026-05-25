@@ -1,4 +1,4 @@
-import { toggleInterception } from 'main/lib/intercept.js'
+import { setInterceptionBlocklist, toggleInterception } from 'main/lib/intercept.js'
 import { openLoginWindow } from 'main/lib/login-window.js'
 import { ensureYtDlp, updateYtDlp } from 'main/lib/ytdlp.js'
 import { MAIN_CHANNEL } from './constants.js'
@@ -30,6 +30,7 @@ const interfaces = {
     }
   },
   toggleInterception,
+  setBlocklist: setInterceptionBlocklist,
   openLoginWindow,
   updateYtDlp,
   listFormats: async (url: string): Promise<{ title: string; formats: FormatOption[] }> => {

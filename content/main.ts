@@ -10,6 +10,7 @@ import { handleDialogs } from './dialogs'
 import { handleMenu } from './menu'
 import { pinchToZoom } from './pinch'
 import { enterMini, exitMini, getMiniCurrentTime, installMiniPlayerInterceptor } from './mini-player'
+import { installBlocklistFilter } from './blocklist'
 
 try {
   if ((window as any).NouTubePreferH264) {
@@ -70,6 +71,7 @@ async function initObserver() {
   })
 
   handleMenu()
+  installBlocklistFilter()
 
   pinchToZoom()
 }

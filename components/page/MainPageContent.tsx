@@ -24,6 +24,7 @@ import { resolveUserAgent } from '@/lib/useragent'
 import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
 import { history$ } from '@/states/history'
 import { getUserStylesSnapshot, userStyles$ } from '@/states/user-styles'
+import { blocklist$, getBlocklistSnapshot } from '@/states/blocklist'
 
 let restored = false
 const logger = createLogger('sync')
@@ -82,12 +83,15 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const desktopMode = isYTMusic ? desktopModeYTMusic : desktopModeYT
   const preferH264 = useValue(settings$.preferH264)
   const clickbaitThumbnail = useValue(settings$.clickbaitThumbnail)
+  const blocklistState = useValue(blocklist$)
   const buildPrelude = () =>
     `window.NouTubePreferH264 = ${settings$.preferH264.get() ? 'true' : 'false'};` +
-    `window.NouTubeClickbaitThumbnail = ${JSON.stringify(settings$.clickbaitThumbnail.get())};`
+    `window.NouTubeClickbaitThumbnail = ${JSON.stringify(settings$.clickbaitThumbnail.get())};` +
+    `window.NouTubeBlocklist = ${JSON.stringify(getBlocklistSnapshot())};`
   const preludeJs =
     `window.NouTubePreferH264 = ${preferH264 ? 'true' : 'false'};` +
-    `window.NouTubeClickbaitThumbnail = ${JSON.stringify(clickbaitThumbnail)};`
+    `window.NouTubeClickbaitThumbnail = ${JSON.stringify(clickbaitThumbnail)};` +
+    `window.NouTubeBlocklist = ${JSON.stringify(getBlocklistSnapshot(blocklistState))};`
   const { userId, me } = useMe()
   const userAgent = resolveUserAgent(
     isWeb ? window.electron.process.platform : 'android',
@@ -96,6 +100,10 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   )
 
   useEffect(() => {
+    if (isWeb) {
+      void mainClient.setBlocklist(getBlocklistSnapshot())
+    }
+
     // Background yt-dlp update every 2 weeks
     const TWO_WEEKS = 14 * 24 * 60 * 60 * 1000
     const now = Date.now()
@@ -148,6 +156,19 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     const ref = webviewRef.current || nativeRef.current
     const value = JSON.stringify(getUserStylesSnapshot())
     ref?.executeJavaScript(`window.NouTube.setUserStyles(${value})`)
+  }, [nativeRef, webviewRef])
+
+  const syncBlocklistToWebview = useCallback(() => {
+    if (webviewRef.current && !webviewReadyRef.current) {
+      return
+    }
+    const ref = webviewRef.current || nativeRef.current
+    const snapshot = getBlocklistSnapshot()
+    const value = JSON.stringify(snapshot)
+    ref?.executeJavaScript(`window.NouTube?.setBlocklist?.(${value})`)
+    if (isWeb) {
+      void mainClient.setBlocklist(snapshot)
+    }
   }, [nativeRef, webviewRef])
 
   const syncSettingsToWebview = useCallback(() => {
@@ -204,6 +225,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         restoreLastPlaying(webview)
         toggleShorts(hideShorts)
         syncUserStylesToWebview()
+        syncBlocklistToWebview()
         syncSettingsToWebview()
         if (isWeb) {
           uiState.webview.executeJavaScript('window.NouTube.bridgeShortcuts()')
@@ -263,6 +285,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     hideShorts,
     hideToolbarWhenScrolled,
     syncSettingsToWebview,
+    syncBlocklistToWebview,
     syncUserStylesToWebview,
     toggleShorts,
     uiState.pageUrl,
@@ -374,6 +397,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     }
   })
   useObserveEffect(userStyles$, () => syncUserStylesToWebview())
+  useObserveEffect(blocklist$, () => syncBlocklistToWebview())
 
   const onLoad = async (e: { nativeEvent: any }) => {
     setPageUrl(e.nativeEvent.url)
