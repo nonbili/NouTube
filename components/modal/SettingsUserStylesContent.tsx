@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { Alert, Platform, Pressable, ScrollView, Switch, TextInput, View, useColorScheme } from 'react-native'
+import { useEffect, useMemo, useState } from 'react'
+import { Alert, Keyboard, Platform, Pressable, ScrollView, Switch, TextInput, View, useWindowDimensions } from 'react-native'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import * as Clipboard from 'expo-clipboard'
 import { getDocumentAsync } from 'expo-document-picker'
@@ -11,10 +11,14 @@ import { clsx } from '@/lib/utils'
 import {
   builtinUserStyleDefinitionById,
   builtinUserStyleDefinitions,
+  parseUserscriptMetadata,
+  stripUserscriptMetadata,
   type BuiltinUserStyleId,
+  type CustomUserScript,
   type CustomUserStyle,
 } from '@/lib/user-styles'
 import { userStyles$ } from '@/states/user-styles'
+import { ui$ } from '@/states/ui'
 import { showToast } from '@/lib/toast'
 import { NouButton } from '../button/NouButton'
 import { MaterialButton } from '../button/IconButtons'
@@ -80,19 +84,140 @@ async function readPickedCss() {
   return response.text()
 }
 
+type ScriptDraftState = {
+  id: string | null
+  name: string
+  enabled: boolean
+  js: string
+}
+
+const createScriptDraft = (script?: CustomUserScript | null): ScriptDraftState => {
+  if (!script) {
+    return {
+      id: null,
+      name: '',
+      enabled: true,
+      js: '',
+    }
+  }
+
+  return {
+    id: script.id,
+    name: script.name,
+    enabled: script.enabled,
+    js: script.js,
+  }
+}
+
+async function readPickedScript() {
+  const result = await getDocumentAsync({
+    type: ['text/javascript', 'application/javascript', 'text/plain'],
+    copyToCacheDirectory: true,
+    multiple: false,
+  })
+  if (result.canceled || !result.assets?.[0]) {
+    return ''
+  }
+
+  const response = await fetch(result.assets[0].uri)
+  return response.text()
+}
+
 export const SettingsUserStylesContent = () => {
   const customStyles = useValue(userStyles$.customStyles)
+  const customScripts = useValue(userStyles$.customScripts)
   const builtins = useValue(userStyles$.builtins)
   const [draft, setDraft] = useState<DraftState | null>(null)
+  const [scriptDraft, setScriptDraft] = useState<ScriptDraftState | null>(null)
   const [previewBuiltinId, setPreviewBuiltinId] = useState<BuiltinUserStyleId | null>(null)
-  const colorScheme = useColorScheme()
-  const isDark = colorScheme !== 'light'
-
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
+  const { height: windowHeight } = useWindowDimensions()
   const previewDefinition = previewBuiltinId ? builtinUserStyleDefinitionById[previewBuiltinId] : null
   const hasStyles = customStyles.length > 0
+  const hasScripts = customScripts.length > 0
   const sortedBuiltins = useMemo(() => builtinUserStyleDefinitions, [])
+  const scriptEditorHeight =
+    keyboardHeight > 0 && Platform.OS !== 'web'
+      ? Math.max(140, Math.min(300, windowHeight - keyboardHeight - 260))
+      : 300
+  const scriptKeyboardAvoidingClassName = keyboardHeight > 0 && Platform.OS !== 'web' ? 'w-full items-center' : undefined
+
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      return
+    }
+
+    const showSub = Keyboard.addListener('keyboardDidShow', (event) => setKeyboardHeight(event.endCoordinates.height))
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0))
+
+    return () => {
+      showSub.remove()
+      hideSub.remove()
+    }
+  }, [])
 
   const closeDraft = () => setDraft(null)
+  const closeScriptDraft = () => setScriptDraft(null)
+
+  const onImportScript = async () => {
+    try {
+      const source = await readPickedScript()
+      if (!source) {
+        return
+      }
+      const metadata = parseUserscriptMetadata(source)
+      const js = stripUserscriptMetadata(source) || source
+      setScriptDraft((value) =>
+        value ? { ...value, name: value.name || metadata.name, js } : value,
+      )
+    } catch (error) {
+      console.warn('[SettingsUserStylesContent] failed to import script', error)
+      showToast(t('settings.userStyles.scripts.importFailed'))
+    }
+  }
+
+  const onRunScript = () => {
+    if (!scriptDraft?.js.trim()) {
+      showToast(t('settings.userStyles.scripts.validation.js'))
+      return
+    }
+
+    const webview = ui$.webview.get()
+    if (!webview) {
+      showToast(t('settings.userStyles.scripts.noActiveTab'))
+      return
+    }
+
+    const wrapped = `(() => { try {\n${scriptDraft.js}\n} catch (e) { console.error('[NouTube user script run]', e) } })();`
+    Promise.resolve(webview.executeJavaScript(wrapped))
+      .then(() => showToast(t('settings.userStyles.scripts.runComplete')))
+      .catch(() => showToast(t('settings.userStyles.scripts.runFailed')))
+  }
+
+  const onSaveScript = () => {
+    if (!scriptDraft) {
+      return
+    }
+
+    if (!scriptDraft.js.trim()) {
+      showToast(t('settings.userStyles.scripts.validation.js'))
+      return
+    }
+
+    const input = {
+      name: scriptDraft.name.trim(),
+      enabled: scriptDraft.enabled,
+      js: scriptDraft.js,
+    }
+
+    if (scriptDraft.id) {
+      userStyles$.updateCustomScript(scriptDraft.id, input)
+    } else {
+      userStyles$.addCustomScript(input)
+    }
+
+    closeScriptDraft()
+  }
 
   const onImportCss = async () => {
     try {
@@ -241,6 +366,62 @@ export const SettingsUserStylesContent = () => {
         </View>
       </View>
 
+      <View className="mt-10">
+        <View className="mb-3 flex-row items-center justify-between">
+          <NouText className={subheaderCls}>{t('settings.userStyles.scripts.label')}</NouText>
+          <Pressable
+            onPress={() => setScriptDraft(createScriptDraft())}
+            className="flex-row items-center gap-1 rounded-full bg-indigo-600/10 px-3 py-1.5 active:bg-indigo-600/20"
+          >
+            <MaterialIcons name="add" color="#818cf8" size={18} />
+            <NouText className="text-xs font-semibold text-indigo-400">{t('settings.userStyles.scripts.add')}</NouText>
+          </Pressable>
+        </View>
+        <View className={surfaceCls}>
+          {!hasScripts ? (
+            <View className="items-center justify-center px-6 py-10">
+              <View className="h-12 w-12 items-center justify-center rounded-2xl bg-zinc-200 dark:bg-zinc-950">
+                <MaterialIcons name="code" color="#3f3f46" size={24} />
+              </View>
+              <NouText className="mt-4 text-center text-sm leading-6 text-zinc-600 dark:text-zinc-500">
+                {t('settings.userStyles.scripts.empty')}
+              </NouText>
+            </View>
+          ) : null}
+          {customScripts.map((script, index) => (
+            <Pressable
+              key={script.id}
+              onPress={() => setScriptDraft(createScriptDraft(script))}
+              className={clsx(
+                rowCls,
+                'flex-row items-center justify-between active:bg-zinc-200/50 dark:active:bg-zinc-800/50',
+                index !== customScripts.length - 1 && rowBorderCls,
+              )}
+            >
+              <View className="flex-1 pr-4">
+                <NouText className={clsx('font-medium', !script.enabled && 'text-zinc-500')} numberOfLines={1}>
+                  {script.name}
+                </NouText>
+              </View>
+              <Switch
+                value={script.enabled}
+                onValueChange={() => userStyles$.toggleCustomScript(script.id)}
+                trackColor={{ false: '#27272a', true: '#3730a3' }}
+                thumbColor={script.enabled ? '#818cf8' : '#71717a'}
+                {...Platform.select({
+                  web: {
+                    activeThumbColor: '#818cf8',
+                  },
+                  ios: {
+                    style: { transform: [{ scale: 0.8 }] },
+                  },
+                })}
+              />
+            </Pressable>
+          ))}
+        </View>
+      </View>
+
       {draft ? (
         <BaseCenterModal onClose={closeDraft} containerClassName="lg:w-[50rem] xl:w-[60rem] max-w-[95vw]">
           <ScrollView className="max-h-[80vh]">
@@ -324,6 +505,117 @@ export const SettingsUserStylesContent = () => {
                   ) : null}
                 </View>
                 <NouButton onPress={onSave}>{t('buttons.save')}</NouButton>
+              </View>
+            </View>
+          </ScrollView>
+        </BaseCenterModal>
+      ) : null}
+
+      {scriptDraft ? (
+        <BaseCenterModal
+          onClose={closeScriptDraft}
+          keyboardAvoidingClassName={scriptKeyboardAvoidingClassName}
+          containerClassName="lg:w-[50rem] xl:w-[60rem] max-w-[95vw]"
+        >
+          <ScrollView
+            className="max-h-[80vh]"
+            keyboardDismissMode="interactive"
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ paddingBottom: keyboardHeight > 0 ? 16 : 0 }}
+          >
+            <View className="p-6">
+              <View className="flex-row items-center gap-3">
+                <View className="h-10 w-10 items-center justify-center rounded-xl bg-indigo-600/10">
+                  <MaterialIcons name="code" color="#818cf8" size={20} />
+                </View>
+                <NouText className="text-xl font-bold tracking-tight">
+                  {scriptDraft.id ? t('settings.userStyles.scripts.editTitle') : t('settings.userStyles.scripts.addTitle')}
+                </NouText>
+              </View>
+
+              <View className="mt-8">
+                <NouText className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-600 dark:text-zinc-500">
+                  {t('settings.userStyles.nameLabel')}
+                </NouText>
+                <TextInput
+                  className={textInputCls}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  onChangeText={(name) => setScriptDraft((value) => (value ? { ...value, name } : value))}
+                  placeholder={t('settings.userStyles.scripts.namePlaceholder')}
+                  placeholderTextColor="#71717a"
+                  value={scriptDraft.name}
+                />
+              </View>
+
+              <View className="mt-6">
+                <View className="mb-2 flex-row items-center justify-between px-1">
+                  <NouText className="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-600 dark:text-zinc-500">
+                    JavaScript
+                  </NouText>
+                  <Pressable
+                    onPress={onRunScript}
+                    className="h-8 flex-row items-center gap-1.5 rounded-lg bg-indigo-600 px-3 active:bg-indigo-700"
+                  >
+                    <MaterialIcons name="play-arrow" color="white" size={16} />
+                    <NouText className="text-xs font-semibold" style={{ color: 'white' }}>
+                      {t('settings.userStyles.scripts.run')}
+                    </NouText>
+                  </Pressable>
+                </View>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  className="rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950"
+                >
+                  <TextInput
+                    className="p-4 text-xs text-zinc-900 dark:text-white"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    multiline
+                    scrollEnabled
+                    onChangeText={(js) => setScriptDraft((value) => (value ? { ...value, js } : value))}
+                    placeholder={`document.title = 'noutube'`}
+                    placeholderTextColor="#71717a"
+                    style={{
+                      height: scriptEditorHeight,
+                      textAlignVertical: 'top',
+                      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+                      minWidth: 800,
+                    }}
+                    value={scriptDraft.js}
+                  />
+                </ScrollView>
+              </View>
+
+              <View className="mt-10 flex-row items-center justify-between gap-4">
+                <View className="flex-row items-center gap-2">
+                  <NouButton variant="outline" size="1" onPress={closeScriptDraft}>
+                    {t('buttons.cancel')}
+                  </NouButton>
+                  <MaterialButton name="file-upload" size={20} onPress={onImportScript} />
+                  {scriptDraft.id ? (
+                    <MaterialButton
+                      name="delete-outline"
+                      size={20}
+                      color="#ef4444"
+                      onPress={() => {
+                        Alert.alert(t('menus.remove'), t('settings.userStyles.scripts.deleteConfirm'), [
+                          { text: t('buttons.cancel'), style: 'cancel' },
+                          {
+                            text: t('buttons.remove'),
+                            style: 'destructive',
+                            onPress: () => {
+                              userStyles$.deleteCustomScript(scriptDraft.id!)
+                              closeScriptDraft()
+                            },
+                          },
+                        ])
+                      }}
+                    />
+                  ) : null}
+                </View>
+                <NouButton onPress={onSaveScript}>{t('buttons.save')}</NouButton>
               </View>
             </View>
           </ScrollView>

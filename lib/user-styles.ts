@@ -15,10 +15,18 @@ export interface CustomUserStyle {
   css: string
 }
 
+export interface CustomUserScript {
+  id: string
+  name: string
+  enabled: boolean
+  js: string
+}
+
 export interface UserStylesSnapshot {
   schemaVersion: number
   builtins: Record<BuiltinUserStyleId, BuiltinUserStyleState>
   customStyles: CustomUserStyle[]
+  customScripts: CustomUserScript[]
 }
 
 export interface BuiltinUserStyleDefinition {
@@ -93,6 +101,7 @@ export const createDefaultUserStylesSnapshot = (): UserStylesSnapshot => ({
   schemaVersion: USER_STYLES_SCHEMA_VERSION,
   builtins: createDefaultBuiltinUserStyles(),
   customStyles: [],
+  customScripts: [],
 })
 
 export const getEnabledUserStyleCss = (host: string, snapshot?: UserStylesSnapshot) => {
@@ -109,6 +118,18 @@ export const getEnabledUserStyleCss = (host: string, snapshot?: UserStylesSnapsh
     .filter(Boolean)
 
   return [...builtinCss, ...customCss].join('\n\n')
+}
+
+export const getEnabledUserScripts = (snapshot?: UserStylesSnapshot) => {
+  const userStyles = snapshot || createDefaultUserStylesSnapshot()
+
+  return (userStyles.customScripts || [])
+    .filter((script) => script.enabled)
+    .filter((script) => script.js.trim())
+    .map((script) => ({
+      ...script,
+      js: script.js.trim(),
+    }))
 }
 
 const normalizeCustomUserStyle = (
@@ -134,6 +155,52 @@ const normalizeCustomUserStyle = (
   }
 }
 
+const normalizeCustomUserScript = (
+  script: Partial<CustomUserScript> | null | undefined,
+  index: number,
+): CustomUserScript | null => {
+  if (!script) {
+    return null
+  }
+
+  const js = typeof script.js === 'string' ? script.js.replace(/\s+$/, '') : ''
+  if (!js.trim()) {
+    return null
+  }
+
+  const name = typeof script.name === 'string' && script.name.trim() ? script.name.trim() : `Script ${index + 1}`
+
+  return {
+    id: typeof script.id === 'string' && script.id ? script.id : createId(6),
+    name,
+    enabled: typeof script.enabled === 'boolean' ? script.enabled : true,
+    js,
+  }
+}
+
+const metadataBlockPattern = /\/\/\s*==UserScript==([\s\S]*?)\/\/\s*==\/UserScript==/
+
+export const parseUserscriptMetadata = (source: string) => {
+  const block = source.match(metadataBlockPattern)?.[1]
+  if (!block) {
+    return { name: '' }
+  }
+
+  let name = ''
+  for (const line of block.split('\n')) {
+    const match = line.match(/^\s*\/\/\s*@(\S+)\s+(.+?)\s*$/)
+    if (match && match[1] === 'name' && !name) {
+      name = match[2].trim()
+    }
+  }
+
+  return { name }
+}
+
+export const stripUserscriptMetadata = (source: string) => {
+  return source.replace(metadataBlockPattern, '').replace(/^\s+/, '').replace(/\s+$/, '')
+}
+
 export const normalizeUserStyles = (data?: Partial<UserStylesSnapshot>): UserStylesSnapshot => {
   const defaults = createDefaultUserStylesSnapshot()
   const builtins = createDefaultBuiltinUserStyles()
@@ -149,13 +216,25 @@ export const normalizeUserStyles = (data?: Partial<UserStylesSnapshot>): UserSty
     .map((style, index) => normalizeCustomUserStyle(style, index))
     .filter((style): style is CustomUserStyle => style != null)
 
+  const customScripts = (data?.customScripts || [])
+    .map((script, index) => normalizeCustomUserScript(script, index))
+    .filter((script): script is CustomUserScript => script != null)
+
   return {
     schemaVersion: USER_STYLES_SCHEMA_VERSION,
     builtins,
     customStyles,
+    customScripts,
   }
 }
 
 export const createNormalizedCustomUserStyle = (style: Partial<CustomUserStyle> | null | undefined, index: number) => {
   return normalizeCustomUserStyle(style, index)
+}
+
+export const createNormalizedCustomUserScript = (
+  script: Partial<CustomUserScript> | null | undefined,
+  index: number,
+) => {
+  return normalizeCustomUserScript(script, index)
 }

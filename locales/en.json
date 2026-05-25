@@ -156,7 +156,7 @@
       "optionFrame": "Frame {{n}}"
     },
     "userStyles": {
-      "label": "User styles",
+      "label": "User Styles & Scripts",
       "hint": "Built-in CSS tweaks and your own site-specific CSS.",
       "builtin": {
         "label": "Built-in styles",
@@ -186,7 +186,25 @@
       "copyCss": "Copy CSS",
       "cssCopied": "CSS copied",
       "copyFailed": "Failed to copy CSS",
-      "importFailed": "Failed to import CSS"
+      "importFailed": "Failed to import CSS",
+      "scripts": {
+        "label": "Custom scripts",
+        "empty": "No custom scripts yet.",
+        "add": "Add script",
+        "addTitle": "Add user script",
+        "editTitle": "Edit user script",
+        "namePlaceholder": "My script",
+        "run": "Run",
+        "runComplete": "Script ran",
+        "runFailed": "Script failed",
+        "import": "Import",
+        "importFailed": "Failed to import script",
+        "deleteConfirm": "Remove this custom script?",
+        "noActiveTab": "No active webview",
+        "validation": {
+          "js": "JavaScript cannot be empty"
+        }
+      }
     },
     "channelsFeed": "Channels feed",
     "watchHistory": "Watch history",

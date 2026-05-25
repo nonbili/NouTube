@@ -4,10 +4,12 @@ import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import {
   builtinUserStyleIds,
   createDefaultUserStylesSnapshot,
+  createNormalizedCustomUserScript,
   createNormalizedCustomUserStyle,
   normalizeUserStyles,
   USER_STYLES_SCHEMA_VERSION,
   type BuiltinUserStyleId,
+  type CustomUserScript,
   type CustomUserStyle,
   type UserStylesSnapshot,
 } from '@/lib/user-styles'
@@ -19,6 +21,10 @@ interface Store extends UserStylesSnapshot {
   updateCustomStyle: (id: string, input: Omit<CustomUserStyle, 'id'>) => void
   toggleCustomStyle: (id: string) => void
   deleteCustomStyle: (id: string) => void
+  addCustomScript: (input: Omit<CustomUserScript, 'id'>) => string
+  updateCustomScript: (id: string, input: Omit<CustomUserScript, 'id'>) => void
+  toggleCustomScript: (id: string) => void
+  deleteCustomScript: (id: string) => void
 }
 
 export const userStyles$ = observable<Store>({
@@ -76,6 +82,50 @@ export const userStyles$ = observable<Store>({
     }
     userStyles$.customStyles.splice(index, 1)
   },
+
+  addCustomScript: (input) => {
+    const next = createNormalizedCustomUserScript(input, userStyles$.customScripts.get().length)
+    if (!next) {
+      return ''
+    }
+    userStyles$.customScripts.push(next)
+    return next.id
+  },
+
+  updateCustomScript: (id, input) => {
+    const scripts = userStyles$.customScripts.get()
+    const index = scripts.findIndex((script) => script?.id === id)
+    if (index === -1) {
+      return
+    }
+
+    const next = createNormalizedCustomUserScript({ ...input, id }, index)
+    if (!next) {
+      return
+    }
+
+    userStyles$.customScripts[index].set(next)
+  },
+
+  toggleCustomScript: (id) => {
+    const scripts = userStyles$.customScripts.get()
+    const index = scripts.findIndex((script) => script?.id === id)
+    if (index === -1) {
+      return
+    }
+
+    const enabled = userStyles$.customScripts[index].enabled.get()
+    userStyles$.customScripts[index].enabled.set(!enabled)
+  },
+
+  deleteCustomScript: (id) => {
+    const scripts = userStyles$.customScripts.get()
+    const index = scripts.findIndex((script) => script?.id === id)
+    if (index === -1) {
+      return
+    }
+    userStyles$.customScripts.splice(index, 1)
+  },
 })
 
 export const getUserStylesSnapshot = (value: Partial<Store> | undefined = userStyles$.get()): UserStylesSnapshot => ({
@@ -95,6 +145,12 @@ export const getUserStylesSnapshot = (value: Partial<Store> | undefined = userSt
     name: style.name,
     enabled: style.enabled,
     css: style.css,
+  })),
+  customScripts: (value?.customScripts || []).map((script) => ({
+    id: script.id,
+    name: script.name,
+    enabled: script.enabled,
+    js: script.js,
   })),
 })
 

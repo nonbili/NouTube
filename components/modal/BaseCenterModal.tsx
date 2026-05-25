@@ -1,16 +1,28 @@
 import { clsx, isIos, isWeb } from '@/lib/utils'
 import { ReactNode, useEffect, useState } from 'react'
 import { Keyboard, KeyboardAvoidingView, Modal, Pressable, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useModal } from '@/lib/hooks/useModal'
 
 export const BaseCenterModal: React.FC<{
   className?: string
+  keyboardAvoidingClassName?: string
   containerClassName?: string
+  align?: 'center' | 'top' | 'keyboard'
   children: ReactNode
   onClose: () => void
   useEscape?: boolean
-}> = ({ className, containerClassName, children, onClose, useEscape = true }) => {
+}> = ({
+  className,
+  keyboardAvoidingClassName,
+  containerClassName,
+  align = 'keyboard',
+  children,
+  onClose,
+  useEscape = true,
+}) => {
   useModal(onClose, useEscape)
+  const insets = useSafeAreaInsets()
   const [keyboardVisible, setKeyboardVisible] = useState(false)
 
   useEffect(() => {
@@ -35,6 +47,8 @@ export const BaseCenterModal: React.FC<{
     onClose()
   }
 
+  const topAligned = align === 'top' || (align === 'keyboard' && keyboardVisible)
+
   const innerCls = clsx(
     'rounded-lg bg-zinc-100 dark:bg-gray-950 w-[30rem] lg:w-[40rem] xl:w-[50rem] max-w-[80vw]',
     containerClassName,
@@ -42,9 +56,16 @@ export const BaseCenterModal: React.FC<{
 
   return (
     <Modal transparent visible onRequestClose={onClose}>
-      <View className={clsx('flex-1 items-center justify-center', className)}>
+      <View
+        className={clsx('flex-1 items-center', topAligned ? 'justify-start' : 'justify-center', className)}
+        style={topAligned ? { paddingTop: insets.top + 12 } : undefined}
+      >
         <Pressable className="absolute inset-0 bg-zinc-300/80 dark:bg-gray-600/80" onPress={handleBackdropPress} />
-        <KeyboardAvoidingView behavior={isIos ? 'padding' : 'height'} pointerEvents="box-none">
+        <KeyboardAvoidingView
+          behavior={isIos ? 'padding' : 'height'}
+          pointerEvents="box-none"
+          className={keyboardAvoidingClassName}
+        >
           <View className={innerCls}>{children}</View>
         </KeyboardAvoidingView>
       </View>

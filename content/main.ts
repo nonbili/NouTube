@@ -3,6 +3,7 @@ import { installH264ify } from './h264ify'
 import { installClickbaitThumbnails } from './clickbait'
 import { injectCSS } from './css'
 import { initNouTube } from './noutube'
+import { initUserScripts } from './user-scripts'
 import { handleMutations, handleVideoPlayer } from './player'
 import { emit } from './utils'
 import { handleDialogs } from './dialogs'
@@ -35,11 +36,13 @@ try {
 
   if (document.documentElement) {
     injectCSS()
+    initUserScripts()
     emit('onload')
     initObserver()
   } else {
     document.addEventListener('DOMContentLoaded', () => {
       injectCSS()
+      initUserScripts()
       emit('onload')
       initObserver()
     })
