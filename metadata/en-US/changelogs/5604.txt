@@ -1,0 +1,4 @@
+- Support channel and keyword blocking
+- Support user scripts
+- Support placing the toolbar at the bottom and adding a home button
+- Add support for Japanese, Vietnamese, and Traditional Chinese languages
