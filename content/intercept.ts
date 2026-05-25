@@ -1,5 +1,6 @@
 import {
   RE_INTERCEPT,
+  filterListResponse,
   transformBrowseResponse,
   transformGetWatchResponse,
   transformPlayerResponse,
@@ -7,6 +8,24 @@ import {
 } from '@/lib/intercept'
 
 export function intercept() {
+  // Intercept initial page data (server-rendered in script tags)
+  let initialData = (window as any).ytInitialData
+  Object.defineProperty(window, 'ytInitialData', {
+    get() {
+      return initialData
+    },
+    set(value) {
+      try {
+        const blocklist = window.NouTube?.getBlocklist?.()
+        filterListResponse(value, blocklist)
+      } catch (error) {
+        console.error('NouScript initialData:', error)
+      }
+      initialData = value
+    },
+    configurable: true,
+  })
+
   const winFetch = fetch
   // @ts-expect-error xx
   window.fetch = async (...args) => {

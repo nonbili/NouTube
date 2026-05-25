@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'bun:test'
 import {
   addBlocklistEntry,
+  blocklistChannelMatches,
+  blocklistChannelsMatch,
   blocklistTextMatches,
   createBlocklistEntry,
   normalizeBlocklist,
@@ -11,6 +13,8 @@ describe('blocklist', () => {
   it('normalizes values for matching', () => {
     expect(normalizeBlocklistValue(' @Channel1 ')).toBe('channel1')
     expect(normalizeBlocklistValue('https://www.youtube.com/@Channel1')).toBe('channel1')
+    expect(normalizeBlocklistValue('https://www.youtube.com/c/Channel1')).toBe('channel1')
+    expect(normalizeBlocklistValue('https://www.youtube.com/channel/UC12345')).toBe('uc12345')
   })
 
   it('filters invalid entries and removes duplicates', () => {
@@ -47,5 +51,19 @@ describe('blocklist', () => {
 
     expect(blocklistTextMatches('My FINAL BOSS guide', snapshot.keywords)).toBe(true)
     expect(blocklistTextMatches('Daily drama update', snapshot.keywords)).toBe(false)
+  })
+
+  it('matches channels exactly case-insensitively', () => {
+    const snapshot = normalizeBlocklist({
+      channels: [
+        { id: 'a', value: 'Channel1', enabled: true, createdAt: 1 },
+        { id: 'b', value: 'Google', enabled: true, createdAt: 2 },
+      ],
+    })
+
+    expect(blocklistChannelMatches('Channel1', snapshot.channels)).toBe(true)
+    expect(blocklistChannelMatches('channel1', snapshot.channels)).toBe(true)
+    expect(blocklistChannelMatches('Google Developers', snapshot.channels)).toBe(false)
+    expect(blocklistChannelMatches('UC', snapshot.channels)).toBe(false)
   })
 })

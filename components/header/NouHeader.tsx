@@ -27,11 +27,15 @@ import { downloads$ } from '@/states/downloads'
 export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const autoHideHeader = useValue(settings$.autoHideHeader)
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
+  const headerPosition = useValue(settings$.headerPosition)
   const isYTMusic = useValue(settings$.isYTMusic)
   const desktopModeYTMusic = useValue(settings$.desktopMode)
   const desktopModeYT = useValue(settings$.desktopModeYT)
   const desktopMode = isYTMusic ? desktopModeYTMusic : desktopModeYT
   const playbackRate = useValue(settings$.playbackRate)
+  const showBackButtonInHeader = useValue(settings$.showBackButtonInHeader)
+  const showForwardButtonInHeader = useValue(settings$.showForwardButtonInHeader)
+  const showHomeButtonInHeader = useValue(settings$.showHomeButtonInHeader)
   const showPlaybackSpeedControl = useValue(settings$.showPlaybackSpeedControl)
   const { width, height: windowHeight } = useWindowDimensions()
   const uiState = useValue(ui$)
@@ -71,6 +75,26 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
     updateUrl(newUrl)
   }
 
+  const onOpenHome = () => {
+    updateUrl(isYTMusic ? 'https://music.youtube.com/' : isWeb ? 'https://www.youtube.com/' : 'https://m.youtube.com/')
+  }
+
+  const goBack = () => {
+    if (typeof uiState.webview?.goBack === 'function') {
+      uiState.webview.goBack()
+    } else {
+      uiState.webview?.executeJavaScript?.('history.back()')
+    }
+  }
+
+  const goForward = () => {
+    if (typeof uiState.webview?.goForward === 'function') {
+      uiState.webview.goForward()
+    } else {
+      uiState.webview?.executeJavaScript?.('history.forward()')
+    }
+  }
+
   const onToggleStar = () => {
     if (starred && bookmark) {
       ui$.bookmarkModalBookmark.set(bookmark)
@@ -84,9 +108,10 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
       return
     }
     const shouldHide = !isHorizontal && (autoHideHeader || hideToolbarWhenScrolled) && !uiState.headerShown
-    const next = shouldHide ? -uiState.headerHeight : 0
+    const hiddenOffset = headerPosition === 'bottom' ? uiState.headerHeight : -uiState.headerHeight
+    const next = shouldHide ? hiddenOffset : 0
     translateY.value = withTiming(next)
-  }, [uiState.headerShown, uiState.headerHeight, autoHideHeader, hideToolbarWhenScrolled, isHorizontal, translateY])
+  }, [uiState.headerShown, uiState.headerHeight, autoHideHeader, hideToolbarWhenScrolled, headerPosition, isHorizontal, translateY])
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -103,10 +128,15 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
       onLayout={(e) => ui$.headerHeight.set(e.nativeEvent.layout.height)}
       className={clsx(
         'bg-zinc-100 dark:bg-zinc-800 flex-row lg:flex-col justify-between px-2 py-1 lg:px-1 lg:py-2',
-        (autoHideHeader || hideToolbarWhenScrolled) && !isHorizontal && 'absolute top-0 left-0 right-0 z-10',
+        (autoHideHeader || hideToolbarWhenScrolled) &&
+          !isHorizontal &&
+          clsx('absolute left-0 right-0 z-10', headerPosition === 'bottom' ? 'bottom-0' : 'top-0'),
       )}
     >
       <View className="flex-row lg:flex-col">
+        {nIf(!isWeb && showBackButtonInHeader, <MaterialButton name="arrow-back" onPress={goBack} />)}
+        {nIf(!isWeb && showForwardButtonInHeader, <MaterialButton name="arrow-forward" onPress={goForward} />)}
+        {nIf(showHomeButtonInHeader, <MaterialButton name="home" onPress={onOpenHome} />)}
         <MaterialButton
           name={isYTMusic ? 'library-music' : 'video-library'}
           onPress={() => ui$.libraryModalOpen.set(true)}
@@ -123,13 +153,13 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
               color={canGoBack ? headerControlColor : isDark ? colors.underlay : '#94a3b8'}
               name="arrow-back"
               disabled={!canGoBack}
-              onPress={() => uiState.webview.goBack()}
+              onPress={goBack}
             />
             <MaterialButton
               color={canGoForward ? headerControlColor : isDark ? colors.underlay : '#94a3b8'}
               name="arrow-forward"
               disabled={!canGoForward}
-              onPress={() => uiState.webview.goForward()}
+              onPress={goForward}
             />
           </>,
         )}

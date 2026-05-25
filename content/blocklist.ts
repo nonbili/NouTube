@@ -1,4 +1,4 @@
-import { blocklistTextMatches, blocklistTextsMatch, createDefaultBlocklistSnapshot } from '../lib/blocklist'
+import { blocklistChannelsMatch, blocklistTextMatches, blocklistTextsMatch, createDefaultBlocklistSnapshot } from '../lib/blocklist'
 import { noutubeBlocklistEvent } from './noutube'
 
 const blockedClass = '_nou_blocked'
@@ -66,7 +66,7 @@ function itemMatches(item: Element) {
   const blocklist = getBlocklist()
   return (
     blocklistTextsMatch(getTitleTexts(item), blocklist.keywords) ||
-    blocklistTextsMatch(getChannelTexts(item), blocklist.channels) ||
+    blocklistChannelsMatch(getChannelTexts(item), blocklist.channels) ||
     blocklistTextMatches(item.getAttribute('aria-label') || '', blocklist.keywords)
   )
 }
@@ -88,6 +88,10 @@ export function installBlocklistFilter() {
         if (node instanceof Element) {
           if (node.matches(itemSelector)) {
             node.classList.toggle(blockedClass, itemMatches(node))
+          }
+          const parentItem = node.closest?.(itemSelector)
+          if (parentItem) {
+            parentItem.classList.toggle(blockedClass, itemMatches(parentItem))
           }
           applyBlocklist(node)
         }

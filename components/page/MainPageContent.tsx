@@ -10,7 +10,7 @@ import NouTubeViewModule, { NouTubeView } from '@/modules/nou-tube-view'
 import { View } from 'react-native'
 import { getVideoId, setPageUrl } from '@/lib/page'
 import { showToast } from '@/lib/toast'
-import { isWeb, nIf } from '@/lib/utils'
+import { clsx, isWeb, nIf } from '@/lib/utils'
 import type { WebviewTag } from 'electron'
 import { NouHeader } from '../header/NouHeader'
 import { syncSupabase } from '@/lib/supabase/sync'
@@ -77,6 +77,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const isYTMusic = useValue(settings$.isYTMusic)
   const autoHideHeader = useValue(settings$.autoHideHeader)
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
+  const headerPosition = useValue(settings$.headerPosition)
   const customUserAgent = useValue(settings$.userAgent)
   const desktopModeYTMusic = useValue(settings$.desktopMode)
   const desktopModeYT = useValue(settings$.desktopModeYT)
@@ -405,7 +406,12 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   return (
     <>
-      <View className="flex-1 h-full lg:flex-row overflow-hidden">
+      <View
+        className={clsx(
+          'flex-1 h-full lg:flex-row overflow-hidden',
+          headerPosition === 'bottom' && 'flex-col-reverse',
+        )}
+      >
         <NouHeader noutube={webviewRef.current || nativeRef.current} />
         {isWeb ? (
           <NouTubeView

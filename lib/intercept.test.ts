@@ -166,4 +166,100 @@ describe('intercept blocklist filtering', () => {
     expect(items).toHaveLength(1)
     expect(items[0].richItemRenderer.content.videoRenderer.title.runs[0].text).toBe('Keep me')
   })
+
+  it('removes lockupViewModel items in browse by channel name, URL, or ID', () => {
+    const response = {
+      contents: {
+        twoColumnBrowseResultsRenderer: {
+          tabs: [
+            {
+              tabRenderer: {
+                content: {
+                  richGridRenderer: {
+                    contents: [
+                      {
+                        richItemRenderer: {
+                          content: {
+                            lockupViewModel: {
+                              contentMetadata: {
+                                runs: [
+                                  {
+                                    text: 'BBC Music',
+                                    navigationEndpoint: {
+                                      browseEndpoint: {
+                                        browseId: 'UC_bbc',
+                                        canonicalBaseUrl: '/@bbcmusic',
+                                      },
+                                    },
+                                  },
+                                  { text: ' • ' },
+                                  { text: '1M views' },
+                                ],
+                              },
+                            },
+                          },
+                        },
+                      },
+                      {
+                        richItemRenderer: {
+                          content: {
+                            lockupViewModel: {
+                              contentMetadata: {
+                                runs: [
+                                  {
+                                    text: 'Keep me',
+                                    navigationEndpoint: {
+                                      browseEndpoint: {
+                                        browseId: 'UC_keep',
+                                        canonicalBaseUrl: '/@keep',
+                                      },
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+    }
+
+    // Test channel name blocking
+    const blocklistByName = normalizeBlocklist({
+      channels: [{ id: '1', value: 'BBC Music', enabled: true, createdAt: 1 }],
+      keywords: [],
+    })
+    const transformedName = JSON.parse(transformBrowseResponse(JSON.stringify(response), blocklistByName))
+    const itemsName = transformedName.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.content.richGridRenderer.contents
+    expect(itemsName).toHaveLength(1)
+    expect(itemsName[0].richItemRenderer.content.lockupViewModel.contentMetadata.runs[0].text).toBe('Keep me')
+
+    // Test channel handle/URL blocking
+    const blocklistByUrl = normalizeBlocklist({
+      channels: [{ id: '1', value: '@bbcmusic', enabled: true, createdAt: 1 }],
+      keywords: [],
+    })
+    const transformedUrl = JSON.parse(transformBrowseResponse(JSON.stringify(response), blocklistByUrl))
+    const itemsUrl = transformedUrl.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.content.richGridRenderer.contents
+    expect(itemsUrl).toHaveLength(1)
+    expect(itemsUrl[0].richItemRenderer.content.lockupViewModel.contentMetadata.runs[0].text).toBe('Keep me')
+
+    // Test channel ID blocking
+    const blocklistById = normalizeBlocklist({
+      channels: [{ id: '1', value: 'UC_bbc', enabled: true, createdAt: 1 }],
+      keywords: [],
+    })
+    const transformedId = JSON.parse(transformBrowseResponse(JSON.stringify(response), blocklistById))
+    const itemsId = transformedId.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.content.richGridRenderer.contents
+    expect(itemsId).toHaveLength(1)
+    expect(itemsId[0].richItemRenderer.content.lockupViewModel.contentMetadata.runs[0].text).toBe('Keep me')
+  })
 })
+

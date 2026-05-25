@@ -25,6 +25,7 @@ import { mainClient } from '@/lib/main-client'
 import { i18nLanguageNativeNames, resolveI18nLanguageFromExpoLocale, supportedI18nLanguages } from '@/lib/i18n'
 
 const themes = [null, 'dark', 'light'] as const
+const headerPositions = ['top', 'bottom'] as const
 const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
 const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500'
 const iconWrapCls = 'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-950'
@@ -238,10 +239,22 @@ export const SettingsAppearanceContent = () => {
   ]
 
   return (
-    <SettingsSection label={t('settings.appearance')}>
-      <View className={surfaceCls}>
-        {!isWeb && (
-          <>
+    <View className="pb-4">
+      {!isWeb ? (
+        <SettingsSection label={t('settings.appearance.toolbar')}>
+          <View className={surfaceCls}>
+            <View className="flex-row items-center gap-3 px-4 py-4 border-b border-zinc-300 dark:border-zinc-800">
+              <View className={iconWrapCls}>
+                <MaterialIcons name="vertical-align-bottom" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+              </View>
+              <NouText className="flex-1 font-medium">{t('settings.headerPosition.label')}</NouText>
+              <Segmented
+                options={[t('settings.headerPosition.top'), t('settings.headerPosition.bottom')]}
+                selectedIndex={headerPositions.indexOf(settings.headerPosition)}
+                size={1}
+                onChange={(index) => settings$.headerPosition.set(headerPositions[index])}
+              />
+            </View>
             <SettingsToggleRow
               label={t('settings.autoHideHeader')}
               icon="visibility-off"
@@ -255,57 +268,94 @@ export const SettingsAppearanceContent = () => {
               onPress={() => settings$.hideToolbarWhenScrolled.set(!settings.hideToolbarWhenScrolled)}
             />
             <SettingsToggleRow
+              label={t('settings.showHomeButtonInHeader')}
+              icon="home"
+              value={settings.showHomeButtonInHeader}
+              onPress={() => settings$.showHomeButtonInHeader.set(!settings.showHomeButtonInHeader)}
+            />
+            <SettingsToggleRow
+              label={t('settings.showBackButtonInHeader')}
+              icon="arrow-back"
+              value={settings.showBackButtonInHeader}
+              onPress={() => settings$.showBackButtonInHeader.set(!settings.showBackButtonInHeader)}
+            />
+            <SettingsToggleRow
+              label={t('settings.showForwardButtonInHeader')}
+              icon="arrow-forward"
+              value={settings.showForwardButtonInHeader}
+              onPress={() => settings$.showForwardButtonInHeader.set(!settings.showForwardButtonInHeader)}
+            />
+            <SettingsToggleRow
               label="Show playback speed control"
               icon="speed"
               value={settings.showPlaybackSpeedControl}
               onPress={() => settings$.showPlaybackSpeedControl.set(!settings.showPlaybackSpeedControl)}
-            />
-          </>
-        )}
-        <View className={clsx('flex-row items-center justify-between gap-3 px-4 py-4', 'border-b border-zinc-300 dark:border-zinc-800')}>
-          <View className={iconWrapCls}>
-            <MaterialIcons name="translate" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
-          </View>
-          <View className="flex-1">
-            <NouText className="font-medium">{t('settings.language.label')}</NouText>
-            <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{t('settings.language.hint')}</NouText>
-          </View>
-          <NouMenu
-            trigger={
-              isWeb ? (
-                <NouButton size="1" variant="outline" textClassName="max-w-48 truncate" onPress={() => {}}>
-                  {currentLanguageLabel}
-                </NouButton>
-              ) : (
-                'ellipsis'
-              )
-            }
-            items={languageMenuItems}
-          />
-        </View>
-        <View className="px-4 py-4">
-          <View className="flex-row items-start gap-3">
-            <View className={iconWrapCls}>
-              <MaterialIcons name="palette" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
-            </View>
-            <View className="flex-1">
-              <NouText className="font-medium">{t('settings.theme.label')}</NouText>
-              <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{t('settings.theme.hint')}</NouText>
-            </View>
-          </View>
-        </View>
-        <View className="border-t border-zinc-300 dark:border-zinc-800 px-4 py-4">
-          <View className="items-end">
-            <Segmented
-              options={[t('settings.theme.system'), t('settings.theme.dark'), t('settings.theme.light')]}
-              selectedIndex={themes.indexOf(theme)}
-              size={1}
-              onChange={(index) => settings$.theme.set(themes[index])}
+              isLast
             />
           </View>
-        </View>
+        </SettingsSection>
+      ) : null}
+
+      <View className={!isWeb ? 'mt-8' : undefined}>
+        <SettingsSection label={t('settings.language.label')}>
+          <View className={surfaceCls}>
+            <View className="flex-row items-center justify-between gap-3 px-4 py-4">
+              <View className={iconWrapCls}>
+                <MaterialIcons name="translate" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+              </View>
+              <View className="flex-1">
+                <NouText className="font-medium">{t('settings.language.label')}</NouText>
+                <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
+                  {t('settings.language.hint')}
+                </NouText>
+              </View>
+              <NouMenu
+                trigger={
+                  isWeb ? (
+                    <NouButton size="1" variant="outline" textClassName="max-w-48 truncate" onPress={() => {}}>
+                      {currentLanguageLabel}
+                    </NouButton>
+                  ) : (
+                    'ellipsis'
+                  )
+                }
+                items={languageMenuItems}
+              />
+            </View>
+          </View>
+        </SettingsSection>
       </View>
-    </SettingsSection>
+
+      <View className="mt-8">
+        <SettingsSection label={t('settings.theme.label')}>
+          <View className={surfaceCls}>
+            <View className="px-4 py-4">
+              <View className="flex-row items-start gap-3">
+                <View className={iconWrapCls}>
+                  <MaterialIcons name="palette" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+                </View>
+                <View className="flex-1">
+                  <NouText className="font-medium">{t('settings.theme.label')}</NouText>
+                  <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
+                    {t('settings.theme.hint')}
+                  </NouText>
+                </View>
+              </View>
+            </View>
+            <View className="border-t border-zinc-300 dark:border-zinc-800 px-4 py-4">
+              <View className="items-end">
+                <Segmented
+                  options={[t('settings.theme.system'), t('settings.theme.dark'), t('settings.theme.light')]}
+                  selectedIndex={themes.indexOf(theme)}
+                  size={1}
+                  onChange={(index) => settings$.theme.set(themes[index])}
+                />
+              </View>
+            </View>
+          </View>
+        </SettingsSection>
+      </View>
+    </View>
   )
 }
 

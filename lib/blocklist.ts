@@ -36,10 +36,30 @@ export const normalizeBlocklistValue = (value: string) => {
     .trim()
     .replace(/^https?:\/\/(www\.|m\.)?youtube\.com\//i, '')
     .replace(/^\/+/, '')
+    .replace(/^(c|channel|user)\//i, '')
+    .replace(/^\/+/, '')
     .replace(/^@+/, '')
     .replace(/\s+/g, ' ')
     .toLocaleLowerCase()
 }
+
+export const blocklistChannelMatches = (text: string | undefined, entries: BlocklistEntry[]) => {
+  if (!text) {
+    return false
+  }
+
+  const normalized = normalizeBlocklistValue(text)
+  if (!normalized) {
+    return false
+  }
+
+  return getEnabledBlocklistValues(entries).some((value) => normalized === value)
+}
+
+export const blocklistChannelsMatch = (texts: Array<string | undefined>, entries: BlocklistEntry[]) => {
+  return texts.some((text) => blocklistChannelMatches(text, entries))
+}
+
 
 export const createBlocklistEntry = (value: string, existing?: Partial<BlocklistEntry>): BlocklistEntry | null => {
   const normalized = normalizeBlocklistValue(value)

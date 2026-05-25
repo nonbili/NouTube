@@ -12,6 +12,7 @@ interface Store {
 
   autoHideHeader: boolean
   hideToolbarWhenScrolled: boolean
+  headerPosition: 'top' | 'bottom'
   feedsEnabled: boolean
   hideShorts: boolean
   hideShortsInNavbar: boolean
@@ -23,6 +24,9 @@ interface Store {
   playbackRate: number
   restoreOnStart: boolean
   sponsorBlock: boolean
+  showBackButtonInHeader: boolean
+  showForwardButtonInHeader: boolean
+  showHomeButtonInHeader: boolean
   showPlaybackSpeedControl: boolean
   userAgent: string
   desktopMode: boolean
@@ -37,6 +41,18 @@ const normalizeSettings = <T extends Partial<Store> | undefined>(data: T) => {
     return data
   }
   data.language = normalizeI18nLanguage(data.language)
+  if (data.headerPosition !== 'bottom') {
+    data.headerPosition = 'top'
+  }
+  if (typeof data.showHomeButtonInHeader !== 'boolean') {
+    data.showHomeButtonInHeader = false
+  }
+  if (typeof data.showBackButtonInHeader !== 'boolean') {
+    data.showBackButtonInHeader = false
+  }
+  if (typeof data.showForwardButtonInHeader !== 'boolean') {
+    data.showForwardButtonInHeader = false
+  }
   return data
 }
 
@@ -50,6 +66,7 @@ export const settings$ = observable<Store>({
 
   autoHideHeader: false,
   hideToolbarWhenScrolled: false,
+  headerPosition: 'top',
   feedsEnabled: true,
   hideShorts: true,
   hideShortsInNavbar: false,
@@ -61,6 +78,9 @@ export const settings$ = observable<Store>({
   playbackRate: 1,
   restoreOnStart: true,
   sponsorBlock: true,
+  showBackButtonInHeader: false,
+  showForwardButtonInHeader: false,
+  showHomeButtonInHeader: false,
   showPlaybackSpeedControl: false,
   userAgent: '',
   desktopMode: false,

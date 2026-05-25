@@ -144,6 +144,14 @@
     "restoreOnStart": "Restore last playing on start",
     "autoHideHeader": "Hide and show toolbar on scroll direction",
     "hideToolbarWhenScrolled": "Hide toolbar when page is not at top",
+    "headerPosition": {
+      "label": "Toolbar position",
+      "top": "Top",
+      "bottom": "Bottom"
+    },
+    "showHomeButtonInHeader": "Show Home button in toolbar",
+    "showBackButtonInHeader": "Show Back button in toolbar",
+    "showForwardButtonInHeader": "Show Forward button in toolbar",
     "hideShorts": "Hide shorts in timeline",
     "hideShortsInNavbar": "Hide shorts in navbar",
     "hideMixPlaylist": "Hide mix playlist",
@@ -164,7 +172,9 @@
       "keywordPlaceholder": "Title keyword",
       "emptyChannels": "No blocked channels yet.",
       "emptyKeywords": "No blocked keywords yet.",
-      "add": "Add"
+      "add": "Add",
+      "channelsNote": "Channels match exactly by name, handle, or channel ID.",
+      "keywordsNote": "Keywords match by inclusion (substring search in titles)."
     },
     "userStyles": {
       "label": "User Styles & Scripts",

@@ -1,4 +1,5 @@
 import {
+  blocklistChannelsMatch,
   blocklistTextMatches,
   blocklistTextsMatch,
   normalizeBlocklist,
@@ -68,7 +69,7 @@ function transformSectionListItem(item: SectionListItem, blocklist: BlocklistSna
   return item
 }
 
-function filterListResponse(data: any, blocklist?: BlocklistSnapshot) {
+export function filterListResponse(data: any, blocklist?: BlocklistSnapshot) {
   if (!data || typeof data !== 'object') {
     return
   }
@@ -118,7 +119,7 @@ function rendererMatchesBlocklist(renderer: any, blocklist: BlocklistSnapshot) {
 
   return (
     blocklistTextsMatch(titleTexts, blocklist.keywords) ||
-    blocklistTextsMatch(channelTexts, blocklist.channels)
+    blocklistChannelsMatch(channelTexts, blocklist.channels)
   )
 }
 
@@ -130,19 +131,63 @@ function extractTitleTexts(renderer: any): string[] {
   ].filter(Boolean)
 }
 
+function findBrowseEndpoints(
+  node: any,
+  results: { ids: Set<string>; urls: Set<string>; names: Set<string> } = {
+    ids: new Set(),
+    urls: new Set(),
+    names: new Set(),
+  },
+) {
+  if (!node || typeof node !== 'object') {
+    return results
+  }
+
+  if (node.browseEndpoint) {
+    const { browseId, canonicalBaseUrl } = node.browseEndpoint
+    if (typeof browseId === 'string' && browseId) {
+      results.ids.add(browseId)
+    }
+    if (typeof canonicalBaseUrl === 'string' && canonicalBaseUrl) {
+      results.urls.add(canonicalBaseUrl)
+    }
+  }
+
+  if (typeof node.text === 'string' && node.text && node.navigationEndpoint?.browseEndpoint) {
+    results.names.add(node.text)
+  }
+
+  for (const key of Object.keys(node)) {
+    findBrowseEndpoints(node[key], results)
+  }
+
+  return results
+}
+
 function extractChannelTexts(renderer: any): string[] {
-  return [
-    textFromNode(renderer?.ownerText),
-    textFromNode(renderer?.shortBylineText),
-    textFromNode(renderer?.longBylineText),
-    textFromNode(renderer?.owner?.videoOwnerRenderer?.title),
-    renderer?.shortBylineText?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.canonicalBaseUrl,
-    renderer?.shortBylineText?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.browseId,
-    renderer?.ownerText?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.canonicalBaseUrl,
-    renderer?.ownerText?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.browseId,
-    renderer?.metadata?.lockupMetadataViewModel?.metadata?.content,
-    renderer?.contentMetadata?.runs?.map((run: any) => run?.text).join(' '),
-  ].filter(Boolean)
+  const endpoints = findBrowseEndpoints(renderer)
+  const texts = [
+    ...endpoints.names,
+    ...endpoints.urls,
+    ...endpoints.ids,
+  ]
+
+  if (texts.length === 0) {
+    return [
+      textFromNode(renderer?.ownerText),
+      textFromNode(renderer?.shortBylineText),
+      textFromNode(renderer?.longBylineText),
+      textFromNode(renderer?.owner?.videoOwnerRenderer?.title),
+      renderer?.shortBylineText?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.canonicalBaseUrl,
+      renderer?.shortBylineText?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.browseId,
+      renderer?.ownerText?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.canonicalBaseUrl,
+      renderer?.ownerText?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.browseId,
+      renderer?.metadata?.lockupMetadataViewModel?.metadata?.content,
+      renderer?.contentMetadata?.runs?.map((run: any) => run?.text).join(' '),
+    ].filter(Boolean)
+  }
+
+  return texts
 }
 
 function textFromNode(node: any): string {

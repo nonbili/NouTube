@@ -12,6 +12,7 @@ import { NouButton } from '../button/NouButton'
 const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
 const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500'
 const iconWrapCls = 'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-950'
+const rowDividerCls = 'border-b border-zinc-300 dark:border-zinc-800'
 
 const SettingsSection: React.FC<React.PropsWithChildren<{ label: string }>> = ({ label, children }) => (
   <View>
@@ -69,10 +70,11 @@ const BlocklistSection: React.FC<{
   label: string
   placeholder: string
   empty: string
+  note: string
   icon: keyof typeof MaterialIcons.glyphMap
   kind: BlocklistKind
   entries: BlocklistEntry[]
-}> = ({ label, placeholder, empty, icon, kind, entries }) => {
+}> = ({ label, placeholder, empty, note, icon, kind, entries }) => {
   const [value, setValue] = useState('')
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
@@ -86,7 +88,7 @@ const BlocklistSection: React.FC<{
   return (
     <SettingsSection label={label}>
       <View className={surfaceCls}>
-        <View className={clsx('flex-row items-center gap-3 px-4 py-4', entries.length > 0 && 'border-b border-zinc-300 dark:border-zinc-800')}>
+        <View className={clsx('flex-row items-center gap-3 px-4 py-4', rowDividerCls)}>
           <View className={iconWrapCls}>
             <MaterialIcons name={icon} color={isDark ? '#d4d4d8' : '#475569'} size={18} />
           </View>
@@ -104,6 +106,11 @@ const BlocklistSection: React.FC<{
           <NouButton size="1" variant="outline" onPress={add} disabled={!value.trim()}>
             {t('settings.blocklist.add')}
           </NouButton>
+        </View>
+
+        <View className={clsx('flex-row gap-3 px-4 py-3 bg-zinc-50/70 dark:bg-zinc-950/30', entries.length > 0 && rowDividerCls)}>
+          <MaterialIcons name="info-outline" color={isDark ? '#a1a1aa' : '#64748b'} size={18} />
+          <NouText className="flex-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{note}</NouText>
         </View>
 
         {nIf(
@@ -130,6 +137,7 @@ export const SettingsBlocklistContent = () => {
         label={t('settings.blocklist.channels')}
         placeholder={t('settings.blocklist.channelPlaceholder')}
         empty={t('settings.blocklist.emptyChannels')}
+        note={t('settings.blocklist.channelsNote')}
         icon="account-circle"
         kind="channel"
         entries={blocklist.channels}
@@ -138,6 +146,7 @@ export const SettingsBlocklistContent = () => {
         label={t('settings.blocklist.keywords')}
         placeholder={t('settings.blocklist.keywordPlaceholder')}
         empty={t('settings.blocklist.emptyKeywords')}
+        note={t('settings.blocklist.keywordsNote')}
         icon="filter-alt"
         kind="keyword"
         entries={blocklist.keywords}
