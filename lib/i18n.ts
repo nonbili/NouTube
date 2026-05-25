@@ -6,12 +6,15 @@ import deText from '@/locales/de.json'
 import esText from '@/locales/es.json'
 import frText from '@/locales/fr.json'
 import idText from '@/locales/id.json'
+import jaText from '@/locales/ja.json'
 import ptBRText from '@/locales/pt_BR.json'
 import ruText from '@/locales/ru.json'
+import viText from '@/locales/vi.json'
 import zhHansText from '@/locales/zh_Hans.json'
+import zhHantText from '@/locales/zh_Hant.json'
 import type { Locale } from 'expo-localization'
 
-export const supportedI18nLanguages = ['de', 'en', 'es', 'fr', 'id', 'pt_BR', 'ru', 'zh_Hans'] as const
+export const supportedI18nLanguages = ['de', 'en', 'es', 'fr', 'id', 'ja', 'pt_BR', 'ru', 'vi', 'zh_Hans', 'zh_Hant'] as const
 export type SupportedI18nLanguage = (typeof supportedI18nLanguages)[number]
 
 export const i18nLanguageNativeNames: Record<SupportedI18nLanguage, string> = {
@@ -20,9 +23,12 @@ export const i18nLanguageNativeNames: Record<SupportedI18nLanguage, string> = {
   es: 'Español',
   fr: 'Français',
   id: 'Bahasa Indonesia',
+  ja: '日本語',
   pt_BR: 'Português (Brasil)',
   ru: 'Русский',
+  vi: 'Tiếng Việt',
   zh_Hans: '简体中文',
+  zh_Hant: '繁體中文',
 }
 
 const resources: Resource = {
@@ -41,17 +47,23 @@ const resources: Resource = {
   id: {
     translation: idText,
   },
+  ja: {
+    translation: jaText,
+  },
   pt_BR: {
     translation: ptBRText,
   },
-  /* ja: {
-   *   translation: jaText,
-   * }, */
   ru: {
     translation: ruText,
   },
+  vi: {
+    translation: viText,
+  },
   zh_Hans: {
     translation: zhHansText,
+  },
+  zh_Hant: {
+    translation: zhHantText,
   },
 }
 
@@ -64,7 +76,11 @@ export const resolveI18nLanguageFromExpoLocale = (locale?: Locale): SupportedI18
   }
 
   if (locale.languageCode === 'zh') {
-    return 'zh_Hans'
+    const isHant =
+      locale.languageScriptCode === 'Hant' ||
+      locale.languageTag?.toLowerCase().includes('hant') ||
+      ['tw', 'hk', 'mo'].includes(locale.regionCode?.toLowerCase() || '')
+    return isHant ? 'zh_Hant' : 'zh_Hans'
   }
 
   if (locale.languageCode === 'pt') {

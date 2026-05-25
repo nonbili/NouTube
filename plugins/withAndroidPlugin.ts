@@ -20,6 +20,7 @@ const withAndroidSigningConfig: ConfigPlugin = (config) => {
 android {`,
       )
       .replace('zh-Hans', 'b+zh+Hans')
+      .replace('zh-Hant', 'b+zh+Hant')
       .replace('pt-BR', 'b+pt+BR')
       .replace(
         /buildTypes \{([\s\S]*?)release \{([\s\S]*?)signingConfig signingConfigs\.debug/,
