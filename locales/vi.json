@@ -1,0 +1,75 @@
+{
+  "about": {
+    "label": "Về chúng tôi",
+    "code": "Mã nguồn",
+    "donate": "Từ thiện",
+    "hint": "Thông tin phiên bản, mã nguồn và các đường dẫn được hỗ trợ."
+  },
+  "changelog": {
+    "label": "Nhật ký sửa đổi",
+    "hint": "Các bản phát hành và bản vá gần đây từ GitHub.",
+    "loading": "Đang tải chi tiết bản phát hành...",
+    "error": "Tải chi tiết bản phát hành thất bại.",
+    "retry": "Thử lại",
+    "empty": "Không có chi tiết bản phát hành bào được tìm thấy.",
+    "current": "Hiện tại",
+    "noNotes": "Không có bất kỳ chi tiết bản phát hành được cung cấp ở phiên bản này."
+  },
+  "buttons": {
+    "clear": "Dọn",
+    "clearAll": "Dọn sạch",
+    "import": "Nhập",
+    "export": "Xuất",
+    "open": "Mở",
+    "cancel": "Hủy",
+    "openUrl": "Mở đường dẫn",
+    "move": "Di chuyển",
+    "save": "Lưu",
+    "remove": "Loại bỏ",
+    "unsubscribe": "Hủy đăng ký",
+    "signOut": "Đăng xuất",
+    "next": "Tiếp theo",
+    "show": "Hiện",
+    "download": "Tải xuống",
+    "browse": "Duyệt",
+    "updateYtDlp": "Cập nhật yt-dlp",
+    "updating": "Đang cập nhật...",
+    "ytDlpUpdated": "yt-dlp đang ở vản mới nhất"
+  },
+  "library": {
+    "videos": "Thước phim",
+    "channels": "Kênh",
+    "playlists": "Danh sách phát",
+    "songs": "Bài hát",
+    "artists": "Nghệ sĩ"
+  },
+  "menus": {
+    "edit": "Chỉnh sửa",
+    "remove": "Loại bỏ",
+    "unsubscribe": "Hủy đăng ký",
+    "reload": "Tải lại",
+    "share": "Chia sẻ",
+    "tools": "Công cụ"
+  },
+  "sleepTimer": {
+    "setToast": "Đã đặt thời gian đi ngủ trong {{value}} phút",
+    "cancelToast": "Thời gian ngủ bị hủy",
+    "expiredToast": "Thời gian ngủ đã đến"
+  },
+  "feeds": {
+    "updates": "Cập nhật",
+    "manage": "Quản lý",
+    "sortLastVideo": "Thước phim cuối",
+    "sortFrequency": "Tần suất",
+    "lastVideoNewest": "Phim coi cuối: mới nhất trước",
+    "lastVideoOldest": "Phim coi cuối: cũ nhất trước",
+    "frequencyHighest": "Tần suất: cao nhất trước",
+    "frequencyLowest": "Tần suất: thấp nhất trước",
+    "frequencyLabel": "Tần suất",
+    "lastVideoLabel": "Phim cuối",
+    "videosPerDay": "{{value}} phim/ngày",
+    "never": "Không bao giờ",
+    "allFolders": "Tất cả",
+    "newFolder": "+ Thư mục mới"
+  }
+}
