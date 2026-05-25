@@ -2,78 +2,241 @@
   "about": {
     "label": "Tentang",
     "donate": "Donasi",
-    "code": "Kode sumber"
+    "code": "Kode sumber",
+    "hint": "Info versi, kode sumber, dan tautan dukungan."
   },
   "buttons": {
-    "clear": "Bersihkan",
+    "clear": "Hapus",
     "import": "Impor",
     "export": "Ekspor",
     "open": "Buka",
-    "cancel": "Batalkan",
+    "cancel": "Batal",
     "openUrl": "Buka URL",
-    "move": "Pindahkan",
+    "move": "Pindah",
     "save": "Simpan",
-    "signOut": "Keluar"
+    "signOut": "Keluar",
+    "clearAll": "Hapus semua",
+    "remove": "Hapus",
+    "unsubscribe": "Berhenti berlangganan",
+    "next": "Berikutnya",
+    "show": "Tampilkan",
+    "download": "Unduh",
+    "browse": "Telusuri",
+    "updateYtDlp": "Perbarui yt-dlp",
+    "updating": "Memperbarui...",
+    "ytDlpUpdated": "yt-dlp sudah versi terbaru"
   },
   "library": {
     "videos": "Video",
-    "channels": "Saluran",
-    "playlists": "Daftar putar",
+    "channels": "Channel",
+    "playlists": "Playlist",
     "songs": "Lagu",
     "artists": "Artis"
   },
   "menus": {
-    "edit": "Sunting",
+    "edit": "Edit",
     "remove": "Hapus",
     "reload": "Muat ulang",
-    "share": "Bagikan"
+    "share": "Bagikan",
+    "unsubscribe": "Berhenti berlangganan",
+    "tools": "Alat",
+    "desktop": "Situs desktop",
+    "on": "Aktif",
+    "off": "Nonaktif"
   },
   "modals": {
-    "editBookmark": "Sunting penanda",
+    "editBookmark": "Edit bookmark",
     "title": "Judul",
     "folder": "Folder",
     "ungrouped": "Tidak dikelompokkan",
-    "feeds": "Umpan",
+    "feeds": "Feed",
     "history": "Riwayat",
-    "queue": "Antrean"
+    "queue": "Antrean",
+    "downloadVideo": "Unduh video",
+    "downloadsFolder": "Folder unduhan",
+    "activeDownloads": "Unduhan Aktif",
+    "downloadHistory": "Riwayat Unduhan",
+    "starting": "Memulai...",
+    "downloadComplete": "Unduhan selesai",
+    "downloadFailed": "Unduhan gagal",
+    "failedToLoadFormats": "Gagal memuat format",
+    "playbackSpeed": "Kecepatan pemutaran"
   },
   "settings": {
     "label": "Pengaturan",
     "general": "Umum",
-    "restoreOnStart": "Pulihkan pemutaran terakhir saat memulai",
-    "hideShorts": "Sembunyikan shorts",
-    "channelsFeed": "Umpan saluran",
-    "watchHistory": "Riwayat menonton",
+    "restoreOnStart": "Pulihkan pemutaran terakhir saat mulai",
+    "hideShorts": "Sembunyikan Shorts di linimasa",
+    "channelsFeed": "Feed channel",
+    "watchHistory": "Riwayat tontonan",
     "theme": {
       "label": "Tema YouTube",
       "system": "Sistem",
       "dark": "Gelap",
       "light": "Terang",
-      "hint": "Mulai ulang manual jika perubahan tidak ditampilkan di webview."
+      "hint": "Mulai ulang secara manual jika perubahan tidak terlihat di webview."
     },
     "login": {
       "label": "Coba ini jika tidak bisa login dari webview",
-      "button": "Login ke YouTube"
+      "button": "Login YouTube"
     },
     "openUrlLabel": "Buka URL yang didukung secara langsung",
     "webview": {
-      "clearLabel": "Bersihkan data webview"
+      "clearLabel": "Hapus data webview"
     },
     "importList": "Impor daftar tautan",
-    "importTakeout": "Impor dari penarikan YouTube",
-    "exportLabel": "Ekspor penanda ke daftar",
-    "injectCookie": "Memasukkan cookie jika tidak dapat login melalui webview",
-    "injectCookieTitle": "Memasukkan cookie otentikasi ke dalam webview",
-    "injectCookieHint": "Salin nilai header Cookie dari peramban PC Anda. Ini adalah solusi alternatif jika Anda tidak dapat login dengan email/kata sandi.",
+    "importTakeout": "Impor dari YouTube Takeout",
+    "exportLabel": "Ekspor bookmark ke daftar",
+    "injectCookie": "Sisipkan cookie jika tidak bisa login dari webview",
+    "injectCookieTitle": "Sisipkan cookie autentikasi ke dalam webview",
+    "injectCookieHint": "Salin nilai header Cookie dari browser PC Anda. Ini adalah solusi sementara saat Anda tidak bisa login dengan email/kata sandi.",
     "userAgent": {
-      "title": "Agen pengguna khusus",
-      "default": "Agen pengguna bawaan"
+      "title": "User agent kustom",
+      "default": "User agent default"
+    },
+    "hubHint": "Pemutaran, sinkronisasi, impor, dan alat webview di satu tempat.",
+    "generalHint": "Default pemutaran, tampilan, alat, dan transfer data.",
+    "preferences": "Preferensi",
+    "preferencesHint": "Perilaku pemutaran, feed, dan riwayat.",
+    "appearance": "Tampilan",
+    "appearanceHint": "Atur tampilan YouTube di dalam aplikasi.",
+    "tools": "Alat",
+    "toolsHint": "Kelola lingkungan webview dan alat lainnya.",
+    "transfer": "Impor & ekspor",
+    "transferHint": "Masukkan bookmark atau bawa bookmark Anda.",
+    "syncHintShort": "Akun, paket, dan sinkronisasi perangkat.",
+    "autoHideHeader": "Sembunyikan dan tampilkan toolbar berdasarkan arah gulir",
+    "hideToolbarWhenScrolled": "Sembunyikan toolbar saat halaman tidak berada di atas",
+    "hideShortsInNavbar": "Sembunyikan Shorts di navbar",
+    "hideMixPlaylist": "Sembunyikan playlist mix",
+    "miniPlayer": "Pemutar mini YouTube",
+    "preferH264": "Utamakan H.264 (blokir VP9/AV1)",
+    "clickbaitThumbnail": {
+      "label": "Hindari thumbnail clickbait",
+      "hint": "Ganti thumbnail kreator dengan frame video yang dibuat otomatis",
+      "optionDefault": "Default",
+      "optionFrame": "Frame {{n}}"
+    },
+    "userStyles": {
+      "label": "Gaya pengguna",
+      "hint": "Penyesuaian CSS bawaan dan CSS khusus situs milik Anda sendiri.",
+      "builtin": {
+        "label": "Gaya bawaan",
+        "hideShortsInNavbar": {
+          "label": "Sembunyikan Shorts di navbar"
+        },
+        "hideMixPlaylist": {
+          "label": "Sembunyikan playlist mix"
+        },
+        "hideCommunityPosts": {
+          "label": "Sembunyikan postingan komunitas"
+        }
+      },
+      "custom": {
+        "label": "Gaya kustom",
+        "empty": "Belum ada gaya kustom."
+      },
+      "add": "Tambah gaya",
+      "addTitle": "Tambahkan gaya pengguna",
+      "editTitle": "Edit gaya pengguna",
+      "nameLabel": "Nama",
+      "namePlaceholder": "Gaya saya",
+      "validation": {
+        "css": "CSS tidak boleh kosong"
+      },
+      "deleteConfirm": "Hapus gaya kustom ini?",
+      "copyCss": "Salin CSS",
+      "cssCopied": "CSS disalin",
+      "copyFailed": "Gagal menyalin CSS",
+      "importFailed": "Gagal mengimpor CSS"
+    },
+    "language": {
+      "label": "Bahasa",
+      "system": "Sistem",
+      "hint": "Pilih bahasa atau ikuti bahasa sistem."
     }
   },
   "sync": {
-    "label": "Sinkron",
-    "hint": "Sinkronkan penanda di semua ponsel dan komputer Anda sebagai pengguna premium.",
+    "label": "Sinkronisasi",
+    "hint": "Sinkronkan bookmark di ponsel dan komputer Anda sebagai pengguna premium.",
     "currentPlan": "Paket saat ini",
     "managePlan": "Kelola paket"
+  },
+  "changelog": {
+    "label": "Log perubahan",
+    "hint": "Rilis terbaru dan perbaikan dari GitHub.",
+    "loading": "Memuat catatan rilis...",
+    "error": "Gagal memuat catatan rilis.",
+    "retry": "Coba lagi",
+    "empty": "Catatan rilis tidak ditemukan.",
+    "current": "Saat ini",
+    "noNotes": "Tidak ada catatan rilis yang disediakan untuk versi ini."
+  },
+  "sleepTimer": {
+    "label": "Pengatur waktu tidur",
+    "hint": "Jeda pemutaran setelah durasi preset atau nilai menit yang Anda tentukan sendiri.",
+    "activeHint": "Pemutaran akan dijeda setelah hitung mundur ini berakhir.",
+    "off": "Nonaktif",
+    "endsIn": "Berakhir dalam {{value}}",
+    "preset": "{{value}} menit",
+    "customPlaceholder": "Menit kustom",
+    "set": "Atur timer",
+    "cancel": "Batalkan timer",
+    "replace": "Ganti",
+    "validation": {
+      "minutes": "Masukkan jumlah menit bilangan bulat dari 1 hingga 1440"
+    },
+    "setToast": "Pengatur waktu tidur diatur selama {{value}} menit",
+    "cancelToast": "Pengatur waktu tidur dibatalkan",
+    "expiredToast": "Pengatur waktu tidur berakhir"
+  },
+  "feeds": {
+    "updates": "Pembaruan",
+    "manage": "Kelola",
+    "sortLastVideo": "Video terakhir",
+    "sortFrequency": "Frekuensi",
+    "lastVideoNewest": "Video terakhir: terbaru dulu",
+    "lastVideoOldest": "Video terakhir: terlama dulu",
+    "frequencyHighest": "Frekuensi: tertinggi dulu",
+    "frequencyLowest": "Frekuensi: terendah dulu",
+    "frequencyLabel": "Frekuensi",
+    "lastVideoLabel": "Video terakhir",
+    "videosPerDay": "{{value}} video/hari",
+    "never": "Tidak pernah",
+    "allFolders": "Semua",
+    "newFolder": "+ Folder baru",
+    "editFeed": "Edit feed",
+    "manageEmpty": "Belum ada feed yang disimpan.",
+    "manageNoResults": "Tidak ada feed yang cocok dengan filter saat ini.",
+    "updatesEmpty": "Tidak ada video feed yang cocok dengan filter folder saat ini.",
+    "filterDropdownPlaceholder": "Filter folder dan channel",
+    "filterDropdownEmpty": "Tidak ada folder atau channel yang cocok.",
+    "emptyTitleNoChannels": "Tidak ada channel berbintang",
+    "emptyBodyNoChannels": "Pembaruan dari channel YouTube berbintang akan muncul di sini.",
+    "emptyTitleFolder": "Tidak ada pembaruan di {{folder}}",
+    "emptyTitleChannel": "Tidak ada pembaruan dari {{channel}}",
+    "emptyBodyFiltered": "Saat ini tidak ada video terbaru di sini. Periksa lagi nanti atau beralih ke Semua.",
+    "emptyActionFetchNow": "Ambil sekarang",
+    "fetchToastSuccess": "Feed diperbarui",
+    "fetchToastRunning": "Penyegaran sudah berlangsung",
+    "fetchToastNotFound": "Tidak dapat menyegarkan channel ini. Feed mengembalikan 404.",
+    "fetchToastError": "Tidak dapat menyegarkan channel ini",
+    "emptyActionAllFolders": "Tampilkan semua",
+    "emptyTitleWaiting": "Menunggu pembaruan feed",
+    "emptyBodyWaiting": "Channel tersimpan Anda sudah siap. Biarkan aplikasi tetap terbuka sebentar atau buka kembali nanti, dan upload terbaru akan muncul di sini.",
+    "removeTitle": "Hapus {{title}}?",
+    "removeMessage": "Ini akan menghapus channel dari Pustaka dan membersihkan video feed-nya."
+  },
+  "native": {
+    "format_bestQuality": "Kualitas terbaik",
+    "format_bestQualityDesc": "Hingga video + audio {{height}}p",
+    "format_1080pDesc": "Video + audio 1080p",
+    "format_720pDesc": "Video + audio 720p",
+    "format_audioOnly": "Audio saja",
+    "format_audio": "Audio ({{ext}})",
+    "format_audioStreamDesc": "Stream audio terbaik",
+    "format_audioMp3Desc": "Audio terbaik yang ditranskode ke MP3",
+    "download_complete": "Unduhan selesai",
+    "download_failed": "Unduhan gagal"
   }
 }

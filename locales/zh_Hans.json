@@ -118,6 +118,9 @@
         },
         "hideMixPlaylist": {
           "label": "隐藏合辑播放列表"
+        },
+        "hideCommunityPosts": {
+          "label": "隐藏社区帖子"
         }
       },
       "custom": {
@@ -143,6 +146,14 @@
       "hint": "选择一种语言或使用系统语言。",
       "label": "语言",
       "system": "系统"
+    },
+    "miniPlayer": "YouTube 迷你播放器",
+    "preferH264": "优先使用 H.264（阻止 VP9/AV1）",
+    "clickbaitThumbnail": {
+      "label": "避免使用诱导性缩略图",
+      "hint": "用自动生成的视频帧替换创作者的缩略图",
+      "optionDefault": "默认",
+      "optionFrame": "第 {{n}} 帧"
     }
   },
   "sync": {

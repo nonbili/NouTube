@@ -67,7 +67,7 @@
     "activeDownloads": "Descargas activas",
     "downloadHistory": "Historial de descargas",
     "starting": "Iniciando...",
-    "downloadComplete": "Descarga completa",
+    "downloadComplete": "Descarga completada",
     "downloadFailed": "Descarga fallida",
     "failedToLoadFormats": "Error al cargar los formatos",
     "playbackSpeed": "Velocidad de reproducción"
@@ -101,28 +101,31 @@
     "frequencyLowest": "Frecuencia: la más baja primero",
     "frequencyLabel": "Frecuencia",
     "lastVideoLabel": "Último vídeo",
-    "videosPerDay": "{{value}} videos/día",
+    "videosPerDay": "{{value}} vídeos/día",
     "never": "Nunca",
     "allFolders": "Todo",
     "newFolder": "+ Nueva carpeta",
     "editFeed": "Editar feed",
     "manageEmpty": "Aún no hay feeds guardados.",
     "manageNoResults": "No hay feeds que coincidan con los filtros actuales.",
-    "updatesEmpty": "No hay videos que coincidan con el filtro de carpeta actual.",
+    "updatesEmpty": "Ningún vídeo del feed coincide con el filtro de la carpeta actual.",
     "filterDropdownPlaceholder": "Filtrar carpetas y canales",
     "filterDropdownEmpty": "No hay carpetas ni canales que coincidan.",
     "emptyTitleNoChannels": "Canales destacados vacíos",
     "emptyBodyNoChannels": "Las actualizaciones de los canales de YouTube destacados aparecerán aquí.",
     "emptyTitleFolder": "No hay actualizaciones en {{folder}}",
     "emptyTitleChannel": "No hay actualizaciones de {{channel}}",
-    "emptyBodyFiltered": "No hay videos recientes por aquí en este momento. Vuelve más tarde o cambia a \"Todos\".",
+    "emptyBodyFiltered": "No hay vídeos recientes por aquí en este momento. Vuelve más tarde o cambia a \"Todo\".",
     "emptyActionFetchNow": "Actualizar ahora",
     "fetchToastSuccess": "Feed actualizado",
     "fetchToastRunning": "Actualización en curso",
     "fetchToastNotFound": "No se pudo actualizar este canal. El feed devolvió un error 404.",
     "fetchToastError": "No se pudo actualizar este canal",
     "emptyActionAllFolders": "Mostrar todo",
-    "emptyTitleWaiting": "Esperando actualizaciones del feed"
+    "emptyTitleWaiting": "Esperando actualizaciones del feed",
+    "emptyBodyWaiting": "Tus canales guardados están listos. Mantén la aplicación abierta un momento o vuelve a abrirla más tarde, y las subidas recientes aparecerán aquí.",
+    "removeTitle": "¿Eliminar {{title}}?",
+    "removeMessage": "Esto eliminará el canal de la biblioteca y limpiará sus videos del feed."
   },
   "settings": {
     "hubHint": "Herramientas de reproducción, sincronización, importación y vista web en un solo lugar.",
@@ -135,6 +138,105 @@
     "tools": "Herramientas",
     "toolsHint": "Administra el entorno de vista web y otras herramientas.",
     "transfer": "Importar y exportar",
-    "transferHint": "Importa tus marcadores o llévatelos contigo."
+    "transferHint": "Importa tus marcadores o llévatelos contigo.",
+    "label": "Ajustes",
+    "syncHintShort": "Cuenta, plan y sincronización de dispositivos.",
+    "restoreOnStart": "Restaurar última reproducción al iniciar",
+    "autoHideHeader": "Ocultar y mostrar la barra de herramientas según la dirección del desplazamiento",
+    "hideToolbarWhenScrolled": "Ocultar la barra de herramientas cuando la página no esté arriba",
+    "hideShorts": "Ocultar shorts en la línea de tiempo",
+    "hideShortsInNavbar": "Ocultar shorts en la barra de navegación",
+    "hideMixPlaylist": "Ocultar listas de reproducción Mix",
+    "miniPlayer": "Minirreproductor de YouTube",
+    "preferH264": "Preferir H.264 (bloquear VP9/AV1)",
+    "clickbaitThumbnail": {
+      "label": "Evitar miniaturas clickbait",
+      "hint": "Reemplazar las miniaturas del creador con fotogramas de vídeo autogenerados",
+      "optionDefault": "Predeterminado",
+      "optionFrame": "Fotograma {{n}}"
+    },
+    "userStyles": {
+      "label": "Estilos de usuario",
+      "hint": "Ajustes CSS integrados y tus propios estilos CSS específicos para el sitio.",
+      "builtin": {
+        "label": "Estilos integrados",
+        "hideShortsInNavbar": {
+          "label": "Ocultar shorts de la barra de navegación"
+        },
+        "hideMixPlaylist": {
+          "label": "Ocultar listas de reproducción Mix"
+        },
+        "hideCommunityPosts": {
+          "label": "Ocultar publicaciones de la comunidad"
+        }
+      },
+      "custom": {
+        "label": "Estilos personalizados",
+        "empty": "Sin estilos personalizados aún."
+      },
+      "add": "Añadir estilo",
+      "addTitle": "Añadir estilo de usuario",
+      "editTitle": "Editar estilo de usuario",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Mi estilo",
+      "validation": {
+        "css": "El CSS no puede estar vacío"
+      },
+      "deleteConfirm": "¿Eliminar este estilo personalizado?",
+      "copyCss": "Copiar CSS",
+      "cssCopied": "CSS copiado",
+      "copyFailed": "Error al copiar el CSS",
+      "importFailed": "Error al importar el CSS"
+    },
+    "channelsFeed": "Feed de canales",
+    "watchHistory": "Historial de reproducciones",
+    "theme": {
+      "label": "Tema de YouTube",
+      "system": "Sistema",
+      "dark": "Oscuro",
+      "light": "Claro",
+      "hint": "Reiniciar manualmente sí el cambio no se refleja en la vista web."
+    },
+    "language": {
+      "label": "Lenguaje",
+      "system": "Sistema",
+      "hint": "Elegir un idioma o seguir el idioma del sistema."
+    },
+    "login": {
+      "label": "Prueba esto si no pudiste iniciar sesión desde la vista web",
+      "button": "Iniciar sesión en YouTube"
+    },
+    "openUrlLabel": "Abrir URL compatible directamente",
+    "webview": {
+      "clearLabel": "Borrar datos de la vista web"
+    },
+    "userAgent": {
+      "title": "User-Agent personalizado",
+      "default": "User-Agent predeterminado"
+    },
+    "importList": "Importar una lista de enlaces",
+    "importTakeout": "Importar desde YouTube Takeout",
+    "exportLabel": "Exportar marcadores a una lista",
+    "injectCookie": "Inyectar cookie si no pudiste iniciar sesión desde la vista web",
+    "injectCookieTitle": "Inyectar cookie de autenticación en la vista web",
+    "injectCookieHint": "Copiar el valor del encabezado Cookie del navegador de tu PC. Esta es una solución alternativa cuando no pudiste iniciar sesión con email/contraseña."
+  },
+  "native": {
+    "format_bestQuality": "Mejor calidad",
+    "format_bestQualityDesc": "Vídeo + audio hasta {{height}}p",
+    "format_1080pDesc": "1080p vídeo + audio",
+    "format_720pDesc": "720p vídeo + audio",
+    "format_audioOnly": "Solo audio",
+    "format_audio": "Audio ({{ext}})",
+    "format_audioStreamDesc": "Mejor flujo de audio",
+    "format_audioMp3Desc": "Mejor audio transcodificado a MP3",
+    "download_complete": "Descarga completada",
+    "download_failed": "Descarga fallida"
+  },
+  "sync": {
+    "label": "Sincronizar",
+    "hint": "Sincroniza marcadores entre tus teléfonos y computadoras como usuario premium.",
+    "currentPlan": "Plan actual",
+    "managePlan": "Gestionar plan"
   }
 }

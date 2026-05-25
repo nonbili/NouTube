@@ -135,6 +135,9 @@
         },
         "hideMixPlaylist": {
           "label": "Ocultar playlist mistas"
+        },
+        "hideCommunityPosts": {
+          "label": "Ocultar publicações da comunidade"
         }
       }
     },
@@ -143,6 +146,14 @@
       "label": "Idioma",
       "system": "Sistema",
       "hint": "Escolha um idioma ou use o idioma do sistema."
+    },
+    "miniPlayer": "Mini player",
+    "preferH264": "Preferir H.264 (bloquear VP9/AV1)",
+    "clickbaitThumbnail": {
+      "label": "Evitar miniaturas sensacionalistas",
+      "hint": "Substituir miniaturas do autor por quadros de vídeo gerados automaticamente",
+      "optionDefault": "Padrão",
+      "optionFrame": "Quadro {{n}}"
     }
   },
   "sync": {

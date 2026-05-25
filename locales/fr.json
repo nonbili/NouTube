@@ -118,6 +118,9 @@
         },
         "hideMixPlaylist": {
           "label": "Masquer la playlist « Mix »"
+        },
+        "hideCommunityPosts": {
+          "label": "Masquer les publications de la communauté"
         }
       },
       "custom": {
@@ -143,6 +146,14 @@
       "label": "Langue",
       "system": "Système",
       "hint": "Choisissez une langue ou utilisez la langue du système."
+    },
+    "miniPlayer": "Mini-lecteur YouTube",
+    "preferH264": "Privilégier le format H.264 (bloquer VP9/AV1)",
+    "clickbaitThumbnail": {
+      "label": "Évitez les miniatures « clickbait »",
+      "hint": "Remplacer les vignettes des créateurs par des images extraites de la vidéo générées automatiquement",
+      "optionDefault": "Défaut",
+      "optionFrame": "Cadre {{n}}"
     }
   },
   "sync": {
