@@ -2,6 +2,7 @@ import 'expo-modules-core-polyfill'
 import '@/lib/i18n'
 import './global.css'
 
+import type { ReactElement } from 'react'
 import { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
@@ -44,7 +45,7 @@ if (typeof originalAppearance.setColorScheme !== 'function') {
   }
 }
 
-export function Root(): JSX.Element {
+export function Root(): ReactElement {
   const theme = useValue(settings$.theme)
   const [systemAppearance, setSystemAppearance] = useState<'dark' | 'light'>(() =>
     window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',

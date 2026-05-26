@@ -1,5 +1,4 @@
-import { app, net, protocol, session } from 'electron'
-import * as cheerio from 'cheerio'
+import { net, session } from 'electron'
 import {
   RE_INTERCEPT,
   transformBrowseResponse,
@@ -15,19 +14,94 @@ export function setInterceptionBlocklist(blocklist?: BlocklistSnapshot) {
   currentBlocklist = normalizeBlocklist(blocklist)
 }
 
-function transformHtml(html: string) {
-  const $ = cheerio.load(html)
-  const scripts = $('script')
-  for (const script of scripts) {
-    const text = $(script).text()
-    if (text.includes('var ytInitialPlayerResponse')) {
-      const start = text.indexOf('=')
-      const end = text.indexOf(';var ', start)
-      const res = transformPlayerResponse(text.slice(start + 1, end))
-      $(script).html(`var ytInitialPlayerResponse = ${res};${text.slice(end)}`)
+function findJsonBounds(text: string, startIndex: number) {
+  let braceCount = 0
+  let inString = false
+  let stringChar = ''
+  let escaped = false
+  const jsonStart = text.indexOf('{', startIndex)
+  if (jsonStart === -1) return null
+
+  for (let i = jsonStart; i < text.length; i++) {
+    const char = text[i]
+    if (escaped) {
+      escaped = false
+      continue
+    }
+    if (char === '\\') {
+      escaped = true
+      continue
+    }
+    if (inString) {
+      if (char === stringChar) {
+        inString = false
+      }
+      continue
+    }
+    if (char === '"' || char === "'" || char === '`') {
+      inString = true
+      stringChar = char
+      continue
+    }
+    if (char === '{') {
+      braceCount++
+    } else if (char === '}') {
+      braceCount--
+      if (braceCount === 0) {
+        return { start: jsonStart, end: i + 1 }
+      }
     }
   }
-  return $.html()
+  return null
+}
+
+function transformHtml(html: string) {
+  const targetKey = 'var ytInitialPlayerResponse ='
+  let index = html.indexOf(targetKey)
+  if (index === -1) {
+    index = html.indexOf('ytInitialPlayerResponse =')
+    if (index === -1) {
+      return html
+    }
+  }
+
+  const bounds = findJsonBounds(html, index)
+  if (!bounds) {
+    return html
+  }
+
+  try {
+    const jsonStr = html.slice(bounds.start, bounds.end)
+    const transformedJson = transformPlayerResponse(jsonStr)
+    return html.slice(0, bounds.start) + transformedJson + html.slice(bounds.end)
+  } catch (e) {
+    console.error('Failed to transform ytInitialPlayerResponse inside HTML:', e)
+    return html
+  }
+}
+
+function isYouTubeHost(url: string) {
+  try {
+    const { hostname } = new URL(url)
+    return hostname === 'youtube.com' || hostname.endsWith('.youtube.com')
+  } catch {
+    return false
+  }
+}
+
+function getTransformTarget(url: string) {
+  const { hostname, pathname } = new URL(url)
+  const isYT = hostname === 'youtube.com' || hostname.endsWith('.youtube.com')
+  if (!isYT) {
+    return null
+  }
+
+  const match = pathname.match(RE_INTERCEPT)
+  if (pathname.startsWith('/watch') || match) {
+    return { pathname, match }
+  }
+
+  return null
 }
 
 export function interceptHttpRequest() {
@@ -52,6 +126,20 @@ export function interceptHttpRequest() {
   }
 
   ses.protocol.handle('https', async (req) => {
+    // Keep signed media/CDN requests out of YouTube session rewriting.
+    if (!isYouTubeHost(req.url)) {
+      return net.fetch(req, {
+        bypassCustomProtocolHandlers: true,
+      })
+    }
+
+    const target = getTransformTarget(req.url)
+    if (!target) {
+      return ses.fetch(req, {
+        bypassCustomProtocolHandlers: true,
+      })
+    }
+
     let res: Response
     try {
       res = await ses.fetch(req, {
@@ -62,16 +150,19 @@ export function interceptHttpRequest() {
       return Response.error()
     }
 
-    const { pathname } = new URL(req.url)
-    const match = pathname.match(RE_INTERCEPT)
+    const { pathname, match } = target
     if (res.status > 200 || (!pathname.startsWith('/watch') && !match)) {
       return res
     }
 
     const text = await res.text()
+    const headers = new Headers(res.headers)
+    headers.delete('content-length')
+    headers.delete('content-encoding')
+    headers.delete('transfer-encoding')
     const responseInit = {
       status: res.status,
-      headers: res.headers,
+      headers,
     }
     try {
       if (pathname.startsWith('/watch')) {

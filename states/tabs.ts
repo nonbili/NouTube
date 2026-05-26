@@ -203,7 +203,6 @@ export const tabs$: Observable<Store> = observable<Store>({
       return
     }
     tab$.pageUrl.set(url)
-    tab$.url.set(url)
     updateHomeFromUrl(url)
   },
 

@@ -89,10 +89,11 @@ const DesktopTabView: React.FC<{
 }> = ({ tab, index, isActive, contentJs, userAgent, onMessage, buildPrelude }) => {
   const webviewRef = useRef<WebviewTag>(null)
   const readyRef = useRef(false)
+  const initialUrlRef = useRef(tab.pageUrl || tab.url)
+  const lastRequestedUrlRef = useRef(tab.url)
   const hideShorts = useValue(settings$.hideShorts)
   const preferH264 = useValue(settings$.preferH264)
   const clickbaitThumbnail = useValue(settings$.clickbaitThumbnail)
-  const blocklistState = useValue(blocklist$)
 
   const syncUserStylesToWebview = useCallback(() => {
     if (!readyRef.current) return
@@ -140,9 +141,18 @@ const DesktopTabView: React.FC<{
 
   useEffect(() => {
     const webview = webviewRef.current
-    if (!webview || !tab.url || webview.src === tab.url) {
+    if (!webview || !tab.url) {
       return
     }
+    if (lastRequestedUrlRef.current === tab.url) {
+      return
+    }
+    lastRequestedUrlRef.current = tab.url
+    try {
+      if (webview.getURL() === tab.url) {
+        return
+      }
+    } catch {}
     webview.src = tab.url
   }, [tab.url])
 
@@ -168,15 +178,11 @@ const DesktopTabView: React.FC<{
     const onStopLoading = () => tabs$.setTabLoading(false, index)
     const onNavigate = (e: { url: string }) => {
       try {
-        const previousUrl = tabs$.tabs[index]?.pageUrl.get() || ''
         const { host } = new URL(e.url)
         void mainClient.toggleInterception(YOUTUBE_HOSTS.includes(host))
         tabs$.setTabPageUrl(e.url, index)
         if (isActive) {
           ui$.pageUrl.set(e.url)
-        }
-        if (previousUrl && host !== new URL(previousUrl).host) {
-          executeQuietly(webview, 'document.location.reload()')
         }
       } catch {
         tabs$.setTabPageUrl(e.url, index)
@@ -247,9 +253,9 @@ const DesktopTabView: React.FC<{
     if (!readyRef.current) return
     executeQuietly(
       webviewRef.current,
-      `window.NouTubePreferH264 = ${preferH264 ? 'true' : 'false'}; window.NouTubeClickbaitThumbnail = ${JSON.stringify(clickbaitThumbnail)}; window.NouTubeBlocklist = ${JSON.stringify(getBlocklistSnapshot(blocklistState))}; document.location.reload()`,
+      `window.NouTubePreferH264 = ${preferH264 ? 'true' : 'false'}; window.NouTubeClickbaitThumbnail = ${JSON.stringify(clickbaitThumbnail)}; document.location.reload()`,
     )
-  }, [blocklistState, clickbaitThumbnail, preferH264])
+  }, [clickbaitThumbnail, preferH264])
 
   return (
     <View
@@ -259,7 +265,7 @@ const DesktopTabView: React.FC<{
       <NouTubeView
         ref={webviewRef}
         style={{ flex: 1 }}
-        src={tab.url}
+        src={initialUrlRef.current}
         useragent={userAgent}
         partition="persist:webview"
         allowpopups="true"

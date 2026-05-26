@@ -3,6 +3,10 @@ import { Image, type ImageProps, type ImageSource } from 'expo-image'
 import { memo, useEffect, useMemo, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
+function isUriImageSource(source: ImageProps['source']): source is ImageSource & { uri: string } {
+  return Boolean(source && typeof source === 'object' && !Array.isArray(source) && 'uri' in source && source.uri)
+}
+
 function withRetryToken(source: ImageProps['source'], retryKey: number): ImageProps['source'] {
   if (!retryKey || !source) {
     return source
@@ -16,7 +20,7 @@ function withRetryToken(source: ImageProps['source'], retryKey: number): ImagePr
     return source
   }
 
-  if (!source.uri) {
+  if (!isUriImageSource(source)) {
     return source
   }
 
@@ -48,7 +52,7 @@ function canRetrySource(source: ImageProps['source']) {
   if (typeof source === 'number' || Array.isArray(source)) {
     return false
   }
-  return !!source.uri && (source.uri.startsWith('http://') || source.uri.startsWith('https://'))
+  return isUriImageSource(source) && (source.uri.startsWith('http://') || source.uri.startsWith('https://'))
 }
 
 export const RetryImage: React.FC<ImageProps> = memo(({ cachePolicy, onError, onLoad, recyclingKey, ...props }) => {
