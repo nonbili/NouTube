@@ -1,9 +1,9 @@
 import { openSharedUrl } from '@/lib/page'
-import { supabase } from '@/lib/supabase/client.js'
+import { isSupportedUrl } from '@/lib/supported-url'
 
-export function handleDeeplink(link: string) {
+export function handleDeeplink(link: string): void {
   const url = new URL(link)
-  if (url.protocol != 'noutube:') {
+  if (url.protocol != 'noutube:' && !isSupportedUrl(link)) {
     return
   }
   // console.log('on deeplink', link)

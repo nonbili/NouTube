@@ -20,7 +20,7 @@ const interfaces = {
 export type UiInterface = typeof interfaces
 type UiInterfaceKey = keyof UiInterface
 
-function setupChannel() {
+function setupChannel(): void {
   window.electron.ipcRenderer.on(UI_CHANNEL, (e, v) => {
     const { name, args } = v
     console.log(UI_CHANNEL, name, JSON.stringify(args).slice(0, 100))
@@ -29,11 +29,14 @@ function setupChannel() {
       console.error(`${fn} unimplemented`)
       return
     }
-    // @ts-expect-error ??
+    // @ts-expect-error Dynamic IPC dispatch narrows at runtime.
     return fn(...args)
   })
 }
 
-export function initUiChannel() {
+export function initUiChannel(): void {
   setupChannel()
+  void mainClient.consumePendingDeeplinks().then((links) => {
+    links.forEach(handleDeeplink)
+  })
 }

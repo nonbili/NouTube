@@ -2,6 +2,7 @@ import { setInterceptionBlocklist, toggleInterception } from 'main/lib/intercept
 import { openLoginWindow } from 'main/lib/login-window.js'
 import { ensureYtDlp, updateYtDlp } from 'main/lib/ytdlp.js'
 import { checkForUpdate, isUpdateSupported, quitAndInstall } from 'main/lib/auto-update.js'
+import { consumePendingDeeplinks } from 'main/lib/deeplink.js'
 import { MAIN_CHANNEL } from './constants.js'
 import { uiClient } from './ui.js'
 import { ipcMain, session, app, shell, dialog } from 'electron'
@@ -63,6 +64,7 @@ const interfaces = {
     })
   },
   getDownloadsPath: (): string => app.getPath('downloads'),
+  consumePendingDeeplinks,
   selectFolder: async (): Promise<string | null> => {
     const { mainWindow } = await import('main/lib/main-window.js')
     const result = await dialog.showOpenDialog(mainWindow, {
