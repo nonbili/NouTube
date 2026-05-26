@@ -59,6 +59,19 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.2.9" date="2026-05-26">
+      <description>
+        <ul>
+          <li>Support multiple tabs</li>
+          <li>Add check for update in settings</li>
+          <li>Support opening YouTube URLs from command line and flatpak run</li>
+          <li>Support blocking channel and keyword</li>
+          <li>Support custom user script</li>
+          <li>Support hiding community posts</li>
+          <li>Support Japanese, Vietnamese, and Traditional Chinese</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.2.8" date="2026-05-13">
       <description>
         <ul>

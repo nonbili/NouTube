@@ -1,0 +1,7 @@
+- support multiple tabs
+- add check for update in settings
+- support opening youtube URLs from command line and flatpak run
+- support blocking channel and keyword
+- support custom user script
+- support hiding community posts
+- support Japanese, Vietnamese, and Traditional Chinese
