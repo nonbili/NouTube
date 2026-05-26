@@ -172,7 +172,6 @@ export const SettingsPreferencesContent = () => {
           icon="history"
           value={settings.keepHistory}
           onPress={() => settings$.keepHistory.set(!settings.keepHistory)}
-          isLast={!isAndroid}
         />
         {isAndroid ? (
           <SettingsToggleRow

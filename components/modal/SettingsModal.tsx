@@ -497,6 +497,14 @@ export const SettingsModal = () => {
     </View>
   )
 
+  if (isWeb) {
+    return (
+      <View className="h-full w-[30rem] max-w-[42vw] shrink-0 border-r border-zinc-300 bg-zinc-100 shadow-xl shadow-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-950">
+        {content}
+      </View>
+    )
+  }
+
   return isNarrowNative ? (
     <View className="absolute inset-0 z-10 bg-zinc-100 dark:bg-zinc-950">
       <SafeAreaView className="flex-1" edges={['top']}>

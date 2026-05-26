@@ -26,6 +26,7 @@ import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
 import { history$ } from '@/states/history'
 import { getUserStylesSnapshot, userStyles$ } from '@/states/user-styles'
 import { blocklist$, getBlocklistSnapshot } from '@/states/blocklist'
+import { SettingsModal } from '../modal/SettingsModal'
 
 let restored = false
 const logger = createLogger('sync')
@@ -577,6 +578,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         )}
       >
         <NouHeader noutube={ui$.webview.get() || nativeRef.current} />
+        {nIf(isWeb, <SettingsModal />)}
         {isWeb ? (
           <View className="relative flex-1 min-h-0">
             {tabs.map((tab, index) => (

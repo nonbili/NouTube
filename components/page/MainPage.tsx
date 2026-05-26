@@ -22,7 +22,7 @@ import { ToolsModal } from '../modal/ToolsModal'
 import { useLocales } from 'expo-localization'
 import { changeLanguage, t as i18nextT } from 'i18next'
 import NouTubeViewModule from '@/modules/nou-tube-view'
-import { isWeb } from '@/lib/utils'
+import { isWeb, nIf } from '@/lib/utils'
 import { resolveI18nLanguageFromExpoLocale } from '@/lib/i18n'
 import { settings$ } from '@/states/settings'
 
@@ -83,7 +83,7 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
       <FolderModal />
       <HistoryModal />
       <QueueModal />
-      <SettingsModal />
+      {nIf(!isWeb, <SettingsModal />)}
       <UrlModal />
       <CookieModal />
       <UserAgentModal />
