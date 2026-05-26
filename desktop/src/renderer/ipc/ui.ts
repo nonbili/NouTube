@@ -1,10 +1,12 @@
 import { handleDeeplink } from '../lib/deeplink.js'
 import { downloadProgress } from '../lib/download-progress.js'
 import { UI_CHANNEL } from 'main/ipc/constants.js'
+import { tabs$ } from '@/states/tabs'
 
 const interfaces = {
   handleDeeplink,
   downloadProgress,
+  openInAppTab: (url: string) => tabs$.openTab(url),
 }
 
 export type UiInterface = typeof interfaces

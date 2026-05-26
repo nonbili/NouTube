@@ -4,6 +4,7 @@ import type { Bookmark } from './bookmarks'
 import { unnormalizeUrl } from '@/lib/url'
 import { isWeb } from '@/lib/utils'
 import { mainClient } from '@/lib/main-client'
+import { tabs$ } from './tabs'
 
 interface Store {
   url: string
@@ -68,6 +69,13 @@ export const ui$ = observable<Store>({
 })
 
 export function updateUrl(url: string) {
+  if (isWeb) {
+    const webview = ui$.webview.get()
+    webview?.executeJavaScript?.('NouTube.pause()')
+    tabs$.updateTabUrl(unnormalizeUrl(url))
+    return
+  }
+
   const webview = ui$.webview.get()
   // workaround for beforeunload https://github.com/electron/electron/issues/43314#issuecomment-2399072938
   webview?.executeJavaScript('NouTube.pause()')

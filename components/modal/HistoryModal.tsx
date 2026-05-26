@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react'
 import { colors } from '@/lib/colors'
 import { clsx, nIf } from '@/lib/utils'
 import { useValue } from '@legendapp/state/react'
-import { settings$ } from '@/states/settings'
+import { tabs$ } from '@/states/tabs'
 import { Segmented } from '../picker/Segmented'
 import { getDocumentAsync } from 'expo-document-picker'
 import { importCsv } from '@/lib/import'
@@ -21,7 +21,8 @@ import { t } from 'i18next'
 export const HistoryModal = () => {
   const historyModalOpen = useValue(ui$.historyModalOpen)
   const bookmarks = useValue(history$.bookmarks)
-  const home = useValue(settings$.home)
+  const activePageUrl = useValue(tabs$.activePageUrl)
+  const home = activePageUrl.includes('music.youtube.com') ? 'yt-music' : 'yt'
 
   const filteredBookmarks = useMemo(() => {
     return bookmarks.filter((x) => {

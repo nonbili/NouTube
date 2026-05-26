@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useValue, useObserveEffect } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
+import { tabs$, type Tab } from '@/states/tabs'
 import { queue$ } from '@/states/queue'
 import { settings$ } from '@/states/settings'
 import { bookmarks$, newBookmark } from '@/states/bookmarks'
 import { createLogger } from '@/lib/log'
 import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
 import NouTubeViewModule, { NouTubeView } from '@/modules/nou-tube-view'
-import { View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { getVideoId, setPageUrl } from '@/lib/page'
 import { showToast } from '@/lib/toast'
 import { clsx, isWeb, nIf } from '@/lib/utils'
@@ -62,17 +63,216 @@ const onScroll = ({
 }
 
 function restoreLastPlaying(webview: any) {
-  if (settings$.restoreOnStart.get() && !restored) {
+  if (webview && settings$.restoreOnStart.get() && !restored) {
     restored = true
     webview.executeJavaScript('window.NouTube.restoreLastPlaying()')
   }
 }
 
+const YOUTUBE_HOSTS = ['m.youtube.com', 'music.youtube.com', 'www.youtube.com', 'youtube.com', 'youtu.be']
+
+const executeQuietly = (webview: WebviewTag | null, script: string) => {
+  try {
+    void webview?.executeJavaScript(script).catch?.(() => undefined)
+  } catch {}
+}
+
+const DesktopTabView: React.FC<{
+  tab: Tab
+  index: number
+  isActive: boolean
+  contentJs: string
+  userAgent: string
+  onMessage: (type: string, data: any) => void
+  buildPrelude: () => string
+}> = ({ tab, index, isActive, contentJs, userAgent, onMessage, buildPrelude }) => {
+  const webviewRef = useRef<WebviewTag>(null)
+  const readyRef = useRef(false)
+  const hideShorts = useValue(settings$.hideShorts)
+  const preferH264 = useValue(settings$.preferH264)
+  const clickbaitThumbnail = useValue(settings$.clickbaitThumbnail)
+  const blocklistState = useValue(blocklist$)
+
+  const syncUserStylesToWebview = useCallback(() => {
+    if (!readyRef.current) return
+    const value = JSON.stringify(getUserStylesSnapshot())
+    executeQuietly(webviewRef.current, `window.NouTube?.setUserStyles?.(${value})`)
+  }, [])
+
+  const syncBlocklistToWebview = useCallback(() => {
+    if (!readyRef.current) return
+    const snapshot = getBlocklistSnapshot()
+    const value = JSON.stringify(snapshot)
+    executeQuietly(webviewRef.current, `window.NouTube?.setBlocklist?.(${value})`)
+    void mainClient.setBlocklist(snapshot)
+  }, [])
+
+  const syncSettingsToWebview = useCallback(() => {
+    if (!readyRef.current) return
+    const { sponsorBlock, playbackRate, miniPlayer } = settings$.get()
+    const value = JSON.stringify({ sponsorBlock, playbackRate, miniPlayer })
+    executeQuietly(webviewRef.current, `localStorage.setItem('nou:settings', '${value}'); if (!${miniPlayer}) window.NouTube?.exitMini?.()`)
+  }, [])
+
+  const toggleShorts = useCallback((hide?: boolean) => {
+    if (!readyRef.current) return
+    executeQuietly(webviewRef.current, hide ? 'window.NouTube?.hideShorts?.()' : 'window.NouTube?.showShorts?.()')
+  }, [])
+
+  const refreshCanGoBack = useCallback(() => {
+    const webview = webviewRef.current
+    if (!webview) return
+    try {
+      const canGoBack = webview.canGoBack()
+      tabs$.setTabCanGoBack(Boolean(canGoBack), index)
+    } catch {}
+  }, [index])
+
+  useEffect(() => {
+    if (!isActive || !webviewRef.current) {
+      return
+    }
+    ui$.webview.set(ObservableHint.opaque(webviewRef.current))
+    ui$.pageUrl.set(tab.pageUrl || tab.url)
+    refreshCanGoBack()
+  }, [isActive, refreshCanGoBack, tab.pageUrl, tab.url])
+
+  useEffect(() => {
+    const webview = webviewRef.current
+    if (!webview || !tab.url || webview.src === tab.url) {
+      return
+    }
+    webview.src = tab.url
+  }, [tab.url])
+
+  useEffect(() => {
+    const webview = webviewRef.current
+    if (!webview) {
+      return
+    }
+
+    const onDomReady = () => {
+      readyRef.current = true
+      if (isActive) {
+        ui$.webview.set(ObservableHint.opaque(webview))
+      }
+      executeQuietly(webview, `window.isAndroid = false;\n${buildPrelude()}\n${contentJs}`)
+      toggleShorts(hideShorts)
+      syncUserStylesToWebview()
+      syncBlocklistToWebview()
+      syncSettingsToWebview()
+      refreshCanGoBack()
+    }
+    const onStartLoading = () => tabs$.setTabLoading(true, index)
+    const onStopLoading = () => tabs$.setTabLoading(false, index)
+    const onNavigate = (e: { url: string }) => {
+      try {
+        const previousUrl = tabs$.tabs[index]?.pageUrl.get() || ''
+        const { host } = new URL(e.url)
+        void mainClient.toggleInterception(YOUTUBE_HOSTS.includes(host))
+        tabs$.setTabPageUrl(e.url, index)
+        if (isActive) {
+          ui$.pageUrl.set(e.url)
+        }
+        if (previousUrl && host !== new URL(previousUrl).host) {
+          executeQuietly(webview, 'document.location.reload()')
+        }
+      } catch {
+        tabs$.setTabPageUrl(e.url, index)
+      }
+      refreshCanGoBack()
+    }
+    const onIpcMessage = (e: { channel: string; args: any[] }) => onMessage(e.channel, e.args[0])
+    const onFavicon = (e: { favicons: string[] }) => {
+      tabs$.setTabMeta({ title: webview.getTitle(), icon: e.favicons.at(-1) }, index)
+    }
+    const onTitle = (e: { title: string }) => {
+      tabs$.setTabMeta({ title: e.title || webview.getTitle() }, index)
+    }
+    const onInput = ((e: Electron.Event & { input: Electron.Input }) => {
+      if (e.input.type === 'keyDown') {
+        handleShortcuts(e.input)
+      }
+    }) as unknown as (e: Event) => void
+
+    webview.addEventListener('dom-ready', onDomReady)
+    webview.addEventListener('did-start-loading', onStartLoading)
+    webview.addEventListener('did-stop-loading', onStopLoading)
+    webview.addEventListener('did-finish-load', onStopLoading)
+    webview.addEventListener('did-fail-load', onStopLoading)
+    webview.addEventListener('did-fail-provisional-load', onStopLoading)
+    webview.addEventListener('did-navigate', onNavigate)
+    webview.addEventListener('did-navigate-in-page', onNavigate)
+    webview.addEventListener('ipc-message', onIpcMessage)
+    webview.addEventListener('page-favicon-updated', onFavicon)
+    webview.addEventListener('page-title-updated', onTitle)
+    webview.addEventListener('before-input-event', onInput)
+
+    return () => {
+      webview.removeEventListener('dom-ready', onDomReady)
+      webview.removeEventListener('did-start-loading', onStartLoading)
+      webview.removeEventListener('did-stop-loading', onStopLoading)
+      webview.removeEventListener('did-finish-load', onStopLoading)
+      webview.removeEventListener('did-fail-load', onStopLoading)
+      webview.removeEventListener('did-fail-provisional-load', onStopLoading)
+      webview.removeEventListener('did-navigate', onNavigate)
+      webview.removeEventListener('did-navigate-in-page', onNavigate)
+      webview.removeEventListener('ipc-message', onIpcMessage)
+      webview.removeEventListener('page-favicon-updated', onFavicon)
+      webview.removeEventListener('page-title-updated', onTitle)
+      webview.removeEventListener('before-input-event', onInput)
+    }
+  }, [
+    buildPrelude,
+    contentJs,
+    hideShorts,
+    index,
+    isActive,
+    onMessage,
+    refreshCanGoBack,
+    syncBlocklistToWebview,
+    syncSettingsToWebview,
+    syncUserStylesToWebview,
+    toggleShorts,
+  ])
+
+  useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
+  useObserveEffect(settings$.sponsorBlock, () => syncSettingsToWebview())
+  useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
+  useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
+  useObserveEffect(userStyles$, () => syncUserStylesToWebview())
+  useObserveEffect(blocklist$, () => syncBlocklistToWebview())
+  useEffect(() => {
+    if (!readyRef.current) return
+    executeQuietly(
+      webviewRef.current,
+      `window.NouTubePreferH264 = ${preferH264 ? 'true' : 'false'}; window.NouTubeClickbaitThumbnail = ${JSON.stringify(clickbaitThumbnail)}; window.NouTubeBlocklist = ${JSON.stringify(getBlocklistSnapshot(blocklistState))}; document.location.reload()`,
+    )
+  }, [blocklistState, clickbaitThumbnail, preferH264])
+
+  return (
+    <View
+      pointerEvents={isActive ? 'auto' : 'none'}
+      style={[StyleSheet.absoluteFillObject, { opacity: isActive ? 1 : 0, zIndex: isActive ? 1 : 0 }]}
+    >
+      <NouTubeView
+        ref={webviewRef}
+        style={{ flex: 1 }}
+        src={tab.url}
+        useragent={userAgent}
+        partition="persist:webview"
+        allowpopups="true"
+      />
+    </View>
+  )
+}
+
 export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   const uiState = useValue(ui$)
+  const tabs = useValue(tabs$.tabs)
+  const activeTabIndex = useValue(tabs$.activeTabIndex)
+  const activePageUrl = useValue(tabs$.activePageUrl)
   const nativeRef = useRef<typeof NouTubeViewModule>(null)
-  const webviewRef = useRef<WebviewTag>(null)
-  const webviewReadyRef = useRef(false)
   const hideShorts = useValue(settings$.hideShorts)
   const isYTMusic = useValue(settings$.isYTMusic)
   const autoHideHeader = useValue(settings$.autoHideHeader)
@@ -141,49 +341,37 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   const toggleShorts = useCallback(
     (hide?: boolean) => {
-      if (webviewRef.current && !webviewReadyRef.current) {
-        return
-      }
-      const ref = webviewRef.current || nativeRef.current
+      const ref = nativeRef.current
       ref?.executeJavaScript(hide ? 'NouTube.hideShorts()' : 'NouTube.showShorts()')
     },
-    [nativeRef, webviewRef],
+    [nativeRef],
   )
 
   const syncUserStylesToWebview = useCallback(() => {
-    if (webviewRef.current && !webviewReadyRef.current) {
-      return
-    }
-    const ref = webviewRef.current || nativeRef.current
+    const ref = nativeRef.current
     const value = JSON.stringify(getUserStylesSnapshot())
     ref?.executeJavaScript(`window.NouTube.setUserStyles(${value})`)
-  }, [nativeRef, webviewRef])
+  }, [nativeRef])
 
   const syncBlocklistToWebview = useCallback(() => {
-    if (webviewRef.current && !webviewReadyRef.current) {
-      return
-    }
-    const ref = webviewRef.current || nativeRef.current
+    const ref = nativeRef.current
     const snapshot = getBlocklistSnapshot()
     const value = JSON.stringify(snapshot)
     ref?.executeJavaScript(`window.NouTube?.setBlocklist?.(${value})`)
     if (isWeb) {
       void mainClient.setBlocklist(snapshot)
     }
-  }, [nativeRef, webviewRef])
+  }, [nativeRef])
 
   const syncSettingsToWebview = useCallback(() => {
-    if (webviewRef.current && !webviewReadyRef.current) {
-      return
-    }
-    const ref = webviewRef.current || nativeRef.current
+    const ref = nativeRef.current
     const { sponsorBlock, playbackRate, miniPlayer } = settings$.get()
     const value = JSON.stringify({ sponsorBlock, playbackRate, miniPlayer })
     ref?.executeJavaScript(`localStorage.setItem('nou:settings', '${value}'); if (!${miniPlayer}) window.NouTube?.exitMini?.()`)
-  }, [nativeRef, webviewRef])
+  }, [nativeRef])
 
   useEffect(() => {
-    if (!ui$.url.get()) {
+    if (!isWeb && !ui$.url.get()) {
       ui$.url.set(isYTMusic ? 'https://music.youtube.com' : isWeb ? 'https://www.youtube.com' : 'https://m.youtube.com')
     }
   }, [])
@@ -222,14 +410,16 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         onScroll({ dy: data.dy, y: data.y, autoHideHeader, hideToolbarWhenScrolled })
         break
       case 'onload':
-        const webview = webviewRef.current || nativeRef.current
+        const webview = ui$.webview.get() || nativeRef.current
         restoreLastPlaying(webview)
-        toggleShorts(hideShorts)
-        syncUserStylesToWebview()
-        syncBlocklistToWebview()
-        syncSettingsToWebview()
+        if (!isWeb) {
+          toggleShorts(hideShorts)
+          syncUserStylesToWebview()
+          syncBlocklistToWebview()
+          syncSettingsToWebview()
+        }
         if (isWeb) {
-          uiState.webview.executeJavaScript('window.NouTube.bridgeShortcuts()')
+          webview?.executeJavaScript('window.NouTube.bridgeShortcuts()')
         }
         break
       case 'add-queue':
@@ -255,13 +445,18 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         }
         break
       case 'playback-end':
-        const videoId = getVideoId(uiState.pageUrl)
+        const pageUrl = isWeb ? activePageUrl : uiState.pageUrl
+        const videoId = getVideoId(pageUrl)
         const bookmarks = queue$.bookmarks.get()
-        const hasPlaylistParam = uiState.pageUrl.includes('list=')
+        const hasPlaylistParam = pageUrl.includes('list=')
         if (videoId && bookmarks.length && !hasPlaylistParam) {
           const queueIndex = bookmarks.findIndex((x) => getVideoId(x.url) == videoId)
           if (queueIndex != bookmarks.length - 1) {
-            ui$.url.set(bookmarks[queueIndex + 1].url)
+            if (isWeb) {
+              tabs$.updateTabUrl(bookmarks[queueIndex + 1].url)
+            } else {
+              ui$.url.set(bookmarks[queueIndex + 1].url)
+            }
           }
         }
         break
@@ -278,7 +473,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       case 'yt-music-desktop':
         if (settings$.desktopMode.get()) break
         settings$.desktopMode.set(true)
-        ui$.url.set('https://music.youtube.com')
+        if (isWeb) {
+          tabs$.updateTabUrl('https://music.youtube.com')
+        } else {
+          ui$.url.set('https://music.youtube.com')
+        }
         break
     }
   }, [
@@ -289,6 +488,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     syncBlocklistToWebview,
     syncUserStylesToWebview,
     toggleShorts,
+    activePageUrl,
     uiState.pageUrl,
     uiState.webview,
   ])
@@ -309,36 +509,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   }, [])
 
   useEffect(() => {
-    const webview = webviewRef.current
-    if (!webview) {
-      return
-    }
-
-    webview.addEventListener('dom-ready', () => {
-      // webview.openDevTools()
-
-      ui$.webview.set(ObservableHint.opaque(webview))
-      webviewReadyRef.current = true
-      webview.executeJavaScript(`window.isAndroid = false;\n${buildPrelude()}\n${contentJs}`)
-    })
-    webview.addEventListener('did-navigate', (e) => {
-      const { host } = new URL(e.url)
-      mainClient.toggleInterception(['m.youtube.com', 'music.youtube.com', 'www.youtube.com'].includes(host))
-      const pageUrl = uiState.pageUrl
-      setPageUrl(e.url)
-      if (pageUrl && host != new URL(pageUrl).host) {
-        uiState.webview.executeJavaScript('document.location.reload()')
-      }
-    })
-    webview.addEventListener('did-navigate-in-page', (e) => {
-      setPageUrl(e.url)
-    })
-    webview.addEventListener('ipc-message', (e) => {
-      onMessage(e.channel, e.args[0])
-    })
-  }, [webviewRef])
-
-  useEffect(() => {
     const webview = nativeRef.current
     if (webview) {
       ui$.webview.set(ObservableHint.opaque(webview))
@@ -357,17 +527,17 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   }, [nativeRef])
 
   useObserveEffect(ui$.url, ({ value }) => {
-    const webview = webviewRef.current
     const native = nativeRef.current
+    if (isWeb) {
+      return
+    }
     try {
       if (value && new URL(value).pathname != '/' && !restored) {
         restored = true
       }
     } catch (e) {}
     if (value) {
-      if (webview) {
-        webview.src = value
-      } else if (native) {
+      if (native) {
         native.loadUrl(value)
       }
     }
@@ -379,21 +549,15 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
   useObserveEffect(settings$.preferH264, ({ previous }) => {
     if (previous === undefined) return
-    const webview = webviewRef.current
     const native = nativeRef.current
-    if (webview) {
-      webview.reload()
-    } else if (native) {
+    if (native) {
       native.executeJavaScript('document.location.reload()')
     }
   })
   useObserveEffect(settings$.clickbaitThumbnail, ({ previous }) => {
     if (previous === undefined) return
-    const webview = webviewRef.current
     const native = nativeRef.current
-    if (webview) {
-      webview.reload()
-    } else if (native) {
+    if (native) {
       native.executeJavaScript('document.location.reload()')
     }
   })
@@ -412,15 +576,22 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           headerPosition === 'bottom' && 'flex-col-reverse',
         )}
       >
-        <NouHeader noutube={webviewRef.current || nativeRef.current} />
+        <NouHeader noutube={ui$.webview.get() || nativeRef.current} />
         {isWeb ? (
-          <NouTubeView
-            ref={webviewRef}
-            style={{ flex: 1 }}
-            useragent={userAgent}
-            partition="persist:webview"
-            allowpopups="true"
-          />
+          <View className="relative flex-1 min-h-0">
+            {tabs.map((tab, index) => (
+              <DesktopTabView
+                key={tab.id}
+                tab={tab}
+                index={index}
+                isActive={index === activeTabIndex}
+                contentJs={contentJs}
+                userAgent={userAgent}
+                onMessage={onMessage}
+                buildPrelude={buildPrelude}
+              />
+            ))}
+          </View>
         ) : (
           <NouTubeView
             ref={nativeRef}

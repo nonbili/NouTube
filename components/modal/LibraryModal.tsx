@@ -5,7 +5,7 @@ import { NouText } from '../NouText'
 import { bookmarks$ } from '@/states/bookmarks'
 import { useEffect, useState } from 'react'
 import { getPageType } from '@/lib/page'
-import { settings$ } from '@/states/settings'
+import { tabs$ } from '@/states/tabs'
 import { BookmarkItem } from '../bookmark/BookmarkItem'
 import { Segmented } from '../picker/Segmented'
 import { FlatList, View } from 'react-native'
@@ -31,8 +31,9 @@ const ungroupedFolder = newFolder('', { name: t('modals.ungrouped'), id: '' })
 
 export const LibraryModal = () => {
   const libraryModalOpen = useValue(ui$.libraryModalOpen)
-  const home = useValue(settings$.home)
-  const isYTMusic = useValue(settings$.isYTMusic)
+  const activePageUrl = useValue(tabs$.activePageUrl)
+  const isYTMusic = activePageUrl.includes('music.youtube.com')
+  const home = isYTMusic ? 'yt-music' : 'yt'
   const folders = useValue(folders$.folders)
   const bookmarks = useValue(bookmarks$.bookmarks)
   

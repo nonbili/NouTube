@@ -1,4 +1,4 @@
-import { Pressable, useColorScheme, useWindowDimensions, View } from 'react-native'
+import { ActivityIndicator, Pressable, ScrollView, useColorScheme, useWindowDimensions, View } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
@@ -21,17 +21,54 @@ import { useSleepTimerStatus } from '@/lib/sleep-timer'
 import { NouText } from '../NouText'
 import { formatPlaybackRate } from '@/lib/playback-rate'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import { Image } from 'expo-image'
 
 import { downloads$ } from '@/states/downloads'
+import { tabs$, type Tab } from '@/states/tabs'
+
+const getTabLabel = (tab: { title?: string; pageUrl?: string; url?: string }) => {
+  if (tab.title) {
+    return tab.title
+  }
+  try {
+    const url = new URL(tab.pageUrl || tab.url || '')
+    if (url.pathname === '/' || !url.pathname) {
+      return url.host
+    }
+    return url.pathname.replace(/^\//, '') || url.host
+  } catch {
+    return tab.pageUrl || tab.url || 'New Tab'
+  }
+}
+
+const TabFavicon: React.FC<{ tab: Tab; color: string }> = ({ tab, color }) => {
+  const [errored, setErrored] = useState(false)
+  useEffect(() => setErrored(false), [tab.icon])
+  if (tab.icon && !errored) {
+    return (
+      <Image
+        source={tab.icon}
+        style={{ width: 18, height: 18 }}
+        contentFit="contain"
+        onError={() => setErrored(true)}
+      />
+    )
+  }
+  return (
+    <MaterialIcons
+      name={tab.url.includes('music.youtube.com') ? 'library-music' : 'smart-display'}
+      size={18}
+      color={color}
+    />
+  )
+}
 
 export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const autoHideHeader = useValue(settings$.autoHideHeader)
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
   const headerPosition = useValue(settings$.headerPosition)
-  const isYTMusic = useValue(settings$.isYTMusic)
   const desktopModeYTMusic = useValue(settings$.desktopMode)
   const desktopModeYT = useValue(settings$.desktopModeYT)
-  const desktopMode = isYTMusic ? desktopModeYTMusic : desktopModeYT
   const playbackRate = useValue(settings$.playbackRate)
   const showBackButtonInHeader = useValue(settings$.showBackButtonInHeader)
   const showForwardButtonInHeader = useValue(settings$.showForwardButtonInHeader)
@@ -39,10 +76,17 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const showPlaybackSpeedControl = useValue(settings$.showPlaybackSpeedControl)
   const { width, height: windowHeight } = useWindowDimensions()
   const uiState = useValue(ui$)
+  const tabs = useValue(tabs$.tabs)
+  const activeTabIndex = useValue(tabs$.activeTabIndex)
+  const activeTab = tabs[activeTabIndex]
+  const activePageUrl = activeTab?.pageUrl || activeTab?.url || uiState.pageUrl
+  const isYTMusic = activePageUrl.includes('music.youtube.com')
+  const desktopMode = isYTMusic ? desktopModeYTMusic : desktopModeYT
+  const normalizedActivePageUrl = activePageUrl ? normalizeUrl(activePageUrl) : ''
   const feedsEnabled = useValue(settings$.feedsEnabled)
   const allStarred = useValue(library$.urls)
-  const starred = allStarred.has(normalizeUrl(uiState.pageUrl))
-  const bookmark = useValue(bookmarks$.getBookmarkByUrl(normalizeUrl(uiState.pageUrl)))
+  const starred = normalizedActivePageUrl ? allStarred.has(normalizedActivePageUrl) : false
+  const bookmark = useValue(bookmarks$.getBookmarkByUrl(normalizedActivePageUrl))
   const queueSize = useValue(queue$.size)
   const downloads = useValue(downloads$)
   const hasDownloads = Object.keys(downloads).length > 0
@@ -61,11 +105,15 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
     if (!isWeb || !uiState.webview) {
       return
     }
-    setCanGoBack(uiState.webview.canGoBack())
-    setCanGoForward(uiState.webview.canGoForward())
-  }, [uiState.pageUrl, uiState.webview])
+    try {
+      setCanGoBack(Boolean(activeTab?.canGoBack ?? uiState.webview.canGoBack()))
+      setCanGoForward(uiState.webview.canGoForward())
+    } catch {
+      // webview not dom-ready yet; canGoBack/canGoForward throw until then
+    }
+  }, [activeTab?.canGoBack, activePageUrl, uiState.webview])
 
-  const pageType = getPageType(uiState.pageUrl)
+  const pageType = getPageType(activePageUrl)
 
   const onToggleHome = () => {
     let newUrl = 'https://music.youtube.com'
@@ -164,7 +212,55 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
           </>,
         )}
       </View>
+      {nIf(
+        isWeb,
+        <View className="flex-1 min-w-0 lg:w-full lg:min-h-0">
+          <ScrollView
+            horizontal={!isHorizontal}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
+            className="min-w-0"
+            contentContainerClassName="items-center gap-1 px-1 lg:flex-col lg:items-center lg:px-0 lg:py-1"
+          >
+            {tabs.map((tab, index) => {
+              const active = index === activeTabIndex
+              return (
+                <div key={tab.id} className="group relative shrink-0" title={getTabLabel(tab)}>
+                  <Pressable
+                    onPress={() => tabs$.setActiveTabIndex(index)}
+                    className={clsx(
+                      'h-9 w-9 items-center justify-center rounded-lg',
+                      active
+                        ? 'bg-white shadow-sm dark:bg-zinc-700'
+                        : 'hover:bg-zinc-200 dark:hover:bg-zinc-700/60',
+                    )}
+                  >
+                    {tab.isLoading ? (
+                      <ActivityIndicator size="small" color={headerControlColor} />
+                    ) : (
+                      <TabFavicon tab={tab} color={headerControlColor} />
+                    )}
+                  </Pressable>
+                  {tabs.length > 1 && (
+                    <div
+                      title={t('menus.close', 'Close')}
+                      className="absolute -right-1 -top-1 hidden h-4 w-4 items-center justify-center rounded-full bg-zinc-300 group-hover:flex dark:bg-zinc-600"
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        tabs$.closeTab(index)
+                      }}
+                    >
+                      <MaterialIcons name="close" size={10} color={headerControlColor} />
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </ScrollView>
+        </View>,
+      )}
       <View className="flex flex-row lg:flex-col lg:pb-1 items-center gap-2">
+        {nIf(isWeb, <MaterialButton name="add" onPress={() => tabs$.openTab()} />)}
         {nIf(
           showPlaybackSpeedControl,
           <Pressable
@@ -191,7 +287,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
             color={isDownloading ? '#60a5fa' : headerControlColor}
             onPress={() => {
               if (pageType?.type === 'watch') {
-                ui$.toolsModalUrl.set(uiState.pageUrl)
+                ui$.toolsModalUrl.set(activePageUrl)
               }
               ui$.toolsModalOpen.set(true)
             }}
@@ -270,7 +366,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
               label: t('menus.share'),
               icon: <MaterialIcons name="share" size={18} color={headerControlColor} />,
               systemImage: 'square.and.arrow.up',
-              handler: () => share(uiState.pageUrl),
+              handler: () => share(activePageUrl),
             },
             {
               label: t('menus.tools', 'Tools'),

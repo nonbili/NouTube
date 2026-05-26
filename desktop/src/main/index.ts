@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, screen } from 'electron'
+import { app, shell, BrowserWindow, screen } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -10,8 +10,21 @@ import { checkForUpdate } from './lib/auto-update'
 import { initMainChannel } from './ipc/main'
 import contextMenu from 'electron-context-menu'
 import { getUserAgent } from '@/lib/useragent'
+import { isSupportedUrl, normalizeSupportedUrl } from '@/lib/supported-url'
+import { uiClient } from './ipc/ui'
 
 app.userAgentFallback = getUserAgent(process.platform)
+
+// YouTube wraps external links as /redirect?q=<target>; unwrap to the real target.
+function resolveTargetUrl(rawUrl: string): string {
+  try {
+    const { pathname, searchParams } = new URL(rawUrl)
+    const redirectTo = searchParams.get('q')
+    return pathname === '/redirect' && redirectTo ? redirectTo : rawUrl
+  } catch {
+    return rawUrl
+  }
+}
 
 function createWindow(): void {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize
@@ -36,7 +49,11 @@ function createWindow(): void {
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
+    if (isSupportedUrl(details.url)) {
+      void uiClient.openInAppTab(normalizeSupportedUrl(details.url))
+    } else {
+      shell.openExternal(details.url)
+    }
     return { action: 'deny' }
   })
 
@@ -63,6 +80,18 @@ function createWindow(): void {
     showLookUpSelection: false,
     showSearchWithGoogle: false,
     showSelectAll: false,
+    prepend: (_defaultActions: unknown, params: Electron.ContextMenuParams) => {
+      const url = resolveTargetUrl(params.linkURL)
+      return [
+        {
+          label: 'Open Link in New Tab',
+          visible: Boolean(params.linkURL) && isSupportedUrl(url),
+          click: () => {
+            void uiClient.openInAppTab(normalizeSupportedUrl(url))
+          },
+        },
+      ]
+    },
   }
   // @ts-expect-error ?
   contextMenu.default({ ...contextMenuOptions, window: mainWindow.webContents })
@@ -70,10 +99,12 @@ function createWindow(): void {
     // @ts-expect-error ?
     contextMenu.default({ ...contextMenuOptions, window: wc })
     wc.setWindowOpenHandler((details) => {
-      const { pathname, searchParams } = new URL(details.url)
-      const redirectTo = searchParams.get('q')
-      const url = pathname == '/redirect' && redirectTo ? redirectTo : details.url
-      shell.openExternal(url)
+      const url = resolveTargetUrl(details.url)
+      if (isSupportedUrl(url)) {
+        void uiClient.openInAppTab(normalizeSupportedUrl(url))
+      } else {
+        shell.openExternal(url)
+      }
       return { action: 'deny' }
     })
   })
@@ -97,7 +128,7 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  const win = createWindow()
+  createWindow()
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

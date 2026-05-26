@@ -12,6 +12,7 @@ export type NouTubeViewProps = {
   style: StyleProp<any>
   ref: React.Ref<any>
   useragent: string
+  src?: string
   partition?: string
   allowpopups?: string
   scriptOnStart?: string
