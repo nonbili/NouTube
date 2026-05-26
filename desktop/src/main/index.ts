@@ -6,7 +6,7 @@ import { setMainWindow } from './lib/main-window'
 import { bindDeeplink } from './lib/deeplink'
 import { genDesktopFile } from './lib/linux'
 import { interceptHttpRequest } from './lib/intercept'
-import { checkForUpdate } from './lib/auto-update'
+import { checkForUpdateOnStart } from './lib/auto-update'
 import { initMainChannel } from './ipc/main'
 import contextMenu from 'electron-context-menu'
 import { getUserAgent } from '@/lib/useragent'
@@ -152,6 +152,4 @@ app.on('window-all-closed', () => {
 
 bindDeeplink()
 
-if (import.meta.env.VITE_BUILD_TARGET != 'portable') {
-  checkForUpdate()
-}
+checkForUpdateOnStart()

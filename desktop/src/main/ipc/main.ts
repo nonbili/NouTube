@@ -1,6 +1,7 @@
 import { setInterceptionBlocklist, toggleInterception } from 'main/lib/intercept.js'
 import { openLoginWindow } from 'main/lib/login-window.js'
 import { ensureYtDlp, updateYtDlp } from 'main/lib/ytdlp.js'
+import { checkForUpdate, isUpdateSupported, quitAndInstall } from 'main/lib/auto-update.js'
 import { MAIN_CHANNEL } from './constants.js'
 import { uiClient } from './ui.js'
 import { ipcMain, session, app, shell, dialog } from 'electron'
@@ -33,6 +34,9 @@ const interfaces = {
   setBlocklist: setInterceptionBlocklist,
   openLoginWindow,
   updateYtDlp,
+  isUpdateSupported: () => isUpdateSupported,
+  checkForUpdate,
+  quitAndInstall,
   listFormats: async (url: string): Promise<{ title: string; formats: FormatOption[] }> => {
     const binary = await ensureYtDlp()
     return new Promise((resolve, reject) => {

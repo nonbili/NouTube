@@ -3,7 +3,8 @@
     "label": "About",
     "code": "Source code",
     "donate": "Donate",
-    "hint": "Version info, source code, and support links."
+    "updates": "Updates",
+    "hint": "Version info, updates, source code, and support links."
   },
   "changelog": {
     "label": "Changelog",
@@ -71,6 +72,15 @@
     "downloadFailed": "Download failed",
     "failedToLoadFormats": "Failed to load formats",
     "playbackSpeed": "Playback speed"
+  },
+  "update": {
+    "check": "Check for updates",
+    "checkHint": "See if a newer version is available",
+    "upToDate": "You're on the latest version",
+    "downloading": "Downloading update v{{version}}…",
+    "error": "Failed to check for updates",
+    "downloadedTitle": "Update ready",
+    "downloadedHint": "Version {{version}} has been downloaded. Restart now to install?"
   },
   "sleepTimer": {
     "label": "Sleep timer",

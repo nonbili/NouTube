@@ -10,6 +10,7 @@ import { BaseModal } from './BaseModal'
 import { ui$ } from '@/states/ui'
 import { SettingsModalTabSync } from './SettingsModalTabSync'
 import {
+  SettingsActionRow,
   SettingsAppearanceContent,
   SettingsPreferencesContent,
   SettingsToolsContent,
@@ -26,6 +27,8 @@ import { settings$ } from '@/states/settings'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { queryClient } from '@/lib/query/client'
 import { getReleaseFeedQuery } from '@/lib/query/changelog'
+import { mainClient } from '@/lib/main-client'
+import { showToast } from '@/lib/toast'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const donateLinks = [
@@ -142,6 +145,8 @@ export const SettingsModal = () => {
   const [pageStack, setPageStack] = useState<SettingsPage[]>(['home'])
   const [importingList, setImportingList] = useState(false)
   const [importingTakeout, setImportingTakeout] = useState(false)
+  const [updateSupported, setUpdateSupported] = useState(false)
+  const [checkingUpdate, setCheckingUpdate] = useState(false)
 
   const isNarrowNative = !isWeb && width < 768
 
@@ -152,6 +157,25 @@ export const SettingsModal = () => {
     }
 
     void queryClient.prefetchQuery(getReleaseFeedQuery())
+  }, [settingsModalOpen])
+
+  useEffect(() => {
+    if (!settingsModalOpen) {
+      return
+    }
+
+    let active = true
+    mainClient
+      .isUpdateSupported()
+      .then((supported) => {
+        if (active) setUpdateSupported(supported)
+      })
+      .catch(() => {
+        if (active) setUpdateSupported(false)
+      })
+    return () => {
+      active = false
+    }
   }, [settingsModalOpen])
 
   const closeSettingsChildren = useCallback(() => {
@@ -216,6 +240,25 @@ export const SettingsModal = () => {
     closeSettingsTree()
     return true
   }, [canGoBack, closeSettingsTree, closeTopOverlay, popPage])
+
+  const handleCheckForUpdate = useCallback(async () => {
+    setCheckingUpdate(true)
+    try {
+      const result = await mainClient.checkForUpdate()
+      if (result.status === 'available') {
+        showToast(t('update.downloading', { version: result.version }))
+      } else if (result.status === 'error') {
+        showToast(result.message || t('update.error'))
+      } else {
+        showToast(t('update.upToDate'))
+      }
+    } catch (e: any) {
+      console.error('checkForUpdate failed', e)
+      showToast(e.message || t('update.error'))
+    } finally {
+      setCheckingUpdate(false)
+    }
+  }, [])
 
   useEffect(() => {
     if (!settingsModalOpen || isWeb) {
@@ -386,6 +429,21 @@ export const SettingsModal = () => {
           </NouText>
           <NouText className="mt-2 text-xl font-semibold tracking-tight">v{appVersion}</NouText>
         </View>
+
+        {updateSupported ? (
+          <SettingsSection label={t('about.updates')}>
+            <View className={surfaceCls}>
+              <SettingsActionRow
+                label={t('update.check')}
+                description={t('update.checkHint')}
+                icon="system-update"
+                onPress={handleCheckForUpdate}
+                loading={checkingUpdate}
+                isLast
+              />
+            </View>
+          </SettingsSection>
+        ) : null}
 
         <SettingsSection label={t('about.code')}>
           <View className={surfaceCls}>

@@ -26,9 +26,11 @@ import { i18nLanguageNativeNames, resolveI18nLanguageFromExpoLocale, supportedI1
 
 const themes = [null, 'dark', 'light'] as const
 const headerPositions = ['top', 'bottom'] as const
-const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
+const surfaceCls =
+  'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
 const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500'
-const iconWrapCls = 'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-950'
+const iconWrapCls =
+  'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-950'
 
 const SettingsSection: React.FC<React.PropsWithChildren<{ label?: string }>> = ({ label, children }) => {
   return (
@@ -77,7 +79,7 @@ const SettingsToggleRow: React.FC<{
   )
 }
 
-const SettingsActionRow: React.FC<{
+export const SettingsActionRow: React.FC<{
   label: string
   description?: string
   icon: keyof typeof MaterialIcons.glyphMap
@@ -104,7 +106,9 @@ const SettingsActionRow: React.FC<{
       </View>
       <View className="flex-1">
         <NouText className="font-medium">{label}</NouText>
-        {description ? <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{description}</NouText> : null}
+        {description ? (
+          <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{description}</NouText>
+        ) : null}
       </View>
       {loading ? (
         <ActivityIndicator color={isDark ? '#d4d4d8' : '#475569'} />
@@ -221,7 +225,8 @@ export const SettingsAppearanceContent = () => {
   const systemLanguage = resolveI18nLanguageFromExpoLocale(locales[0]) || 'en'
   const effectiveLanguage = settings.language || systemLanguage
   const isSystemLanguageSelected = settings.language == null
-  const toLanguageLabel = (code: string) => i18nLanguageNativeNames[code as keyof typeof i18nLanguageNativeNames] || code
+  const toLanguageLabel = (code: string) =>
+    i18nLanguageNativeNames[code as keyof typeof i18nLanguageNativeNames] || code
   const currentLanguageLabel = settings.language
     ? toLanguageLabel(settings.language)
     : `${t('settings.language.system')} (${toLanguageLabel(effectiveLanguage)})`
@@ -390,7 +395,9 @@ export const SettingsToolsContent = () => {
         {sleepTimerSupported ? (
           <SettingsActionRow
             label={t('sleepTimer.label')}
-            description={active ? t('sleepTimer.endsIn', { value: formatSleepTimerRemaining(remainingMs) }) : t('sleepTimer.off')}
+            description={
+              active ? t('sleepTimer.endsIn', { value: formatSleepTimerRemaining(remainingMs) }) : t('sleepTimer.off')
+            }
             icon="bedtime"
             onPress={() => ui$.sleepTimerModalOpen.set(true)}
           />

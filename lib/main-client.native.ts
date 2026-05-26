@@ -1,4 +1,5 @@
 import NouTubeViewModule from '@/modules/nou-tube-view'
+import type { UpdateCheckResult } from '../desktop/src/main/lib/auto-update'
 
 export type FormatOption = { formatId: string; label: string; description: string }
 
@@ -14,6 +15,9 @@ export interface MainClient {
   fetchFeed(url: string): Promise<{ ok: boolean; status: number; statusText: string; body: string }>
   setCookie(cookie: string): Promise<void>
   setBlocklist(blocklist: unknown): Promise<void> | void
+  isUpdateSupported(): Promise<boolean>
+  checkForUpdate(): Promise<UpdateCheckResult>
+  quitAndInstall(): Promise<void> | void
 }
 
 type NouTubeDownloadClient = {
@@ -71,4 +75,11 @@ export const mainClient: MainClient = {
   },
   async setCookie() {},
   async setBlocklist() {},
+  async isUpdateSupported() {
+    return false
+  },
+  async checkForUpdate() {
+    return { status: 'not-available' }
+  },
+  async quitAndInstall() {},
 }

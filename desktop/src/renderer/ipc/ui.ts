@@ -2,11 +2,19 @@ import { handleDeeplink } from '../lib/deeplink.js'
 import { downloadProgress } from '../lib/download-progress.js'
 import { UI_CHANNEL } from 'main/ipc/constants.js'
 import { tabs$ } from '@/states/tabs'
+import { mainClient } from '@/lib/main-client'
+import { showConfirm } from '@/lib/confirm'
+import { t } from 'i18next'
 
 const interfaces = {
   handleDeeplink,
   downloadProgress,
   openInAppTab: (url: string) => tabs$.openTab(url),
+  updateDownloaded: (version: string) => {
+    showConfirm(t('update.downloadedTitle'), t('update.downloadedHint', { version }), () => {
+      void mainClient.quitAndInstall()
+    })
+  },
 }
 
 export type UiInterface = typeof interfaces
