@@ -64,6 +64,21 @@ class NouTubeViewModule : Module() {
       }
     }
 
+    AsyncFunction("enterPictureInPicture") {
+      val activity = appContext.activityProvider?.currentActivity
+      if (activity != null) {
+        activity.runOnUiThread {
+          if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val params = android.app.PictureInPictureParams.Builder().build()
+            activity.enterPictureInPictureMode(params)
+          } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            @Suppress("DEPRECATION")
+            activity.enterPictureInPictureMode()
+          }
+        }
+      }
+    }
+
     AsyncFunction("setSleepTimer") { durationMs: Long ->
       nouController.setSleepTimer(durationMs)
     }

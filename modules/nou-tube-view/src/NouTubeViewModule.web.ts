@@ -16,6 +16,10 @@ class NouTubeViewModule extends NativeModule {
   async getSleepTimerRemainingMs() {
     return null
   }
+
+  async enterPictureInPicture() {
+    throw new Error('enterPictureInPicture is only available on Android')
+  }
 }
 
 export default registerWebModule(NouTubeViewModule, 'NouTubeViewModule')
