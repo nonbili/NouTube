@@ -14,6 +14,7 @@ class NouController {
   internal var logFn: LogFn? = null
   internal var sleepTimerEventFn: SleepTimerEventFn? = null
   internal var i18nStrings = mutableMapOf<String, String>()
+  internal var isPlaying = false
   private var pendingSleepTimerDeadlineMs: Long? = null
   private var hasPendingSleepTimerChange = false
 

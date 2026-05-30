@@ -36,6 +36,7 @@ interface Store {
 
   // webview
   webview: any
+  isAndroidPip: boolean
 }
 
 export const ui$ = observable<Store>({
@@ -68,6 +69,7 @@ export const ui$ = observable<Store>({
 
   // webview
   webview: undefined,
+  isAndroidPip: false,
 })
 
 export function updateUrl(url: string) {

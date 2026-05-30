@@ -404,6 +404,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   const onMessage = useCallback(async (type: string, data: any) => {
     switch (type) {
+      case 'pip-mode-change':
+        if (typeof data?.isInPictureInPictureMode === 'boolean') {
+          ui$.isAndroidPip.set(data.isInPictureInPictureMode)
+        }
+        break
       case '[content]':
       case '[kotlin]':
       case 'log':
@@ -590,7 +595,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           headerPosition === 'bottom' && 'flex-col-reverse',
         )}
       >
-        <NouHeader noutube={ui$.webview.get() || nativeRef.current} />
+        {nIf(!uiState.isAndroidPip, <NouHeader noutube={ui$.webview.get() || nativeRef.current} />)}
         {nIf(isWeb, <SettingsModal />)}
         {isWeb ? (
           <View className="relative flex-1 min-h-0">

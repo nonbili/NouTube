@@ -348,9 +348,18 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
   fun notifyProgress(playing: Boolean, pos: Long) {
     service?.notifyProgress(playing, pos)
+    nouController.isPlaying = playing
     currentActivity?.runOnUiThread {
       webView.keepScreenOn = playing
       customView?.keepScreenOn = playing
+    }
+  }
+
+  override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+    super.onConfigurationChanged(newConfig)
+    val activity = currentActivity
+    if (activity != null && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+      emit("pip-mode-change", mapOf("isInPictureInPictureMode" to activity.isInPictureInPictureMode))
     }
   }
 

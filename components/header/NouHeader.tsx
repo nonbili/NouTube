@@ -4,7 +4,8 @@ import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { colors } from '@/lib/colors'
 import { NouMenu } from '../menu/NouMenu'
-import { clsx, isIos, isWeb, nIf } from '@/lib/utils'
+import { clsx, isIos, isWeb, nIf, isAndroid } from '@/lib/utils'
+import NouTubeViewModule from '@/modules/nou-tube-view'
 import { ui$, updateUrl } from '@/states/ui'
 import { bookmarks$ } from '@/states/bookmarks'
 import { getPageType } from '@/lib/page'
@@ -337,26 +338,30 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
               systemImage: 'arrow.clockwise',
               handler: () => uiState.webview.executeJavaScript('document.location.reload()'),
             },
-            ...(isWeb && (pageType?.type === 'watch' || pageType?.type === 'shorts')
+            ...((isWeb || isAndroid) && (pageType?.type === 'watch' || pageType?.type === 'shorts')
               ? [
                   {
                     label: t('menus.pip'),
                     icon: <MaterialIcons name="picture-in-picture-alt" size={18} color={headerControlColor} />,
                     systemImage: 'pip',
                     handler: () => {
-                      uiState.webview.executeJavaScript(
-                        `(() => {
-                          const video = document.querySelector('video');
-                          if (video) {
-                            if (document.pictureInPictureElement) {
-                              document.exitPictureInPicture().catch(console.error);
-                            } else {
-                              video.requestPictureInPicture().catch(console.error);
+                      if (isWeb) {
+                        uiState.webview.executeJavaScript(
+                          `(() => {
+                            const video = document.querySelector('video');
+                            if (video) {
+                              if (document.pictureInPictureElement) {
+                                document.exitPictureInPicture().catch(console.error);
+                              } else {
+                                video.requestPictureInPicture().catch(console.error);
+                              }
                             }
-                          }
-                        })()`,
-                        true,
-                      )
+                          })()`,
+                          true,
+                        )
+                      } else if (isAndroid) {
+                        NouTubeViewModule.enterPictureInPicture()
+                      }
                     },
                   },
                 ]

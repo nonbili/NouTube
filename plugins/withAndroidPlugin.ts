@@ -1,4 +1,4 @@
-import { ConfigPlugin } from '@expo/config-plugins'
+import { ConfigPlugin, withMainActivity } from '@expo/config-plugins'
 import { withAndroidManifest, withAppBuildGradle } from '@expo/config-plugins/build/plugins/android-plugins.js'
 
 const withAndroidSigningConfig: ConfigPlugin = (config) => {
@@ -6,6 +6,36 @@ const withAndroidSigningConfig: ConfigPlugin = (config) => {
     const app = config.modResults.manifest.application?.[0]
     if (app) {
       app.$['android:extractNativeLibs'] = 'true'
+      const mainActivity = app.activity?.find(
+        (activity: any) => activity.$['android:name'] === '.MainActivity'
+      )
+      if (mainActivity) {
+        mainActivity.$['android:supportsPictureInPicture'] = 'true'
+      }
+    }
+    return config
+  })
+
+  config = withMainActivity(config, (config) => {
+    if (!config.modResults.contents.includes('onUserLeaveHint')) {
+      config.modResults.contents = config.modResults.contents.replace(
+        /}\s*$/,
+        `
+  override fun onUserLeaveHint() {
+    super.onUserLeaveHint()
+    if (expo.modules.noutubeview.nouController.isPlaying) {
+      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        val params = android.app.PictureInPictureParams.Builder().build()
+        enterPictureInPictureMode(params)
+      } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+        @Suppress("DEPRECATION")
+        enterPictureInPictureMode()
+      }
+    }
+  }
+}
+`
+      )
     }
     return config
   })
