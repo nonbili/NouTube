@@ -1,4 +1,4 @@
-import { File, Paths } from 'expo-file-system/next'
+import { File, Paths } from 'expo-file-system'
 import { shareAsync } from 'expo-sharing'
 
 export async function saveFile(filename: string, content: string) {

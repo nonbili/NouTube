@@ -36,7 +36,6 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
         monochromeImage: './assets/images/monochrome-icon.png',
         backgroundColor: '#ffffff',
       },
-      edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
       package: 'jp.nonbili.noutube',
       intentFilters,
@@ -64,13 +63,23 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
       ],
       'expo-asset',
       'expo-font',
+      'expo-status-bar',
+      'expo-image',
       [
         'expo-localization',
         {
           supportedLocales: ['en', 'de', 'es', 'fr', 'id', 'ja', 'pt-BR', 'ru', 'vi', 'zh-Hans', 'zh-Hant'],
         },
       ],
-      'expo-share-intent',
+      [
+        'expo-sharing',
+        {
+          android: {
+            enabled: true,
+            singleShareMimeTypes: ['text/*'],
+          },
+        },
+      ],
       'expo-web-browser',
     ],
     experiments: {
