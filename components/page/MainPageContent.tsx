@@ -261,7 +261,7 @@ const DesktopTabView: React.FC<{
   return (
     <View
       pointerEvents={isActive ? 'auto' : 'none'}
-      style={[StyleSheet.absoluteFillObject, { opacity: isActive ? 1 : 0, zIndex: isActive ? 1 : 0 }]}
+      style={[StyleSheet.absoluteFill, { opacity: isActive ? 1 : 0, zIndex: isActive ? 1 : 0 }]}
     >
       <NouTubeView
         ref={webviewRef}

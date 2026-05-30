@@ -1,10 +1,11 @@
 import { BackHandler } from 'react-native'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useObserveEffect } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { openSharedUrl } from '@/lib/page'
 import { Asset } from 'expo-asset'
-import { useShareIntent } from 'expo-share-intent'
+import { useIncomingShare } from 'expo-sharing'
+import { parseSharedUrl } from '@/lib/share-intent'
 import * as Linking from 'expo-linking'
 import { MainPage } from '@/components/page/MainPage'
 import { isAndroid, nIf } from '@/lib/utils'
@@ -16,14 +17,38 @@ import { addSleepTimerListener, getNativeSleepTimerRemainingMs, hasSleepTimerNat
 
 export default function HomeScreen() {
   const [scriptOnStart, setScriptOnStart] = useState('')
-  const { hasShareIntent, shareIntent } = useShareIntent()
+  const { resolvedSharedPayloads, clearSharedPayloads, isResolving } = useIncomingShare()
+  const handledPayloadKeyRef = useRef<string | null>(null)
 
   useEffect(() => {
-    const url = shareIntent.webUrl || shareIntent.text
-    if (hasShareIntent && url) {
+    if (isResolving) {
+      return
+    }
+    if (resolvedSharedPayloads.length === 0) {
+      handledPayloadKeyRef.current = null
+      return
+    }
+
+    const payload = resolvedSharedPayloads[0]
+    const key = `${payload.contentType ?? 'text'}:${payload.contentUri ?? ''}:${payload.value}`
+    if (handledPayloadKeyRef.current === key) {
+      return
+    }
+    handledPayloadKeyRef.current = key
+
+    let url: string | null = null
+    if (payload.contentType === 'website' && payload.contentUri) {
+      url = payload.contentUri
+    } else {
+      url = parseSharedUrl({ webUrl: payload.contentUri ?? undefined, text: payload.value ?? undefined })
+    }
+
+    if (url) {
       openSharedUrl(url)
     }
-  }, [hasShareIntent, shareIntent])
+
+    clearSharedPayloads()
+  }, [resolvedSharedPayloads, isResolving, clearSharedPayloads])
 
   useEffect(() => {
     ;(async () => {
