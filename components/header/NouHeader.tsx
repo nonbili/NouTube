@@ -20,6 +20,7 @@ import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
 import { useSleepTimerStatus } from '@/lib/sleep-timer'
 import { NouText } from '../NouText'
 import { formatPlaybackRate } from '@/lib/playback-rate'
+import { formatPlaybackQuality } from '@/lib/playback-quality'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { Image } from 'expo-image'
 
@@ -70,10 +71,12 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const desktopModeYTMusic = useValue(settings$.desktopMode)
   const desktopModeYT = useValue(settings$.desktopModeYT)
   const playbackRate = useValue(settings$.playbackRate)
+  const playbackQuality = useValue(settings$.playbackQuality)
   const showBackButtonInHeader = useValue(settings$.showBackButtonInHeader)
   const showForwardButtonInHeader = useValue(settings$.showForwardButtonInHeader)
   const showHomeButtonInHeader = useValue(settings$.showHomeButtonInHeader)
   const showPlaybackSpeedControl = useValue(settings$.showPlaybackSpeedControl)
+  const showPlaybackQualityControl = useValue(settings$.showPlaybackQualityControl)
   const { width, height: windowHeight } = useWindowDimensions()
   const uiState = useValue(ui$)
   const tabs = useValue(tabs$.tabs)
@@ -167,6 +170,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
     }
   }, [translateY])
   const playbackRateLabel = formatPlaybackRate(playbackRate)
+  const playbackQualityLabel = formatPlaybackQuality(playbackQuality)
 
   const Root = isWeb ? View : Animated.View
 
@@ -269,6 +273,17 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
           >
             <View className="px-2 py-1 rounded-full border border-zinc-300 dark:border-zinc-600 bg-zinc-200/80 dark:bg-zinc-700/80">
               <NouText className="text-xs font-medium">{playbackRateLabel}</NouText>
+            </View>
+          </Pressable>,
+        )}
+        {nIf(
+          showPlaybackQualityControl,
+          <Pressable
+            onPress={() => ui$.playbackQualityModalOpen.set(true)}
+            className="h-11 min-w-11 px-1 items-center justify-center"
+          >
+            <View className="px-2 py-1 rounded-full border border-zinc-300 dark:border-zinc-600 bg-zinc-200/80 dark:bg-zinc-700/80">
+              <NouText className="text-xs font-medium">{playbackQualityLabel}</NouText>
             </View>
           </Pressable>,
         )}

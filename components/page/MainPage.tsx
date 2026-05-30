@@ -18,6 +18,7 @@ import { CookieModal } from '../modal/CookieModal'
 import { UserAgentModal } from '../modal/UserAgentModal'
 import { SleepTimerModal } from '../modal/SleepTimerModal'
 import { PlaybackSpeedModal } from '../modal/PlaybackSpeedModal'
+import { PlaybackQualityModal } from '../modal/PlaybackQualityModal'
 import { ToolsModal } from '../modal/ToolsModal'
 import { useLocales } from 'expo-localization'
 import { changeLanguage, t as i18nextT } from 'i18next'
@@ -89,6 +90,7 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
       <UserAgentModal />
       <SleepTimerModal />
       <PlaybackSpeedModal />
+      <PlaybackQualityModal />
       <ToolsModal />
     </QueryClientProvider>
   )

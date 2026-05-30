@@ -17,6 +17,7 @@ const keys = {
 function getSettings() {
   return parseJson(localStorage.getItem(keys.settings), {}) as {
     playbackRate?: number
+    playbackQuality?: string
     sponsorBlock?: boolean
   }
 }
@@ -24,6 +25,11 @@ function getSettings() {
 function getSavedPlaybackRate() {
   const { playbackRate } = getSettings()
   return typeof playbackRate == 'number' && Number.isFinite(playbackRate) ? playbackRate : 1
+}
+
+function getSavedPlaybackQuality() {
+  const { playbackQuality } = getSettings()
+  return typeof playbackQuality == 'string' ? playbackQuality : 'auto'
 }
 
 function getVideoElement(player: any) {
@@ -75,6 +81,55 @@ function applySavedPlaybackRate(player: any) {
   }
 }
 
+function extendPlaybackQuality(player: any) {
+  if (!player || player.__nouPlaybackQualityExtended) {
+    return
+  }
+
+  try {
+    const originalSetQuality = player.setPlaybackQuality?.bind(player)
+    const originalSetQualityRange = player.setPlaybackQualityRange?.bind(player)
+
+    if (originalSetQuality) {
+      player.setPlaybackQuality = (quality: string) => {
+        originalSetQuality(quality)
+        emit('playback-quality', { playbackQuality: quality })
+      }
+    }
+
+    if (originalSetQualityRange) {
+      player.setPlaybackQualityRange = (suggested: string, accepted: string) => {
+        originalSetQualityRange(suggested, accepted)
+        emit('playback-quality', { playbackQuality: suggested })
+      }
+    }
+
+    player.__nouPlaybackQualityExtended = true
+  } catch (e) {
+    log('failed to extend playback quality', e)
+  }
+}
+
+function applySavedPlaybackQuality(player: any) {
+  const playbackQuality = getSavedPlaybackQuality()
+  try {
+    const availableQualities = player.getAvailableQualityLevels?.()
+    if (playbackQuality === 'auto') {
+      return
+    }
+    if (Array.isArray(availableQualities) && !availableQualities.includes(playbackQuality)) {
+      // Let player fall back natively
+    }
+    if (player.setPlaybackQualityRange) {
+      player.setPlaybackQualityRange(playbackQuality, playbackQuality)
+    } else if (player.setPlaybackQuality) {
+      player.setPlaybackQuality(playbackQuality)
+    }
+  } catch (e) {
+    log('failed to apply playback quality', e)
+  }
+}
+
 export function handleMutations(mutations: MutationRecord[]) {
   for (const mutation of mutations) {
     for (const node of mutation.addedNodes.values()) {
@@ -89,6 +144,7 @@ export function handleMutations(mutations: MutationRecord[]) {
 export function handleVideoPlayer(el: any) {
   player = el
   extendPlaybackRates(player)
+  extendPlaybackQuality(player)
   let title = ''
   let duration = 0
 
@@ -165,6 +221,7 @@ export function handleVideoPlayer(el: any) {
       }
 
       applySavedPlaybackRate(player)
+      applySavedPlaybackQuality(player)
     }
   })
 }

@@ -22,12 +22,14 @@ interface Store {
   preferH264: boolean
   clickbaitThumbnail: 'default' | 'hq1' | 'hq2' | 'hq3'
   playbackRate: number
+  playbackQuality: string
   restoreOnStart: boolean
   sponsorBlock: boolean
   showBackButtonInHeader: boolean
   showForwardButtonInHeader: boolean
   showHomeButtonInHeader: boolean
   showPlaybackSpeedControl: boolean
+  showPlaybackQualityControl: boolean
   userAgent: string
   desktopMode: boolean
   desktopModeYT: boolean
@@ -53,6 +55,12 @@ const normalizeSettings = <T extends Partial<Store> | undefined>(data: T) => {
   if (typeof data.showForwardButtonInHeader !== 'boolean') {
     data.showForwardButtonInHeader = false
   }
+  if (typeof data.playbackQuality !== 'string') {
+    data.playbackQuality = 'auto'
+  }
+  if (typeof data.showPlaybackQualityControl !== 'boolean') {
+    data.showPlaybackQualityControl = false
+  }
   return data
 }
 
@@ -76,12 +84,14 @@ export const settings$ = observable<Store>({
   preferH264: false,
   clickbaitThumbnail: 'default',
   playbackRate: 1,
+  playbackQuality: 'auto',
   restoreOnStart: true,
   sponsorBlock: true,
   showBackButtonInHeader: false,
   showForwardButtonInHeader: false,
   showHomeButtonInHeader: false,
   showPlaybackSpeedControl: false,
+  showPlaybackQualityControl: false,
   userAgent: '',
   desktopMode: false,
   desktopModeYT: false,

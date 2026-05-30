@@ -27,6 +27,7 @@ interface Store {
   settingsModalOpen: boolean
   sleepTimerModalOpen: boolean
   playbackSpeedModalOpen: boolean
+  playbackQualityModalOpen: boolean
   urlModalOpen: boolean
   cookieModalOpen: boolean
   userAgentModalOpen: boolean
@@ -58,6 +59,7 @@ export const ui$ = observable<Store>({
   settingsModalOpen: false,
   sleepTimerModalOpen: false,
   playbackSpeedModalOpen: false,
+  playbackQualityModalOpen: false,
   urlModalOpen: false,
   cookieModalOpen: false,
   userAgentModalOpen: false,

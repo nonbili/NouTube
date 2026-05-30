@@ -72,7 +72,8 @@
     "downloadComplete": "Download complete",
     "downloadFailed": "Download failed",
     "failedToLoadFormats": "Failed to load formats",
-    "playbackSpeed": "Playback speed"
+    "playbackSpeed": "Playback speed",
+    "playbackQuality": "Playback quality"
   },
   "update": {
     "check": "Check for updates",

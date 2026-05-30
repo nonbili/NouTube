@@ -288,12 +288,6 @@ export const SettingsAppearanceContent = () => {
               icon="arrow-forward"
               value={settings.showForwardButtonInHeader}
               onPress={() => settings$.showForwardButtonInHeader.set(!settings.showForwardButtonInHeader)}
-            />
-            <SettingsToggleRow
-              label="Show playback speed control"
-              icon="speed"
-              value={settings.showPlaybackSpeedControl}
-              onPress={() => settings$.showPlaybackSpeedControl.set(!settings.showPlaybackSpeedControl)}
               isLast
             />
           </View>
@@ -301,6 +295,26 @@ export const SettingsAppearanceContent = () => {
       ) : null}
 
       <View className={!isWeb ? 'mt-8' : undefined}>
+        <SettingsSection label={t('settings.preferences')}>
+          <View className={surfaceCls}>
+            <SettingsToggleRow
+              label="Show playback speed control"
+              icon="speed"
+              value={settings.showPlaybackSpeedControl}
+              onPress={() => settings$.showPlaybackSpeedControl.set(!settings.showPlaybackSpeedControl)}
+            />
+            <SettingsToggleRow
+              label="Show video quality control"
+              icon="high-quality"
+              value={settings.showPlaybackQualityControl}
+              onPress={() => settings$.showPlaybackQualityControl.set(!settings.showPlaybackQualityControl)}
+              isLast
+            />
+          </View>
+        </SettingsSection>
+      </View>
+
+      <View className="mt-8">
         <SettingsSection label={t('settings.language.label')}>
           <View className={surfaceCls}>
             <View className="flex-row items-center justify-between gap-3 px-4 py-4">

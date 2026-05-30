@@ -78,6 +78,17 @@ export function initNouTube() {
     seekBy: (delta: number) => getPlayer()?.seekBy(delta),
     getPlaybackRate: () => getPlayer()?.getPlaybackRate?.(),
     setPlaybackRate: (rate: number) => getPlayer()?.setPlaybackRate?.(rate),
+    getPlaybackQuality: () => getPlayer()?.getPlaybackQuality?.(),
+    setPlaybackQuality: (quality: string) => {
+      const p = getPlayer()
+      if (p) {
+        if (p.setPlaybackQualityRange) {
+          p.setPlaybackQualityRange(quality, quality)
+        } else if (p.setPlaybackQuality) {
+          p.setPlaybackQuality(quality)
+        }
+      }
+    },
     hideShorts() {
       hideShorts()
       this.shortsHidden = true

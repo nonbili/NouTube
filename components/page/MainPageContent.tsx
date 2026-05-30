@@ -111,8 +111,8 @@ const DesktopTabView: React.FC<{
 
   const syncSettingsToWebview = useCallback(() => {
     if (!readyRef.current) return
-    const { sponsorBlock, playbackRate, miniPlayer } = settings$.get()
-    const value = JSON.stringify({ sponsorBlock, playbackRate, miniPlayer })
+    const { sponsorBlock, playbackRate, playbackQuality, miniPlayer } = settings$.get()
+    const value = JSON.stringify({ sponsorBlock, playbackRate, playbackQuality, miniPlayer })
     executeQuietly(webviewRef.current, `localStorage.setItem('nou:settings', '${value}'); if (!${miniPlayer}) window.NouTube?.exitMini?.()`)
   }, [])
 
@@ -246,6 +246,7 @@ const DesktopTabView: React.FC<{
   useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
   useObserveEffect(settings$.sponsorBlock, () => syncSettingsToWebview())
   useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
+  useObserveEffect(settings$.playbackQuality, () => syncSettingsToWebview())
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
   useObserveEffect(userStyles$, () => syncUserStylesToWebview())
   useObserveEffect(blocklist$, () => syncBlocklistToWebview())
@@ -372,8 +373,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   const syncSettingsToWebview = useCallback(() => {
     const ref = nativeRef.current
-    const { sponsorBlock, playbackRate, miniPlayer } = settings$.get()
-    const value = JSON.stringify({ sponsorBlock, playbackRate, miniPlayer })
+    const { sponsorBlock, playbackRate, playbackQuality, miniPlayer } = settings$.get()
+    const value = JSON.stringify({ sponsorBlock, playbackRate, playbackQuality, miniPlayer })
     ref?.executeJavaScript(`localStorage.setItem('nou:settings', '${value}'); if (!${miniPlayer}) window.NouTube?.exitMini?.()`)
   }, [nativeRef])
 
@@ -449,6 +450,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       case 'playback-rate':
         if (typeof data?.playbackRate == 'number' && Number.isFinite(data.playbackRate)) {
           settings$.playbackRate.set(data.playbackRate)
+        }
+        break
+      case 'playback-quality':
+        if (typeof data?.playbackQuality == 'string') {
+          settings$.playbackQuality.set(data.playbackQuality)
         }
         break
       case 'playback-end':
@@ -553,6 +559,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
   useObserveEffect(settings$.sponsorBlock, () => syncSettingsToWebview())
   useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
+  useObserveEffect(settings$.playbackQuality, () => syncSettingsToWebview())
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
   useObserveEffect(settings$.preferH264, ({ previous }) => {
     if (previous === undefined) return
