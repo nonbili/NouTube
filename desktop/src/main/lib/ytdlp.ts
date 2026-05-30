@@ -34,7 +34,7 @@ async function getLatestVersion(): Promise<string | null> {
   try {
     const res = await fetch('https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest')
     if (!res.ok) return null
-    const data = await res.json() as any
+    const data = (await res.json()) as any
     return data.tag_name
   } catch {
     return null

@@ -49,6 +49,9 @@ function createWindow(): void {
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
+    if (details.disposition === 'picture-in-picture') {
+      return { action: 'allow' }
+    }
     if (isSupportedUrl(details.url)) {
       void uiClient.openInAppTab(normalizeSupportedUrl(details.url))
     } else {
@@ -74,13 +77,22 @@ function createWindow(): void {
     webPreferences.preload = join(__dirname, '../preload/index.js')
   })
 
-  const contextMenuOptions = {
+  const getContextMenuOptions = (
+    wc: Electron.WebContents,
+  ): {
+    showCopyImage: boolean
+    showLearnSpelling: boolean
+    showLookUpSelection: boolean
+    showSearchWithGoogle: boolean
+    showSelectAll: boolean
+    prepend: (_defaultActions: unknown, params: Electron.ContextMenuParams) => Electron.MenuItemConstructorOptions[]
+  } => ({
     showCopyImage: false,
     showLearnSpelling: false,
     showLookUpSelection: false,
     showSearchWithGoogle: false,
     showSelectAll: false,
-    prepend: (_defaultActions: unknown, params: Electron.ContextMenuParams) => {
+    prepend: (_defaultActions: unknown, params: Electron.ContextMenuParams): Electron.MenuItemConstructorOptions[] => {
       const url = resolveTargetUrl(params.linkURL)
       return [
         {
@@ -90,15 +102,36 @@ function createWindow(): void {
             void uiClient.openInAppTab(normalizeSupportedUrl(url))
           },
         },
+        {
+          label: 'Picture-in-Picture',
+          click: () => {
+            wc.executeJavaScript(
+              `(() => {
+                const video = document.querySelector('video');
+                if (video) {
+                  if (document.pictureInPictureElement) {
+                    document.exitPictureInPicture().catch(console.error);
+                  } else {
+                    video.requestPictureInPicture().catch(console.error);
+                  }
+                }
+              })()`,
+              true,
+            ).catch(console.error)
+          },
+        },
       ]
     },
-  }
-  // @ts-expect-error ?
-  contextMenu.default({ ...contextMenuOptions, window: mainWindow.webContents })
+  })
+  // @ts-expect-error electron-context-menu types mismatch
+  contextMenu.default({ ...getContextMenuOptions(mainWindow.webContents), window: mainWindow.webContents })
   mainWindow.webContents.on('did-attach-webview', (e, wc) => {
-    // @ts-expect-error ?
-    contextMenu.default({ ...contextMenuOptions, window: wc })
+    // @ts-expect-error electron-context-menu types mismatch
+    contextMenu.default({ ...getContextMenuOptions(wc), window: wc })
     wc.setWindowOpenHandler((details) => {
+      if (details.disposition === 'picture-in-picture') {
+        return { action: 'allow' }
+      }
       const url = resolveTargetUrl(details.url)
       if (isSupportedUrl(url)) {
         void uiClient.openInAppTab(normalizeSupportedUrl(url))

@@ -322,6 +322,30 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
               systemImage: 'arrow.clockwise',
               handler: () => uiState.webview.executeJavaScript('document.location.reload()'),
             },
+            ...(isWeb && (pageType?.type === 'watch' || pageType?.type === 'shorts')
+              ? [
+                  {
+                    label: t('menus.pip'),
+                    icon: <MaterialIcons name="picture-in-picture-alt" size={18} color={headerControlColor} />,
+                    systemImage: 'pip',
+                    handler: () => {
+                      uiState.webview.executeJavaScript(
+                        `(() => {
+                          const video = document.querySelector('video');
+                          if (video) {
+                            if (document.pictureInPictureElement) {
+                              document.exitPictureInPicture().catch(console.error);
+                            } else {
+                              video.requestPictureInPicture().catch(console.error);
+                            }
+                          }
+                        })()`,
+                        true,
+                      )
+                    },
+                  },
+                ]
+              : []),
             ...(!isWeb
               ? [
                   {

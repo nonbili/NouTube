@@ -78,10 +78,13 @@ const interfaces = {
     return new Promise((resolve, reject) => {
       const proc = spawn(binary, [
         url,
-        '-f', formatId,
-        '-o', outputTemplate,
+        '-f',
+        formatId,
+        '-o',
+        outputTemplate,
         '--no-playlist',
-        '--merge-output-format', 'mp4',
+        '--merge-output-format',
+        'mp4',
       ])
       let filePath = ''
       let buffer = ''
