@@ -4,6 +4,7 @@ import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { colors } from '@/lib/colors'
 import { NouMenu } from '../menu/NouMenu'
+import { TabContextMenu } from '../menu/TabContextMenu'
 import { clsx, isIos, isWeb, nIf } from '@/lib/utils'
 import { ui$, updateUrl } from '@/states/ui'
 import { bookmarks$ } from '@/states/bookmarks'
@@ -229,7 +230,25 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
             {tabs.map((tab, index) => {
               const active = index === activeTabIndex
               return (
-                <div key={tab.id} className="group relative shrink-0" title={getTabLabel(tab)}>
+                <TabContextMenu
+                  key={tab.id}
+                  items={[
+                    {
+                      label: t('menus.duplicateTab', 'Duplicate Tab'),
+                      handler: () => tabs$.duplicateTab(index),
+                    },
+                    ...(tabs.length > 1
+                      ? [
+                          {
+                            label: t('menus.close', 'Close'),
+                            color: 'red' as const,
+                            handler: () => tabs$.closeTab(index),
+                          },
+                        ]
+                      : []),
+                  ]}
+                >
+                <div className="group relative shrink-0" title={getTabLabel(tab)}>
                   <Pressable
                     onPress={() => tabs$.setActiveTabIndex(index)}
                     className={clsx(
@@ -258,6 +277,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
                     </div>
                   )}
                 </div>
+                </TabContextMenu>
               )
             })}
           </ScrollView>

@@ -26,6 +26,7 @@ interface Store {
   currentTab: () => Tab | undefined
   activePageUrl: () => string
   openTab: (url?: string) => string
+  duplicateTab: (index?: number) => string | undefined
   closeTab: (index?: number) => void
   reopenClosedTab: (tabId: string) => string | undefined
   updateTabUrl: (url: string, index?: number) => void
@@ -126,6 +127,19 @@ export const tabs$: Observable<Store> = observable<Store>({
     const tab = newTab(url)
     tabs$.tabs.push(tab)
     tabs$.activeTabIndex.set(tabs$.tabs.length - 1)
+    return tab.id
+  },
+
+  duplicateTab: (index) => {
+    const targetIndex = getTargetIndex(index)
+    const sourceTab = tabs$.tabs.get()[targetIndex]
+    if (!sourceTab) {
+      return undefined
+    }
+    const url = sourceTab.pageUrl || sourceTab.url
+    const tab = newTab(url)
+    tabs$.tabs.splice(targetIndex + 1, 0, tab)
+    tabs$.activeTabIndex.set(targetIndex + 1)
     return tab.id
   },
 

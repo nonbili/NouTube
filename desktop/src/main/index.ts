@@ -104,6 +104,7 @@ function createWindow(): void {
         },
         {
           label: 'Picture-in-Picture',
+          visible: params.mediaType === 'video',
           click: () => {
             wc.executeJavaScript(
               `(() => {
