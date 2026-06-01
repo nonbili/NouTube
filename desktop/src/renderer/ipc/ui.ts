@@ -4,12 +4,18 @@ import { UI_CHANNEL } from 'main/ipc/constants.js'
 import { tabs$ } from '@/states/tabs'
 import { mainClient } from '@/lib/main-client'
 import { showConfirm } from '@/lib/confirm'
+import { bookmarks$, newBookmark } from '@/states/bookmarks'
+import { showToast } from '@/lib/toast'
 import { t } from 'i18next'
 
 const interfaces = {
   handleDeeplink,
   downloadProgress,
   openInAppTab: (url: string) => tabs$.openTab(url),
+  star: (url: string, title?: string) => {
+    bookmarks$.addBookmark(newBookmark({ url, title }))
+    showToast(`Saved to bookmarks`)
+  },
   updateDownloaded: (version: string) => {
     showConfirm(t('update.downloadedTitle'), t('update.downloadedHint', { version }), () => {
       void mainClient.quitAndInstall()

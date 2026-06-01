@@ -45,6 +45,7 @@
     "artists": "Artists"
   },
   "menus": {
+    "openInNewTab": "Open in New Tab",
     "edit": "Edit",
     "remove": "Remove",
     "unsubscribe": "Unsubscribe",

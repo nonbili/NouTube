@@ -1,6 +1,7 @@
 import { View, Pressable, useColorScheme } from 'react-native'
 import { memo } from 'react'
 import { Bookmark, bookmarks$ } from '@/states/bookmarks'
+import { tabs$ } from '@/states/tabs'
 import { ui$, updateUrl } from '@/states/ui'
 import { NouText } from '../NouText'
 import { clsx, isWeb, isIos } from '@/lib/utils'
@@ -56,6 +57,18 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = memo(({ bookmark }
         <NouMenu
           trigger={isWeb ? <MaterialButton name="more-vert" size={20} /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
           items={[
+            ...(isWeb
+              ? [
+                  {
+                    label: t('menus.openInNewTab'),
+                    icon: <MaterialIcons name="open-in-new" size={18} color={isDark ? '#d4d4d8' : '#475569'} />,
+                    handler: () => {
+                      tabs$.openTab(bookmark.url)
+                      ui$.assign({ libraryModalOpen: false })
+                    },
+                  },
+                ]
+              : []),
             {
               label: t('menus.edit'),
               icon: <MaterialIcons name="edit" size={18} color={isDark ? '#d4d4d8' : '#475569'} />,

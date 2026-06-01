@@ -1,6 +1,7 @@
 import { colors } from '@/lib/colors'
 import { DropdownMenu } from '@radix-ui/themes'
-import { cloneElement, isValidElement, ReactNode } from 'react'
+import { cloneElement, isValidElement, ReactNode, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useColorScheme } from 'react-native'
 
 export interface Item {
@@ -18,6 +19,7 @@ export interface Item {
 export const NouMenu: React.FC<{ trigger: ReactNode; items: Item[]; triggerColor?: string }> = ({ trigger, items, triggerColor }) => {
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
+  const [open, setOpen] = useState(false)
   const resolvedTriggerColor = triggerColor ?? (isDark ? colors.icon : colors.iconLight)
   const renderedTrigger =
     isValidElement(trigger) ? cloneElement(trigger as React.ReactElement<any>, { color: resolvedTriggerColor }) : trigger
@@ -59,11 +61,21 @@ export const NouMenu: React.FC<{ trigger: ReactNode; items: Item[]; triggerColor
   })
 
   return (
-    <DropdownMenu.Root>
+    <DropdownMenu.Root open={open} onOpenChange={setOpen}>
       <DropdownMenu.Trigger>
         <div className="flex min-w-0 shrink items-center justify-center">{renderedTrigger}</div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content variant="soft" className="max-h-[70vh] overflow-auto rounded-xl border border-zinc-300/70 dark:border-zinc-800/80 shadow-xl shadow-zinc-900/15 dark:shadow-black/40">
+      {/* The page content lives in an out-of-process <webview>, which swallows pointer
+          events before they reach the host document. Without this overlay, clicking the
+          webview region never triggers Radix's outside-click dismissal, so the menu would
+          stay open. The overlay sits above the webview (host DOM) to catch that click. */}
+      {open
+        ? createPortal(
+            <div className="pointer-events-auto fixed inset-0 z-40" onPointerDown={() => setOpen(false)} />,
+            document.body,
+          )
+        : null}
+      <DropdownMenu.Content variant="soft" className="z-50 max-h-[70vh] overflow-auto rounded-xl border border-zinc-300/70 dark:border-zinc-800/80 shadow-xl shadow-zinc-900/15 dark:shadow-black/40">
         {menuItems}
       </DropdownMenu.Content>
     </DropdownMenu.Root>

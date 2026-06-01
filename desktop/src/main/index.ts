@@ -103,6 +103,13 @@ function createWindow(): void {
           },
         },
         {
+          label: 'Star',
+          visible: Boolean(params.linkURL) && isSupportedUrl(url),
+          click: () => {
+            void uiClient.star(normalizeSupportedUrl(url), params.linkText)
+          },
+        },
+        {
           label: 'Picture-in-Picture',
           visible: params.mediaType === 'video',
           click: () => {
