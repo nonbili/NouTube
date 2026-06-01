@@ -1,0 +1,4 @@
+- support picture in picture
+- support starring video/channel from context menu
+- add duplicate tab context menu
+- persist video quality setting

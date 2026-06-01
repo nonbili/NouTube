@@ -59,6 +59,16 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.2.10" date="2026-06-01">
+      <description>
+        <ul>
+          <li>Support picture in picture</li>
+          <li>Support starring video/channel from context menu</li>
+          <li>Add duplicate tab context menu</li>
+          <li>Persist video quality setting</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.2.9" date="2026-05-26">
       <description>
         <ul>
