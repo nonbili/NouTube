@@ -4,11 +4,9 @@ import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import { isWeb } from '@/lib/utils'
 import { normalizeI18nLanguage, type SupportedI18nLanguage } from '@/lib/i18n'
 
-interface Store {
+export interface SettingsSnapshot {
   language: SupportedI18nLanguage | null
-  setLanguage: (language: SupportedI18nLanguage | null) => void
   home: 'yt' | 'yt-music'
-  isYTMusic: () => boolean
 
   autoHideHeader: boolean
   hideToolbarWhenScrolled: boolean
@@ -34,11 +32,16 @@ interface Store {
   desktopMode: boolean
   desktopModeYT: boolean
   theme: null | 'dark' | 'light'
-  downloadPath: string
-  lastYtDlpUpdate: number
 }
 
-const normalizeSettings = <T extends Partial<Store> | undefined>(data: T) => {
+interface Store extends SettingsSnapshot {
+  downloadPath: string
+  lastYtDlpUpdate: number
+  setLanguage: (language: SupportedI18nLanguage | null) => void
+  isYTMusic: () => boolean
+}
+
+export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefined>(data: T) => {
   if (!data) {
     return data
   }
@@ -63,6 +66,38 @@ const normalizeSettings = <T extends Partial<Store> | undefined>(data: T) => {
   }
   return data
 }
+
+export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings$.get()): SettingsSnapshot => ({
+  language: normalizeI18nLanguage(value?.language),
+  home: value?.home === 'yt-music' ? 'yt-music' : 'yt',
+
+  autoHideHeader: Boolean(value?.autoHideHeader),
+  hideToolbarWhenScrolled: Boolean(value?.hideToolbarWhenScrolled),
+  headerPosition: value?.headerPosition === 'bottom' ? 'bottom' : 'top',
+  feedsEnabled: typeof value?.feedsEnabled === 'boolean' ? value.feedsEnabled : true,
+  hideShorts: typeof value?.hideShorts === 'boolean' ? value.hideShorts : true,
+  hideShortsInNavbar: Boolean(value?.hideShortsInNavbar),
+  hideMixPlaylist: Boolean(value?.hideMixPlaylist),
+  keepHistory: typeof value?.keepHistory === 'boolean' ? value.keepHistory : true,
+  miniPlayer: typeof value?.miniPlayer === 'boolean' ? value.miniPlayer : true,
+  preferH264: Boolean(value?.preferH264),
+  clickbaitThumbnail: ['hq1', 'hq2', 'hq3'].includes(value?.clickbaitThumbnail || '')
+    ? (value?.clickbaitThumbnail as SettingsSnapshot['clickbaitThumbnail'])
+    : 'default',
+  playbackRate: typeof value?.playbackRate === 'number' ? value.playbackRate : 1,
+  playbackQuality: typeof value?.playbackQuality === 'string' ? value.playbackQuality : 'auto',
+  restoreOnStart: typeof value?.restoreOnStart === 'boolean' ? value.restoreOnStart : true,
+  sponsorBlock: typeof value?.sponsorBlock === 'boolean' ? value.sponsorBlock : true,
+  showBackButtonInHeader: Boolean(value?.showBackButtonInHeader),
+  showForwardButtonInHeader: Boolean(value?.showForwardButtonInHeader),
+  showHomeButtonInHeader: Boolean(value?.showHomeButtonInHeader),
+  showPlaybackSpeedControl: Boolean(value?.showPlaybackSpeedControl),
+  showPlaybackQualityControl: Boolean(value?.showPlaybackQualityControl),
+  userAgent: typeof value?.userAgent === 'string' ? value.userAgent : '',
+  desktopMode: Boolean(value?.desktopMode),
+  desktopModeYT: Boolean(value?.desktopModeYT),
+  theme: value?.theme === 'dark' || value?.theme === 'light' ? value.theme : null,
+})
 
 export const settings$ = observable<Store>({
   language: null,
