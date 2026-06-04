@@ -79,6 +79,12 @@ jobs:
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
 
+      - name: Install Snapcraft
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo snap install snapcraft --classic
+          echo "/snap/bin" >> $GITHUB_PATH
+
       - name: pkg on ubuntu & windows
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'win')
         run: bun electron-builder --publish never
@@ -91,6 +97,7 @@ jobs:
             desktop/dist/latest.yml
             desktop/dist/latest-*.yml
             desktop/dist/*.AppImage
+            desktop/dist/*.snap
             desktop/dist/*.appx
             desktop/dist/*.blockmap
             desktop/dist/*.dmg

@@ -36,12 +36,17 @@ mac:
 dmg:
   artifactName: ${productName}-${version}-${arch}.${ext}
 linux:
+  executableArgs:
+    - --ozone-platform=x11
   target:
     - AppImage
+    - snap
   maintainer: Nonbili Inc.
   category: Utility
 appImage:
   artifactName: ${productName}-${version}.${ext}
+snap:
+  artifactName: noutube_${version}_${arch}.${ext}
 npmRebuild: false
 publish:
   provider: github
