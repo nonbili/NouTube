@@ -10,6 +10,10 @@ describe('settings', () => {
     expect(getSettingsSnapshot({}).showDislikes).toBe(false)
   })
 
+  it('defaults desktop sidebar autohide setting off in snapshots', () => {
+    expect(getSettingsSnapshot({}).autoHideSidebar).toBe(false)
+  })
+
   it('normalizes missing original video title setting to false', () => {
     const settings = normalizeSettings({})
     expect(settings?.showOriginalVideoTitle).toBe(false)
@@ -18,5 +22,10 @@ describe('settings', () => {
   it('normalizes missing show dislikes setting to false', () => {
     const settings = normalizeSettings({})
     expect(settings?.showDislikes).toBe(false)
+  })
+
+  it('normalizes missing desktop sidebar autohide setting to false', () => {
+    const settings = normalizeSettings({})
+    expect(settings?.autoHideSidebar).toBe(false)
   })
 })

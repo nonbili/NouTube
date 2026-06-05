@@ -1,7 +1,7 @@
 import { ActivityIndicator, Platform, Pressable, Switch, View, useColorScheme } from 'react-native'
 import { useState } from 'react'
 import { useLocales } from 'expo-localization'
-import { clsx, isAndroid, isWeb } from '@/lib/utils'
+import { clsx, isAndroid, isWeb, nIf } from '@/lib/utils'
 import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { Segmented } from '../picker/Segmented'
@@ -320,8 +320,18 @@ export const SettingsAppearanceContent = () => {
               icon="high-quality"
               value={settings.showPlaybackQualityControl}
               onPress={() => settings$.showPlaybackQualityControl.set(!settings.showPlaybackQualityControl)}
-              isLast
+              isLast={!isWeb}
             />
+            {nIf(
+              isWeb,
+              <SettingsToggleRow
+                label={t('settings.autoHideSidebar')}
+                icon="vertical-split"
+                value={settings.autoHideSidebar}
+                onPress={() => settings$.autoHideSidebar.set(!settings.autoHideSidebar)}
+                isLast
+              />,
+            )}
           </View>
         </SettingsSection>
       </View>

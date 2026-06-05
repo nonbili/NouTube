@@ -158,6 +158,7 @@
     "syncHintShort": "Account, plan, and device sync.",
     "restoreOnStart": "Restore last session on start",
     "autoHideHeader": "Hide and show toolbar on scroll direction",
+    "autoHideSidebar": "Auto-hide sidebar and show on hover",
     "hideToolbarWhenScrolled": "Hide toolbar when page is not at top",
     "headerPosition": {
       "label": "Toolbar position",

@@ -9,6 +9,7 @@ export interface SettingsSnapshot {
   home: 'yt' | 'yt-music'
 
   autoHideHeader: boolean
+  autoHideSidebar: boolean
   hideToolbarWhenScrolled: boolean
   headerPosition: 'top' | 'bottom'
   feedsEnabled: boolean
@@ -72,6 +73,9 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   if (typeof data.showOriginalVideoTitle !== 'boolean') {
     data.showOriginalVideoTitle = false
   }
+  if (typeof data.autoHideSidebar !== 'boolean') {
+    data.autoHideSidebar = false
+  }
   return data
 }
 
@@ -80,6 +84,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   home: value?.home === 'yt-music' ? 'yt-music' : 'yt',
 
   autoHideHeader: Boolean(value?.autoHideHeader),
+  autoHideSidebar: Boolean(value?.autoHideSidebar),
   hideToolbarWhenScrolled: Boolean(value?.hideToolbarWhenScrolled),
   headerPosition: value?.headerPosition === 'bottom' ? 'bottom' : 'top',
   feedsEnabled: typeof value?.feedsEnabled === 'boolean' ? value.feedsEnabled : true,
@@ -118,6 +123,7 @@ export const settings$ = observable<Store>({
   isYTMusic: (): boolean => settings$.home.get() === 'yt-music',
 
   autoHideHeader: false,
+  autoHideSidebar: false,
   hideToolbarWhenScrolled: false,
   headerPosition: 'top',
   feedsEnabled: true,

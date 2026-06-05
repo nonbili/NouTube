@@ -69,6 +69,7 @@ const TabFavicon: React.FC<{ tab: Tab; color: string }> = ({ tab, color }) => {
 
 export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const autoHideHeader = useValue(settings$.autoHideHeader)
+  const autoHideSidebar = useValue(settings$.autoHideSidebar)
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
   const headerPosition = useValue(settings$.headerPosition)
   const desktopModeYTMusic = useValue(settings$.desktopMode)
@@ -189,6 +190,9 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
       onLayout={(e) => ui$.headerHeight.set(e.nativeEvent.layout.height)}
       className={clsx(
         'bg-zinc-100 dark:bg-zinc-800 flex-row lg:flex-col justify-between px-2 py-1 lg:px-1 lg:py-2',
+        isWeb &&
+          autoHideSidebar &&
+          'lg:fixed lg:left-0 lg:top-0 lg:bottom-0 lg:z-20 lg:w-14 lg:-translate-x-12 lg:opacity-0 lg:shadow-xl lg:transition lg:duration-200 lg:ease-out lg:hover:translate-x-0 lg:hover:opacity-100 lg:focus-within:translate-x-0 lg:focus-within:opacity-100',
         (autoHideHeader || hideToolbarWhenScrolled) &&
           !isHorizontal &&
           clsx('absolute left-0 right-0 z-10', headerPosition === 'bottom' ? 'bottom-0' : 'top-0'),
