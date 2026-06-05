@@ -2,7 +2,8 @@
   "about": {
     "label": "Über",
     "code": "Quellcode",
-    "donate": "Spenden"
+    "donate": "Spenden",
+    "updates": "Aktualisierungen"
   },
   "buttons": {
     "clear": "Löschen",
@@ -14,7 +15,15 @@
     "move": "Verschieben",
     "save": "Speichern",
     "signOut": "Abmelden",
-    "remove": "Entfernen"
+    "remove": "Entfernen",
+    "next": "Weiter",
+    "show": "Anzeigen",
+    "download": "Herunterladen",
+    "browse": "Durchsuchen",
+    "updating": "Wird aktualisiert ...",
+    "unsubscribe": "Deabonnieren",
+    "updateYtDlp": "yt-dlp aktualisieren",
+    "ytDlpUpdated": "yt-dlp ist auf dem neuesten Stand"
   },
   "library": {
     "videos": "Videos",
@@ -27,7 +36,15 @@
     "edit": "Bearbeiten",
     "remove": "Entfernen",
     "reload": "Neu laden",
-    "share": "Teilen"
+    "share": "Teilen",
+    "pip": "Bild-in-Bild",
+    "duplicateTab": "Tab duplizieren",
+    "close": "Schließen",
+    "tools": "Werkzeuge",
+    "on": "Ein",
+    "off": "Aus",
+    "openInNewTab": "In neuem Tab öffnen",
+    "unsubscribe": "Deabonnieren"
   },
   "modals": {
     "editBookmark": "Lesezeichen bearbeiten",
@@ -36,7 +53,13 @@
     "ungrouped": "Nicht gruppiert",
     "history": "Verlauf",
     "queue": "Warteschlange",
-    "feeds": "Feeds"
+    "feeds": "Feeds",
+    "playbackQuality": "Wiedergabequalität",
+    "playbackSpeed": "Wiedergabegeschwindigkeit",
+    "downloadFailed": "Herunterladen fehlgeschlagen",
+    "starting": "Wird gestartet ...",
+    "downloadComplete": "Herunterladen abgeschlossen",
+    "downloadVideo": "Video herunterladen"
   },
   "settings": {
     "label": "Einstellungen",
@@ -69,12 +92,57 @@
     "userAgent": {
       "title": "Benutzerdefinierter Benutzer-Agent",
       "default": "Standard-Benutzer-Agent"
-    }
+    },
+    "tools": "Werkzeuge",
+    "appearance": "Aussehen"
   },
   "sync": {
     "label": "Synchronisieren",
     "hint": "Als Premium-Nutzer können Sie Ihre Lesezeichen auf all Ihren Smartphones und Computern synchronisieren.",
     "currentPlan": "Aktueller Plan",
     "managePlan": "Plan verwalten"
+  },
+  "sleepTimer": {
+    "off": "Aus",
+    "endsIn": "Endet in {{value}}",
+    "preset": "{{value}} min",
+    "customPlaceholder": "Benutzerdefinierte Minuten",
+    "replace": "Ersetzen"
+  },
+  "changelog": {
+    "label": "Änderungsprotokoll",
+    "current": "Aktuell",
+    "loading": "Versionshinweise werden geladen ...",
+    "retry": "Erneut versuchen",
+    "empty": "Keine Versionshinweise gefunden.",
+    "noNotes": "Für diese Version wurden keine Versionshinweise bereitgestellt."
+  },
+  "update": {
+    "check": "Auf Aktualisierungen prüfen",
+    "downloading": "Aktualisierung v{{version}} wird heruntergeladen …",
+    "downloadedTitle": "Aktualisierung bereit"
+  },
+  "feeds": {
+    "updates": "Aktualisierungen",
+    "manage": "Verwalten",
+    "sortLastVideo": "Letztes Video",
+    "lastVideoLabel": "Letztes Video",
+    "videosPerDay": "{{value}} Videos/Tag",
+    "never": "Nie",
+    "allFolders": "Alle",
+    "newFolder": "+ Neuer Ordner",
+    "frequencyLabel": "Häufigkeit",
+    "sortFrequency": "Häufigkeit",
+    "lastVideoNewest": "Letztes Video: Neueste zuerst",
+    "lastVideoOldest": "Letztes Video: Älteste zuerst",
+    "frequencyHighest": "Häufigkeit: Höchste zuerst",
+    "frequencyLowest": "Häufigkeit: Niedrigste zuerst",
+    "filterDropdownPlaceholder": "Ordner und Kanäle filtern",
+    "emptyTitleFolder": "Keine neuen Beiträge in {{folder}}",
+    "emptyTitleChannel": "Keine neuen Beiträge von {{channel}}",
+    "emptyActionFetchNow": "Jetzt abrufen",
+    "fetchToastRunning": "Auffrischen läuft bereits",
+    "emptyActionAllFolders": "Alles anzeigen",
+    "removeTitle": "{{title}} entfernen?"
   }
 }

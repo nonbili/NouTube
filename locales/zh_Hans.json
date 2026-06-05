@@ -3,7 +3,8 @@
     "label": "关于",
     "code": "源代码",
     "donate": "捐赠",
-    "hint": "版本信息、源代码和支持链接。"
+    "hint": "版本信息、更新、源代码和支持链接。",
+    "updates": "更新"
   },
   "buttons": {
     "clear": "清除",
@@ -42,7 +43,11 @@
     "tools": "工具",
     "desktop": "桌面版网站",
     "on": "开启",
-    "off": "关闭"
+    "off": "已关闭",
+    "pip": "画中画",
+    "openInNewTab": "在新标签页中打开",
+    "duplicateTab": "复制标签页",
+    "close": "关闭"
   },
   "modals": {
     "editBookmark": "编辑书签",
@@ -60,7 +65,8 @@
     "downloadFailed": "下载失败",
     "failedToLoadFormats": "无法加载格式",
     "playbackSpeed": "播放速度",
-    "downloadHistory": "下载记录"
+    "downloadHistory": "下载记录",
+    "playbackQuality": "播放质量"
   },
   "settings": {
     "label": "设置",
@@ -109,7 +115,7 @@
     "hideShortsInNavbar": "在导航栏中隐藏 Shorts 短视频",
     "hideMixPlaylist": "隐藏合辑播放列表",
     "userStyles": {
-      "label": "用户样式",
+      "label": "用户样式和脚本",
       "hint": "内置 CSS 调整以及您专属站点自定义 CSS。",
       "builtin": {
         "label": "内置样式",
@@ -139,7 +145,25 @@
       "copyCss": "复制 CSS",
       "cssCopied": "CSS 已复制",
       "copyFailed": "无法复制 CSS",
-      "importFailed": "无法导入 CSS"
+      "importFailed": "无法导入 CSS",
+      "scripts": {
+        "label": "自定义脚本",
+        "empty": "尚无自定义脚本。",
+        "add": "添加脚本",
+        "addTitle": "添加用户脚本",
+        "editTitle": "编辑用户脚本",
+        "namePlaceholder": "我的脚本",
+        "run": "运行",
+        "runComplete": "脚本已运行",
+        "runFailed": "脚本运行失败",
+        "import": "导入",
+        "importFailed": "无法导入脚本",
+        "deleteConfirm": "移除此自定义脚本？",
+        "noActiveTab": "无活动 WebView",
+        "validation": {
+          "js": "JavaScript 不能为空"
+        }
+      }
     },
     "hideToolbarWhenScrolled": "页面不在顶部时隐藏工具栏",
     "language": {
@@ -154,6 +178,27 @@
       "hint": "用自动生成的视频帧替换创作者的缩略图",
       "optionDefault": "默认",
       "optionFrame": "第 {{n}} 帧"
+    },
+    "headerPosition": {
+      "label": "工具栏位置",
+      "top": "顶部",
+      "bottom": "底部"
+    },
+    "showHomeButtonInHeader": "在工具栏中显示“主页”按钮",
+    "showBackButtonInHeader": "在工具栏中显示“后退”按钮",
+    "showForwardButtonInHeader": "在工具栏中显示“前进”按钮",
+    "blocklist": {
+      "label": "屏蔽列表",
+      "hint": "按频道或标题关键词隐藏 YouTube 视频。",
+      "channels": "频道",
+      "keywords": "关键词",
+      "channelPlaceholder": "频道名称、标识名或 URL",
+      "keywordPlaceholder": "标题关键词",
+      "emptyChannels": "尚无已屏蔽的频道。",
+      "emptyKeywords": "尚无已屏蔽的关键词。",
+      "add": "添加",
+      "channelsNote": "频道需与名称、标识名或频道 ID 完全匹配。",
+      "keywordsNote": "关键词通过包含匹配（在标题中进行子字符串搜索）。"
     }
   },
   "sync": {
@@ -213,7 +258,7 @@
     "label": "睡眠定时器",
     "hint": "在预设时长或您自定义的分钟数后暂停播放。",
     "activeHint": "倒计时结束后将暂停播放。",
-    "off": "关闭",
+    "off": "已关闭",
     "endsIn": "{{value}} 后结束",
     "preset": "{{value}} 分钟",
     "customPlaceholder": "自定义分钟数",
@@ -238,5 +283,14 @@
     "format_audioMp3Desc": "最佳音频转码为 MP3",
     "download_complete": "下载完成",
     "download_failed": "下载失败"
+  },
+  "update": {
+    "check": "检查更新",
+    "checkHint": "查看是否有新版本可用",
+    "upToDate": "您当前使用的是最新版本",
+    "downloading": "正在下载更新 v{{version}}…",
+    "error": "无法检查更新",
+    "downloadedTitle": "更新已准备就绪",
+    "downloadedHint": "版本 {{version}} 已下载。立即重启以安装？"
   }
 }

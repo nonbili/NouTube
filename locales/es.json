@@ -3,7 +3,8 @@
     "label": "Acerca de",
     "code": "Código fuente",
     "donate": "Donar",
-    "hint": "Información de versión, código fuente y enlaces de soporte."
+    "hint": "Información de versión, actualizaciones, código fuente y enlaces de soporte.",
+    "updates": "Actualizaciones"
   },
   "changelog": {
     "label": "Registro de cambios",
@@ -52,7 +53,8 @@
     "tools": "Herramientas",
     "desktop": "Sitio de escritorio",
     "on": "Activar",
-    "off": "Desactivar"
+    "off": "Desactivar",
+    "pip": "Imagen en imagen"
   },
   "modals": {
     "editBookmark": "Editar marcador",
@@ -70,7 +72,8 @@
     "downloadComplete": "Descarga completada",
     "downloadFailed": "Descarga fallida",
     "failedToLoadFormats": "Error al cargar los formatos",
-    "playbackSpeed": "Velocidad de reproducción"
+    "playbackSpeed": "Velocidad de reproducción",
+    "playbackQuality": "Calidad de reproducción"
   },
   "sleepTimer": {
     "label": "Temporizador de apagado",
@@ -156,7 +159,7 @@
       "optionFrame": "Fotograma {{n}}"
     },
     "userStyles": {
-      "label": "Estilos de usuario",
+      "label": "Estilos y scripts de usuario",
       "hint": "Ajustes CSS integrados y tus propios estilos CSS específicos para el sitio.",
       "builtin": {
         "label": "Estilos integrados",
@@ -186,7 +189,25 @@
       "copyCss": "Copiar CSS",
       "cssCopied": "CSS copiado",
       "copyFailed": "Error al copiar el CSS",
-      "importFailed": "Error al importar el CSS"
+      "importFailed": "Error al importar el CSS",
+      "scripts": {
+        "label": "Scripts personalizados",
+        "empty": "Aún no hay scripts personalizados.",
+        "add": "Añadir script",
+        "addTitle": "Añadir script de usuario",
+        "editTitle": "Editar script de usuario",
+        "namePlaceholder": "Mi script",
+        "run": "Ejecutar",
+        "runComplete": "Script ejecutado",
+        "runFailed": "El script falló",
+        "import": "Importar",
+        "importFailed": "Error al importar el script",
+        "deleteConfirm": "¿Eliminar este script personalizado?",
+        "noActiveTab": "No hay ninguna vista web activa",
+        "validation": {
+          "js": "El código JavaScript no puede estar vacío"
+        }
+      }
     },
     "channelsFeed": "Feed de canales",
     "watchHistory": "Historial de reproducciones",
@@ -219,7 +240,28 @@
     "exportLabel": "Exportar marcadores a una lista",
     "injectCookie": "Inyectar cookie si no pudiste iniciar sesión desde la vista web",
     "injectCookieTitle": "Inyectar cookie de autenticación en la vista web",
-    "injectCookieHint": "Copiar el valor del encabezado Cookie del navegador de tu PC. Esta es una solución alternativa cuando no pudiste iniciar sesión con email/contraseña."
+    "injectCookieHint": "Copiar el valor del encabezado Cookie del navegador de tu PC. Esta es una solución alternativa cuando no pudiste iniciar sesión con email/contraseña.",
+    "headerPosition": {
+      "label": "Posición de la barra de herramientas",
+      "top": "Arriba",
+      "bottom": "Abajo"
+    },
+    "showHomeButtonInHeader": "Mostrar botón de Inicio en la barra de herramientas",
+    "showBackButtonInHeader": "Mostrar botón de Atrás en la barra de herramientas",
+    "showForwardButtonInHeader": "Mostrar botón de Adelante en la barra de herramientas",
+    "blocklist": {
+      "label": "Lista de bloqueados",
+      "hint": "Ocultar vídeos de YouTube por canal o palabra clave en el título.",
+      "channels": "Canales",
+      "keywords": "Palabras clave",
+      "channelPlaceholder": "Nombre del canal, identificador o URL",
+      "keywordPlaceholder": "Palabra clave en el título",
+      "emptyChannels": "Aún no hay canales bloqueados.",
+      "emptyKeywords": "Aún no hay palabras clave bloqueadas.",
+      "add": "Añadir",
+      "channelsNote": "Los canales coinciden exactamente por nombre, identificador o ID del canal.",
+      "keywordsNote": "Las palabras clave coinciden por inclusión (búsqueda de subcadena en títulos)."
+    }
   },
   "native": {
     "format_bestQuality": "Mejor calidad",
@@ -238,5 +280,14 @@
     "hint": "Sincroniza marcadores entre tus teléfonos y computadoras como usuario premium.",
     "currentPlan": "Plan actual",
     "managePlan": "Gestionar plan"
+  },
+  "update": {
+    "check": "Buscar actualizaciones",
+    "checkHint": "Comprobar si hay una versión más reciente disponible",
+    "upToDate": "Ya tienes la última versión",
+    "downloading": "Descargando actualización v{{version}}…",
+    "error": "Error al buscar actualizaciones",
+    "downloadedTitle": "Actualización lista",
+    "downloadedHint": "Se ha descargado la versión {{version}}. ¿Reiniciar ahora para instalar?"
   }
 }

@@ -34,10 +34,10 @@
     "browse": "Duyệt",
     "updateYtDlp": "Cập nhật yt-dlp",
     "updating": "Đang cập nhật...",
-    "ytDlpUpdated": "yt-dlp đang ở vản mới nhất"
+    "ytDlpUpdated": "yt-dlp đang ở phiên bản mới nhất"
   },
   "library": {
-    "videos": "Thước phim",
+    "videos": "Tập phim",
     "channels": "Kênh",
     "playlists": "Danh sách phát",
     "songs": "Bài hát",
@@ -49,27 +49,71 @@
     "unsubscribe": "Hủy đăng ký",
     "reload": "Tải lại",
     "share": "Chia sẻ",
-    "tools": "Công cụ"
+    "tools": "Công cụ",
+    "desktop": "Trang cho máy tính",
+    "on": "Bật",
+    "off": "Tắt"
   },
   "sleepTimer": {
     "setToast": "Đã đặt thời gian đi ngủ trong {{value}} phút",
-    "cancelToast": "Thời gian ngủ bị hủy",
-    "expiredToast": "Thời gian ngủ đã đến"
+    "cancelToast": "Đếm ngược đi ngủ đã bị hủy",
+    "expiredToast": "Thời gian ngủ đã đến",
+    "label": "Đếm ngược để ngủ",
+    "hint": "Dừng phát sau một khoảng thời gian được đặt trước.",
+    "activeHint": "Ứng dụng sẽ dừng phát sau khi hết thời gian.",
+    "off": "Tắt",
+    "endsIn": "Kết thúc trong {{value}}",
+    "preset": "{{value}} phút",
+    "customPlaceholder": "Thời gian tùy chỉnh",
+    "set": "Đặt thời gian",
+    "cancel": "Hủy",
+    "replace": "Thay đổi",
+    "validation": {
+      "minutes": "Nhập một số phút từ 1 đến 1140"
+    }
   },
   "feeds": {
     "updates": "Cập nhật",
     "manage": "Quản lý",
-    "sortLastVideo": "Thước phim cuối",
+    "sortLastVideo": "Đã coi gần đây",
     "sortFrequency": "Tần suất",
-    "lastVideoNewest": "Phim coi cuối: mới nhất trước",
-    "lastVideoOldest": "Phim coi cuối: cũ nhất trước",
+    "lastVideoNewest": "Đã coi gần đây: mới nhất trước",
+    "lastVideoOldest": "Đã coi gần đây: cũ nhất trước",
     "frequencyHighest": "Tần suất: cao nhất trước",
     "frequencyLowest": "Tần suất: thấp nhất trước",
     "frequencyLabel": "Tần suất",
-    "lastVideoLabel": "Phim cuối",
+    "lastVideoLabel": "Tập phim coi cuối",
     "videosPerDay": "{{value}} phim/ngày",
     "never": "Không bao giờ",
     "allFolders": "Tất cả",
-    "newFolder": "+ Thư mục mới"
+    "newFolder": "+ Thư mục mới",
+    "editFeed": "Chỉnh sửa trang cập nhật",
+    "manageEmpty": "Chưa lưu gì cả.",
+    "manageNoResults": "Không có cái nào hợp bộ lọc hiện tại.",
+    "updatesEmpty": "Không có tập phim nào hợp với bộ lọc thư mục hiện tại.",
+    "filterDropdownPlaceholder": "Lọc các thư mục và kênh",
+    "filterDropdownEmpty": "Không có thư mục hay kênh nào hợp.",
+    "emptyTitleNoChannels": "Không có kênh nào được đánh dấu sao",
+    "emptyBodyNoChannels": "Các tập phim mới của các kênh được đánh dấu sao từ YouTube sẽ hiện ra ở đây.",
+    "emptyTitleFolder": "Không có gì mới trong {{folder}}",
+    "emptyTitleChannel": "Không có gì mới từ {{channel}}"
+  },
+  "modals": {
+    "editBookmark": "Chỉnh sửa dấu trang",
+    "title": "Tiêu đề",
+    "folder": "Thư mục",
+    "ungrouped": "Chưa có nhóm",
+    "feeds": "Cập nhật",
+    "history": "Lịch sử",
+    "queue": "Hàng chờ",
+    "downloadVideo": "Tải tập phim xuống",
+    "downloadsFolder": "Thư mục phim đã tải",
+    "activeDownloads": "Đang tải",
+    "downloadHistory": "Lịch sử tải xuống",
+    "starting": "Đang bắt đầu...",
+    "downloadComplete": "Đã tải xong",
+    "downloadFailed": "Tải thất bại",
+    "failedToLoadFormats": "Mở định dạng thất bại",
+    "playbackSpeed": "Tốc độ phát"
   }
 }

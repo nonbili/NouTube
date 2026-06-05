@@ -3,7 +3,8 @@
     "label": "Sobre",
     "code": "Código-fonte",
     "donate": "Doações",
-    "hint": "Informações sobre a versão, código-fonte e links de suporte."
+    "hint": "Informações sobre a versão, atualizações, código-fonte e links de suporte.",
+    "updates": "Atualizações"
   },
   "buttons": {
     "clear": "Limpar",
@@ -42,7 +43,8 @@
     "tools": "Ferramentas",
     "desktop": "Site para computador",
     "on": "Ativado",
-    "off": "Desativado"
+    "off": "Desativado",
+    "pip": "Picture-in-Picture"
   },
   "modals": {
     "editBookmark": "Editar favorito",
@@ -60,7 +62,8 @@
     "failedToLoadFormats": "Erro ao carregar os formatos",
     "playbackSpeed": "Velocidade de reprodução",
     "activeDownloads": "Downloads em andamento",
-    "downloadHistory": "Histórico de downloads"
+    "downloadHistory": "Histórico de downloads",
+    "playbackQuality": "Qualidade de reprodução"
   },
   "settings": {
     "label": "Configurações",
@@ -154,6 +157,11 @@
       "hint": "Substituir miniaturas do autor por quadros de vídeo gerados automaticamente",
       "optionDefault": "Padrão",
       "optionFrame": "Quadro {{n}}"
+    },
+    "headerPosition": {
+      "label": "Posição da barra de ferramentas",
+      "top": "Acima",
+      "bottom": "Abaixo"
     }
   },
   "sync": {
@@ -238,5 +246,14 @@
     "format_audioMp3Desc": "Melhor áudio transcodificado para MP3",
     "download_complete": "Download concluído",
     "download_failed": "Falha no download"
+  },
+  "update": {
+    "check": "Buscar atualizações",
+    "checkHint": "Verifique se há uma versão mais recente disponível.",
+    "upToDate": "Você está usando a versão mais recente.",
+    "downloading": "Baixando atualização v{{version}}…",
+    "error": "Falha ao buscar atualizações",
+    "downloadedTitle": "Download concluído",
+    "downloadedHint": "A versão {{version}} foi baixada. Reiniciar agora para instalar?"
   }
 }

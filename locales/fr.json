@@ -3,7 +3,8 @@
     "label": "À propos",
     "code": "Code source",
     "donate": "Faire un don",
-    "hint": "Informations sur la version, code source et liens vers l'assistance."
+    "hint": "Informations sur la version, mises à jour, code source et liens vers l'assistance.",
+    "updates": "Mises à jour"
   },
   "buttons": {
     "clear": "Effacer",
@@ -42,7 +43,11 @@
     "tools": "Outils",
     "desktop": "Site pour ordinateur",
     "off": "Désactivé",
-    "on": "Activé"
+    "on": "Activé",
+    "pip": "Picture-in-Picture",
+    "openInNewTab": "Ouvrir dans un nouvel onglet",
+    "duplicateTab": "Onglet « Dupliquer »",
+    "close": "Fermer"
   },
   "modals": {
     "editBookmark": "Modifier le signet",
@@ -60,7 +65,8 @@
     "downloadFailed": "Échec du téléchargement",
     "failedToLoadFormats": "Échec du chargement des formats",
     "playbackSpeed": "Vitesse de lecture",
-    "downloadHistory": "Historique des téléchargements"
+    "downloadHistory": "Historique des téléchargements",
+    "playbackQuality": "Qualité de lecture"
   },
   "settings": {
     "label": "Paramètres",
@@ -109,7 +115,7 @@
     "hideShortsInNavbar": "Masquer les shorts dans la barre de navigation",
     "hideMixPlaylist": "Masquer la playlist mixée",
     "userStyles": {
-      "label": "Styles personnalisés",
+      "label": "Styles & Scripts Personnalisés",
       "hint": "Réglages CSS intégrés et votre propre feuille de style CSS spécifique au site.",
       "builtin": {
         "label": "Styles intégrés",
@@ -139,7 +145,25 @@
       "copyCss": "Copier le CSS",
       "cssCopied": "CSS copié",
       "copyFailed": "Échec de la copie du CSS",
-      "importFailed": "Échec de l'importation du CSS"
+      "importFailed": "Échec de l'importation du CSS",
+      "scripts": {
+        "label": "Scripts personnalisés",
+        "empty": "Aucun script personnalisé pour le moment.",
+        "add": "Ajouter un script",
+        "addTitle": "Ajouter un script utilisateur",
+        "editTitle": "Modifier le script utilisateur",
+        "namePlaceholder": "Mon script",
+        "runComplete": "Le script s'est exécuté",
+        "runFailed": "Le script a échoué",
+        "import": "Importation",
+        "importFailed": "Échec de l'importation du script",
+        "run": "Exécution",
+        "deleteConfirm": "Supprimer ce script personnalisé ?",
+        "noActiveTab": "Aucune vue Web active",
+        "validation": {
+          "js": "Le champ JavaScript ne peut pas être vide"
+        }
+      }
     },
     "hideToolbarWhenScrolled": "Masquer la barre d'outils lorsque la page n'est pas en haut de page",
     "language": {
@@ -154,6 +178,27 @@
       "hint": "Remplacer les vignettes des créateurs par des images extraites de la vidéo générées automatiquement",
       "optionDefault": "Défaut",
       "optionFrame": "Cadre {{n}}"
+    },
+    "headerPosition": {
+      "label": "Position de la barre d'outils",
+      "top": "En haut",
+      "bottom": "En bas"
+    },
+    "showHomeButtonInHeader": "Afficher le bouton « Accueil » dans la barre d'outils",
+    "showBackButtonInHeader": "Afficher le bouton « Retour » dans la barre d'outils",
+    "showForwardButtonInHeader": "Afficher le bouton « Suivant » dans la barre d'outils",
+    "blocklist": {
+      "label": "Liste noire",
+      "hint": "Masquer les vidéos YouTube par chaîne ou par mot-clé du titre.",
+      "channels": "Chaînes",
+      "keywords": "Mots clés",
+      "channelPlaceholder": "Nom de la chaîne, identifiant ou URL",
+      "keywordPlaceholder": "Mot-clé du titre",
+      "emptyChannels": "Aucune chaîne n'est encore bloquée.",
+      "emptyKeywords": "Aucun mot-clé n'a encore été bloqué.",
+      "add": "Ajouter",
+      "channelsNote": "Les chaînes correspondent exactement par nom, identifiant ou ID de chaîne.",
+      "keywordsNote": "Les mots-clés sont recherchés par inclusion (recherche de sous-chaînes dans les titres)."
     }
   },
   "sync": {
@@ -238,5 +283,14 @@
     "format_audioMp3Desc": "Meilleure version audio transcodée en MP3",
     "download_complete": "Téléchargement complet",
     "download_failed": "Échec du téléchargement"
+  },
+  "update": {
+    "check": "Vérifier les mises à jour",
+    "checkHint": "Vérifiez si une version plus récente est disponible",
+    "upToDate": "Vous utilisez la dernière version",
+    "downloading": "Téléchargement de la mise à jour v{{version}}…",
+    "error": "Échec de la vérification des mises à jour",
+    "downloadedTitle": "Prêt pour la mise à jour",
+    "downloadedHint": "La version {{version}} a été téléchargée. Voulez-vous redémarrer maintenant pour l'installer ?"
   }
 }
