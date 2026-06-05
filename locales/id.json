@@ -3,7 +3,7 @@
     "label": "Tentang",
     "donate": "Donasi",
     "code": "Kode sumber",
-    "hint": "Info versi, kode sumber, dan tautan dukungan."
+    "hint": "Info versi, pembaruan, kode sumber, dan tautan dukungan."
   },
   "buttons": {
     "clear": "Hapus",
@@ -42,7 +42,11 @@
     "tools": "Alat",
     "desktop": "Situs desktop",
     "on": "Aktif",
-    "off": "Nonaktif"
+    "off": "Nonaktif",
+    "openInNewTab": "Buka di Tab Baru",
+    "pip": "Picture-in-Picture",
+    "duplicateTab": "Duplikasi Tab",
+    "close": "Tutup"
   },
   "modals": {
     "editBookmark": "Edit bookmark",
@@ -60,7 +64,8 @@
     "downloadComplete": "Unduhan selesai",
     "downloadFailed": "Unduhan gagal",
     "failedToLoadFormats": "Gagal memuat format",
-    "playbackSpeed": "Kecepatan pemutaran"
+    "playbackSpeed": "Kecepatan pemutaran",
+    "playbackQuality": "Kualitas pemutaran"
   },
   "settings": {
     "label": "Pengaturan",
@@ -118,7 +123,7 @@
       "optionFrame": "Frame {{n}}"
     },
     "userStyles": {
-      "label": "Gaya pengguna",
+      "label": "Gaya & Skrip Pengguna",
       "hint": "Penyesuaian CSS bawaan dan CSS khusus situs milik Anda sendiri.",
       "builtin": {
         "label": "Gaya bawaan",
@@ -148,12 +153,54 @@
       "copyCss": "Salin CSS",
       "cssCopied": "CSS disalin",
       "copyFailed": "Gagal menyalin CSS",
-      "importFailed": "Gagal mengimpor CSS"
+      "importFailed": "Gagal mengimpor CSS",
+      "scripts": {
+        "label": "Skrip kustom",
+        "empty": "Belum ada skrip kustom.",
+        "add": "Tambah skrip",
+        "addTitle": "Tambah skrip pengguna",
+        "editTitle": "Edit skrip pengguna",
+        "namePlaceholder": "Skrip saya",
+        "run": "Jalankan",
+        "runComplete": "Skrip dijalankan",
+        "runFailed": "Skrip gagal dijalankan",
+        "import": "Impor",
+        "importFailed": "Gagal mengimpor skrip",
+        "pinToHeader": "Sematkan ke toolbar",
+        "pinToHeaderHint": "Tampilkan skrip ini sebagai aksi toolbar.",
+        "pinnedToHeader": "Disematkan ke toolbar",
+        "deleteConfirm": "Hapus skrip kustom ini?",
+        "noActiveTab": "Tidak ada webview aktif",
+        "validation": {
+          "js": "JavaScript tidak boleh kosong"
+        }
+      }
     },
     "language": {
       "label": "Bahasa",
       "system": "Sistem",
       "hint": "Pilih bahasa atau ikuti bahasa sistem."
+    },
+    "headerPosition": {
+      "label": "Posisi toolbar",
+      "top": "Atas",
+      "bottom": "Bawah"
+    },
+    "showHomeButtonInHeader": "Tampilkan tombol Beranda di toolbar",
+    "showBackButtonInHeader": "Tampilkan tombol Kembali di toolbar",
+    "showForwardButtonInHeader": "Tampilkan tombol Maju di toolbar",
+    "blocklist": {
+      "label": "Daftar blokir",
+      "hint": "Sembunyikan video YouTube berdasarkan channel atau kata kunci judul.",
+      "channels": "Channel",
+      "keywords": "Kata kunci",
+      "channelPlaceholder": "Nama channel, handle, atau URL",
+      "keywordPlaceholder": "Kata kunci judul",
+      "emptyChannels": "Belum ada channel yang diblokir.",
+      "emptyKeywords": "Belum ada kata kunci yang diblokir.",
+      "add": "Tambah",
+      "channelsNote": "Channel dicocokkan secara persis berdasarkan nama, handle, atau ID channel.",
+      "keywordsNote": "Kata kunci dicocokkan berdasarkan kemunculan (pencarian substring dalam judul)."
     }
   },
   "sync": {
@@ -238,5 +285,14 @@
     "format_audioMp3Desc": "Audio terbaik yang ditranskode ke MP3",
     "download_complete": "Unduhan selesai",
     "download_failed": "Unduhan gagal"
+  },
+  "update": {
+    "check": "Periksa pembaruan",
+    "checkHint": "Lihat apakah versi yang lebih baru tersedia",
+    "upToDate": "Anda sudah menggunakan versi terbaru",
+    "downloading": "Mengunduh pembaruan v{{version}}…",
+    "error": "Gagal memeriksa pembaruan",
+    "downloadedTitle": "Pembaruan siap",
+    "downloadedHint": "Versi {{version}} telah diunduh. Mulai ulang sekarang untuk memasang?"
   }
 }
