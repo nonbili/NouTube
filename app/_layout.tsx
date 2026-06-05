@@ -12,13 +12,14 @@ import { useEffect } from 'react'
 
 function RootLayoutContent() {
   useObserveEffect(settings$.theme, ({ value }) => {
-    Appearance.setColorScheme?.(value)
-    NouTubeViewModule.setTheme(value)
+    const nextColorScheme = value === 'dark' || value === 'light' ? value : Appearance.getColorScheme() === 'light' ? 'light' : 'dark'
+    Appearance.setColorScheme?.(nextColorScheme)
+    ;(NouTubeViewModule as any).setTheme?.(value)
   })
 
   useEffect(() => {
     return () => {
-      NouTubeViewModule.exit()
+      ;(NouTubeViewModule as any).exit?.()
     }
   }, [])
 

@@ -12,7 +12,7 @@ import { getPageType } from '@/lib/page'
 import { toggleStar } from '@/lib/bookmarks'
 import { queue$ } from '@/states/queue'
 import { share } from '@/lib/share'
-import { MaterialButton } from '../button/IconButtons'
+import { MaterialButton, MaterialCommunityButton } from '../button/IconButtons'
 import { library$ } from '@/states/library'
 import { normalizeUrl } from '@/lib/url'
 import { useEffect, useState } from 'react'
@@ -27,6 +27,8 @@ import { Image } from 'expo-image'
 
 import { downloads$ } from '@/states/downloads'
 import { tabs$, type Tab } from '@/states/tabs'
+import { buildUserScriptExecutionSource } from '@/lib/user-styles'
+import { userStyles$ } from '@/states/user-styles'
 
 const getTabLabel = (tab: { title?: string; pageUrl?: string; url?: string }) => {
   if (tab.title) {
@@ -93,6 +95,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const bookmark = useValue(bookmarks$.getBookmarkByUrl(normalizedActivePageUrl))
   const queueSize = useValue(queue$.size)
   const downloads = useValue(downloads$)
+  const customScripts = useValue(userStyles$.customScripts)
   const hasDownloads = Object.keys(downloads).length > 0
   const isDownloading = Object.values(downloads).some((d) => d.phase === 'downloading')
   const sleepTimerSupported = hasSleepTimerNativeSupport()
@@ -172,6 +175,21 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   }, [translateY])
   const playbackRateLabel = formatPlaybackRate(playbackRate)
   const playbackQualityLabel = formatPlaybackQuality(playbackQuality)
+  const pinnedScripts = customScripts
+    .filter((script) => script?.enabled && script.pinToHeader && script.js.trim())
+    .map((script) => ({ ...script, js: script.js.trim() }))
+
+  const runPinnedScript = (script: (typeof pinnedScripts)[number]) => {
+    const webview = ui$.webview.get() || noutube
+    const source = buildUserScriptExecutionSource(script)
+    try {
+      void Promise.resolve(webview?.executeJavaScript?.(source)).catch((error) => {
+        console.error('[NouTube user script execute] ' + script.name, error)
+      })
+    } catch (error) {
+      console.error('[NouTube user script execute] ' + script.name, error)
+    }
+  }
 
   const Root = isWeb ? View : Animated.View
 
@@ -334,6 +352,22 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
             color={starred ? 'gold' : headerControlColor}
             name={starred ? 'star' : 'star-outline'}
             onPress={onToggleStar}
+          />,
+        )}
+        {nIf(
+          pinnedScripts.length === 1,
+          <MaterialCommunityButton name="puzzle-outline" onPress={() => runPinnedScript(pinnedScripts[0])} />,
+        )}
+        {nIf(
+          pinnedScripts.length > 1,
+          <NouMenu
+            trigger={<MaterialCommunityButton name="puzzle-outline" />}
+            items={pinnedScripts.map((script) => ({
+              label: script.name,
+              icon: <MaterialIcons name="code" size={18} color={headerControlColor} />,
+              systemImage: 'chevron.left.forwardslash.chevron.right',
+              handler: () => runPinnedScript(script),
+            }))}
           />,
         )}
         <NouMenu

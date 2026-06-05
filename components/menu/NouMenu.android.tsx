@@ -68,7 +68,9 @@ export const NouMenu: React.FC<{ trigger?: ReactNode; items: Item[]; triggerColo
           <MaterialButton name="more-vert" color={resolvedTriggerColor} onPress={openMenu} />
         ) : trigger ? (
           <Pressable onPress={openMenu}>
-            <View>{isValidElement(trigger) ? cloneElement(trigger as React.ReactElement<any>, { color: resolvedTriggerColor }) : trigger}</View>
+            <View pointerEvents="none">
+              {isValidElement(trigger) ? cloneElement(trigger as React.ReactElement<any>, { color: resolvedTriggerColor }) : trigger}
+            </View>
           </Pressable>
         ) : (
           <MaterialButton name="more-vert" color={resolvedTriggerColor} onPress={openMenu} />

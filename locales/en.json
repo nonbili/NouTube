@@ -235,6 +235,9 @@
         "runFailed": "Script failed",
         "import": "Import",
         "importFailed": "Failed to import script",
+        "pinToHeader": "Pin to toolbar",
+        "pinToHeaderHint": "Show this script as a toolbar action.",
+        "pinnedToHeader": "Pinned to toolbar",
         "deleteConfirm": "Remove this custom script?",
         "noActiveTab": "No active webview",
         "validation": {

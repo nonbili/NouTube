@@ -129,8 +129,7 @@ export const userStyles$ = observable<Store>({
 })
 
 export const getUserStylesSnapshot = (value: Partial<Store> | undefined = userStyles$.get()): UserStylesSnapshot => ({
-  schemaVersion:
-    typeof value?.schemaVersion === 'number' ? value.schemaVersion : USER_STYLES_SCHEMA_VERSION,
+  schemaVersion: USER_STYLES_SCHEMA_VERSION,
   builtins: builtinUserStyleIds.reduce(
     (acc, id) => {
       acc[id] = {
@@ -140,18 +139,23 @@ export const getUserStylesSnapshot = (value: Partial<Store> | undefined = userSt
     },
     {} as UserStylesSnapshot['builtins'],
   ),
-  customStyles: (value?.customStyles || []).map((style) => ({
-    id: style.id,
-    name: style.name,
-    enabled: style.enabled,
-    css: style.css,
-  })),
-  customScripts: (value?.customScripts || []).map((script) => ({
-    id: script.id,
-    name: script.name,
-    enabled: script.enabled,
-    js: script.js,
-  })),
+  customStyles: (value?.customStyles || [])
+    .filter((style): style is CustomUserStyle => Boolean(style))
+    .map((style) => ({
+      id: style.id,
+      name: style.name,
+      enabled: style.enabled,
+      css: style.css,
+    })),
+  customScripts: (value?.customScripts || [])
+    .filter((script): script is CustomUserScript => Boolean(script))
+    .map((script) => ({
+      id: script.id,
+      name: script.name,
+      enabled: script.enabled,
+      pinToHeader: Boolean(script.pinToHeader),
+      js: script.js,
+    })),
 })
 
 syncObservable(userStyles$, {

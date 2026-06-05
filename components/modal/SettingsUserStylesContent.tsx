@@ -7,8 +7,9 @@ import { useValue } from '@legendapp/state/react'
 import { t } from 'i18next'
 import { BaseCenterModal } from './BaseCenterModal'
 import { NouText } from '../NouText'
-import { clsx, isWeb } from '@/lib/utils'
+import { clsx, isWeb, nIf } from '@/lib/utils'
 import {
+  buildUserScriptExecutionSource,
   builtinUserStyleDefinitionById,
   builtinUserStyleDefinitions,
   parseUserscriptMetadata,
@@ -88,6 +89,7 @@ type ScriptDraftState = {
   id: string | null
   name: string
   enabled: boolean
+  pinToHeader: boolean
   js: string
 }
 
@@ -97,6 +99,7 @@ const createScriptDraft = (script?: CustomUserScript | null): ScriptDraftState =
       id: null,
       name: '',
       enabled: true,
+      pinToHeader: false,
       js: '',
     }
   }
@@ -105,6 +108,7 @@ const createScriptDraft = (script?: CustomUserScript | null): ScriptDraftState =
     id: script.id,
     name: script.name,
     enabled: script.enabled,
+    pinToHeader: script.pinToHeader,
     js: script.js,
   }
 }
@@ -125,7 +129,7 @@ async function readPickedScript() {
 
 export const SettingsUserStylesContent = () => {
   const customStyles = useValue(userStyles$.customStyles)
-  const customScripts = useValue(userStyles$.customScripts)
+  const customScripts = useValue(userStyles$.customScripts).filter((script): script is CustomUserScript => Boolean(script))
   const builtins = useValue(userStyles$.builtins)
   const [draft, setDraft] = useState<DraftState | null>(null)
   const [scriptDraft, setScriptDraft] = useState<ScriptDraftState | null>(null)
@@ -188,7 +192,7 @@ export const SettingsUserStylesContent = () => {
       return
     }
 
-    const wrapped = `(() => { try {\n${scriptDraft.js}\n} catch (e) { console.error('[NouTube user script run]', e) } })();`
+    const wrapped = buildUserScriptExecutionSource(scriptDraft)
     Promise.resolve(webview.executeJavaScript(wrapped))
       .then(() => showToast(t('settings.userStyles.scripts.runComplete')))
       .catch(() => showToast(t('settings.userStyles.scripts.runFailed')))
@@ -207,6 +211,7 @@ export const SettingsUserStylesContent = () => {
     const input = {
       name: scriptDraft.name.trim(),
       enabled: scriptDraft.enabled,
+      pinToHeader: scriptDraft.pinToHeader,
       js: scriptDraft.js,
     }
 
@@ -405,6 +410,15 @@ export const SettingsUserStylesContent = () => {
                       {script.name}
                     </NouText>
                   </View>
+                  {nIf(
+                    script.pinToHeader,
+                    <MaterialIcons
+                      name="push-pin"
+                      color={script.enabled ? '#818cf8' : '#71717a'}
+                      size={18}
+                      style={{ marginRight: 12 }}
+                    />,
+                  )}
                   <Switch
                     value={script.enabled}
                     onValueChange={() => userStyles$.toggleCustomScript(script.id)}
@@ -630,6 +644,29 @@ export const SettingsUserStylesContent = () => {
                 />
               </View>
 
+              <View className="mt-6 flex-row items-center justify-between rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 px-4 py-3">
+                <View className="flex-1 pr-4">
+                  <NouText className="font-medium">{t('settings.userStyles.scripts.pinToHeader')}</NouText>
+                  <NouText className="mt-1 text-xs text-zinc-600 dark:text-zinc-500">
+                    {t('settings.userStyles.scripts.pinToHeaderHint')}
+                  </NouText>
+                </View>
+                <Switch
+                  value={scriptDraft.pinToHeader}
+                  onValueChange={(pinToHeader) => setScriptDraft((value) => (value ? { ...value, pinToHeader } : value))}
+                  trackColor={{ false: '#27272a', true: '#3730a3' }}
+                  thumbColor={scriptDraft.pinToHeader ? '#818cf8' : '#71717a'}
+                  {...Platform.select({
+                    web: {
+                      activeThumbColor: '#818cf8',
+                    },
+                    ios: {
+                      style: { transform: [{ scale: 0.8 }] },
+                    },
+                  })}
+                />
+              </View>
+
               <View className="mt-6">
                 <View className="mb-2 flex-row items-center justify-between px-1">
                   <NouText className="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-600 dark:text-zinc-500">
@@ -735,6 +772,29 @@ export const SettingsUserStylesContent = () => {
                     placeholder={t('settings.userStyles.scripts.namePlaceholder')}
                     placeholderTextColor="#71717a"
                     value={scriptDraft.name}
+                  />
+                </View>
+
+                <View className="mt-6 flex-row items-center justify-between rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 px-4 py-3">
+                  <View className="flex-1 pr-4">
+                    <NouText className="font-medium">{t('settings.userStyles.scripts.pinToHeader')}</NouText>
+                    <NouText className="mt-1 text-xs text-zinc-600 dark:text-zinc-500">
+                      {t('settings.userStyles.scripts.pinToHeaderHint')}
+                    </NouText>
+                  </View>
+                  <Switch
+                    value={scriptDraft.pinToHeader}
+                    onValueChange={(pinToHeader) => setScriptDraft((value) => (value ? { ...value, pinToHeader } : value))}
+                    trackColor={{ false: '#27272a', true: '#3730a3' }}
+                    thumbColor={scriptDraft.pinToHeader ? '#818cf8' : '#71717a'}
+                    {...Platform.select({
+                      web: {
+                        activeThumbColor: '#818cf8',
+                      },
+                      ios: {
+                        style: { transform: [{ scale: 0.8 }] },
+                      },
+                    })}
                   />
                 </View>
 

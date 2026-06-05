@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import {
+  USER_STYLES_SCHEMA_VERSION,
   getEnabledUserScripts,
   getEnabledUserStyleCss,
   normalizeUserStyles,
@@ -48,6 +49,7 @@ describe('user scripts', () => {
 
     expect(snapshot.customScripts).toHaveLength(1)
     expect(snapshot.customScripts[0].name).toBe('ok')
+    expect(snapshot.customScripts[0].pinToHeader).toBe(false)
   })
 
   it('returns only enabled, non-empty scripts', () => {
@@ -61,6 +63,20 @@ describe('user scripts', () => {
     const enabled = getEnabledUserScripts(snapshot)
     expect(enabled).toHaveLength(1)
     expect(enabled[0].id).toBe('a')
+  })
+
+  it('preserves pinned script state and upgrades schema version', () => {
+    const snapshot = normalizeUserStyles({
+      schemaVersion: 1,
+      customScripts: [
+        { id: 'a', name: 'pinned', enabled: true, pinToHeader: true, js: 'console.log(1)' } as any,
+        { id: 'b', name: 'legacy', enabled: true, js: 'console.log(2)' } as any,
+      ],
+    })
+
+    expect(snapshot.schemaVersion).toBe(USER_STYLES_SCHEMA_VERSION)
+    expect(snapshot.customScripts[0].pinToHeader).toBe(true)
+    expect(snapshot.customScripts[1].pinToHeader).toBe(false)
   })
 
   it('parses and strips userscript metadata', () => {

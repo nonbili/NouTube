@@ -1,4 +1,4 @@
-export const USER_STYLES_SCHEMA_VERSION = 1
+export const USER_STYLES_SCHEMA_VERSION = 2
 
 export const builtinUserStyleIds = ['hide-mix-playlist', 'hide-shorts-navbar', 'hide-community-posts'] as const
 
@@ -19,6 +19,7 @@ export interface CustomUserScript {
   id: string
   name: string
   enabled: boolean
+  pinToHeader: boolean
   js: string
 }
 
@@ -132,6 +133,10 @@ export const getEnabledUserScripts = (snapshot?: UserStylesSnapshot) => {
     }))
 }
 
+export const buildUserScriptExecutionSource = (script: Pick<CustomUserScript, 'name' | 'js'>) => {
+  return `(() => { try {\n${script.js}\n} catch (e) { console.error(${JSON.stringify('[NouTube user script run] ' + script.name)}, e) } })();`
+}
+
 const normalizeCustomUserStyle = (
   style: Partial<CustomUserStyle> | null | undefined,
   index: number,
@@ -174,6 +179,7 @@ const normalizeCustomUserScript = (
     id: typeof script.id === 'string' && script.id ? script.id : createId(6),
     name,
     enabled: typeof script.enabled === 'boolean' ? script.enabled : true,
+    pinToHeader: typeof script.pinToHeader === 'boolean' ? script.pinToHeader : false,
     js,
   }
 }
