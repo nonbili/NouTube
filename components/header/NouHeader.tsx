@@ -1,5 +1,4 @@
 import { ActivityIndicator, Pressable, ScrollView, useColorScheme, useWindowDimensions, View } from 'react-native'
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { colors } from '@/lib/colors'
@@ -29,6 +28,7 @@ import { downloads$ } from '@/states/downloads'
 import { tabs$, type Tab } from '@/states/tabs'
 import { buildUserScriptExecutionSource } from '@/lib/user-styles'
 import { userStyles$ } from '@/states/user-styles'
+import { useHeaderAnimation } from './header-animation'
 
 const getTabLabel = (tab: { title?: string; pageUrl?: string; url?: string }) => {
   if (tab.title) {
@@ -106,7 +106,6 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   const headerControlColor = isDark ? colors.icon : colors.iconLight
-  const translateY = useSharedValue(0)
 
   useEffect(() => {
     if (!isWeb || !uiState.webview) {
@@ -158,21 +157,14 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
     }
   }
 
-  useEffect(() => {
-    if (isWeb) {
-      return
-    }
-    const shouldHide = !isHorizontal && (autoHideHeader || hideToolbarWhenScrolled) && !uiState.headerShown
-    const hiddenOffset = headerPosition === 'bottom' ? uiState.headerHeight : -uiState.headerHeight
-    const next = shouldHide ? hiddenOffset : 0
-    translateY.value = withTiming(next)
-  }, [uiState.headerShown, uiState.headerHeight, autoHideHeader, hideToolbarWhenScrolled, headerPosition, isHorizontal, translateY])
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: translateY.value }],
-    }
-  }, [translateY])
+  const { Root, style: animatedStyle } = useHeaderAnimation({
+    autoHideHeader,
+    headerHeight: uiState.headerHeight,
+    headerPosition,
+    headerShown: uiState.headerShown,
+    hideToolbarWhenScrolled,
+    isHorizontal,
+  })
   const playbackRateLabel = formatPlaybackRate(playbackRate)
   const playbackQualityLabel = formatPlaybackQuality(playbackQuality)
   const pinnedScripts = customScripts
@@ -191,11 +183,9 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
     }
   }
 
-  const Root = isWeb ? View : Animated.View
-
   return (
     <Root
-      style={isWeb ? undefined : animatedStyle}
+      style={animatedStyle}
       onLayout={(e) => ui$.headerHeight.set(e.nativeEvent.layout.height)}
       className={clsx(
         'bg-zinc-100 dark:bg-zinc-800 flex-row lg:flex-col justify-between px-2 py-1 lg:px-1 lg:py-2',

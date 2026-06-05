@@ -1,4 +1,4 @@
-import { observable, type Observable } from '@legendapp/state'
+import { observable, syncState, type Observable, when } from '@legendapp/state'
 import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import { genId } from '@/lib/utils'
@@ -38,6 +38,7 @@ interface Store {
 }
 
 const MAX_RECENTLY_CLOSED_TABS = 10
+let startupTabsInitialized = false
 
 export function getDefaultTabUrl() {
   return settings$.home.get() === 'yt-music' ? 'https://music.youtube.com/' : 'https://www.youtube.com/'
@@ -258,3 +259,20 @@ syncObservable(tabs$, {
     },
   },
 })
+
+export async function initializeDesktopTabsForStartup() {
+  if (startupTabsInitialized) {
+    return
+  }
+  startupTabsInitialized = true
+
+  await when(() => syncState(settings$).isPersistLoaded.get() && syncState(tabs$).isPersistLoaded.get())
+
+  if (settings$.restoreOnStart.get()) {
+    return
+  }
+
+  tabs$.tabs.set([newTab(getDefaultTabUrl())])
+  tabs$.activeTabIndex.set(0)
+  tabs$.recentlyClosedTabs.set([])
+}

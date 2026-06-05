@@ -11,6 +11,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { Appearance } from 'react-native'
+import { initializeDesktopTabsForStartup } from '@/states/tabs'
 
 // Patch Appearance for react-native-web
 const originalAppearance = Appearance as any
@@ -88,4 +89,6 @@ export function Root(): ReactElement {
   )
 }
 
-createRoot(document.getElementById('root')!).render(<Root />)
+void initializeDesktopTabsForStartup().then(() => {
+  createRoot(document.getElementById('root')!).render(<Root />)
+})
