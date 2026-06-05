@@ -5,7 +5,6 @@ import { NouText } from '../NouText'
 import { bookmarks$ } from '@/states/bookmarks'
 import { useEffect, useState } from 'react'
 import { getPageType } from '@/lib/page'
-import { tabs$ } from '@/states/tabs'
 import { BookmarkItem } from '../bookmark/BookmarkItem'
 import { Segmented } from '../picker/Segmented'
 import { FlatList, View } from 'react-native'
@@ -15,6 +14,7 @@ import { Folder, folders$, newFolder } from '@/states/folders'
 import { FolderItem } from '../folder/FolderItem'
 import { sortBy } from 'es-toolkit'
 import { t } from 'i18next'
+import { useActivePageUrl } from '@/lib/hooks/useActivePageUrl'
 
 const tabsYT = [
   { label: t('library.videos'), value: 'watch' },
@@ -31,7 +31,7 @@ const ungroupedFolder = newFolder('', { name: t('modals.ungrouped'), id: '' })
 
 export const LibraryModal = () => {
   const libraryModalOpen = useValue(ui$.libraryModalOpen)
-  const activePageUrl = useValue(tabs$.activePageUrl)
+  const activePageUrl = useActivePageUrl()
   const isYTMusic = activePageUrl.includes('music.youtube.com')
   const home = isYTMusic ? 'yt-music' : 'yt'
   const folders = useValue(folders$.folders)

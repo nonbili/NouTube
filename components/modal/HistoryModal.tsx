@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react'
 import { colors } from '@/lib/colors'
 import { clsx, nIf } from '@/lib/utils'
 import { useValue } from '@legendapp/state/react'
-import { tabs$ } from '@/states/tabs'
 import { Segmented } from '../picker/Segmented'
 import { getDocumentAsync } from 'expo-document-picker'
 import { importCsv } from '@/lib/import'
@@ -17,11 +16,12 @@ import { BaseModal } from './BaseModal'
 import { getPageType } from '@/lib/page'
 import { NouButton } from '../button/NouButton'
 import { t } from 'i18next'
+import { useActivePageUrl } from '@/lib/hooks/useActivePageUrl'
 
 export const HistoryModal = () => {
   const historyModalOpen = useValue(ui$.historyModalOpen)
   const bookmarks = useValue(history$.bookmarks)
-  const activePageUrl = useValue(tabs$.activePageUrl)
+  const activePageUrl = useActivePageUrl()
   const home = activePageUrl.includes('music.youtube.com') ? 'yt-music' : 'yt'
 
   const filteredBookmarks = useMemo(() => {

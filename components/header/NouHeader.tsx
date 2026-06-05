@@ -29,6 +29,7 @@ import { tabs$, type Tab } from '@/states/tabs'
 import { buildUserScriptExecutionSource } from '@/lib/user-styles'
 import { userStyles$ } from '@/states/user-styles'
 import { useHeaderAnimation } from './header-animation'
+import { useActivePageUrl } from '@/lib/hooks/useActivePageUrl'
 
 const getTabLabel = (tab: { title?: string; pageUrl?: string; url?: string }) => {
   if (tab.title) {
@@ -82,13 +83,12 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const showPlaybackSpeedControl = useValue(settings$.showPlaybackSpeedControl)
   const showPlaybackQualityControl = useValue(settings$.showPlaybackQualityControl)
   const { width, height: windowHeight } = useWindowDimensions()
-  const pageUrl = useValue(ui$.pageUrl)
   const headerHeight = useValue(ui$.headerHeight)
   const headerShown = useValue(ui$.headerShown)
   const tabs = useValue(tabs$.tabs)
   const activeTabIndex = useValue(tabs$.activeTabIndex)
   const activeTab = tabs[activeTabIndex]
-  const activePageUrl = activeTab?.pageUrl || activeTab?.url || pageUrl
+  const activePageUrl = useActivePageUrl()
   const isYTMusic = activePageUrl.includes('music.youtube.com')
   const desktopMode = isYTMusic ? desktopModeYTMusic : desktopModeYT
   const normalizedActivePageUrl = activePageUrl ? normalizeUrl(activePageUrl) : ''

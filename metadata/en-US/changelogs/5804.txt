@@ -1,0 +1,1 @@
+- Fix switching between yt and yt-music
