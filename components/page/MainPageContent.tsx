@@ -287,7 +287,8 @@ const DesktopTabView: React.FC<{
 }
 
 export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) => {
-  const uiState = useValue(ui$)
+  const pageUrl = useValue(ui$.pageUrl)
+  const embedVideoId = useValue(ui$.embedVideoId)
   const tabs = useValue(tabs$.tabs)
   const activeTabIndex = useValue(tabs$.activeTabIndex)
   const activePageUrl = useValue(tabs$.activePageUrl)
@@ -321,6 +322,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     customUserAgent,
     desktopMode,
   )
+  const getNoutube = useCallback(() => ui$.webview.get() || nativeRef.current, [])
 
   useEffect(() => {
     if (isWeb) {
@@ -474,10 +476,10 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         }
         break
       case 'playback-end':
-        const pageUrl = isWeb ? activePageUrl : uiState.pageUrl
-        const videoId = getVideoId(pageUrl)
+        const currentPageUrl = isWeb ? activePageUrl : pageUrl
+        const videoId = getVideoId(currentPageUrl)
         const bookmarks = queue$.bookmarks.get()
-        const hasPlaylistParam = pageUrl.includes('list=')
+        const hasPlaylistParam = currentPageUrl.includes('list=')
         if (videoId && bookmarks.length && !hasPlaylistParam) {
           const queueIndex = bookmarks.findIndex((x) => getVideoId(x.url) == videoId)
           if (queueIndex != bookmarks.length - 1) {
@@ -518,8 +520,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     syncUserStylesToWebview,
     toggleShorts,
     activePageUrl,
-    uiState.pageUrl,
-    uiState.webview,
+    pageUrl,
   ])
 
   const onNativeMessage = async (e: { nativeEvent: { payload: string } }) => {
@@ -608,7 +609,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           headerPosition === 'bottom' && 'flex-col-reverse',
         )}
       >
-        <NouHeader noutube={ui$.webview.get() || nativeRef.current} />
+        <NouHeader getNoutube={getNoutube} />
         {nIf(isWeb, <SettingsModal />)}
         {isWeb ? (
           <View className="relative flex-1 min-h-0">
@@ -636,9 +637,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           />
         )}
         {nIf(
-          uiState.embedVideoId,
+          embedVideoId,
           <EmbedVideoModal
-            videoId={uiState.embedVideoId}
+            videoId={embedVideoId}
             scriptOnStart={`${isWeb ? 'window.isAndroid = false;' : 'window.isAndroid = true;'}\n${preludeJs}\n${contentJs}`}
             onClose={() => ui$.embedVideoId.set('')}
           />,

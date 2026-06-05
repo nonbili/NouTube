@@ -67,7 +67,7 @@ const TabFavicon: React.FC<{ tab: Tab; color: string }> = ({ tab, color }) => {
   )
 }
 
-export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
+export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) => {
   const autoHideHeader = useValue(settings$.autoHideHeader)
   const autoHideSidebar = useValue(settings$.autoHideSidebar)
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
@@ -82,11 +82,13 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const showPlaybackSpeedControl = useValue(settings$.showPlaybackSpeedControl)
   const showPlaybackQualityControl = useValue(settings$.showPlaybackQualityControl)
   const { width, height: windowHeight } = useWindowDimensions()
-  const uiState = useValue(ui$)
+  const pageUrl = useValue(ui$.pageUrl)
+  const headerHeight = useValue(ui$.headerHeight)
+  const headerShown = useValue(ui$.headerShown)
   const tabs = useValue(tabs$.tabs)
   const activeTabIndex = useValue(tabs$.activeTabIndex)
   const activeTab = tabs[activeTabIndex]
-  const activePageUrl = activeTab?.pageUrl || activeTab?.url || uiState.pageUrl
+  const activePageUrl = activeTab?.pageUrl || activeTab?.url || pageUrl
   const isYTMusic = activePageUrl.includes('music.youtube.com')
   const desktopMode = isYTMusic ? desktopModeYTMusic : desktopModeYT
   const normalizedActivePageUrl = activePageUrl ? normalizeUrl(activePageUrl) : ''
@@ -109,16 +111,17 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   const headerControlColor = isDark ? colors.icon : colors.iconLight
 
   useEffect(() => {
-    if (!isWeb || !uiState.webview) {
+    const webview = getNoutube()
+    if (!isWeb || !webview) {
       return
     }
     try {
-      setCanGoBack(Boolean(activeTab?.canGoBack ?? uiState.webview.canGoBack()))
-      setCanGoForward(uiState.webview.canGoForward())
+      setCanGoBack(Boolean(activeTab?.canGoBack ?? webview.canGoBack()))
+      setCanGoForward(webview.canGoForward())
     } catch {
       // webview not dom-ready yet; canGoBack/canGoForward throw until then
     }
-  }, [activeTab?.canGoBack, activePageUrl, uiState.webview])
+  }, [activeTab?.canGoBack, activePageUrl, activeTabIndex, getNoutube])
 
   const pageType = getPageType(activePageUrl)
 
@@ -135,18 +138,20 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
   }
 
   const goBack = () => {
-    if (typeof uiState.webview?.goBack === 'function') {
-      uiState.webview.goBack()
+    const webview = getNoutube()
+    if (typeof webview?.goBack === 'function') {
+      webview.goBack()
     } else {
-      uiState.webview?.executeJavaScript?.('history.back()')
+      webview?.executeJavaScript?.('history.back()')
     }
   }
 
   const goForward = () => {
-    if (typeof uiState.webview?.goForward === 'function') {
-      uiState.webview.goForward()
+    const webview = getNoutube()
+    if (typeof webview?.goForward === 'function') {
+      webview.goForward()
     } else {
-      uiState.webview?.executeJavaScript?.('history.forward()')
+      webview?.executeJavaScript?.('history.forward()')
     }
   }
 
@@ -154,15 +159,15 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
     if (starred && bookmark) {
       ui$.bookmarkModalBookmark.set(bookmark)
     } else {
-      toggleStar(noutube, starred)
+      toggleStar(getNoutube(), starred)
     }
   }
 
   const { Root, style: animatedStyle } = useHeaderAnimation({
     autoHideHeader,
-    headerHeight: uiState.headerHeight,
+    headerHeight,
     headerPosition,
-    headerShown: uiState.headerShown,
+    headerShown,
     hideToolbarWhenScrolled,
     isHorizontal,
   })
@@ -173,7 +178,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
     .map((script) => ({ ...script, js: script.js.trim() }))
 
   const runPinnedScript = (script: (typeof pinnedScripts)[number]) => {
-    const webview = ui$.webview.get() || noutube
+    const webview = getNoutube()
     const source = buildUserScriptExecutionSource(script)
     try {
       void Promise.resolve(webview?.executeJavaScript?.(source)).catch((error) => {
@@ -383,7 +388,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
               label: t('menus.reload'),
               icon: <MaterialIcons name="refresh" size={18} color={headerControlColor} />,
               systemImage: 'arrow.clockwise',
-              handler: () => uiState.webview.executeJavaScript('document.location.reload()'),
+              handler: () => getNoutube()?.executeJavaScript?.('document.location.reload()'),
             },
             ...(isWeb && (pageType?.type === 'watch' || pageType?.type === 'shorts')
               ? [
@@ -392,7 +397,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
                     icon: <MaterialIcons name="picture-in-picture-alt" size={18} color={headerControlColor} />,
                     systemImage: 'pip',
                     handler: () => {
-                      uiState.webview.executeJavaScript(
+                      getNoutube()?.executeJavaScript?.(
                         `(() => {
                           const video = document.querySelector('video');
                           if (video) {
@@ -438,7 +443,7 @@ export const NouHeader: React.FC<{ noutube: any }> = ({ noutube }) => {
                     handler: () => {
                       const key = isYTMusic ? settings$.desktopMode : settings$.desktopModeYT
                       key.set(!desktopMode)
-                      uiState.webview.executeJavaScript('document.location.reload()')
+                      getNoutube()?.executeJavaScript?.('document.location.reload()')
                     },
                   },
                 ]
