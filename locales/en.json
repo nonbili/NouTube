@@ -172,6 +172,7 @@
     "hideMixPlaylist": "Hide mix playlist",
     "miniPlayer": "YouTube mini player",
     "preferH264": "Prefer H.264 (block VP9/AV1)",
+    "showDislikes": "Show dislikes",
     "showOriginalVideoTitle": "Show original video title",
     "clickbaitThumbnail": {
       "label": "Avoid clickbait thumbnails",

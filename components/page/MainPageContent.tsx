@@ -79,8 +79,9 @@ const executeQuietly = (webview: WebviewTag | null, script: string) => {
 }
 
 const getContentSettingsSnapshot = () => {
-  const { sponsorBlock, playbackRate, playbackQuality, miniPlayer, showOriginalVideoTitle } = settings$.get()
-  return { sponsorBlock, playbackRate, playbackQuality, miniPlayer, showOriginalVideoTitle }
+  const { sponsorBlock, playbackRate, playbackQuality, miniPlayer, showDislikes, showOriginalVideoTitle } =
+    settings$.get()
+  return { sponsorBlock, playbackRate, playbackQuality, miniPlayer, showDislikes, showOriginalVideoTitle }
 }
 
 const DesktopTabView: React.FC<{
@@ -256,6 +257,7 @@ const DesktopTabView: React.FC<{
   useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
   useObserveEffect(settings$.playbackQuality, () => syncSettingsToWebview())
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
+  useObserveEffect(settings$.showDislikes, () => syncSettingsToWebview())
   useObserveEffect(settings$.showOriginalVideoTitle, () => syncSettingsToWebview())
   useObserveEffect(userStyles$, () => syncUserStylesToWebview())
   useObserveEffect(blocklist$, () => syncBlocklistToWebview())
@@ -575,6 +577,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
   useObserveEffect(settings$.playbackQuality, () => syncSettingsToWebview())
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
+  useObserveEffect(settings$.showDislikes, () => syncSettingsToWebview())
   useObserveEffect(settings$.showOriginalVideoTitle, () => syncSettingsToWebview())
   useObserveEffect(settings$.preferH264, ({ previous }) => {
     if (previous === undefined) return

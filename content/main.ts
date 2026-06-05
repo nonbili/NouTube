@@ -11,6 +11,7 @@ import { handleMenu } from './menu'
 import { pinchToZoom } from './pinch'
 import { enterMini, exitMini, getMiniCurrentTime, installMiniPlayerInterceptor } from './mini-player'
 import { installBlocklistFilter } from './blocklist'
+import { installDislikeCount } from './dislikes'
 
 try {
   if ((window as any).NouTubePreferH264) {
@@ -72,6 +73,7 @@ async function initObserver() {
 
   handleMenu()
   installBlocklistFilter()
+  installDislikeCount()
 
   pinchToZoom()
 }

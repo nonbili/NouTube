@@ -193,6 +193,12 @@ export const SettingsPreferencesContent = () => {
           value={settings.showOriginalVideoTitle}
           onPress={() => settings$.showOriginalVideoTitle.set(!settings.showOriginalVideoTitle)}
         />
+        <SettingsToggleRow
+          label={t('settings.showDislikes')}
+          icon="thumb-down"
+          value={settings.showDislikes}
+          onPress={() => settings$.showDislikes.set(!settings.showDislikes)}
+        />
         <View className="flex-row items-center gap-3 px-4 py-4">
           <View className={iconWrapCls}>
             <MaterialIcons name="image" color={isDark ? '#d4d4d8' : '#475569'} size={18} />

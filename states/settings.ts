@@ -23,6 +23,7 @@ export interface SettingsSnapshot {
   playbackQuality: string
   restoreOnStart: boolean
   sponsorBlock: boolean
+  showDislikes: boolean
   showOriginalVideoTitle: boolean
   showBackButtonInHeader: boolean
   showForwardButtonInHeader: boolean
@@ -65,6 +66,9 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   if (typeof data.showPlaybackQualityControl !== 'boolean') {
     data.showPlaybackQualityControl = false
   }
+  if (typeof data.showDislikes !== 'boolean') {
+    data.showDislikes = false
+  }
   if (typeof data.showOriginalVideoTitle !== 'boolean') {
     data.showOriginalVideoTitle = false
   }
@@ -92,6 +96,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   playbackQuality: typeof value?.playbackQuality === 'string' ? value.playbackQuality : 'auto',
   restoreOnStart: typeof value?.restoreOnStart === 'boolean' ? value.restoreOnStart : true,
   sponsorBlock: typeof value?.sponsorBlock === 'boolean' ? value.sponsorBlock : true,
+  showDislikes: Boolean(value?.showDislikes),
   showOriginalVideoTitle: Boolean(value?.showOriginalVideoTitle),
   showBackButtonInHeader: Boolean(value?.showBackButtonInHeader),
   showForwardButtonInHeader: Boolean(value?.showForwardButtonInHeader),
@@ -127,6 +132,7 @@ export const settings$ = observable<Store>({
   playbackQuality: 'auto',
   restoreOnStart: true,
   sponsorBlock: true,
+  showDislikes: false,
   showOriginalVideoTitle: false,
   showBackButtonInHeader: false,
   showForwardButtonInHeader: false,
