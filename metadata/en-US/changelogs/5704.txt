@@ -1,0 +1,5 @@
+- Support showing video dislikes
+- Support showing original video titles
+- Support pinning user scripts to the toolbar
+- Support syncing settings and user styles/scripts
+- Support persisting video quality settings

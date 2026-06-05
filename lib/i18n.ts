@@ -7,6 +7,7 @@ import esText from '@/locales/es.json'
 import frText from '@/locales/fr.json'
 import idText from '@/locales/id.json'
 import jaText from '@/locales/ja.json'
+import ptText from '@/locales/pt.json'
 import ptBRText from '@/locales/pt_BR.json'
 import ruText from '@/locales/ru.json'
 import viText from '@/locales/vi.json'
@@ -14,7 +15,7 @@ import zhHansText from '@/locales/zh_Hans.json'
 import zhHantText from '@/locales/zh_Hant.json'
 import type { Locale } from 'expo-localization'
 
-export const supportedI18nLanguages = ['de', 'en', 'es', 'fr', 'id', 'ja', 'pt_BR', 'ru', 'vi', 'zh_Hans', 'zh_Hant'] as const
+export const supportedI18nLanguages = ['de', 'en', 'es', 'fr', 'id', 'ja', 'pt', 'pt_BR', 'ru', 'vi', 'zh_Hans', 'zh_Hant'] as const
 export type SupportedI18nLanguage = (typeof supportedI18nLanguages)[number]
 
 export const i18nLanguageNativeNames: Record<SupportedI18nLanguage, string> = {
@@ -24,6 +25,7 @@ export const i18nLanguageNativeNames: Record<SupportedI18nLanguage, string> = {
   fr: 'Français',
   id: 'Bahasa Indonesia',
   ja: '日本語',
+  pt: 'Português',
   pt_BR: 'Português (Brasil)',
   ru: 'Русский',
   vi: 'Tiếng Việt',
@@ -49,6 +51,9 @@ const resources: Resource = {
   },
   ja: {
     translation: jaText,
+  },
+  pt: {
+    translation: ptText,
   },
   pt_BR: {
     translation: ptBRText,
@@ -84,7 +89,10 @@ export const resolveI18nLanguageFromExpoLocale = (locale?: Locale): SupportedI18
   }
 
   if (locale.languageCode === 'pt') {
-    return 'pt_BR'
+    const isBR =
+      locale.regionCode?.toLowerCase() === 'br' ||
+      locale.languageTag?.toLowerCase().includes('br')
+    return isBR ? 'pt_BR' : 'pt'
   }
 
   return isSupportedLanguage(locale.languageCode) ? locale.languageCode : undefined
