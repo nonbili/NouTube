@@ -11,7 +11,7 @@ export const noutubeSettingsEvent = 'noutube:settings'
 export const noutubeUserStylesEvent = 'noutube:user-styles'
 export const noutubeBlocklistEvent = 'noutube:blocklist'
 
-let settings = {}
+let settings: Record<string, unknown> = {}
 let userStyles = createDefaultUserStylesSnapshot()
 let blocklist = createDefaultBlocklistSnapshot()
 
@@ -59,6 +59,10 @@ function setBlocklist(next?: BlocklistSnapshot) {
 }
 
 export function initNouTube() {
+  if (window.NouTubeInitialSettings) {
+    setSettings(window.NouTubeInitialSettings)
+  }
+
   if (window.NouTubeBlocklist) {
     setBlocklist(window.NouTubeBlocklist)
   }

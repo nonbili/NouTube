@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'bun:test'
 import { normalizeBlocklist } from './blocklist'
-import { transformBrowseResponse, transformSearchResponse } from './intercept'
+import {
+  transformBrowseResponse,
+  transformGetWatchResponse,
+  transformPlayerResponse,
+  transformSearchResponse,
+} from './intercept'
 
 describe('intercept blocklist filtering', () => {
   const blocklist = normalizeBlocklist({
@@ -263,3 +268,146 @@ describe('intercept blocklist filtering', () => {
   })
 })
 
+describe('intercept original title rewriting', () => {
+  it('rewrites player display metadata from videoDetails title when enabled', () => {
+    const response = {
+      videoDetails: {
+        title: 'Original title',
+      },
+      microformat: {
+        playerMicroformatRenderer: {
+          title: { simpleText: 'Translated title' },
+        },
+      },
+    }
+
+    const transformed = JSON.parse(
+      transformPlayerResponse(JSON.stringify(response), undefined, { showOriginalVideoTitle: true }),
+    )
+
+    expect(transformed.videoDetails.title).toBe('Original title')
+    expect(transformed.microformat.playerMicroformatRenderer.title.simpleText).toBe('Original title')
+  })
+
+  it('leaves player display metadata translated when disabled', () => {
+    const response = {
+      videoDetails: {
+        title: 'Original title',
+      },
+      microformat: {
+        playerMicroformatRenderer: {
+          title: { simpleText: 'Translated title' },
+        },
+      },
+    }
+
+    const transformed = JSON.parse(transformPlayerResponse(JSON.stringify(response)))
+
+    expect(transformed.microformat.playerMicroformatRenderer.title.simpleText).toBe('Translated title')
+  })
+
+  it('rewrites wrapped get_watch player metadata when enabled', () => {
+    const response = [
+      {
+        playerResponse: {
+          videoDetails: {
+            title: 'Original title',
+          },
+          microformat: {
+            playerMicroformatRenderer: {
+              title: { simpleText: 'Translated title' },
+            },
+          },
+        },
+      },
+    ]
+
+    const transformed = JSON.parse(transformGetWatchResponse(JSON.stringify(response), { showOriginalVideoTitle: true }))
+
+    expect(transformed[0].playerResponse.microformat.playerMicroformatRenderer.title.simpleText).toBe('Original title')
+  })
+
+  it('rewrites browse renderer titles only when an original title field exists', () => {
+    const response = {
+      contents: {
+        twoColumnBrowseResultsRenderer: {
+          tabs: [
+            {
+              tabRenderer: {
+                content: {
+                  richGridRenderer: {
+                    contents: [
+                      {
+                        richItemRenderer: {
+                          content: {
+                            videoRenderer: {
+                              title: { runs: [{ text: 'Translated title' }] },
+                              originalTitle: { simpleText: 'Original title' },
+                            },
+                          },
+                        },
+                      },
+                      {
+                        richItemRenderer: {
+                          content: {
+                            videoRenderer: {
+                              title: { runs: [{ text: 'Still translated' }] },
+                            },
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+    }
+
+    const transformed = JSON.parse(
+      transformBrowseResponse(JSON.stringify(response), undefined, { showOriginalVideoTitle: true }),
+    )
+    const items = transformed.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.content.richGridRenderer.contents
+
+    expect(items[0].richItemRenderer.content.videoRenderer.title.runs[0].text).toBe('Original title')
+    expect(items[1].richItemRenderer.content.videoRenderer.title.runs[0].text).toBe('Still translated')
+  })
+
+  it('rewrites search renderer titles while preserving shorts visibility option', () => {
+    const response = {
+      contents: {
+        sectionListRenderer: {
+          contents: [
+            {
+              itemSectionRenderer: {
+                contents: [
+                  {
+                    videoWithContextRenderer: {
+                      title: { runs: [{ text: 'Translated short' }] },
+                      originalTitle: { runs: [{ text: 'Original short' }] },
+                      shortBylineText: { runs: [{ text: 'Other channel' }] },
+                      navigationEndpoint: { commandMetadata: { webCommandMetadata: { url: '/shorts/1' } } },
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    }
+
+    const transformed = JSON.parse(
+      transformSearchResponse(JSON.stringify(response), undefined, {
+        hideShorts: false,
+        showOriginalVideoTitle: true,
+      }),
+    )
+    const items = transformed.contents.sectionListRenderer.contents[0].itemSectionRenderer.contents
+
+    expect(items).toHaveLength(1)
+    expect(items[0].videoWithContextRenderer.title.runs[0].text).toBe('Original short')
+  })
+})

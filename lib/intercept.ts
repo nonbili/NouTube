@@ -10,9 +10,16 @@ const keys = ['adBreakHeartbeatParams', 'adPlacements', 'adSlots', 'playerAds']
 
 export const RE_INTERCEPT = new RegExp('^/youtubei/v1/(browse|get_watch|next|player|search)')
 
-export function transformGetWatchResponse(text: string) {
+interface TransformOptions {
+  hideShorts?: boolean
+  showOriginalVideoTitle?: boolean
+}
+
+export function transformGetWatchResponse(text: string, options: TransformOptions = {}) {
   const data = JSON.parse(text)
   data[0].playerResponse = stripAdKeys(data[0].playerResponse)
+  applyPlayerResponseOriginalTitle(data[0].playerResponse, options)
+  rewriteOriginalTitles(data, options)
   return JSON.stringify(data)
 }
 
@@ -21,15 +28,18 @@ function stripAdKeys(data: any) {
   return data
 }
 
-export function transformPlayerResponse(text: string) {
+export function transformPlayerResponse(text: string, _blocklist?: BlocklistSnapshot, options: TransformOptions = {}) {
   const data = JSON.parse(text)
   stripAdKeys(data)
+  applyPlayerResponseOriginalTitle(data, options)
+  rewriteOriginalTitles(data, options)
   return JSON.stringify(data)
 }
 
-export function transformSearchResponse(text: string, blocklist?: BlocklistSnapshot, options: { hideShorts?: boolean } = {}) {
+export function transformSearchResponse(text: string, blocklist?: BlocklistSnapshot, options: TransformOptions = {}) {
   const data = JSON.parse(text) as SearchResponse
   const hideShorts = options.hideShorts !== false
+  rewriteOriginalTitles(data, options)
   const sectionListRenderer =
     // mobile
     data.contents?.sectionListRenderer ||
@@ -48,8 +58,13 @@ export function transformSearchResponse(text: string, blocklist?: BlocklistSnaps
   return JSON.stringify(data)
 }
 
-export function transformBrowseResponse(text: string, blocklist?: BlocklistSnapshot) {
+export function transformBrowseResponse(
+  text: string,
+  blocklist?: BlocklistSnapshot,
+  options: TransformOptions = {},
+) {
   const data = JSON.parse(text)
+  rewriteOriginalTitles(data, options)
   filterListResponse(data, blocklist)
   return JSON.stringify(data)
 }
@@ -207,6 +222,99 @@ function textFromNode(node: any): string {
     return node.runs.map((run: any) => run?.text || '').join('')
   }
   return ''
+}
+
+function applyPlayerResponseOriginalTitle(data: any, options: TransformOptions) {
+  if (!options.showOriginalVideoTitle) {
+    return
+  }
+
+  const originalTitle = textFromNode(data?.videoDetails?.title)
+  if (!originalTitle) {
+    return
+  }
+
+  setTextNode(data?.microformat?.playerMicroformatRenderer?.title, originalTitle)
+  setTextNode(data?.videoDetails?.title, originalTitle)
+}
+
+function rewriteOriginalTitles(data: any, options: TransformOptions) {
+  if (!options.showOriginalVideoTitle || !data || typeof data !== 'object') {
+    return
+  }
+
+  walk(data, (node) => {
+    for (const renderer of getDirectRenderers(node)) {
+      rewriteRendererTitle(renderer)
+    }
+    rewriteRendererTitle(node)
+  })
+}
+
+function walk(node: any, visit: (node: any) => void) {
+  if (!node || typeof node !== 'object') {
+    return
+  }
+
+  visit(node)
+  if (Array.isArray(node)) {
+    node.forEach((item) => walk(item, visit))
+    return
+  }
+
+  for (const key of Object.keys(node)) {
+    walk(node[key], visit)
+  }
+}
+
+function rewriteRendererTitle(renderer: any) {
+  if (!renderer || typeof renderer !== 'object') {
+    return
+  }
+
+  const originalTitle = getOriginalTitle(renderer)
+  if (!originalTitle) {
+    return
+  }
+
+  setTextNode(renderer.title, originalTitle)
+  setTextNode(renderer.headline, originalTitle)
+  setTextNode(renderer.metadata?.lockupMetadataViewModel?.title, originalTitle)
+}
+
+function getOriginalTitle(renderer: any): string {
+  return [
+    renderer.originalTitle,
+    renderer.untranslatedTitle,
+    renderer.untranslatedVideoTitle,
+    renderer.title?.originalTitle,
+    renderer.title?.untranslatedTitle,
+    renderer.headline?.originalTitle,
+    renderer.metadata?.lockupMetadataViewModel?.originalTitle,
+    renderer.metadata?.lockupMetadataViewModel?.title?.originalTitle,
+  ]
+    .map(textFromNode)
+    .find(Boolean) || ''
+}
+
+function setTextNode(node: any, text: string) {
+  if (!node || typeof node !== 'object') {
+    return
+  }
+
+  if (typeof node.simpleText === 'string') {
+    node.simpleText = text
+  }
+  if (typeof node.content === 'string') {
+    node.content = text
+  }
+  if (Array.isArray(node.runs) && node.runs.length) {
+    node.runs.forEach((run: any, index: number) => {
+      if (run && typeof run === 'object' && typeof run.text === 'string') {
+        run.text = index === 0 ? text : ''
+      }
+    })
+  }
 }
 
 interface SearchResponse {

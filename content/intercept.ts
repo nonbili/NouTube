@@ -34,8 +34,14 @@ export function intercept() {
     let res = await winFetch(...args)
     const match = new URL(url).pathname.match(RE_INTERCEPT)
     const blocklist = window.NouTube?.getBlocklist?.()
+    const settings = window.NouTube?.getSettings?.()
+    const options = { showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle) }
     const hasBlocklist = Boolean(blocklist?.channels?.length || blocklist?.keywords?.length)
-    if (res.status > 200 || !match || (match[1] == 'search' && !window.NouTube.shortsHidden && !hasBlocklist)) {
+    if (
+      res.status > 200 ||
+      !match ||
+      (match[1] == 'search' && !window.NouTube.shortsHidden && !hasBlocklist && !options.showOriginalVideoTitle)
+    ) {
       return res
     }
 
@@ -47,12 +53,15 @@ export function intercept() {
     try {
       const fn =
         {
-          browse: transformBrowseResponse,
-          get_watch: transformGetWatchResponse,
-          next: transformBrowseResponse,
+          browse: (text: string, blocklist?: any) => transformBrowseResponse(text, blocklist, options),
+          get_watch: (text: string) => transformGetWatchResponse(text, options),
+          next: (text: string, blocklist?: any) => transformBrowseResponse(text, blocklist, options),
           search: (text: string, _blocklist?: any) =>
-            transformSearchResponse(text, blocklist, { hideShorts: window.NouTube.shortsHidden }),
-        }[match[1]] || transformPlayerResponse
+            transformSearchResponse(text, blocklist, {
+              hideShorts: window.NouTube.shortsHidden,
+              ...options,
+            }),
+        }[match[1]] || ((text: string, blocklist?: any) => transformPlayerResponse(text, blocklist, options))
       return new Response(fn(text, blocklist), responseInit)
     } catch (error) {
       console.error('NouScript:', error)
@@ -75,20 +84,25 @@ export function intercept() {
       }
 
       const blocklist = window.NouTube?.getBlocklist?.()
+      const settings = window.NouTube?.getSettings?.()
+      const options = { showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle) }
       const hasBlocklist = Boolean(blocklist?.channels?.length || blocklist?.keywords?.length)
-      if (match[1] == 'search' && !window.NouTube.shortsHidden && !hasBlocklist) {
+      if (match[1] == 'search' && !window.NouTube.shortsHidden && !hasBlocklist && !options.showOriginalVideoTitle) {
         return
       }
 
       try {
         const fn =
           {
-            browse: transformBrowseResponse,
-            get_watch: transformGetWatchResponse,
-            next: transformBrowseResponse,
+            browse: (text: string, blocklist?: any) => transformBrowseResponse(text, blocklist, options),
+            get_watch: (text: string) => transformGetWatchResponse(text, options),
+            next: (text: string, blocklist?: any) => transformBrowseResponse(text, blocklist, options),
             search: (text: string, _blocklist?: any) =>
-              transformSearchResponse(text, blocklist, { hideShorts: window.NouTube.shortsHidden }),
-          }[match[1]] || transformPlayerResponse
+              transformSearchResponse(text, blocklist, {
+                hideShorts: window.NouTube.shortsHidden,
+                ...options,
+              }),
+          }[match[1]] || ((text: string, blocklist?: any) => transformPlayerResponse(text, blocklist, options))
         const text = fn(this.responseText, blocklist)
         Object.defineProperty(this, 'response', { writable: true })
         Object.defineProperty(this, 'responseText', { writable: true })

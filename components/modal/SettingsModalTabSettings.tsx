@@ -187,6 +187,12 @@ export const SettingsPreferencesContent = () => {
           value={settings.preferH264}
           onPress={() => settings$.preferH264.set(!settings.preferH264)}
         />
+        <SettingsToggleRow
+          label={t('settings.showOriginalVideoTitle')}
+          icon="translate"
+          value={settings.showOriginalVideoTitle}
+          onPress={() => settings$.showOriginalVideoTitle.set(!settings.showOriginalVideoTitle)}
+        />
         <View className="flex-row items-center gap-3 px-4 py-4">
           <View className={iconWrapCls}>
             <MaterialIcons name="image" color={isDark ? '#d4d4d8' : '#475569'} size={18} />

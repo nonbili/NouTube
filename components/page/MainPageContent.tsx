@@ -78,6 +78,11 @@ const executeQuietly = (webview: WebviewTag | null, script: string) => {
   } catch {}
 }
 
+const getContentSettingsSnapshot = () => {
+  const { sponsorBlock, playbackRate, playbackQuality, miniPlayer, showOriginalVideoTitle } = settings$.get()
+  return { sponsorBlock, playbackRate, playbackQuality, miniPlayer, showOriginalVideoTitle }
+}
+
 const DesktopTabView: React.FC<{
   tab: Tab
   index: number
@@ -111,9 +116,12 @@ const DesktopTabView: React.FC<{
 
   const syncSettingsToWebview = useCallback(() => {
     if (!readyRef.current) return
-    const { sponsorBlock, playbackRate, playbackQuality, miniPlayer } = settings$.get()
-    const value = JSON.stringify({ sponsorBlock, playbackRate, playbackQuality, miniPlayer })
-    executeQuietly(webviewRef.current, `localStorage.setItem('nou:settings', '${value}'); if (!${miniPlayer}) window.NouTube?.exitMini?.()`)
+    const settings = getContentSettingsSnapshot()
+    const value = JSON.stringify(settings)
+    executeQuietly(
+      webviewRef.current,
+      `localStorage.setItem('nou:settings', '${value}'); window.NouTube?.setSettings?.(${value}); if (!${settings.miniPlayer}) window.NouTube?.exitMini?.()`,
+    )
   }, [])
 
   const toggleShorts = useCallback((hide?: boolean) => {
@@ -248,6 +256,7 @@ const DesktopTabView: React.FC<{
   useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
   useObserveEffect(settings$.playbackQuality, () => syncSettingsToWebview())
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
+  useObserveEffect(settings$.showOriginalVideoTitle, () => syncSettingsToWebview())
   useObserveEffect(userStyles$, () => syncUserStylesToWebview())
   useObserveEffect(blocklist$, () => syncBlocklistToWebview())
   useEffect(() => {
@@ -294,10 +303,13 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const clickbaitThumbnail = useValue(settings$.clickbaitThumbnail)
   const blocklistState = useValue(blocklist$)
   const buildPrelude = () =>
+    `window.NouTubeInitialSettings = ${JSON.stringify(getContentSettingsSnapshot())};` +
     `window.NouTubePreferH264 = ${settings$.preferH264.get() ? 'true' : 'false'};` +
     `window.NouTubeClickbaitThumbnail = ${JSON.stringify(settings$.clickbaitThumbnail.get())};` +
     `window.NouTubeBlocklist = ${JSON.stringify(getBlocklistSnapshot())};`
+  const contentSettings = getContentSettingsSnapshot()
   const preludeJs =
+    `window.NouTubeInitialSettings = ${JSON.stringify(contentSettings)};` +
     `window.NouTubePreferH264 = ${preferH264 ? 'true' : 'false'};` +
     `window.NouTubeClickbaitThumbnail = ${JSON.stringify(clickbaitThumbnail)};` +
     `window.NouTubeBlocklist = ${JSON.stringify(getBlocklistSnapshot(blocklistState))};`
@@ -373,9 +385,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   const syncSettingsToWebview = useCallback(() => {
     const ref = nativeRef.current
-    const { sponsorBlock, playbackRate, playbackQuality, miniPlayer } = settings$.get()
-    const value = JSON.stringify({ sponsorBlock, playbackRate, playbackQuality, miniPlayer })
-    ref?.executeJavaScript(`localStorage.setItem('nou:settings', '${value}'); if (!${miniPlayer}) window.NouTube?.exitMini?.()`)
+    const settings = getContentSettingsSnapshot()
+    const value = JSON.stringify(settings)
+    ref?.executeJavaScript(
+      `localStorage.setItem('nou:settings', '${value}'); window.NouTube?.setSettings?.(${value}); if (!${settings.miniPlayer}) window.NouTube?.exitMini?.()`,
+    )
   }, [nativeRef])
 
   useEffect(() => {
@@ -561,6 +575,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
   useObserveEffect(settings$.playbackQuality, () => syncSettingsToWebview())
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
+  useObserveEffect(settings$.showOriginalVideoTitle, () => syncSettingsToWebview())
   useObserveEffect(settings$.preferH264, ({ previous }) => {
     if (previous === undefined) return
     const native = nativeRef.current
