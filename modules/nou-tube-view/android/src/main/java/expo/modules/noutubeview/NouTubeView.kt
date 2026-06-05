@@ -1,6 +1,7 @@
 package expo.modules.noutubeview
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ComponentName
@@ -29,6 +30,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -194,9 +196,17 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
             ) {
               return false
             } else {
-              view.getContext().startActivity(
-                Intent(Intent.ACTION_VIEW, uri)
-              )
+              try {
+                view.getContext().startActivity(
+                  Intent(Intent.ACTION_VIEW, uri)
+                )
+              } catch (e: ActivityNotFoundException) {
+                Toast.makeText(
+                  view.getContext(),
+                  "No app found to open this link",
+                  Toast.LENGTH_SHORT
+                ).show()
+              }
               return true
             }
           }
