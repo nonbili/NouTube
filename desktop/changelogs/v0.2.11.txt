@@ -1,0 +1,6 @@
+- sync settings and user styles/scripts
+- support pinning user scripts to toolbar
+- do not restore tabs on startup when restoreOnStart is disabled
+- support showing original instead of translated video titles
+- support showing dislikes
+- support autohide toolbar and show on hover
