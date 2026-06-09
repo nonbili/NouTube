@@ -141,98 +141,116 @@ export const SettingsPreferencesContent = () => {
   }))
 
   return (
-    <SettingsSection label={t('settings.preferences')}>
-      <View className={surfaceCls}>
-        <SettingsToggleRow
-          label={t('settings.restoreOnStart')}
-          icon="restore"
-          value={settings.restoreOnStart}
-          onPress={() => settings$.restoreOnStart.set(!settings.restoreOnStart)}
-        />
-        {nIf(
-          !isWeb,
+    <View className="pb-4">
+      <SettingsSection label={t('settings.preferencesGeneral')}>
+        <View className={surfaceCls}>
           <SettingsToggleRow
-            label={t('settings.pullToRefresh')}
-            icon="refresh"
-            value={settings.pullToRefreshEnabled}
-            onPress={() => settings$.pullToRefreshEnabled.set(!settings.pullToRefreshEnabled)}
-          />,
-        )}
-        <SettingsToggleRow
-          label={t('settings.hideShorts')}
-          icon="movie-filter"
-          value={settings.hideShorts}
-          onPress={() => settings$.hideShorts.set(!settings.hideShorts)}
-        />
-        <SettingsToggleRow
-          label="Sponsor block"
-          icon="block"
-          value={settings.sponsorBlock}
-          onPress={() => settings$.sponsorBlock.set(!settings.sponsorBlock)}
-        />
-        <SettingsToggleRow
-          label={t('settings.channelsFeed')}
-          icon="rss-feed"
-          value={settings.feedsEnabled}
-          onPress={() => settings$.feedsEnabled.set(!settings.feedsEnabled)}
-        />
-        <SettingsToggleRow
-          label={t('settings.watchHistory')}
-          icon="history"
-          value={settings.keepHistory}
-          onPress={() => settings$.keepHistory.set(!settings.keepHistory)}
-        />
-        {isAndroid ? (
-          <SettingsToggleRow
-            label={t('settings.miniPlayer')}
-            icon="picture-in-picture-alt"
-            value={settings.miniPlayer}
-            onPress={() => settings$.miniPlayer.set(!settings.miniPlayer)}
+            label={t('settings.restoreOnStart')}
+            icon="restore"
+            value={settings.restoreOnStart}
+            onPress={() => settings$.restoreOnStart.set(!settings.restoreOnStart)}
           />
-        ) : null}
-        <SettingsToggleRow
-          label={t('settings.preferH264')}
-          icon="hd"
-          value={settings.preferH264}
-          onPress={() => settings$.preferH264.set(!settings.preferH264)}
-        />
-        <SettingsToggleRow
-          label={t('settings.showOriginalVideoTitle')}
-          icon="translate"
-          value={settings.showOriginalVideoTitle}
-          onPress={() => settings$.showOriginalVideoTitle.set(!settings.showOriginalVideoTitle)}
-        />
-        <SettingsToggleRow
-          label={t('settings.showDislikes')}
-          icon="thumb-down"
-          value={settings.showDislikes}
-          onPress={() => settings$.showDislikes.set(!settings.showDislikes)}
-        />
-        <View className="flex-row items-center gap-3 px-4 py-4">
-          <View className={iconWrapCls}>
-            <MaterialIcons name="image" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
-          </View>
-          <View className="flex-1">
-            <NouText className="font-medium">{t('settings.clickbaitThumbnail.label')}</NouText>
-            <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
-              {t('settings.clickbaitThumbnail.hint')}
-            </NouText>
-          </View>
-          <NouMenu
-            trigger={
-              isWeb ? (
-                <NouButton size="1" variant="outline" onPress={() => {}}>
-                  {clickbaitLabel(settings.clickbaitThumbnail)}
-                </NouButton>
-              ) : (
-                'ellipsis'
-              )
-            }
-            items={clickbaitMenuItems}
+          {nIf(
+            !isWeb,
+            <SettingsToggleRow
+              label={t('settings.pullToRefresh')}
+              icon="refresh"
+              value={settings.pullToRefreshEnabled}
+              onPress={() => settings$.pullToRefreshEnabled.set(!settings.pullToRefreshEnabled)}
+            />,
+          )}
+          <SettingsToggleRow
+            label={t('settings.channelsFeed')}
+            icon="rss-feed"
+            value={settings.feedsEnabled}
+            onPress={() => settings$.feedsEnabled.set(!settings.feedsEnabled)}
+          />
+          <SettingsToggleRow
+            label={t('settings.watchHistory')}
+            icon="history"
+            value={settings.keepHistory}
+            onPress={() => settings$.keepHistory.set(!settings.keepHistory)}
+            isLast
           />
         </View>
+      </SettingsSection>
+
+      <View className="mt-8">
+        <SettingsSection label={t('settings.preferencesContent')}>
+          <View className={surfaceCls}>
+            <SettingsToggleRow
+              label={t('settings.hideShorts')}
+              icon="movie-filter"
+              value={settings.hideShorts}
+              onPress={() => settings$.hideShorts.set(!settings.hideShorts)}
+            />
+            <SettingsToggleRow
+              label="Sponsor block"
+              icon="block"
+              value={settings.sponsorBlock}
+              onPress={() => settings$.sponsorBlock.set(!settings.sponsorBlock)}
+            />
+            <View className="flex-row items-center gap-3 px-4 py-4">
+              <View className={iconWrapCls}>
+                <MaterialIcons name="image" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+              </View>
+              <View className="flex-1">
+                <NouText className="font-medium">{t('settings.clickbaitThumbnail.label')}</NouText>
+                <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
+                  {t('settings.clickbaitThumbnail.hint')}
+                </NouText>
+              </View>
+              <NouMenu
+                trigger={
+                  isWeb ? (
+                    <NouButton size="1" variant="outline" onPress={() => {}}>
+                      {clickbaitLabel(settings.clickbaitThumbnail)}
+                    </NouButton>
+                  ) : (
+                    'ellipsis'
+                  )
+                }
+                items={clickbaitMenuItems}
+              />
+            </View>
+          </View>
+        </SettingsSection>
       </View>
-    </SettingsSection>
+
+      <View className="mt-8">
+        <SettingsSection label={t('settings.preferencesPlayback')}>
+          <View className={surfaceCls}>
+            <SettingsToggleRow
+              label={t('settings.preferH264')}
+              icon="hd"
+              value={settings.preferH264}
+              onPress={() => settings$.preferH264.set(!settings.preferH264)}
+            />
+            {isAndroid ? (
+              <SettingsToggleRow
+                label={t('settings.miniPlayer')}
+                icon="picture-in-picture-alt"
+                value={settings.miniPlayer}
+                onPress={() => settings$.miniPlayer.set(!settings.miniPlayer)}
+              />
+            ) : null}
+            <SettingsToggleRow
+              label={t('settings.showOriginalVideoTitle')}
+              icon="translate"
+              value={settings.showOriginalVideoTitle}
+              onPress={() => settings$.showOriginalVideoTitle.set(!settings.showOriginalVideoTitle)}
+            />
+            <SettingsToggleRow
+              label={t('settings.showDislikes')}
+              icon="thumb-down"
+              value={settings.showDislikes}
+              onPress={() => settings$.showDislikes.set(!settings.showDislikes)}
+              isLast
+            />
+          </View>
+        </SettingsSection>
+      </View>
+    </View>
   )
 }
 
