@@ -1,0 +1,3 @@
+- Support pull-to-refresh
+- Make toolbar icons scrollable
+- Avoid crash when no app can open an external link
