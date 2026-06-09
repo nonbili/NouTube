@@ -1,4 +1,4 @@
-import { ConfigPlugin } from '@expo/config-plugins'
+import { ConfigPlugin, withGradleProperties } from '@expo/config-plugins'
 import { withAndroidManifest, withAppBuildGradle } from '@expo/config-plugins/build/plugins/android-plugins.js'
 
 const withAndroidSigningConfig: ConfigPlugin = (config) => {
@@ -6,6 +6,22 @@ const withAndroidSigningConfig: ConfigPlugin = (config) => {
     const app = config.modResults.manifest.application?.[0]
     if (app) {
       app.$['android:extractNativeLibs'] = 'true'
+    }
+    return config
+  })
+
+  // Bump JVM memory: release builds run out of the default 512m Metaspace on
+  // CI, failing :app:packageRelease. See workflow run 27182763983.
+  config = withGradleProperties(config, (config) => {
+    const value = '-Xmx4g -XX:MaxMetaspaceSize=2g'
+    const existing = config.modResults.find(
+      (item): item is { type: 'property'; key: string; value: string } =>
+        item.type === 'property' && item.key === 'org.gradle.jvmargs',
+    )
+    if (existing) {
+      existing.value = value
+    } else {
+      config.modResults.push({ type: 'property', key: 'org.gradle.jvmargs', value })
     }
     return config
   })
