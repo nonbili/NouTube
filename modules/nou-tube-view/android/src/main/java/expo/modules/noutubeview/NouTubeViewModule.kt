@@ -136,6 +136,10 @@ class NouTubeViewModule : Module() {
         view.webView.settings.setUserAgentString(ua)
       }
 
+      Prop("pullToRefreshEnabled") { view: NouTubeView, enabled: Boolean ->
+        view.setPullToRefreshEnabled(enabled)
+      }
+
       Events("onLoad", "onMessage")
 
       AsyncFunction("clearData") { view: NouTubeView -> view.clearData() }

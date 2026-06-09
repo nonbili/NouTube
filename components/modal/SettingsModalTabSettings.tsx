@@ -149,6 +149,15 @@ export const SettingsPreferencesContent = () => {
           value={settings.restoreOnStart}
           onPress={() => settings$.restoreOnStart.set(!settings.restoreOnStart)}
         />
+        {nIf(
+          !isWeb,
+          <SettingsToggleRow
+            label={t('settings.pullToRefresh')}
+            icon="refresh"
+            value={settings.pullToRefreshEnabled}
+            onPress={() => settings$.pullToRefreshEnabled.set(!settings.pullToRefreshEnabled)}
+          />,
+        )}
         <SettingsToggleRow
           label={t('settings.hideShorts')}
           icon="movie-filter"

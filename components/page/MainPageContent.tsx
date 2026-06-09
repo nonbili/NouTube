@@ -298,6 +298,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const autoHideHeader = useValue(settings$.autoHideHeader)
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
   const headerPosition = useValue(settings$.headerPosition)
+  const pullToRefreshEnabled = useValue(settings$.pullToRefreshEnabled)
   const customUserAgent = useValue(settings$.userAgent)
   const desktopModeYTMusic = useValue(settings$.desktopMode)
   const desktopModeYT = useValue(settings$.desktopModeYT)
@@ -631,6 +632,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
             ref={nativeRef}
             style={{ flex: 1 }}
             useragent={userAgent}
+            pullToRefreshEnabled={pullToRefreshEnabled}
             scriptOnStart={`window.isAndroid = true;\n${preludeJs}\n${contentJs}`}
             onLoad={onLoad}
             onMessage={onNativeMessage}

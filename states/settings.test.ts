@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'bun:test'
-import { getSettingsSnapshot, normalizeSettings } from './settings'
+import { getSettingsSnapshot, normalizeSettings, type SettingsSnapshot } from './settings'
+
+const normalizePartialSettings = () => normalizeSettings<Partial<SettingsSnapshot>>({})
 
 describe('settings', () => {
   it('defaults original video title setting off in snapshots', () => {
@@ -14,18 +16,27 @@ describe('settings', () => {
     expect(getSettingsSnapshot({}).autoHideSidebar).toBe(false)
   })
 
+  it('defaults pull to refresh setting on in snapshots', () => {
+    expect(getSettingsSnapshot({}).pullToRefreshEnabled).toBe(true)
+  })
+
   it('normalizes missing original video title setting to false', () => {
-    const settings = normalizeSettings({})
+    const settings = normalizePartialSettings()
     expect(settings?.showOriginalVideoTitle).toBe(false)
   })
 
   it('normalizes missing show dislikes setting to false', () => {
-    const settings = normalizeSettings({})
+    const settings = normalizePartialSettings()
     expect(settings?.showDislikes).toBe(false)
   })
 
   it('normalizes missing desktop sidebar autohide setting to false', () => {
-    const settings = normalizeSettings({})
+    const settings = normalizePartialSettings()
     expect(settings?.autoHideSidebar).toBe(false)
+  })
+
+  it('normalizes missing pull to refresh setting to true', () => {
+    const settings = normalizePartialSettings()
+    expect(settings?.pullToRefreshEnabled).toBe(true)
   })
 })

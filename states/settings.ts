@@ -23,6 +23,7 @@ export interface SettingsSnapshot {
   playbackRate: number
   playbackQuality: string
   restoreOnStart: boolean
+  pullToRefreshEnabled: boolean
   sponsorBlock: boolean
   showDislikes: boolean
   showOriginalVideoTitle: boolean
@@ -80,6 +81,9 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   if (typeof data.autoHideSidebar !== 'boolean') {
     data.autoHideSidebar = false
   }
+  if (typeof data.pullToRefreshEnabled !== 'boolean') {
+    data.pullToRefreshEnabled = true
+  }
   return data
 }
 
@@ -104,6 +108,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   playbackRate: typeof value?.playbackRate === 'number' ? value.playbackRate : 1,
   playbackQuality: typeof value?.playbackQuality === 'string' ? value.playbackQuality : 'auto',
   restoreOnStart: typeof value?.restoreOnStart === 'boolean' ? value.restoreOnStart : true,
+  pullToRefreshEnabled: typeof value?.pullToRefreshEnabled === 'boolean' ? value.pullToRefreshEnabled : true,
   sponsorBlock: typeof value?.sponsorBlock === 'boolean' ? value.sponsorBlock : true,
   showDislikes: Boolean(value?.showDislikes),
   showOriginalVideoTitle: Boolean(value?.showOriginalVideoTitle),
@@ -142,6 +147,7 @@ export const settings$ = observable<Store>({
   playbackRate: 1,
   playbackQuality: 'auto',
   restoreOnStart: true,
+  pullToRefreshEnabled: true,
   sponsorBlock: true,
   showDislikes: false,
   showOriginalVideoTitle: false,

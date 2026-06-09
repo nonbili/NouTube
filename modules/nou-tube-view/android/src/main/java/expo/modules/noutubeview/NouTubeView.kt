@@ -35,6 +35,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.viewevent.EventDispatcher
 import expo.modules.kotlin.views.ExpoView
@@ -100,6 +101,13 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   private var pageUrl = ""
   private var customView: View? = null
   private lateinit var orientationListener: NouOrientationListener
+  private val swipeRefreshLayout = SwipeRefreshLayout(context).apply {
+    layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+    isEnabled = true
+    setOnRefreshListener {
+      webView.reload()
+    }
+  }
 
   private val gestureListener =
     object : GestureDetector.SimpleOnGestureListener() {
@@ -174,6 +182,10 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
           override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
             evaluateJavascript(scriptOnStart, null)
+          }
+
+          override fun onPageFinished(view: WebView, url: String) {
+            swipeRefreshLayout.isRefreshing = false
           }
 
           override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
@@ -290,7 +302,8 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     }
 
   init {
-    addView(webView)
+    swipeRefreshLayout.addView(webView)
+    addView(swipeRefreshLayout)
 
     initService()
 
@@ -302,6 +315,13 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     // some websites have `padding-bottom: env(safe-area-inset-bottom)`, this set it to 0
     ViewCompat.setOnApplyWindowInsetsListener(webView) { _, _ ->
       WindowInsetsCompat.CONSUMED
+    }
+  }
+
+  fun setPullToRefreshEnabled(enabled: Boolean) {
+    swipeRefreshLayout.isEnabled = enabled
+    if (!enabled) {
+      swipeRefreshLayout.isRefreshing = false
     }
   }
 

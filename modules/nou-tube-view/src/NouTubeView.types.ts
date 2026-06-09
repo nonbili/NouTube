@@ -15,6 +15,7 @@ export type NouTubeViewProps = {
   src?: string
   partition?: string
   allowpopups?: string
+  pullToRefreshEnabled?: boolean
   scriptOnStart?: string
   onLoad?: (event: { nativeEvent: OnLoadEventPayload }) => void
   onMessage?: (event: { nativeEvent: OnMessageEventPayload }) => void
