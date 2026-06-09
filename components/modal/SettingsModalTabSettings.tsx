@@ -300,6 +300,12 @@ export const SettingsAppearanceContent = () => {
               icon="arrow-forward"
               value={settings.showForwardButtonInHeader}
               onPress={() => settings$.showForwardButtonInHeader.set(!settings.showForwardButtonInHeader)}
+            />
+            <SettingsToggleRow
+              label={t('settings.showReloadButtonInHeader')}
+              icon="refresh"
+              value={settings.showReloadButtonInHeader}
+              onPress={() => settings$.showReloadButtonInHeader.set(!settings.showReloadButtonInHeader)}
               isLast
             />
           </View>

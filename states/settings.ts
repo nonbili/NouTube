@@ -29,6 +29,7 @@ export interface SettingsSnapshot {
   showBackButtonInHeader: boolean
   showForwardButtonInHeader: boolean
   showHomeButtonInHeader: boolean
+  showReloadButtonInHeader: boolean
   showPlaybackSpeedControl: boolean
   showPlaybackQualityControl: boolean
   userAgent: string
@@ -60,6 +61,9 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   }
   if (typeof data.showForwardButtonInHeader !== 'boolean') {
     data.showForwardButtonInHeader = false
+  }
+  if (typeof data.showReloadButtonInHeader !== 'boolean') {
+    data.showReloadButtonInHeader = false
   }
   if (typeof data.playbackQuality !== 'string') {
     data.playbackQuality = 'auto'
@@ -106,6 +110,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   showBackButtonInHeader: Boolean(value?.showBackButtonInHeader),
   showForwardButtonInHeader: Boolean(value?.showForwardButtonInHeader),
   showHomeButtonInHeader: Boolean(value?.showHomeButtonInHeader),
+  showReloadButtonInHeader: Boolean(value?.showReloadButtonInHeader),
   showPlaybackSpeedControl: Boolean(value?.showPlaybackSpeedControl),
   showPlaybackQualityControl: Boolean(value?.showPlaybackQualityControl),
   userAgent: typeof value?.userAgent === 'string' ? value.userAgent : '',
@@ -143,6 +148,7 @@ export const settings$ = observable<Store>({
   showBackButtonInHeader: false,
   showForwardButtonInHeader: false,
   showHomeButtonInHeader: false,
+  showReloadButtonInHeader: false,
   showPlaybackSpeedControl: false,
   showPlaybackQualityControl: false,
   userAgent: '',

@@ -80,6 +80,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const showBackButtonInHeader = useValue(settings$.showBackButtonInHeader)
   const showForwardButtonInHeader = useValue(settings$.showForwardButtonInHeader)
   const showHomeButtonInHeader = useValue(settings$.showHomeButtonInHeader)
+  const showReloadButtonInHeader = useValue(settings$.showReloadButtonInHeader)
   const showPlaybackSpeedControl = useValue(settings$.showPlaybackSpeedControl)
   const showPlaybackQualityControl = useValue(settings$.showPlaybackQualityControl)
   const { width, height: windowHeight } = useWindowDimensions()
@@ -155,6 +156,15 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     }
   }
 
+  const reloadPage = () => {
+    const webview = getNoutube()
+    if (typeof webview?.reload === 'function') {
+      webview.reload()
+      return
+    }
+    webview?.executeJavaScript?.('document.location.reload()')
+  }
+
   const onToggleStar = () => {
     if (starred && bookmark) {
       ui$.bookmarkModalBookmark.set(bookmark)
@@ -176,6 +186,25 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const pinnedScripts = customScripts
     .filter((script) => script?.enabled && script.pinToHeader && script.js.trim())
     .map((script) => ({ ...script, js: script.js.trim() }))
+  const leadingToolbarItemCount =
+    1 +
+    Number(!isYTMusic && feedsEnabled) +
+    Number(showHomeButtonInHeader) +
+    Number(!isWeb && showBackButtonInHeader) +
+    Number(!isWeb && showForwardButtonInHeader) +
+    Number(!isWeb && showReloadButtonInHeader) +
+    Number(isWeb) * 2
+  const trailingToolbarItemCount =
+    1 +
+    Number(isWeb) +
+    Number(showPlaybackSpeedControl) +
+    Number(showPlaybackQualityControl) +
+    Number(sleepTimerSupported && sleepTimerActive) +
+    Number(!isYTMusic && queueSize > 0) +
+    Number(pageType?.type === 'watch' || hasDownloads) +
+    Number(pageType?.canStar) +
+    Number(pinnedScripts.length > 0)
+  const compactToolbar = leadingToolbarItemCount + trailingToolbarItemCount > 6
 
   const runPinnedScript = (script: (typeof pinnedScripts)[number]) => {
     const webview = getNoutube()
@@ -203,36 +232,45 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           clsx('absolute left-0 right-0 z-10', headerPosition === 'bottom' ? 'bottom-0' : 'top-0'),
       )}
     >
-      <View className="flex-row lg:flex-col">
-        {nIf(!isWeb && showBackButtonInHeader, <MaterialButton name="arrow-back" onPress={goBack} />)}
-        {nIf(!isWeb && showForwardButtonInHeader, <MaterialButton name="arrow-forward" onPress={goForward} />)}
-        {nIf(showHomeButtonInHeader, <MaterialButton name="home" onPress={onOpenHome} />)}
-        <MaterialButton
-          name={isYTMusic ? 'library-music' : 'video-library'}
-          onPress={() => ui$.libraryModalOpen.set(true)}
-        />
-        {nIf(
-          !isYTMusic && feedsEnabled,
-          <MaterialButton name="rss-feed" onPress={() => ui$.feedModalOpen.set(true)} />,
-        )}
-        {nIf(
-          isWeb,
-          <>
-            <View className="h-2 w-2" />
-            <MaterialButton
-              color={canGoBack ? headerControlColor : isDark ? colors.underlay : '#94a3b8'}
-              name="arrow-back"
-              disabled={!canGoBack}
-              onPress={goBack}
-            />
-            <MaterialButton
-              color={canGoForward ? headerControlColor : isDark ? colors.underlay : '#94a3b8'}
-              name="arrow-forward"
-              disabled={!canGoForward}
-              onPress={goForward}
-            />
-          </>,
-        )}
+      <View className="flex-1 min-w-0 lg:flex-none lg:w-full">
+        <ScrollView
+          horizontal={!isWeb || !isHorizontal}
+          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
+          className="min-w-0 lg:w-full"
+          contentContainerClassName={clsx('flex-row lg:flex-col', compactToolbar ? 'gap-0' : 'gap-1')}
+        >
+          <MaterialButton
+            name={isYTMusic ? 'library-music' : 'video-library'}
+            onPress={() => ui$.libraryModalOpen.set(true)}
+          />
+          {nIf(
+            !isYTMusic && feedsEnabled,
+            <MaterialButton name="rss-feed" onPress={() => ui$.feedModalOpen.set(true)} />,
+          )}
+          {nIf(!isWeb && showBackButtonInHeader, <MaterialButton name="arrow-back" onPress={goBack} />)}
+          {nIf(!isWeb && showForwardButtonInHeader, <MaterialButton name="arrow-forward" onPress={goForward} />)}
+          {nIf(!isWeb && showReloadButtonInHeader, <MaterialButton name="refresh" onPress={reloadPage} />)}
+          {nIf(showHomeButtonInHeader, <MaterialButton name="home" onPress={onOpenHome} />)}
+          {nIf(
+            isWeb,
+            <>
+              <View className="h-2 w-2" />
+              <MaterialButton
+                color={canGoBack ? headerControlColor : isDark ? colors.underlay : '#94a3b8'}
+                name="arrow-back"
+                disabled={!canGoBack}
+                onPress={goBack}
+              />
+              <MaterialButton
+                color={canGoForward ? headerControlColor : isDark ? colors.underlay : '#94a3b8'}
+                name="arrow-forward"
+                disabled={!canGoForward}
+                onPress={goForward}
+              />
+            </>,
+          )}
+        </ScrollView>
       </View>
       {nIf(
         isWeb,
@@ -300,13 +338,18 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           </ScrollView>
         </View>,
       )}
-      <View className="flex flex-row lg:flex-col lg:pb-1 items-center gap-2">
+      <View
+        className={clsx(
+          'flex flex-row lg:flex-col lg:pb-1 items-center shrink-0',
+          compactToolbar ? 'gap-1' : 'gap-2',
+        )}
+      >
         {nIf(isWeb, <MaterialButton name="add" onPress={() => tabs$.openTab()} />)}
         {nIf(
           showPlaybackSpeedControl,
           <Pressable
             onPress={() => ui$.playbackSpeedModalOpen.set(true)}
-            className="h-11 min-w-11 px-1 items-center justify-center"
+            className="h-11 min-w-11 px-1 items-center justify-center shrink-0"
           >
             <View className="px-2 py-1 rounded-full border border-zinc-300 dark:border-zinc-600 bg-zinc-200/80 dark:bg-zinc-700/80">
               <NouText className="text-xs font-medium">{playbackRateLabel}</NouText>
@@ -317,7 +360,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           showPlaybackQualityControl,
           <Pressable
             onPress={() => ui$.playbackQualityModalOpen.set(true)}
-            className="h-11 min-w-11 px-1 items-center justify-center"
+            className="h-11 min-w-11 px-1 items-center justify-center shrink-0"
           >
             <View className="px-2 py-1 rounded-full border border-zinc-300 dark:border-zinc-600 bg-zinc-200/80 dark:bg-zinc-700/80">
               <NouText className="text-xs font-medium">{playbackQualityLabel}</NouText>
@@ -388,7 +431,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
               label: t('menus.reload'),
               icon: <MaterialIcons name="refresh" size={18} color={headerControlColor} />,
               systemImage: 'arrow.clockwise',
-              handler: () => getNoutube()?.executeJavaScript?.('document.location.reload()'),
+              handler: reloadPage,
             },
             ...(isWeb && (pageType?.type === 'watch' || pageType?.type === 'shorts')
               ? [
