@@ -100,6 +100,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   private var scriptOnStart = ""
   private var pageUrl = ""
   private var customView: View? = null
+  private var pullToRefreshEnabled = true
   private lateinit var orientationListener: NouOrientationListener
   private val swipeRefreshLayout = SwipeRefreshLayout(context).apply {
     layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
@@ -172,6 +173,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
           override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
             if (pageUrl != url) {
               pageUrl = url
+              updateSwipeRefreshEnabled()
               onLoad(
                 mapOf(
                   "url" to pageUrl
@@ -319,6 +321,14 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   }
 
   fun setPullToRefreshEnabled(enabled: Boolean) {
+    pullToRefreshEnabled = enabled
+    updateSwipeRefreshEnabled()
+  }
+
+  private fun updateSwipeRefreshEnabled() {
+    // accidental pulls are too easy while scrubbing the player on /watch and /shorts
+    val path = Uri.parse(pageUrl).path ?: ""
+    val enabled = pullToRefreshEnabled && !path.startsWith("/watch") && !path.startsWith("/shorts")
     swipeRefreshLayout.isEnabled = enabled
     if (!enabled) {
       swipeRefreshLayout.isRefreshing = false
