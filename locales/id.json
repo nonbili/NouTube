@@ -3,7 +3,8 @@
     "label": "Tentang",
     "donate": "Donasi",
     "code": "Kode sumber",
-    "hint": "Info versi, pembaruan, kode sumber, dan tautan dukungan."
+    "hint": "Info versi, pembaruan, kode sumber, dan tautan dukungan.",
+    "updates": "Pembaruan"
   },
   "buttons": {
     "clear": "Hapus",
@@ -34,7 +35,7 @@
     "artists": "Artis"
   },
   "menus": {
-    "edit": "Edit",
+    "edit": "Sunting",
     "remove": "Hapus",
     "reload": "Muat ulang",
     "share": "Bagikan",
@@ -44,12 +45,12 @@
     "on": "Aktif",
     "off": "Nonaktif",
     "openInNewTab": "Buka di Tab Baru",
-    "pip": "Picture-in-Picture",
+    "pip": "Gambar dalam Gambar",
     "duplicateTab": "Duplikasi Tab",
     "close": "Tutup"
   },
   "modals": {
-    "editBookmark": "Edit bookmark",
+    "editBookmark": "Sunting markah",
     "title": "Judul",
     "folder": "Folder",
     "ungrouped": "Tidak dikelompokkan",
@@ -70,7 +71,7 @@
   "settings": {
     "label": "Pengaturan",
     "general": "Umum",
-    "restoreOnStart": "Pulihkan pemutaran terakhir saat mulai",
+    "restoreOnStart": "Pulihkan sesi terakhir saat memulai",
     "hideShorts": "Sembunyikan Shorts di linimasa",
     "channelsFeed": "Feed channel",
     "watchHistory": "Riwayat tontonan",
@@ -120,7 +121,7 @@
       "label": "Hindari thumbnail clickbait",
       "hint": "Ganti thumbnail kreator dengan frame video yang dibuat otomatis",
       "optionDefault": "Default",
-      "optionFrame": "Frame {{n}}"
+      "optionFrame": "Bingkai {{n}}"
     },
     "userStyles": {
       "label": "Gaya & Skrip Pengguna",
@@ -201,7 +202,15 @@
       "add": "Tambah",
       "channelsNote": "Channel dicocokkan secara persis berdasarkan nama, handle, atau ID channel.",
       "keywordsNote": "Kata kunci dicocokkan berdasarkan kemunculan (pencarian substring dalam judul)."
-    }
+    },
+    "autoHideSidebar": "Sembunyikan bilah samping secara otomatis dan tampilkan saat kursor diarahkan",
+    "showDislikes": "Tampilkan tidak suka",
+    "showOriginalVideoTitle": "Tampilkan judul video asli",
+    "preferencesContent": "Konten",
+    "preferencesPlayback": "Pemutaran & tampilan",
+    "preferencesGeneral": "Umum",
+    "pullToRefresh": "Tarik untuk menyegarkan",
+    "showReloadButtonInHeader": "Tampilkan tombol Muat Ulang di bilah alat"
   },
   "sync": {
     "label": "Sinkronisasi",
@@ -252,7 +261,7 @@
     "never": "Tidak pernah",
     "allFolders": "Semua",
     "newFolder": "+ Folder baru",
-    "editFeed": "Edit feed",
+    "editFeed": "Sunting feed",
     "manageEmpty": "Belum ada feed yang disimpan.",
     "manageNoResults": "Tidak ada feed yang cocok dengan filter saat ini.",
     "updatesEmpty": "Tidak ada video feed yang cocok dengan filter folder saat ini.",

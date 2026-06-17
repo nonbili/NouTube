@@ -94,7 +94,11 @@
       "default": "Standard-Benutzer-Agent"
     },
     "tools": "Werkzeuge",
-    "appearance": "Aussehen"
+    "appearance": "Aussehen",
+    "preferencesContent": "Inhaltt",
+    "preferencesPlayback": "Wiedergabe & Anzeige",
+    "preferencesGeneral": "Allgemein",
+    "showBackButtonInHeader": "Zurück-Schaltfläche in der Symbolleiste anzeigen"
   },
   "sync": {
     "label": "Synchronisieren",

@@ -1,0 +1,307 @@
+{
+  "about": {
+    "label": "Hakkında",
+    "code": "Kaynak kodu",
+    "donate": "Bağış yap",
+    "updates": "Güncellemeler",
+    "hint": "Sürüm bilgisi, güncellemeler, kaynak kodu ve destek bağlantıları."
+  },
+  "changelog": {
+    "label": "Değişiklik Günlüğü",
+    "hint": "GitHub'dan alınan son sürümler ve düzeltmeler.",
+    "loading": "Sürüm notları yükleniyor...",
+    "error": "Sürüm notları yüklenemedi.",
+    "retry": "Yeniden dene",
+    "empty": "Sürüm notu bulunamadı.",
+    "current": "Mevcut",
+    "noNotes": "Bu sürüm için herhangi bir sürüm notu sağlanmadı."
+  },
+  "buttons": {
+    "clear": "Temizle",
+    "clearAll": "Tümünü temizle",
+    "import": "İçe aktar",
+    "export": "Dışa aktar",
+    "open": "Aç",
+    "cancel": "İptal",
+    "openUrl": "URL Aç",
+    "move": "Taşı",
+    "save": "Kaydet",
+    "remove": "Kaldır",
+    "unsubscribe": "Abonelikten çık",
+    "signOut": "Oturumu kapat",
+    "next": "Sonraki",
+    "show": "Göster",
+    "download": "İndir",
+    "browse": "Göz at",
+    "updateYtDlp": "yt-dlp'yi güncelle",
+    "updating": "Güncelleniyor...",
+    "ytDlpUpdated": "yt-dlp güncel"
+  },
+  "library": {
+    "videos": "Videolar",
+    "channels": "Kanallar",
+    "playlists": "Oynatma listeleri",
+    "songs": "Şarkılar",
+    "artists": "Sanatçılar"
+  },
+  "menus": {
+    "openInNewTab": "Yeni sekmede aç",
+    "edit": "Düzenle",
+    "remove": "Kaldır",
+    "unsubscribe": "Abonelikten çık",
+    "reload": "Yeniden yükle",
+    "share": "Paylaş",
+    "pip": "Resim içinde Resim (PiP)",
+    "duplicateTab": "Sekmeyi çoğalt",
+    "close": "Kapat",
+    "tools": "Araçlar",
+    "desktop": "Masaüstü sitesi",
+    "on": "Açık",
+    "off": "Kapalı"
+  },
+  "modals": {
+    "editBookmark": "Yer işaretini düzenle",
+    "title": "Başlık",
+    "folder": "Klasör",
+    "ungrouped": "Gruplandırılmamış",
+    "feeds": "Akışlar",
+    "history": "Geçmiş",
+    "queue": "Kuyruk",
+    "downloadVideo": "Videoyu indir",
+    "downloadsFolder": "İndirmeler klasörü",
+    "activeDownloads": "Aktif İndirmeler",
+    "downloadHistory": "İndirme Geçmişi",
+    "starting": "Başlatılıyor...",
+    "downloadComplete": "İndirme tamamlandı",
+    "downloadFailed": "İndirme başarısız oldu",
+    "failedToLoadFormats": "Formatlar yüklenemedi",
+    "playbackSpeed": "Oynatma hızı",
+    "playbackQuality": "Oynatma kalitesi"
+  },
+  "update": {
+    "check": "Güncellemeleri denetle",
+    "checkHint": "Daha yeni bir sürümün olup olmadığını kontrol edin",
+    "upToDate": "En son sürümü kullanıyorsunuz",
+    "downloading": "v{{version}} güncellemesi indiriliyor…",
+    "error": "Güncellemeler denetlenemedi",
+    "downloadedTitle": "Güncelleme hazır",
+    "downloadedHint": "Sürüm {{version}} indirildi. Yüklemek için şimdi yeniden başlatılsın mı?"
+  },
+  "sleepTimer": {
+    "label": "Uyku zamanlayıcısı",
+    "hint": "Belirli bir süre sonra veya kendi girdiğiniz dakika değerinin ardından oynatmayı duraklatın.",
+    "activeHint": "Bu geri sayım bittiğinde oynatma duraklatılacak.",
+    "off": "Kapalı",
+    "endsIn": "Kalan süre: {{value}}",
+    "preset": "{{value}} dk",
+    "customPlaceholder": "Özel dakika",
+    "set": "Zamanlayıcıyı ayarla",
+    "cancel": "Zamanlayıcıyı iptal et",
+    "replace": "Değiştir",
+    "validation": {
+      "minutes": "1 ile 1440 arasında tam bir dakika değeri girin"
+    },
+    "setToast": "Uyku zamanlayıcısı {{value}} dakikaya ayarlandı",
+    "cancelToast": "Uyku zamanlayıcısı iptal edildi",
+    "expiredToast": "Uyku zamanlayıcısının süresi doldu"
+  },
+  "feeds": {
+    "updates": "Güncellemeler",
+    "manage": "Yönet",
+    "sortLastVideo": "Son video",
+    "sortFrequency": "Sıklık",
+    "lastVideoNewest": "Son video: önce en yeni",
+    "lastVideoOldest": "Son video: önce en eski",
+    "frequencyHighest": "Sıklık: önce en yüksek",
+    "frequencyLowest": "Sıklık: önce en düşük",
+    "frequencyLabel": "Sıklık",
+    "lastVideoLabel": "Son video",
+    "videosPerDay": "{{value}} video/gün",
+    "never": "Hiçbir zaman",
+    "allFolders": "Tümü",
+    "newFolder": "+ Yeni klasör",
+    "editFeed": "Akışı düzenle",
+    "manageEmpty": "Henüz kaydedilmiş bir akış yok.",
+    "manageNoResults": "Mevcut filtrelere uygun akış bulunamadı.",
+    "updatesEmpty": "Mevcut klasör filtresiyle eşleşen akış videosu yok.",
+    "filterDropdownPlaceholder": "Klasörleri ve kanalları filtrele",
+    "filterDropdownEmpty": "Eşleşen klasör veya kanal bulunamadı.",
+    "emptyTitleNoChannels": "Yıldızlı kanal yok",
+    "emptyBodyNoChannels": "Yıldız eklediğiniz YouTube kanallarından gelen güncellemeler burada görünecektir.",
+    "emptyTitleFolder": "{{folder}} klasöründe güncelleme yok",
+    "emptyTitleChannel": "{{channel}} kanalından güncelleme yok",
+    "emptyBodyFiltered": "Şu anda burada yakın zamanda yüklenmiş video yok. Daha sonra tekrar kontrol edin veya 'Tümü' seçeneğine geçiş yapın.",
+    "emptyActionFetchNow": "Şimdi getir",
+    "fetchToastSuccess": "Akış yenilendi",
+    "fetchToastRunning": "Yenileme işlemi zaten devam ediyor",
+    "fetchToastNotFound": "Bu kanal yenilenemedi. Akış 404 hatası döndürdü.",
+    "fetchToastError": "Bu kanal yenilenemedi",
+    "emptyActionAllFolders": "Tümünü göster",
+    "emptyTitleWaiting": "Akış güncellemeleri bekleniyor",
+    "emptyBodyWaiting": "Kaydedilen kanallarınız hazır. Uygulamayı bir süre açık tutun veya daha sonra tekrar açın; son yüklemeler burada görünecektir.",
+    "removeTitle": "{{title}} kaldırılsın mı?",
+    "removeMessage": "Bu işlem kanalı Kitaplık'tan kaldırır ve akış videolarını temizler."
+  },
+  "settings": {
+    "label": "Ayarlar",
+    "hubHint": "Oynatma, senkronizasyon, içe aktarmalar ve web görünümü (webview) araçları tek bir yerde.",
+    "general": "Genel",
+    "generalHint": "Varsayılan oynatma ayarları, görünüm, araçlar ve veri aktarımı.",
+    "preferences": "Tercihler",
+    "preferencesHint": "Oynatma, akış ve geçmiş davranışları.",
+    "appearance": "Görünüm",
+    "appearanceHint": "YouTube'un uygulama içindeki görünümünü kontrol edin.",
+    "tools": "Araçlar",
+    "toolsHint": "Web görünümü (webview) ortamını ve diğer araçları yönetin.",
+    "transfer": "İçe ve dışa aktar",
+    "transferHint": "Yer işaretlerini içeri aktarın veya yanınızda götürün.",
+    "syncHintShort": "Hesap, plan ve cihaz senkronizasyonu.",
+    "restoreOnStart": "Başlangıçta son oturumu geri yükle",
+    "autoHideHeader": "Kaydırma yönüne göre araç çubuğunu gizle ve göster",
+    "autoHideSidebar": "Kenar çubuğunu otomatik gizle ve üzerine gelindiğinde göster",
+    "hideToolbarWhenScrolled": "Sayfa en üstte olmadığında araç çubuğunu gizle",
+    "headerPosition": {
+      "label": "Araç çubuğu konumu",
+      "top": "Üst",
+      "bottom": "Alt"
+    },
+    "showHomeButtonInHeader": "Araç çubuğunda Ana Sayfa butonunu göster",
+    "showBackButtonInHeader": "Araç çubuğunda Geri butonunu göster",
+    "showForwardButtonInHeader": "Araç çubuğunda İleri butonunu göster",
+    "hideShorts": "Zaman tünelinde Shorts videolarını gizle",
+    "hideShortsInNavbar": "Gezinme çubuğunda Shorts'u gizle",
+    "hideMixPlaylist": "Karma (Mix) oynatma listelerini gizle",
+    "miniPlayer": "YouTube mini oynatıcı",
+    "preferH264": "H.264 tercih et (VP9/AV1'i engelle)",
+    "showDislikes": "Beğenmeme sayılarını göster",
+    "showOriginalVideoTitle": "Orijinal video başlığını göster",
+    "clickbaitThumbnail": {
+      "label": "Tık tuzağı (clickbait) küçük resimlerini engelle",
+      "hint": "İçerik üretici küçük resimlerini otomatik oluşturulan video kareleriyle değiştirir",
+      "optionDefault": "Varsayılan",
+      "optionFrame": "Kare {{n}}"
+    },
+    "blocklist": {
+      "label": "Engelleme Listesi",
+      "hint": "YouTube videolarını kanala veya başlık anahtar kelimesine göre gizleyin.",
+      "channels": "Kanallar",
+      "keywords": "Anahtar Kelimeler",
+      "channelPlaceholder": "Kanal adı, kullanıcı adı (handle) veya URL",
+      "keywordPlaceholder": "Başlık anahtar kelimesi",
+      "emptyChannels": "Henüz engellenen bir kanal yok.",
+      "emptyKeywords": "Henüz engellenen bir anahtar kelime yok.",
+      "add": "Ekle",
+      "channelsNote": "Kanallar ad, kullanıcı adı veya kanal kimliğine (ID) göre tam olarak eşleşmelidir.",
+      "keywordsNote": "Anahtar kelimeler içerme durumuna göre eşleşir (başlıklarda alt dize araması yapılır)."
+    },
+    "userStyles": {
+      "label": "Kullanıcı Stilleri ve Betikleri",
+      "hint": "Yerleşik CSS düzenlemeleri ve sitelere özel kendi CSS kodlarınız.",
+      "builtin": {
+        "label": "Yerleşik stiller",
+        "hideShortsInNavbar": {
+          "label": "Gezinme çubuğunda Shorts'u gizle"
+        },
+        "hideMixPlaylist": {
+          "label": "Karma oynatma listelerini gizle"
+        },
+        "hideCommunityPosts": {
+          "label": "Topluluk gönderilerini gizle"
+        }
+      },
+      "custom": {
+        "label": "Özel stiller",
+        "empty": "Henüz özel bir stil yok."
+      },
+      "add": "Stil ekle",
+      "addTitle": "Kullanıcı stili ekle",
+      "editTitle": "Kullanıcı stilini düzenle",
+      "nameLabel": "İsim",
+      "namePlaceholder": "Stilim",
+      "validation": {
+        "css": "CSS alanı boş bırakılamır"
+      },
+      "deleteConfirm": "Bu özel stil kaldırılsın mı?",
+      "copyCss": "CSS'i kopyala",
+      "cssCopied": "CSS kopyalandı",
+      "copyFailed": "CSS kopyalanamadı",
+      "importFailed": "CSS içe aktarılamadı",
+      "scripts": {
+        "label": "Özel betikler (scripts)",
+        "empty": "Henüz özel bir betik yok.",
+        "add": "Betik ekle",
+        "addTitle": "Kullanıcı betiği ekle",
+        "editTitle": "Kullanıcı betiğini düzenle",
+        "namePlaceholder": "Betiğim",
+        "run": "Çalıştır",
+        "runComplete": "Betik çalıştırıldı",
+        "runFailed": "Betik başarısız oldu",
+        "import": "İçe aktar",
+        "importFailed": "Betik içe aktarılamadı",
+        "pinToHeader": "Araç çubuğuna sabitle",
+        "pinToHeaderHint": "Bu betiği araç çubuğunda bir eylem olarak göster.",
+        "pinnedToHeader": "Araç çubuğuna sabitlendi",
+        "deleteConfirm": "Bu özel betik kaldırılsın mı?",
+        "noActiveTab": "Aktif web görünümü (webview) yok",
+        "validation": {
+          "js": "JavaScript alanı boş bırakılamaz"
+        }
+      }
+    },
+    "channelsFeed": "Kanallar akışı",
+    "watchHistory": "İzleme geçmişi",
+    "theme": {
+      "label": "YouTube Teması",
+      "system": "Sistem",
+      "dark": "Karanlık",
+      "light": "Aydınlık",
+      "hint": "Değişiklik web görünümüne yansımazsa manuel olarak yeniden başlatın."
+    },
+    "language": {
+      "label": "Dil",
+      "system": "Sistem",
+      "hint": "Bir dil seçin veya sistem dilini takip edin."
+    },
+    "login": {
+      "label": "Web görünümünden giriş yapamadıysanız bunu deneyin",
+      "button": "YouTube Girişi Yap"
+    },
+    "openUrlLabel": "Desteklenen URL'yi doğrudan aç",
+    "webview": {
+      "clearLabel": "Web görünümü verilerini temizle"
+    },
+    "userAgent": {
+      "title": "Özel kullanıcı aracısı (user agent)",
+      "default": "Varsayılan kullanıcı aracısı"
+    },
+    "importList": "Bağlantı listesini içe aktar",
+    "importTakeout": "YouTube Takeout'tan içe aktar",
+    "exportLabel": "Yer işaretlerini bir liste olarak dışa aktar",
+    "injectCookie": "Web görünümünden giriş yapılamadıysa çerez (cookie) enjekte edin",
+    "injectCookieTitle": "Web görünümüne kimlik doğrulama çerezi enjekte edin",
+    "injectCookieHint": "PC tarayıcınızdan 'Cookie' üstbilgi (header) değerini kopyalayın. E-posta/şifre ile giriş yapamadığınız durumlar için bu alternatif bir çözümdür.",
+    "preferencesContent": "içerik",
+    "preferencesPlayback": "Oynatma ve görüntüleme",
+    "preferencesGeneral": "Genel",
+    "pullToRefresh": "Yenilemek için aşağı kaydırın",
+    "showReloadButtonInHeader": "Araç çubuğunda Yeniden Yükle düğmesini göster"
+  },
+  "native": {
+    "format_bestQuality": "En iyi kalite",
+    "format_bestQualityDesc": "{{height}}p çözünürlüğe kadar video + ses",
+    "format_1080pDesc": "1080p video + ses",
+    "format_720pDesc": "720p video + ses",
+    "format_audioOnly": "Sadece ses",
+    "format_audio": "Ses ({{ext}})",
+    "format_audioStreamDesc": "En iyi ses akışı",
+    "format_audioMp3Desc": "MP3 formatına dönüştürülmüş en iyi ses",
+    "download_complete": "İndirme tamamlandı",
+    "download_failed": "İndirme başarısız oldu"
+  },
+  "sync": {
+    "label": "Senkronizasyon",
+    "hint": "Premium kullanıcı olarak yer işaretlerinizi telefonlarınız ve bilgisayarlarınız arasında senkronize edin.",
+    "currentPlan": "Mevcut plan",
+    "managePlan": "Planı yönet"
+  }
+}
