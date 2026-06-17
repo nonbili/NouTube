@@ -1,6 +1,8 @@
 import { registerWebModule, NativeModule } from 'expo'
 
 class NouTubeViewModule extends NativeModule {
+  setSettings() {}
+
   extractTakeoutCsvFiles() {
     throw new Error('extractTakeoutCsvFiles is only available on Android')
   }

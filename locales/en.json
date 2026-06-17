@@ -161,6 +161,15 @@
     "syncHintShort": "Account, plan, and device sync.",
     "restoreOnStart": "Restore last session on start",
     "pullToRefresh": "Pull to refresh",
+    "proxy": {
+      "label": "Proxy",
+      "enabled": "Enable proxy",
+      "type": "Proxy type",
+      "host": "Proxy host",
+      "port": "Proxy port",
+      "hostPlaceholder": "e.g. 127.0.0.1 or proxy.example.com",
+      "portPlaceholder": "e.g. 1080"
+    },
     "autoHideHeader": "Hide and show toolbar on scroll direction",
     "autoHideSidebar": "Auto-hide sidebar and show on hover",
     "hideToolbarWhenScrolled": "Hide toolbar when page is not at top",

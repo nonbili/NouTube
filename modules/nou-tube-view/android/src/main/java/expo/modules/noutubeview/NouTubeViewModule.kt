@@ -3,6 +3,9 @@ package expo.modules.noutubeview
 import android.net.Uri
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.webkit.ProxyConfig
+import androidx.webkit.ProxyController
+import androidx.webkit.WebViewFeature
 import expo.modules.kotlin.functions.Coroutine
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
@@ -14,9 +17,49 @@ import java.io.InputStream
 import java.util.zip.ZipInputStream
 
 class NouTubeViewModule : Module() {
+  private var lastProxyKey: String? = null
+
   private fun ytDlp(): NouYtDlp {
     val context = appContext.reactContext?.applicationContext ?: throw Exception("Application context is unavailable")
     return NouYtDlp(context)
+  }
+
+  private fun applyProxy(settings: NouSettings) {
+    if (!WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)) {
+      nouController.log("proxy override is not supported")
+      return
+    }
+
+    val proxyKey = "${settings.proxyEnabled}|${settings.proxyType}|${settings.proxyHost}|${settings.proxyPort}"
+    if (proxyKey == lastProxyKey) {
+      return
+    }
+    lastProxyKey = proxyKey
+
+    val executor = java.util.concurrent.Executor { command -> command.run() }
+    if (settings.proxyEnabled && settings.proxyHost.isNotBlank()) {
+      val type = if (settings.proxyType == "socks") "socks" else "http"
+      val portStr = if (settings.proxyPort.isNotBlank()) ":${settings.proxyPort}" else ""
+      val proxyRule = "$type://${settings.proxyHost}$portStr"
+      val proxyConfig = ProxyConfig.Builder()
+        .addProxyRule(proxyRule)
+        .build()
+      try {
+        ProxyController.getInstance().setProxyOverride(proxyConfig, executor, Runnable {
+          nouController.log("proxy override applied: $proxyRule")
+        })
+      } catch (e: Exception) {
+        nouController.log("setProxyOverride failed: ${e.message}")
+      }
+    } else {
+      try {
+        ProxyController.getInstance().clearProxyOverride(executor, Runnable {
+          nouController.log("proxy override cleared")
+        })
+      } catch (e: Exception) {
+        nouController.log("clearProxyOverride failed: ${e.message}")
+      }
+    }
   }
 
   init {
@@ -56,6 +99,10 @@ class NouTubeViewModule : Module() {
 
     Function("exit") {
       nouController.exit()
+    }
+
+    Function("setSettings") { settings: NouSettings ->
+      applyProxy(settings)
     }
 
     Function("setLocaleStrings") { v: JavaScriptObject ->

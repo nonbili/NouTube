@@ -1,6 +1,8 @@
 package expo.modules.noutubeview
 
 import android.os.SystemClock
+import expo.modules.kotlin.records.Field
+import expo.modules.kotlin.records.Record
 
 typealias LogFn = (String) -> Unit
 typealias SleepTimerEventFn = (Map<String, Any?>) -> Unit
@@ -8,6 +10,20 @@ typealias SleepTimerEventFn = (Map<String, Any?>) -> Unit
 private const val SLEEP_TIMER_REASON_SET = "set"
 private const val SLEEP_TIMER_REASON_CLEAR = "clear"
 private const val SLEEP_TIMER_REASON_EXPIRED = "expired"
+
+class NouSettings : Record {
+  @Field
+  val proxyEnabled: Boolean = false
+
+  @Field
+  val proxyType: String = "http"
+
+  @Field
+  val proxyHost: String = ""
+
+  @Field
+  val proxyPort: String = ""
+}
 
 class NouController {
   internal var service: NouService? = null

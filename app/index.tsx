@@ -10,10 +10,21 @@ import * as Linking from 'expo-linking'
 import { MainPage } from '@/components/page/MainPage'
 import { isAndroid, nIf } from '@/lib/utils'
 import NouTubeViewModule from '@/modules/nou-tube-view'
+import { settings$ } from '@/states/settings'
 import { sleepTimer$ } from '@/states/sleep-timer'
 import { showToast } from '@/lib/toast'
 import { t } from 'i18next'
 import { addSleepTimerListener, getNativeSleepTimerRemainingMs, hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
+
+const syncNativeSettings = () => {
+  const settings = settings$.get()
+  NouTubeViewModule.setSettings({
+    proxyEnabled: settings.proxyEnabled,
+    proxyType: settings.proxyType,
+    proxyHost: settings.proxyHost,
+    proxyPort: settings.proxyPort,
+  })
+}
 
 export default function HomeScreen() {
   const [scriptOnStart, setScriptOnStart] = useState('')
@@ -65,6 +76,10 @@ export default function HomeScreen() {
       console.log('[kotlin]', evt.msg)
     })
 
+    if (isAndroid) {
+      syncNativeSettings()
+    }
+
     let sleepTimerSubscription: { remove?: () => void } | undefined
     if (isAndroid && hasSleepTimerNativeSupport()) {
       void getNativeSleepTimerRemainingMs()
@@ -104,6 +119,12 @@ export default function HomeScreen() {
 
   useObserveEffect(ui$.url, () => {
     ui$.queueModalOpen.set(false)
+  })
+
+  useObserveEffect(settings$, () => {
+    if (isAndroid) {
+      syncNativeSettings()
+    }
   })
 
   return nIf(scriptOnStart, <MainPage contentJs={scriptOnStart} />)

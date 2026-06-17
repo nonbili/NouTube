@@ -49,6 +49,7 @@ repositories {
 
 dependencies {
   implementation 'androidx.appcompat:appcompat:1.7.0'
+  implementation "androidx.webkit:webkit:1.13.0"
   implementation 'androidx.media:media:1.7.0'
   implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
   implementation 'io.github.junkfood02.youtubedl-android:library:0.17.3'

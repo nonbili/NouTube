@@ -37,6 +37,10 @@ export interface SettingsSnapshot {
   desktopMode: boolean
   desktopModeYT: boolean
   theme: null | 'dark' | 'light'
+  proxyEnabled: boolean
+  proxyType: 'http' | 'socks'
+  proxyHost: string
+  proxyPort: string
 }
 
 interface Store extends SettingsSnapshot {
@@ -84,6 +88,18 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   if (typeof data.pullToRefreshEnabled !== 'boolean') {
     data.pullToRefreshEnabled = true
   }
+  if (typeof data.proxyEnabled !== 'boolean') {
+    data.proxyEnabled = false
+  }
+  if (data.proxyType !== 'http' && data.proxyType !== 'socks') {
+    data.proxyType = 'http'
+  }
+  if (typeof data.proxyHost !== 'string') {
+    data.proxyHost = ''
+  }
+  if (typeof data.proxyPort !== 'string') {
+    data.proxyPort = ''
+  }
   return data
 }
 
@@ -122,6 +138,10 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   desktopMode: Boolean(value?.desktopMode),
   desktopModeYT: Boolean(value?.desktopModeYT),
   theme: value?.theme === 'dark' || value?.theme === 'light' ? value.theme : null,
+  proxyEnabled: Boolean(value?.proxyEnabled),
+  proxyType: value?.proxyType === 'socks' ? 'socks' : 'http',
+  proxyHost: typeof value?.proxyHost === 'string' ? value.proxyHost : '',
+  proxyPort: typeof value?.proxyPort === 'string' ? value.proxyPort : '',
 })
 
 export const settings$ = observable<Store>({
@@ -161,6 +181,10 @@ export const settings$ = observable<Store>({
   desktopMode: false,
   desktopModeYT: false,
   theme: isWeb ? 'dark' : null,
+  proxyEnabled: false,
+  proxyType: 'http',
+  proxyHost: '',
+  proxyPort: '',
   downloadPath: '',
   lastYtDlpUpdate: 0,
 })
