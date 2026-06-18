@@ -36,6 +36,7 @@ export interface SettingsSnapshot {
   userAgent: string
   desktopMode: boolean
   desktopModeYT: boolean
+  defaultZoom: number
   theme: null | 'dark' | 'light'
   proxyEnabled: boolean
   proxyType: 'http' | 'socks'
@@ -100,6 +101,9 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   if (typeof data.proxyPort !== 'string') {
     data.proxyPort = ''
   }
+  if (typeof data.defaultZoom !== 'number') {
+    data.defaultZoom = 100
+  }
   return data
 }
 
@@ -137,6 +141,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   userAgent: typeof value?.userAgent === 'string' ? value.userAgent : '',
   desktopMode: Boolean(value?.desktopMode),
   desktopModeYT: Boolean(value?.desktopModeYT),
+  defaultZoom: typeof value?.defaultZoom === 'number' ? value.defaultZoom : 100,
   theme: value?.theme === 'dark' || value?.theme === 'light' ? value.theme : null,
   proxyEnabled: Boolean(value?.proxyEnabled),
   proxyType: value?.proxyType === 'socks' ? 'socks' : 'http',
@@ -180,6 +185,7 @@ export const settings$ = observable<Store>({
   userAgent: '',
   desktopMode: false,
   desktopModeYT: false,
+  defaultZoom: 100,
   theme: isWeb ? 'dark' : null,
   proxyEnabled: false,
   proxyType: 'http',
@@ -198,3 +204,5 @@ syncObservable(settings$, {
     },
   },
 })
+
+export const ZOOM_PRESETS = [50, 75, 90, 100, 110, 125, 150, 175, 200, 250, 300]

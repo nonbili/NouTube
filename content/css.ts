@@ -9,6 +9,20 @@ const cssContentMobile = css`
   * {
     user-select: none;
   }
+
+  /*
+   * Text zoom (webView textZoom) scales fonts but not the fixed pixel heights
+   * YouTube hardcodes on its text containers, so zoomed titles/headlines get
+   * clipped. Drop those height clamps so the boxes grow with the text;
+   * -webkit-line-clamp still truncates long titles to the intended line count.
+   */
+  [class*='headline' i],
+  [class*='title' i],
+  [class*='subhead' i],
+  [class*='channel-name' i] {
+    height: auto !important;
+    max-height: none !important;
+  }
 `
 
 const cssContent = css`

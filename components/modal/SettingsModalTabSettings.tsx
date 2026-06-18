@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useLocales } from 'expo-localization'
 import { clsx, isAndroid, isWeb, nIf } from '@/lib/utils'
 import { useValue } from '@legendapp/state/react'
-import { settings$ } from '@/states/settings'
+import { settings$, ZOOM_PRESETS } from '@/states/settings'
 import { Segmented } from '../picker/Segmented'
 import { NouMenu } from '../menu/NouMenu'
 import { getDocumentAsync } from 'expo-document-picker'
@@ -423,6 +423,39 @@ export const SettingsAppearanceContent = () => {
           </View>
         </SettingsSection>
       </View>
+
+      {nIf(
+        isAndroid,
+        <View className="mt-8">
+          <SettingsSection label={t('settings.zoom.label')}>
+            <View className={surfaceCls}>
+              <View className="flex-row items-center gap-3 px-4 py-4">
+                <View className={iconWrapCls}>
+                  <MaterialIcons name="zoom-in" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+                </View>
+                <View className="flex-1">
+                  <NouText className="font-medium">{t('settings.zoom.defaultLabel')}</NouText>
+                  <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
+                    {t('settings.zoom.defaultHint')}
+                  </NouText>
+                </View>
+                <NouMenu
+                  trigger={
+                    <NouButton size="1" variant="outline" onPress={() => {}}>
+                      {settings.defaultZoom}%
+                    </NouButton>
+                  }
+                  items={ZOOM_PRESETS.map((zoom) => ({
+                    label: `${zoom}%`,
+                    handler: () => settings$.defaultZoom.set(zoom),
+                    metaLabel: settings.defaultZoom === zoom ? '✓' : undefined,
+                  }))}
+                />
+              </View>
+            </View>
+          </SettingsSection>
+        </View>,
+      )}
 
       <View className="mt-8">
         <SettingsSection label={t('settings.language.label')}>

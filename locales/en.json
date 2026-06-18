@@ -152,6 +152,11 @@
     "preferencesContent": "Content",
     "preferencesPlayback": "Playback & display",
     "preferencesGeneral": "General",
+    "zoom": {
+      "label": "Text zoom",
+      "defaultLabel": "Text zoom",
+      "defaultHint": "Set the text size for YouTube pages on Android."
+    },
     "appearance": "Appearance",
     "appearanceHint": "Control how YouTube looks inside the app.",
     "tools": "Tools",

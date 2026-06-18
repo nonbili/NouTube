@@ -20,6 +20,10 @@ describe('settings', () => {
     expect(getSettingsSnapshot({}).pullToRefreshEnabled).toBe(true)
   })
 
+  it('defaults text zoom to 100 in snapshots', () => {
+    expect(getSettingsSnapshot({}).defaultZoom).toBe(100)
+  })
+
   it('normalizes missing original video title setting to false', () => {
     const settings = normalizePartialSettings()
     expect(settings?.showOriginalVideoTitle).toBe(false)
@@ -38,5 +42,10 @@ describe('settings', () => {
   it('normalizes missing pull to refresh setting to true', () => {
     const settings = normalizePartialSettings()
     expect(settings?.pullToRefreshEnabled).toBe(true)
+  })
+
+  it('normalizes missing text zoom to 100', () => {
+    const settings = normalizePartialSettings()
+    expect(settings?.defaultZoom).toBe(100)
   })
 })

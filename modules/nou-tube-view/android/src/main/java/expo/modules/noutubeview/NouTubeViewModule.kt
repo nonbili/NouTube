@@ -187,6 +187,10 @@ class NouTubeViewModule : Module() {
         view.setPullToRefreshEnabled(enabled)
       }
 
+      Prop("textZoom") { view: NouTubeView, zoom: Int ->
+        view.setTextZoom(zoom)
+      }
+
       Events("onLoad", "onMessage")
 
       AsyncFunction("clearData") { view: NouTubeView -> view.clearData() }

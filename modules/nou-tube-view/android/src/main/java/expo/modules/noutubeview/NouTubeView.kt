@@ -129,6 +129,10 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   internal val currentActivity: Activity?
     get() = appContext.activityProvider?.currentActivity
 
+  fun setTextZoom(zoom: Int) {
+    webView.settings.textZoom = zoom
+  }
+
   override fun onCreateContextMenu(menu: ContextMenu) {
     super.onCreateContextMenu(menu)
 
