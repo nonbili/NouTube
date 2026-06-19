@@ -175,61 +175,6 @@ export const SettingsPreferencesContent = () => {
         </View>
       </SettingsSection>
 
-      {nIf(
-        !isWeb,
-        <View className="mt-8">
-          <SettingsSection label={t('settings.proxy.label')}>
-            <View className={surfaceCls}>
-              <SettingsToggleRow
-                label={t('settings.proxy.enabled')}
-                icon="settings-ethernet"
-                value={settings.proxyEnabled}
-                onPress={() => settings$.proxyEnabled.set(!settings.proxyEnabled)}
-                isLast={!settings.proxyEnabled}
-              />
-              {nIf(
-                settings.proxyEnabled,
-                <>
-                  <View className="flex-row items-center justify-between gap-3 border-b border-zinc-300 px-4 py-4 dark:border-zinc-800">
-                    <NouText className="font-medium">{t('settings.proxy.type')}</NouText>
-                    <Segmented
-                      options={['HTTP', 'SOCKS']}
-                      selectedIndex={settings.proxyType === 'socks' ? 1 : 0}
-                      size={1}
-                      onChange={(index) => settings$.proxyType.set(index === 1 ? 'socks' : 'http')}
-                    />
-                  </View>
-                  <View className="flex-row items-center justify-between gap-3 border-b border-zinc-300 px-4 py-4 dark:border-zinc-800">
-                    <NouText className="w-24 font-medium">{t('settings.proxy.host')}</NouText>
-                    <TextInput
-                      className="flex-1 rounded-lg border border-zinc-300 bg-zinc-100 px-3 py-2 text-right text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-                      value={settings.proxyHost}
-                      onChangeText={(text) => settings$.proxyHost.set(text)}
-                      placeholder={t('settings.proxy.hostPlaceholder')}
-                      placeholderTextColor="#71717a"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                    />
-                  </View>
-                  <View className="flex-row items-center justify-between gap-3 px-4 py-4">
-                    <NouText className="w-24 font-medium">{t('settings.proxy.port')}</NouText>
-                    <TextInput
-                      className="w-32 rounded-lg border border-zinc-300 bg-zinc-100 px-3 py-2 text-right text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-                      value={settings.proxyPort}
-                      onChangeText={(text) => settings$.proxyPort.set(text)}
-                      placeholder={t('settings.proxy.portPlaceholder')}
-                      placeholderTextColor="#71717a"
-                      keyboardType="numeric"
-                      returnKeyType="done"
-                    />
-                  </View>
-                </>,
-              )}
-            </View>
-          </SettingsSection>
-        </View>,
-      )}
-
       <View className="mt-8">
         <SettingsSection label={t('settings.preferencesContent')}>
           <View className={surfaceCls}>
@@ -305,6 +250,61 @@ export const SettingsPreferencesContent = () => {
           </View>
         </SettingsSection>
       </View>
+
+      {nIf(
+        !isWeb,
+        <View className="mt-8">
+          <SettingsSection label={t('settings.proxy.label')}>
+            <View className={surfaceCls}>
+              <SettingsToggleRow
+                label={t('settings.proxy.enabled')}
+                icon="settings-ethernet"
+                value={settings.proxyEnabled}
+                onPress={() => settings$.proxyEnabled.set(!settings.proxyEnabled)}
+                isLast={!settings.proxyEnabled}
+              />
+              {nIf(
+                settings.proxyEnabled,
+                <>
+                  <View className="flex-row items-center justify-between gap-3 border-b border-zinc-300 px-4 py-4 dark:border-zinc-800">
+                    <NouText className="font-medium">{t('settings.proxy.type')}</NouText>
+                    <Segmented
+                      options={['HTTP', 'SOCKS']}
+                      selectedIndex={settings.proxyType === 'socks' ? 1 : 0}
+                      size={1}
+                      onChange={(index) => settings$.proxyType.set(index === 1 ? 'socks' : 'http')}
+                    />
+                  </View>
+                  <View className="flex-row items-center justify-between gap-3 border-b border-zinc-300 px-4 py-4 dark:border-zinc-800">
+                    <NouText className="w-24 font-medium">{t('settings.proxy.host')}</NouText>
+                    <TextInput
+                      className="flex-1 rounded-lg border border-zinc-300 bg-zinc-100 px-3 py-2 text-right text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                      value={settings.proxyHost}
+                      onChangeText={(text) => settings$.proxyHost.set(text)}
+                      placeholder={t('settings.proxy.hostPlaceholder')}
+                      placeholderTextColor="#71717a"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                    />
+                  </View>
+                  <View className="flex-row items-center justify-between gap-3 px-4 py-4">
+                    <NouText className="w-24 font-medium">{t('settings.proxy.port')}</NouText>
+                    <TextInput
+                      className="w-32 rounded-lg border border-zinc-300 bg-zinc-100 px-3 py-2 text-right text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                      value={settings.proxyPort}
+                      onChangeText={(text) => settings$.proxyPort.set(text)}
+                      placeholder={t('settings.proxy.portPlaceholder')}
+                      placeholderTextColor="#71717a"
+                      keyboardType="numeric"
+                      returnKeyType="done"
+                    />
+                  </View>
+                </>,
+              )}
+            </View>
+          </SettingsSection>
+        </View>,
+      )}
     </View>
   )
 }
