@@ -54,7 +54,10 @@
     "desktop": "Sitio de escritorio",
     "on": "Activar",
     "off": "Desactivar",
-    "pip": "Imagen en imagen"
+    "pip": "Imagen en imagen",
+    "openInNewTab": "Abrir en una nueva pestaña",
+    "duplicateTab": "Duplicar pestaña",
+    "close": "Cerrar"
   },
   "modals": {
     "editBookmark": "Editar marcador",
@@ -144,7 +147,7 @@
     "transferHint": "Importa tus marcadores o llévatelos contigo.",
     "label": "Ajustes",
     "syncHintShort": "Cuenta, plan y sincronización de dispositivos.",
-    "restoreOnStart": "Restaurar última reproducción al iniciar",
+    "restoreOnStart": "Restaurar la última sesión al iniciar",
     "autoHideHeader": "Ocultar y mostrar la barra de herramientas según la dirección del desplazamiento",
     "hideToolbarWhenScrolled": "Ocultar la barra de herramientas cuando la página no esté arriba",
     "hideShorts": "Ocultar shorts en la línea de tiempo",
@@ -206,7 +209,10 @@
         "noActiveTab": "No hay ninguna vista web activa",
         "validation": {
           "js": "El código JavaScript no puede estar vacío"
-        }
+        },
+        "pinToHeader": "Fijar en la barra de herramientas",
+        "pinToHeaderHint": "­Mostrar este script como una acción de la barra de herramientas.",
+        "pinnedToHeader": "Fijado en la barra de herramientas"
       }
     },
     "channelsFeed": "Feed de canales",
@@ -261,7 +267,15 @@
       "add": "Añadir",
       "channelsNote": "Los canales coinciden exactamente por nombre, identificador o ID del canal.",
       "keywordsNote": "Las palabras clave coinciden por inclusión (búsqueda de subcadena en títulos)."
-    }
+    },
+    "autoHideSidebar": "Ocultar automáticamente la barra lateral y mostrar al pasar el cursor",
+    "showDislikes": "Mostrar \"No me gusta\"",
+    "showOriginalVideoTitle": "Mostrar título original del video",
+    "preferencesContent": "Contenido",
+    "preferencesPlayback": "Reproducción y pantalla",
+    "preferencesGeneral": "General",
+    "pullToRefresh": "Deslizar para actualizar",
+    "showReloadButtonInHeader": "Mostrar botón de recargar en la barra de herramientas"
   },
   "native": {
     "format_bestQuality": "Mejor calidad",

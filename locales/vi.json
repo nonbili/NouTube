@@ -2,8 +2,9 @@
   "about": {
     "label": "Về chúng tôi",
     "code": "Mã nguồn",
-    "donate": "Từ thiện",
-    "hint": "Thông tin phiên bản, mã nguồn và các đường dẫn được hỗ trợ."
+    "donate": "Khuyên góp",
+    "hint": "Thông tin phiên bản, mã nguồn và các đường dẫn được hỗ trợ.",
+    "updates": "Cập nhật"
   },
   "changelog": {
     "label": "Nhật ký sửa đổi",
@@ -37,7 +38,7 @@
     "ytDlpUpdated": "yt-dlp đang ở phiên bản mới nhất"
   },
   "library": {
-    "videos": "Tập phim",
+    "videos": "Đoạn phim",
     "channels": "Kênh",
     "playlists": "Danh sách phát",
     "songs": "Bài hát",
@@ -52,7 +53,11 @@
     "tools": "Công cụ",
     "desktop": "Trang cho máy tính",
     "on": "Bật",
-    "off": "Tắt"
+    "off": "Tắt",
+    "openInNewTab": "Mở trong cửa sổ mới",
+    "pip": "Hình-trong-hình",
+    "duplicateTab": "Nhân bản cửa sổ",
+    "close": "Đóng"
   },
   "sleepTimer": {
     "setToast": "Đã đặt thời gian đi ngủ trong {{value}} phút",
@@ -76,37 +81,48 @@
     "updates": "Cập nhật",
     "manage": "Quản lý",
     "sortLastVideo": "Đã coi gần đây",
-    "sortFrequency": "Tần suất",
+    "sortFrequency": "Tần suất đăng",
     "lastVideoNewest": "Đã coi gần đây: mới nhất trước",
     "lastVideoOldest": "Đã coi gần đây: cũ nhất trước",
-    "frequencyHighest": "Tần suất: cao nhất trước",
-    "frequencyLowest": "Tần suất: thấp nhất trước",
-    "frequencyLabel": "Tần suất",
-    "lastVideoLabel": "Tập phim coi cuối",
-    "videosPerDay": "{{value}} phim/ngày",
+    "frequencyHighest": "Tần suất đăng: cao nhất trước",
+    "frequencyLowest": "Tần suất đăng: thấp nhất trước",
+    "frequencyLabel": "Tần suất đăng",
+    "lastVideoLabel": "Đoạn phim gần đây",
+    "videosPerDay": "{{value}} đoạn phim/ngày",
     "never": "Không bao giờ",
     "allFolders": "Tất cả",
     "newFolder": "+ Thư mục mới",
     "editFeed": "Chỉnh sửa trang cập nhật",
     "manageEmpty": "Chưa lưu gì cả.",
     "manageNoResults": "Không có cái nào hợp bộ lọc hiện tại.",
-    "updatesEmpty": "Không có tập phim nào hợp với bộ lọc thư mục hiện tại.",
+    "updatesEmpty": "Không có đoạn phim nào hợp với bộ lọc thư mục hiện tại.",
     "filterDropdownPlaceholder": "Lọc các thư mục và kênh",
     "filterDropdownEmpty": "Không có thư mục hay kênh nào hợp.",
     "emptyTitleNoChannels": "Không có kênh nào được đánh dấu sao",
     "emptyBodyNoChannels": "Các tập phim mới của các kênh được đánh dấu sao từ YouTube sẽ hiện ra ở đây.",
     "emptyTitleFolder": "Không có gì mới trong {{folder}}",
-    "emptyTitleChannel": "Không có gì mới từ {{channel}}"
+    "emptyTitleChannel": "Không có gì mới từ {{channel}}",
+    "emptyBodyFiltered": "Không có đoạn phim nào gần đây. Kiểm tra lại sau hoặc chuyển sang Tất cả.",
+    "removeMessage": "Việc này sẽ xóa kênh khỏi thư viện và dọn sạch các đoạn phim đã cập nhật.",
+    "emptyActionFetchNow": "Kiểm tra ngay",
+    "fetchToastSuccess": "Trang cập nhật đã tải lại",
+    "fetchToastRunning": "Đã đang tải lại",
+    "fetchToastNotFound": "Không thể tải lại kênh này. Kiểm tra cho ra kết qủa 404.",
+    "fetchToastError": "Không thể kiểm tra kênh này",
+    "emptyActionAllFolders": "Hiện tất cả",
+    "emptyTitleWaiting": "Đang đợi cập nhật từ trang",
+    "emptyBodyWaiting": "Các kênh đã lưu đã sẵn sàng. Giữ ứng dụng mở một lúc hoặc mở lại sau, và các đăng tải mới sẽ hiện ở đây.",
+    "removeTitle": "Loại bỏ {{title}}?"
   },
   "modals": {
     "editBookmark": "Chỉnh sửa dấu trang",
     "title": "Tiêu đề",
     "folder": "Thư mục",
     "ungrouped": "Chưa có nhóm",
-    "feeds": "Cập nhật",
+    "feeds": "Bảng tin",
     "history": "Lịch sử",
     "queue": "Hàng chờ",
-    "downloadVideo": "Tải tập phim xuống",
+    "downloadVideo": "Tải đoạn phim xuống",
     "downloadsFolder": "Thư mục phim đã tải",
     "activeDownloads": "Đang tải",
     "downloadHistory": "Lịch sử tải xuống",
@@ -114,6 +130,33 @@
     "downloadComplete": "Đã tải xong",
     "downloadFailed": "Tải thất bại",
     "failedToLoadFormats": "Mở định dạng thất bại",
-    "playbackSpeed": "Tốc độ phát"
+    "playbackSpeed": "Tốc độ phát",
+    "playbackQuality": "Chất lượng phát"
+  },
+  "settings": {
+    "showOriginalVideoTitle": "Hiện tiêu đề gốc",
+    "clickbaitThumbnail": {
+      "hint": "Thay ảnh bìa bằng ảnh một khung hình trong đoạn phim"
+    },
+    "blocklist": {
+      "hint": "Ẩn các đoạn phim YouTube dựa trên tên kênh hoặc từ khóa tiêu đề."
+    },
+    "label": "Cài đặt",
+    "hubHint": "Trình xem, đồng bộ, nhập , và công cụ webview trong cùng một nơi.",
+    "general": "Chung"
+  },
+  "native": {
+    "format_bestQualityDesc": "Lên đến {{height}}p cho đoạn phim + âm thanh",
+    "format_1080pDesc": "1080p cho đoạn phim + âm thanh",
+    "format_720pDesc": "720p cho đoạn phim + âm thanh"
+  },
+  "update": {
+    "check": "Kiểm tra cập nhật",
+    "checkHint": "Xem xem có bản mới hay không",
+    "upToDate": "Bạn đang ở bản mới nhất",
+    "downloading": "Đang tải bản cập nhật v{{version}}…",
+    "error": "Kiểm tra cập nhật thất bại",
+    "downloadedTitle": "Đã sẵn sàng cập nhật",
+    "downloadedHint": "Phiên bản {{version}} đã được tải xuống. Khởi động lại để cài đặt?"
   }
 }

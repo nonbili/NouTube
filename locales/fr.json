@@ -71,7 +71,7 @@
   "settings": {
     "label": "Paramètres",
     "general": "Général",
-    "restoreOnStart": "Restaurer la dernière lecture au démarrage",
+    "restoreOnStart": "Restaurer la dernière session au démarrage",
     "hideShorts": "Masquer les shorts dans la chronologie",
     "channelsFeed": "Flux des chaînes",
     "watchHistory": "Historique des visionnages",
@@ -162,7 +162,10 @@
         "noActiveTab": "Aucune vue Web active",
         "validation": {
           "js": "Le champ JavaScript ne peut pas être vide"
-        }
+        },
+        "pinToHeader": "Épingler à la barre d'outils",
+        "pinToHeaderHint": "Afficher ce script sous forme d'action de la barre d'outils.",
+        "pinnedToHeader": "Épinglé à la barre d'outils"
       }
     },
     "hideToolbarWhenScrolled": "Masquer la barre d'outils lorsque la page n'est pas en haut de page",
@@ -199,7 +202,15 @@
       "add": "Ajouter",
       "channelsNote": "Les chaînes correspondent exactement par nom, identifiant ou ID de chaîne.",
       "keywordsNote": "Les mots-clés sont recherchés par inclusion (recherche de sous-chaînes dans les titres)."
-    }
+    },
+    "autoHideSidebar": "Masquer automatiquement la barre latérale et l'afficher au survol",
+    "showDislikes": "Afficher les « Je n'aime pas »",
+    "showOriginalVideoTitle": "Afficher le titre original de la vidéo",
+    "preferencesContent": "Contenu",
+    "preferencesPlayback": "Lecture & Affichage",
+    "preferencesGeneral": "Général",
+    "pullToRefresh": "Tirez pour actualiser",
+    "showReloadButtonInHeader": "Afficher le bouton « Actualiser » dans la barre d'outils"
   },
   "sync": {
     "label": "Synchronisation",

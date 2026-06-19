@@ -71,7 +71,7 @@
   "settings": {
     "label": "设置",
     "general": "常规",
-    "restoreOnStart": "启动时恢复上次播放",
+    "restoreOnStart": "启动时恢复上次会话",
     "hideShorts": "在时间线中隐藏 Shorts 短视频",
     "channelsFeed": "频道订阅源",
     "watchHistory": "观看记录",
@@ -162,7 +162,10 @@
         "noActiveTab": "无活动 WebView",
         "validation": {
           "js": "JavaScript 不能为空"
-        }
+        },
+        "pinToHeader": "固定到工具栏",
+        "pinToHeaderHint": "将此脚本显示为工具栏操作。",
+        "pinnedToHeader": "已固定到工具栏"
       }
     },
     "hideToolbarWhenScrolled": "页面不在顶部时隐藏工具栏",
@@ -199,7 +202,15 @@
       "add": "添加",
       "channelsNote": "频道需与名称、标识名或频道 ID 完全匹配。",
       "keywordsNote": "关键词通过包含匹配（在标题中进行子字符串搜索）。"
-    }
+    },
+    "autoHideSidebar": "自动隐藏侧边栏，悬停时显示",
+    "showDislikes": "显示“不喜欢”",
+    "showOriginalVideoTitle": "显示原始视频标题",
+    "pullToRefresh": "下拉刷新",
+    "showReloadButtonInHeader": "在工具栏中显示重新加载按钮",
+    "preferencesContent": "内容",
+    "preferencesPlayback": "播放和显示",
+    "preferencesGeneral": "常规"
   },
   "sync": {
     "label": "同步",
