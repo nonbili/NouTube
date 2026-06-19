@@ -1,0 +1,3 @@
+- Support HTTP and SOCKS proxy
+- Support text zooming
+- Support Turkish locale
