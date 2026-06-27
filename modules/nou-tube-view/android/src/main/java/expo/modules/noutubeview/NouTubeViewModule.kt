@@ -205,7 +205,12 @@ class NouTubeViewModule : Module() {
         if (webView.canGoBack()) {
           webView.goBack()
         } else {
-          view.currentActivity?.finish()
+          val path = Uri.parse(webView.url ?: "").path ?: ""
+          if (path.isEmpty() || path == "/") {
+            view.currentActivity?.finish()
+          } else {
+            view.requestGoHome()
+          }
         }
       }
 
