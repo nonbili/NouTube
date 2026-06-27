@@ -117,6 +117,14 @@ export default function HomeScreen() {
     return () => subscription.remove()
   }, [])
 
+  useEffect(() => {
+    void Linking.getInitialURL().then((url) => {
+      if (url) {
+        openSharedUrl(url)
+      }
+    })
+  }, [])
+
   useObserveEffect(ui$.url, () => {
     ui$.queueModalOpen.set(false)
   })
