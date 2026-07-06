@@ -3,7 +3,7 @@
     "label": "Về chúng tôi",
     "code": "Mã nguồn",
     "donate": "Khuyên góp",
-    "hint": "Thông tin phiên bản, mã nguồn và các đường dẫn được hỗ trợ.",
+    "hint": "Thông tin phiên bản, cập nhật, mã nguồn, và các đường dẫn được hỗ trợ.",
     "updates": "Cập nhật"
   },
   "changelog": {
@@ -143,7 +143,19 @@
     },
     "label": "Cài đặt",
     "hubHint": "Trình xem, đồng bộ, nhập , và công cụ webview trong cùng một nơi.",
-    "general": "Chung"
+    "general": "Chung",
+    "generalHint": "Trình phát mặc định, ngoại hình, công cụ, và chuyền dẫn dữ liệu.",
+    "preferences": "Tùy chọn",
+    "preferencesHint": "Hành vi của trình phát, danh sách cập nhật, và lịch sử.",
+    "preferencesContent": "Nội dung",
+    "preferencesPlayback": "Trình phát và hiển thị",
+    "preferencesGeneral": "Chung",
+    "zoom": {
+      "label": "Cỡ chữ",
+      "defaultLabel": "Cỡ chữ",
+      "defaultHint": "Tùy chỉnh cỡ chữ của YouTube."
+    },
+    "appearance": "Giao diện"
   },
   "native": {
     "format_bestQualityDesc": "Lên đến {{height}}p cho đoạn phim + âm thanh",

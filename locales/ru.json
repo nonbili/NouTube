@@ -12,7 +12,7 @@
     "export": "Экспорт",
     "open": "Открыть",
     "cancel": "Отмена",
-    "openUrl": "Открыть ссылку",
+    "openUrl": "Открыть URL",
     "move": "Переместить",
     "save": "Сохранить",
     "signOut": "Выйти",
@@ -210,7 +210,21 @@
     "preferencesPlayback": "Воспроизведение и отображение",
     "preferencesGeneral": "Общие",
     "pullToRefresh": "Потяните для обновления",
-    "showReloadButtonInHeader": "Показывать кнопку «Перезагрузить» на панели инструментов"
+    "showReloadButtonInHeader": "Показывать кнопку «Перезагрузить» на панели инструментов",
+    "zoom": {
+      "label": "Масштаб текста",
+      "defaultLabel": "Масштаб текста",
+      "defaultHint": "Настройте размер текста на веб-страницах YouTube."
+    },
+    "proxy": {
+      "label": "Прокси",
+      "enabled": "Включить прокси",
+      "type": "Тип прокси",
+      "host": "Адрес прокси",
+      "port": "Порт прокси",
+      "hostPlaceholder": "например, 127.0.0.1 или proxy.example.com",
+      "portPlaceholder": "например, 1080"
+    }
   },
   "sync": {
     "label": "Синхронизация",

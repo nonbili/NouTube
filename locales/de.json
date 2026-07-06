@@ -98,7 +98,15 @@
     "preferencesContent": "Inhaltt",
     "preferencesPlayback": "Wiedergabe & Anzeige",
     "preferencesGeneral": "Allgemein",
-    "showBackButtonInHeader": "Zurück-Schaltfläche in der Symbolleiste anzeigen"
+    "showBackButtonInHeader": "Zurück-Schaltfläche in der Symbolleiste anzeigen",
+    "proxy": {
+      "enabled": "Proxy aktivieren",
+      "type": "Proxy-Typ",
+      "host": "Proxy-Host",
+      "port": "Proxy-Port",
+      "hostPlaceholder": "z. B. 127.0.0.1 oder proxy.example.com",
+      "portPlaceholder": "z. B. 1080"
+    }
   },
   "sync": {
     "label": "Synchronisieren",

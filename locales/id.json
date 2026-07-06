@@ -210,7 +210,21 @@
     "preferencesPlayback": "Pemutaran & tampilan",
     "preferencesGeneral": "Umum",
     "pullToRefresh": "Tarik untuk menyegarkan",
-    "showReloadButtonInHeader": "Tampilkan tombol Muat Ulang di bilah alat"
+    "showReloadButtonInHeader": "Tampilkan tombol Muat Ulang di bilah alat",
+    "zoom": {
+      "label": "Perbesaran teks",
+      "defaultLabel": "Perbesaran teks",
+      "defaultHint": "Sesuaikan ukuran teks pada halaman web YouTube."
+    },
+    "proxy": {
+      "label": "Proksi",
+      "enabled": "Aktifkan proksi",
+      "type": "Jenis proksi",
+      "host": "Host proksi",
+      "port": "Port proksi",
+      "hostPlaceholder": "mis. 127.0.0.1 atau proxy.example.com",
+      "portPlaceholder": "mis. 1080"
+    }
   },
   "sync": {
     "label": "Sinkronisasi",

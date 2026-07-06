@@ -275,7 +275,21 @@
     "preferencesPlayback": "Reproducción y pantalla",
     "preferencesGeneral": "General",
     "pullToRefresh": "Deslizar para actualizar",
-    "showReloadButtonInHeader": "Mostrar botón de recargar en la barra de herramientas"
+    "showReloadButtonInHeader": "Mostrar botón de recargar en la barra de herramientas",
+    "zoom": {
+      "label": "Zoom de texto",
+      "defaultLabel": "Zoom de texto",
+      "defaultHint": "Ajustar el tamaño del texto de las páginas web de YouTube."
+    },
+    "proxy": {
+      "label": "Proxy",
+      "enabled": "Habilitar proxy",
+      "type": "Tipo de proxy",
+      "host": "Servidor proxy",
+      "port": "Puerto proxy",
+      "hostPlaceholder": "e.j., 127.0.0.1 o proxy.ejemplo.com",
+      "portPlaceholder": "e.j., 1080"
+    }
   },
   "native": {
     "format_bestQuality": "Mejor calidad",
