@@ -179,6 +179,7 @@ export function handleVideoPlayer(el: any) {
       return
     }
     if (state == 0 && !isYTMusic) {
+      localStorage.removeItem(keys.playing)
       emit('playback-end')
     }
     if (document.location.host == 'm.youtube.com' && document.location.pathname == '/') {
