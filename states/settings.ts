@@ -31,6 +31,7 @@ export interface SettingsSnapshot {
   showBackButtonInHeader: boolean
   showForwardButtonInHeader: boolean
   showHomeButtonInHeader: boolean
+  showHistoryButtonInHeader: boolean
   showReloadButtonInHeader: boolean
   showPlaybackSpeedControl: boolean
   showPlaybackQualityControl: boolean
@@ -62,6 +63,9 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   }
   if (typeof data.showHomeButtonInHeader !== 'boolean') {
     data.showHomeButtonInHeader = false
+  }
+  if (typeof data.showHistoryButtonInHeader !== 'boolean') {
+    data.showHistoryButtonInHeader = false
   }
   if (typeof data.showBackButtonInHeader !== 'boolean') {
     data.showBackButtonInHeader = false
@@ -140,6 +144,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   showBackButtonInHeader: Boolean(value?.showBackButtonInHeader),
   showForwardButtonInHeader: Boolean(value?.showForwardButtonInHeader),
   showHomeButtonInHeader: Boolean(value?.showHomeButtonInHeader),
+  showHistoryButtonInHeader: Boolean(value?.showHistoryButtonInHeader),
   showReloadButtonInHeader: Boolean(value?.showReloadButtonInHeader),
   showPlaybackSpeedControl: Boolean(value?.showPlaybackSpeedControl),
   showPlaybackQualityControl: Boolean(value?.showPlaybackQualityControl),
@@ -185,6 +190,7 @@ export const settings$ = observable<Store>({
   showBackButtonInHeader: false,
   showForwardButtonInHeader: false,
   showHomeButtonInHeader: false,
+  showHistoryButtonInHeader: false,
   showReloadButtonInHeader: false,
   showPlaybackSpeedControl: false,
   showPlaybackQualityControl: false,

@@ -20,6 +20,10 @@ describe('settings', () => {
     expect(getSettingsSnapshot({}).doubleTapToToggleHeader).toBe(false)
   })
 
+  it('defaults history toolbar button setting off in snapshots', () => {
+    expect(getSettingsSnapshot({}).showHistoryButtonInHeader).toBe(false)
+  })
+
   it('defaults pull to refresh setting on in snapshots', () => {
     expect(getSettingsSnapshot({}).pullToRefreshEnabled).toBe(true)
   })
@@ -46,6 +50,11 @@ describe('settings', () => {
   it('normalizes missing double-tap toolbar toggle setting to false', () => {
     const settings = normalizePartialSettings()
     expect(settings?.doubleTapToToggleHeader).toBe(false)
+  })
+
+  it('normalizes missing history toolbar button setting to false', () => {
+    const settings = normalizePartialSettings()
+    expect(settings?.showHistoryButtonInHeader).toBe(false)
   })
 
   it('normalizes missing pull to refresh setting to true', () => {

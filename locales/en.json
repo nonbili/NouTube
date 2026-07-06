@@ -178,15 +178,18 @@
     "autoHideHeader": "Hide and show toolbar on scroll direction",
     "autoHideSidebar": "Auto-hide sidebar and show on hover",
     "hideToolbarWhenScrolled": "Hide toolbar when page is not at top",
+    "toolbar": "Toolbar",
     "headerPosition": {
       "label": "Toolbar position",
       "top": "Top",
       "bottom": "Bottom"
     },
+    "toolbarButtons": "Toolbar buttons",
     "showHomeButtonInHeader": "Show Home button in toolbar",
     "showBackButtonInHeader": "Show Back button in toolbar",
     "showForwardButtonInHeader": "Show Forward button in toolbar",
     "showReloadButtonInHeader": "Show Reload button in toolbar",
+    "showHistoryButtonInHeader": "Show History button in toolbar",
     "doubleTapToToggleHeader": "Double-tap page to hide or show toolbar",
     "hideShorts": "Hide shorts in timeline",
     "hideShortsInNavbar": "Hide shorts in navbar",

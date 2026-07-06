@@ -81,6 +81,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const showBackButtonInHeader = useValue(settings$.showBackButtonInHeader)
   const showForwardButtonInHeader = useValue(settings$.showForwardButtonInHeader)
   const showHomeButtonInHeader = useValue(settings$.showHomeButtonInHeader)
+  const showHistoryButtonInHeader = useValue(settings$.showHistoryButtonInHeader)
   const showReloadButtonInHeader = useValue(settings$.showReloadButtonInHeader)
   const showPlaybackSpeedControl = useValue(settings$.showPlaybackSpeedControl)
   const showPlaybackQualityControl = useValue(settings$.showPlaybackQualityControl)
@@ -195,6 +196,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     Number(!isWeb && showBackButtonInHeader) +
     Number(!isWeb && showForwardButtonInHeader) +
     Number(!isWeb && showReloadButtonInHeader) +
+    Number(showHistoryButtonInHeader) +
     Number(isWeb) * 2
   const trailingToolbarItemCount =
     1 +
@@ -256,6 +258,10 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           {nIf(!isWeb && showForwardButtonInHeader, <MaterialButton name="arrow-forward" onPress={goForward} />)}
           {nIf(!isWeb && showReloadButtonInHeader, <MaterialButton name="refresh" onPress={reloadPage} />)}
           {nIf(showHomeButtonInHeader, <MaterialButton name="home" onPress={onOpenHome} />)}
+          {nIf(
+            showHistoryButtonInHeader,
+            <MaterialButton name="history" onPress={() => ui$.historyModalOpen.set(true)} />,
+          )}
           {nIf(
             isWeb,
             <>

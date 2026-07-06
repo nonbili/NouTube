@@ -338,8 +338,9 @@ export const SettingsAppearanceContent = () => {
 
   return (
     <View className="pb-4">
-      {!isWeb ? (
-        <SettingsSection label={t('settings.appearance.toolbar')}>
+      {nIf(
+        !isWeb,
+        <SettingsSection label={t('settings.toolbar')}>
           <View className={surfaceCls}>
             <View className="flex-row items-center gap-3 px-4 py-4 border-b border-zinc-300 dark:border-zinc-800">
               <View className={iconWrapCls}>
@@ -353,6 +354,15 @@ export const SettingsAppearanceContent = () => {
                 onChange={(index) => settings$.headerPosition.set(headerPositions[index])}
               />
             </View>
+            {nIf(
+              isAndroid,
+              <SettingsToggleRow
+                label={t('settings.doubleTapToToggleHeader')}
+                icon="touch-app"
+                value={settings.doubleTapToToggleHeader}
+                onPress={() => settings$.doubleTapToToggleHeader.set(!settings.doubleTapToToggleHeader)}
+              />,
+            )}
             <SettingsToggleRow
               label={t('settings.autoHideHeader')}
               icon="visibility-off"
@@ -364,49 +374,50 @@ export const SettingsAppearanceContent = () => {
               icon="vertical-align-top"
               value={settings.hideToolbarWhenScrolled}
               onPress={() => settings$.hideToolbarWhenScrolled.set(!settings.hideToolbarWhenScrolled)}
+              isLast
             />
+          </View>
+        </SettingsSection>,
+      )}
+
+      <View className={!isWeb ? 'mt-8' : undefined}>
+        <SettingsSection label={t('settings.toolbarButtons')}>
+          <View className={surfaceCls}>
             <SettingsToggleRow
               label={t('settings.showHomeButtonInHeader')}
               icon="home"
               value={settings.showHomeButtonInHeader}
               onPress={() => settings$.showHomeButtonInHeader.set(!settings.showHomeButtonInHeader)}
             />
-            <SettingsToggleRow
-              label={t('settings.showBackButtonInHeader')}
-              icon="arrow-back"
-              value={settings.showBackButtonInHeader}
-              onPress={() => settings$.showBackButtonInHeader.set(!settings.showBackButtonInHeader)}
-            />
-            <SettingsToggleRow
-              label={t('settings.showForwardButtonInHeader')}
-              icon="arrow-forward"
-              value={settings.showForwardButtonInHeader}
-              onPress={() => settings$.showForwardButtonInHeader.set(!settings.showForwardButtonInHeader)}
-            />
-            <SettingsToggleRow
-              label={t('settings.showReloadButtonInHeader')}
-              icon="refresh"
-              value={settings.showReloadButtonInHeader}
-              onPress={() => settings$.showReloadButtonInHeader.set(!settings.showReloadButtonInHeader)}
-              isLast={!isAndroid}
-            />
             {nIf(
-              isAndroid,
-              <SettingsToggleRow
-                label={t('settings.doubleTapToToggleHeader')}
-                icon="touch-app"
-                value={settings.doubleTapToToggleHeader}
-                onPress={() => settings$.doubleTapToToggleHeader.set(!settings.doubleTapToToggleHeader)}
-                isLast
-              />,
+              !isWeb,
+              <>
+                <SettingsToggleRow
+                  label={t('settings.showBackButtonInHeader')}
+                  icon="arrow-back"
+                  value={settings.showBackButtonInHeader}
+                  onPress={() => settings$.showBackButtonInHeader.set(!settings.showBackButtonInHeader)}
+                />
+                <SettingsToggleRow
+                  label={t('settings.showForwardButtonInHeader')}
+                  icon="arrow-forward"
+                  value={settings.showForwardButtonInHeader}
+                  onPress={() => settings$.showForwardButtonInHeader.set(!settings.showForwardButtonInHeader)}
+                />
+                <SettingsToggleRow
+                  label={t('settings.showReloadButtonInHeader')}
+                  icon="refresh"
+                  value={settings.showReloadButtonInHeader}
+                  onPress={() => settings$.showReloadButtonInHeader.set(!settings.showReloadButtonInHeader)}
+                />
+              </>,
             )}
-          </View>
-        </SettingsSection>
-      ) : null}
-
-      <View className={!isWeb ? 'mt-8' : undefined}>
-        <SettingsSection label={t('settings.preferences')}>
-          <View className={surfaceCls}>
+            <SettingsToggleRow
+              label={t('settings.showHistoryButtonInHeader')}
+              icon="history"
+              value={settings.showHistoryButtonInHeader}
+              onPress={() => settings$.showHistoryButtonInHeader.set(!settings.showHistoryButtonInHeader)}
+            />
             <SettingsToggleRow
               label="Show playback speed control"
               icon="speed"
@@ -418,21 +429,28 @@ export const SettingsAppearanceContent = () => {
               icon="high-quality"
               value={settings.showPlaybackQualityControl}
               onPress={() => settings$.showPlaybackQualityControl.set(!settings.showPlaybackQualityControl)}
-              isLast={!isWeb}
+              isLast
             />
-            {nIf(
-              isWeb,
+          </View>
+        </SettingsSection>
+      </View>
+
+      {nIf(
+        isWeb,
+        <View className="mt-8">
+          <SettingsSection label={t('settings.preferences')}>
+            <View className={surfaceCls}>
               <SettingsToggleRow
                 label={t('settings.autoHideSidebar')}
                 icon="vertical-split"
                 value={settings.autoHideSidebar}
                 onPress={() => settings$.autoHideSidebar.set(!settings.autoHideSidebar)}
                 isLast
-              />,
-            )}
-          </View>
-        </SettingsSection>
-      </View>
+              />
+            </View>
+          </SettingsSection>
+        </View>,
+      )}
 
       {nIf(
         isAndroid,
