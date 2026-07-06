@@ -6,10 +6,6 @@ const injectedStyleId = '_nou_injected_css'
 const css = (strings: string[] | ArrayLike<string>, ...values: any[]) => String.raw({ raw: strings }, ...values)
 
 const cssContentMobile = css`
-  * {
-    user-select: none;
-  }
-
   /*
    * Text zoom (webView textZoom) scales fonts but not the fixed pixel heights
    * YouTube hardcodes on its text containers, so zoomed titles/headlines get
