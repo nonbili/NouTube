@@ -210,7 +210,21 @@
     "preferencesPlayback": "Lecture & Affichage",
     "preferencesGeneral": "Général",
     "pullToRefresh": "Tirez pour actualiser",
-    "showReloadButtonInHeader": "Afficher le bouton « Actualiser » dans la barre d'outils"
+    "showReloadButtonInHeader": "Afficher le bouton « Actualiser » dans la barre d'outils",
+    "zoom": {
+      "label": "Zoom sur le texte",
+      "defaultLabel": "Zoom sur le texte",
+      "defaultHint": "Régler la taille du texte des pages Web de YouTube."
+    },
+    "proxy": {
+      "label": "Proxy",
+      "enabled": "Activer le proxy",
+      "type": "Type de proxy",
+      "host": "Serveur proxy",
+      "port": "Port du proxy",
+      "hostPlaceholder": "par exemple : 127.0.0.1 ou proxy.example.com",
+      "portPlaceholder": "par exemple 1080"
+    }
   },
   "sync": {
     "label": "Synchronisation",

@@ -169,7 +169,7 @@
     "showBackButtonInHeader": "Araç çubuğunda Geri butonunu göster",
     "showForwardButtonInHeader": "Araç çubuğunda İleri butonunu göster",
     "hideShorts": "Zaman tünelinde Shorts videolarını gizle",
-    "hideShortsInNavbar": "Gezinme çubuğunda Shorts'u gizle",
+    "hideShortsInNavbar": "Gezinti çubuğunda Shorts'u gizle",
     "hideMixPlaylist": "Karma (Mix) oynatma listelerini gizle",
     "miniPlayer": "YouTube mini oynatıcı",
     "preferH264": "H.264 tercih et (VP9/AV1'i engelle)",
@@ -284,7 +284,21 @@
     "preferencesPlayback": "Oynatma ve görüntüleme",
     "preferencesGeneral": "Genel",
     "pullToRefresh": "Yenilemek için aşağı kaydırın",
-    "showReloadButtonInHeader": "Araç çubuğunda Yeniden Yükle düğmesini göster"
+    "showReloadButtonInHeader": "Araç çubuğunda Yeniden Yükle düğmesini göster",
+    "zoom": {
+      "label": "Metin yakınlaştırma",
+      "defaultLabel": "Metin yakınlaştırma",
+      "defaultHint": "YouTube web sayfalarındaki metin boyutunu ayarlama."
+    },
+    "proxy": {
+      "label": "Vekil sunucu",
+      "enabled": "Vekil sunucuyu etkinleştir",
+      "type": "Vekil sunucu türü",
+      "host": "Vekil sunucu ana bilgisayarı",
+      "port": "Vekil sunucu bağlantı noktası",
+      "hostPlaceholder": "Vekil sunucu adresi (Örneğin: 127.0.0.1 veya proxy.example.com)",
+      "portPlaceholder": "Örneğin: 1080"
+    }
   },
   "native": {
     "format_bestQuality": "En iyi kalite",

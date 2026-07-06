@@ -42,7 +42,7 @@
     "unsubscribe": "取消订阅",
     "tools": "工具",
     "desktop": "桌面版网站",
-    "on": "开启",
+    "on": "已开启",
     "off": "已关闭",
     "pip": "画中画",
     "openInNewTab": "在新标签页中打开",
@@ -210,7 +210,21 @@
     "showReloadButtonInHeader": "在工具栏中显示重新加载按钮",
     "preferencesContent": "内容",
     "preferencesPlayback": "播放和显示",
-    "preferencesGeneral": "常规"
+    "preferencesGeneral": "常规",
+    "zoom": {
+      "label": "文本缩放",
+      "defaultLabel": "文本缩放",
+      "defaultHint": "调整 YouTube 网页的文本大小。"
+    },
+    "proxy": {
+      "label": "代理",
+      "enabled": "启用代理",
+      "type": "代理类型",
+      "host": "代理主机",
+      "port": "代理端口",
+      "hostPlaceholder": "例如：127.0.0.1 或 proxy.example.com",
+      "portPlaceholder": "例如：1080"
+    }
   },
   "sync": {
     "label": "同步",
