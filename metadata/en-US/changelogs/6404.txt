@@ -1,0 +1,4 @@
+- Support double tap to toggle toolbar
+- Support text selection
+- Add history button to toolbar
+- Remove tracking parameters from copied links
