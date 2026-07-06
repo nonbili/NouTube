@@ -1,5 +1,7 @@
 import { isWeb } from './utils'
 
+export { removeTrackingParams } from './tracking-url'
+
 export function normalizeUrl(url: string) {
   if (!url) {
     return url

@@ -12,6 +12,7 @@ import { pinchToZoom } from './pinch'
 import { enterMini, exitMini, getMiniCurrentTime, installMiniPlayerInterceptor } from './mini-player'
 import { installBlocklistFilter } from './blocklist'
 import { installDislikeCount } from './dislikes'
+import { interceptClipboard } from './clipboard'
 
 try {
   if ((window as any).NouTubePreferH264) {
@@ -24,6 +25,7 @@ try {
   }
 
   window.NouTube = initNouTube()
+  interceptClipboard()
 
   if (!window.electron) {
     intercept()

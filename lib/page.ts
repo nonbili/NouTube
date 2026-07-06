@@ -3,6 +3,7 @@ import { onReceiveAuthUrl } from './supabase/auth'
 import { settings$ } from '@/states/settings'
 import { debounce } from 'es-toolkit'
 import { isSupportedUrl, normalizeSupportedUrl } from './supported-url'
+import { removeTrackingParams } from './tracking-url'
 
 export { getPageType } from './page-type'
 
@@ -11,13 +12,7 @@ export function fixPageTitle(title: string) {
 }
 
 export function fixSharingUrl(v: string) {
-  try {
-    const url = new URL(v)
-    url.searchParams.delete('pp')
-    return url.href
-  } catch {
-    return ''
-  }
+  return removeTrackingParams(v)
 }
 
 export function getVideoThumbnail(id: string) {
