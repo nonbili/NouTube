@@ -10,6 +10,7 @@ export interface SettingsSnapshot {
 
   autoHideHeader: boolean
   autoHideSidebar: boolean
+  doubleTapToToggleHeader: boolean
   hideToolbarWhenScrolled: boolean
   headerPosition: 'top' | 'bottom'
   feedsEnabled: boolean
@@ -86,6 +87,9 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   if (typeof data.autoHideSidebar !== 'boolean') {
     data.autoHideSidebar = false
   }
+  if (typeof data.doubleTapToToggleHeader !== 'boolean') {
+    data.doubleTapToToggleHeader = false
+  }
   if (typeof data.pullToRefreshEnabled !== 'boolean') {
     data.pullToRefreshEnabled = true
   }
@@ -113,6 +117,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
 
   autoHideHeader: Boolean(value?.autoHideHeader),
   autoHideSidebar: Boolean(value?.autoHideSidebar),
+  doubleTapToToggleHeader: Boolean(value?.doubleTapToToggleHeader),
   hideToolbarWhenScrolled: Boolean(value?.hideToolbarWhenScrolled),
   headerPosition: value?.headerPosition === 'bottom' ? 'bottom' : 'top',
   feedsEnabled: typeof value?.feedsEnabled === 'boolean' ? value.feedsEnabled : true,
@@ -159,6 +164,7 @@ export const settings$ = observable<Store>({
 
   autoHideHeader: false,
   autoHideSidebar: false,
+  doubleTapToToggleHeader: false,
   hideToolbarWhenScrolled: false,
   headerPosition: 'top',
   feedsEnabled: true,

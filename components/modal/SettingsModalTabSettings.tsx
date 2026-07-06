@@ -388,8 +388,18 @@ export const SettingsAppearanceContent = () => {
               icon="refresh"
               value={settings.showReloadButtonInHeader}
               onPress={() => settings$.showReloadButtonInHeader.set(!settings.showReloadButtonInHeader)}
-              isLast
+              isLast={!isAndroid}
             />
+            {nIf(
+              isAndroid,
+              <SettingsToggleRow
+                label={t('settings.doubleTapToToggleHeader')}
+                icon="touch-app"
+                value={settings.doubleTapToToggleHeader}
+                onPress={() => settings$.doubleTapToToggleHeader.set(!settings.doubleTapToToggleHeader)}
+                isLast
+              />,
+            )}
           </View>
         </SettingsSection>
       ) : null}

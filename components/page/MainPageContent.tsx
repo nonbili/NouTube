@@ -8,12 +8,13 @@ import { bookmarks$, newBookmark } from '@/states/bookmarks'
 import { createLogger } from '@/lib/log'
 import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
 import NouTubeViewModule, { NouTubeView } from '@/modules/nou-tube-view'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, useWindowDimensions } from 'react-native'
 import { getVideoId, setPageUrl } from '@/lib/page'
 import { showToast } from '@/lib/toast'
-import { clsx, isWeb, nIf } from '@/lib/utils'
+import { clsx, isAndroid, isWeb, nIf } from '@/lib/utils'
 import type { WebviewTag } from 'electron'
 import { NouHeader } from '../header/NouHeader'
+import { WebviewContainer } from './webview-container'
 import { syncSupabase } from '@/lib/supabase/sync'
 import { auth$ } from '@/states/auth'
 import { useMe } from '@/lib/hooks/useMe'
@@ -79,9 +80,24 @@ const executeQuietly = (webview: WebviewTag | null, script: string) => {
 }
 
 const getContentSettingsSnapshot = () => {
-  const { sponsorBlock, playbackRate, playbackQuality, miniPlayer, showDislikes, showOriginalVideoTitle } =
-    settings$.get()
-  return { sponsorBlock, playbackRate, playbackQuality, miniPlayer, showDislikes, showOriginalVideoTitle }
+  const {
+    sponsorBlock,
+    playbackRate,
+    playbackQuality,
+    miniPlayer,
+    showDislikes,
+    showOriginalVideoTitle,
+    doubleTapToToggleHeader,
+  } = settings$.get()
+  return {
+    sponsorBlock,
+    playbackRate,
+    playbackQuality,
+    miniPlayer,
+    showDislikes,
+    showOriginalVideoTitle,
+    doubleTapToToggleHeader,
+  }
 }
 
 const DesktopTabView: React.FC<{
@@ -259,6 +275,7 @@ const DesktopTabView: React.FC<{
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
   useObserveEffect(settings$.showDislikes, () => syncSettingsToWebview())
   useObserveEffect(settings$.showOriginalVideoTitle, () => syncSettingsToWebview())
+  useObserveEffect(settings$.doubleTapToToggleHeader, () => syncSettingsToWebview())
   useObserveEffect(userStyles$, () => syncUserStylesToWebview())
   useObserveEffect(blocklist$, () => syncBlocklistToWebview())
   useEffect(() => {
@@ -293,11 +310,15 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const activeTabIndex = useValue(tabs$.activeTabIndex)
   const activePageUrl = useValue(tabs$.activePageUrl)
   const nativeRef = useRef<typeof NouTubeViewModule>(null)
+  const { width, height: windowHeight } = useWindowDimensions()
   const hideShorts = useValue(settings$.hideShorts)
   const isYTMusic = useValue(settings$.isYTMusic)
   const autoHideHeader = useValue(settings$.autoHideHeader)
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
+  const doubleTapToToggleHeader = useValue(settings$.doubleTapToToggleHeader)
   const headerPosition = useValue(settings$.headerPosition)
+  const headerHeight = useValue(ui$.headerHeight)
+  const headerShown = useValue(ui$.headerShown)
   const pullToRefreshEnabled = useValue(settings$.pullToRefreshEnabled)
   const defaultZoom = useValue(settings$.defaultZoom)
   const customUserAgent = useValue(settings$.userAgent)
@@ -325,6 +346,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     desktopMode,
   )
   const getNoutube = useCallback(() => ui$.webview.get() || nativeRef.current, [])
+  const isHorizontal = width > windowHeight
+  const nativeDoubleTapHeader = isAndroid && doubleTapToToggleHeader
+  const nativeHeaderOverlays =
+    !isWeb && (autoHideHeader || hideToolbarWhenScrolled || nativeDoubleTapHeader) && (!isHorizontal || nativeDoubleTapHeader)
+  const nativeHeaderInset = nativeHeaderOverlays && headerShown ? headerHeight : 0
 
   useEffect(() => {
     if (isWeb) {
@@ -437,6 +463,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       case 'scroll':
         onScroll({ dy: data.dy, y: data.y, autoHideHeader, hideToolbarWhenScrolled })
         break
+      case 'header-double-tap':
+        if (isAndroid && doubleTapToToggleHeader) {
+          ui$.headerShown.set(!ui$.headerShown.get())
+        }
+        break
       case 'onload':
         const webview = ui$.webview.get() || nativeRef.current
         restoreLastPlaying(webview)
@@ -515,6 +546,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     }
   }, [
     autoHideHeader,
+    doubleTapToToggleHeader,
     hideShorts,
     hideToolbarWhenScrolled,
     syncSettingsToWebview,
@@ -582,6 +614,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
   useObserveEffect(settings$.showDislikes, () => syncSettingsToWebview())
   useObserveEffect(settings$.showOriginalVideoTitle, () => syncSettingsToWebview())
+  useObserveEffect(settings$.doubleTapToToggleHeader, () => syncSettingsToWebview())
   useObserveEffect(settings$.preferH264, ({ previous }) => {
     if (previous === undefined) return
     const native = nativeRef.current
@@ -607,7 +640,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     <>
       <View
         className={clsx(
-          'flex-1 h-full lg:flex-row overflow-hidden',
+          'flex-1 h-full overflow-hidden',
+          isWeb && 'lg:flex-row',
           headerPosition === 'bottom' && 'flex-col-reverse',
         )}
       >
@@ -629,16 +663,20 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
             ))}
           </View>
         ) : (
-          <NouTubeView
-            ref={nativeRef}
-            style={{ flex: 1 }}
-            useragent={userAgent}
-            pullToRefreshEnabled={pullToRefreshEnabled}
-            textZoom={defaultZoom}
-            scriptOnStart={`window.isAndroid = true;\n${preludeJs}\n${contentJs}`}
-            onLoad={onLoad}
-            onMessage={onNativeMessage}
-          />
+          <WebviewContainer headerPosition={headerPosition} nativeHeaderInset={nativeHeaderInset}>
+            <NouTubeView
+              ref={nativeRef}
+              style={{
+                flex: 1,
+              }}
+              useragent={userAgent}
+              pullToRefreshEnabled={pullToRefreshEnabled}
+              textZoom={defaultZoom}
+              scriptOnStart={`window.isAndroid = true;\n${preludeJs}\n${contentJs}`}
+              onLoad={onLoad}
+              onMessage={onNativeMessage}
+            />
+          </WebviewContainer>
         )}
         {nIf(
           embedVideoId,

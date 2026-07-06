@@ -3,6 +3,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-na
 
 export function useHeaderAnimation({
   autoHideHeader,
+  doubleTapToToggleHeader,
   headerHeight,
   headerPosition,
   headerShown,
@@ -10,6 +11,7 @@ export function useHeaderAnimation({
   isHorizontal,
 }: {
   autoHideHeader: boolean
+  doubleTapToToggleHeader: boolean
   headerHeight: number
   headerPosition: 'top' | 'bottom'
   headerShown: boolean
@@ -19,11 +21,21 @@ export function useHeaderAnimation({
   const translateY = useSharedValue(0)
 
   useEffect(() => {
-    const shouldHide = !isHorizontal && (autoHideHeader || hideToolbarWhenScrolled) && !headerShown
+    const canHide = autoHideHeader || hideToolbarWhenScrolled || doubleTapToToggleHeader
+    const shouldHide = (!isHorizontal || doubleTapToToggleHeader) && canHide && !headerShown
     const hiddenOffset = headerPosition === 'bottom' ? headerHeight : -headerHeight
     const next = shouldHide ? hiddenOffset : 0
     translateY.value = withTiming(next)
-  }, [headerShown, headerHeight, autoHideHeader, hideToolbarWhenScrolled, headerPosition, isHorizontal, translateY])
+  }, [
+    headerShown,
+    headerHeight,
+    autoHideHeader,
+    doubleTapToToggleHeader,
+    hideToolbarWhenScrolled,
+    headerPosition,
+    isHorizontal,
+    translateY,
+  ])
 
   const style = useAnimatedStyle(() => {
     return {

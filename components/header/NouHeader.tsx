@@ -4,7 +4,7 @@ import { settings$ } from '@/states/settings'
 import { colors } from '@/lib/colors'
 import { NouMenu } from '../menu/NouMenu'
 import { TabContextMenu } from '../menu/TabContextMenu'
-import { clsx, isIos, isWeb, nIf } from '@/lib/utils'
+import { clsx, isAndroid, isIos, isWeb, nIf } from '@/lib/utils'
 import { ui$, updateUrl } from '@/states/ui'
 import { bookmarks$ } from '@/states/bookmarks'
 import { getPageType } from '@/lib/page'
@@ -71,6 +71,7 @@ const TabFavicon: React.FC<{ tab: Tab; color: string }> = ({ tab, color }) => {
 export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) => {
   const autoHideHeader = useValue(settings$.autoHideHeader)
   const autoHideSidebar = useValue(settings$.autoHideSidebar)
+  const doubleTapToToggleHeader = useValue(settings$.doubleTapToToggleHeader)
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
   const headerPosition = useValue(settings$.headerPosition)
   const desktopModeYTMusic = useValue(settings$.desktopMode)
@@ -175,6 +176,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
 
   const { Root, style: animatedStyle } = useHeaderAnimation({
     autoHideHeader,
+    doubleTapToToggleHeader: isAndroid && doubleTapToToggleHeader,
     headerHeight,
     headerPosition,
     headerShown,
@@ -205,6 +207,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     Number(pageType?.canStar) +
     Number(pinnedScripts.length > 0)
   const compactToolbar = leadingToolbarItemCount + trailingToolbarItemCount > 6
+  const hideableHeader = autoHideHeader || hideToolbarWhenScrolled || (isAndroid && doubleTapToToggleHeader)
 
   const runPinnedScript = (script: (typeof pinnedScripts)[number]) => {
     const webview = getNoutube()
@@ -223,22 +226,23 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
       style={animatedStyle}
       onLayout={(e) => ui$.headerHeight.set(e.nativeEvent.layout.height)}
       className={clsx(
-        'bg-zinc-100 dark:bg-zinc-800 flex-row lg:flex-col justify-between px-2 py-1 lg:px-1 lg:py-2',
+        'bg-zinc-100 dark:bg-zinc-800 flex-row justify-between px-2 py-1',
+        isWeb && 'lg:flex-col lg:px-1 lg:py-2',
         isWeb &&
           autoHideSidebar &&
           'lg:fixed lg:left-0 lg:top-0 lg:bottom-0 lg:z-20 lg:w-14 lg:-translate-x-12 lg:opacity-0 lg:shadow-xl lg:transition lg:duration-200 lg:ease-out lg:hover:translate-x-0 lg:hover:opacity-100 lg:focus-within:translate-x-0 lg:focus-within:opacity-100',
-        (autoHideHeader || hideToolbarWhenScrolled) &&
-          !isHorizontal &&
+        hideableHeader &&
+          (!isHorizontal || (isAndroid && doubleTapToToggleHeader)) &&
           clsx('absolute left-0 right-0 z-10', headerPosition === 'bottom' ? 'bottom-0' : 'top-0'),
       )}
     >
-      <View className="flex-1 min-w-0 lg:flex-none lg:w-full">
+      <View className={clsx('flex-1 min-w-0', isWeb && 'lg:flex-none lg:w-full')}>
         <ScrollView
           horizontal={!isWeb || !isHorizontal}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
-          className="min-w-0 lg:w-full"
-          contentContainerClassName={clsx('flex-row lg:flex-col', compactToolbar ? 'gap-0' : 'gap-1')}
+          className={clsx('min-w-0', isWeb && 'lg:w-full')}
+          contentContainerClassName={clsx('flex-row', isWeb && 'lg:flex-col', compactToolbar ? 'gap-0' : 'gap-1')}
         >
           <MaterialButton
             name={isYTMusic ? 'library-music' : 'video-library'}
@@ -340,7 +344,8 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
       )}
       <View
         className={clsx(
-          'flex flex-row lg:flex-col lg:pb-1 items-center shrink-0',
+          'flex flex-row items-center shrink-0',
+          isWeb && 'lg:flex-col lg:pb-1',
           compactToolbar ? 'gap-1' : 'gap-2',
         )}
       >

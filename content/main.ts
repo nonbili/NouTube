@@ -74,6 +74,47 @@ async function initObserver() {
   handleMenu()
   installBlocklistFilter()
   installDislikeCount()
+  installHeaderDoubleTapToggle()
 
   pinchToZoom()
+}
+
+function installHeaderDoubleTapToggle() {
+  if (!window.isAndroid) {
+    return
+  }
+
+  let lastTapAt = 0
+  let lastTapX = 0
+  let lastTapY = 0
+
+  document.addEventListener(
+    'touchend',
+    (event) => {
+      if (!window.NouTube?.getSettings?.().doubleTapToToggleHeader || event.changedTouches.length !== 1) {
+        return
+      }
+
+      const target = event.target
+      if (target instanceof Element && target.closest('input, textarea, select, button, a')) {
+        return
+      }
+
+      const touch = event.changedTouches[0]
+      const now = Date.now()
+      const dx = touch.clientX - lastTapX
+      const dy = touch.clientY - lastTapY
+      const isDoubleTap = now - lastTapAt <= 300 && dx * dx + dy * dy <= 48 * 48
+
+      lastTapAt = now
+      lastTapX = touch.clientX
+      lastTapY = touch.clientY
+
+      if (isDoubleTap) {
+        lastTapAt = 0
+        emit('header-double-tap')
+      }
+    },
+    { passive: true, capture: true },
+  )
 }

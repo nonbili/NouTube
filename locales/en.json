@@ -187,6 +187,7 @@
     "showBackButtonInHeader": "Show Back button in toolbar",
     "showForwardButtonInHeader": "Show Forward button in toolbar",
     "showReloadButtonInHeader": "Show Reload button in toolbar",
+    "doubleTapToToggleHeader": "Double-tap page to hide or show toolbar",
     "hideShorts": "Hide shorts in timeline",
     "hideShortsInNavbar": "Hide shorts in navbar",
     "hideMixPlaylist": "Hide mix playlist",
