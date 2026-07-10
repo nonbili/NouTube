@@ -17,7 +17,12 @@ import { RetryImage } from '../image/RetryImage'
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
 
-export const QueueItem: React.FC<{ bookmark: Bookmark; playing: boolean }> = ({ bookmark, playing }) => {
+export const QueueItem: React.FC<{ bookmark: Bookmark; playing: boolean; index: number; total: number }> = ({
+  bookmark,
+  playing,
+  index,
+  total,
+}) => {
   const onPress = () => {
     updateUrl(bookmark.url)
   }
@@ -40,6 +45,10 @@ export const QueueItem: React.FC<{ bookmark: Bookmark; playing: boolean }> = ({ 
           {bookmark.title}
         </NouText>
       </Pressable>
+      <View className="flex-col justify-center">
+        <MaterialButton name="keyboard-arrow-up" size={20} onPress={() => queue$.moveUp(index)} color={index === 0 ? colors.iconSubtle : undefined} />
+        <MaterialButton name="keyboard-arrow-down" size={20} onPress={() => queue$.moveDown(index)} color={index === total - 1 ? colors.iconSubtle : undefined} />
+      </View>
       <NouMenu
         trigger={
           isWeb ? (

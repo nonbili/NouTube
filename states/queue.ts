@@ -9,6 +9,8 @@ interface Store {
   size: () => number
   toggleBookmark: (bookmark: Bookmark) => void
   addBookmark: (bookmark: Bookmark) => void
+  moveUp: (index: number) => void
+  moveDown: (index: number) => void
 }
 
 export const queue$ = observable<Store>({
@@ -31,6 +33,22 @@ export const queue$ = observable<Store>({
     if (!queue$.urls.has(bookmark.url)) {
       queue$.bookmarks.push(bookmark)
     }
+  },
+  moveUp: (index) => {
+    if (index <= 0) return
+    const bookmarks = [...queue$.bookmarks.get()]
+    const temp = bookmarks[index]
+    bookmarks[index] = bookmarks[index - 1]
+    bookmarks[index - 1] = temp
+    queue$.bookmarks.set(bookmarks)
+  },
+  moveDown: (index) => {
+    const bookmarks = [...queue$.bookmarks.get()]
+    if (index >= bookmarks.length - 1) return
+    const temp = bookmarks[index]
+    bookmarks[index] = bookmarks[index + 1]
+    bookmarks[index + 1] = temp
+    queue$.bookmarks.set(bookmarks)
   },
 })
 

@@ -54,7 +54,7 @@ export const QueueModal = () => {
         <FlatList
           data={queue}
           keyExtractor={(item) => item.url}
-          renderItem={({ item, index }) => <QueueItem bookmark={item} playing={playingIndex == index} />}
+          renderItem={({ item, index }) => <QueueItem bookmark={item} playing={playingIndex == index} index={index} total={size} />}
         />
       </BaseModal>
     )
