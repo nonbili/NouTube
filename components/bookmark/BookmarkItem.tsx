@@ -11,7 +11,7 @@ import { t } from 'i18next'
 import { MaterialButton } from '../button/IconButtons'
 import { share } from '@/lib/share'
 import { RetryImage } from '../image/RetryImage'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import MaterialIcons from '@react-native-vector-icons/material-icons'
 
 /* https://www.youtube.com/watch?v=<id> */
 function getThumbnail(url: string) {

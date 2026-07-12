@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Alert, Keyboard, Platform, Pressable, ScrollView, Switch, TextInput, View, useWindowDimensions } from 'react-native'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import MaterialIcons from '@react-native-vector-icons/material-icons'
 import * as Clipboard from 'expo-clipboard'
 import { getDocumentAsync } from 'expo-document-picker'
 import { useValue } from '@legendapp/state/react'

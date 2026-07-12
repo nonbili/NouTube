@@ -21,7 +21,7 @@ import { useSleepTimerStatus } from '@/lib/sleep-timer'
 import { NouText } from '../NouText'
 import { formatPlaybackRate } from '@/lib/playback-rate'
 import { formatPlaybackQuality } from '@/lib/playback-quality'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { Image } from 'expo-image'
 
 import { downloads$ } from '@/states/downloads'
@@ -247,20 +247,21 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           contentContainerClassName={clsx('flex-row', isWeb && 'lg:flex-col', compactToolbar ? 'gap-0' : 'gap-1')}
         >
           <MaterialButton
+            color={headerControlColor}
             name={isYTMusic ? 'library-music' : 'video-library'}
             onPress={() => ui$.libraryModalOpen.set(true)}
           />
           {nIf(
             !isYTMusic && feedsEnabled,
-            <MaterialButton name="rss-feed" onPress={() => ui$.feedModalOpen.set(true)} />,
+            <MaterialButton color={headerControlColor} name="rss-feed" onPress={() => ui$.feedModalOpen.set(true)} />,
           )}
-          {nIf(!isWeb && showBackButtonInHeader, <MaterialButton name="arrow-back" onPress={goBack} />)}
-          {nIf(!isWeb && showForwardButtonInHeader, <MaterialButton name="arrow-forward" onPress={goForward} />)}
-          {nIf(!isWeb && showReloadButtonInHeader, <MaterialButton name="refresh" onPress={reloadPage} />)}
-          {nIf(showHomeButtonInHeader, <MaterialButton name="home" onPress={onOpenHome} />)}
+          {nIf(!isWeb && showBackButtonInHeader, <MaterialButton color={headerControlColor} name="arrow-back" onPress={goBack} />)}
+          {nIf(!isWeb && showForwardButtonInHeader, <MaterialButton color={headerControlColor} name="arrow-forward" onPress={goForward} />)}
+          {nIf(!isWeb && showReloadButtonInHeader, <MaterialButton color={headerControlColor} name="refresh" onPress={reloadPage} />)}
+          {nIf(showHomeButtonInHeader, <MaterialButton color={headerControlColor} name="home" onPress={onOpenHome} />)}
           {nIf(
             showHistoryButtonInHeader,
-            <MaterialButton name="history" onPress={() => ui$.historyModalOpen.set(true)} />,
+            <MaterialButton color={headerControlColor} name="history" onPress={() => ui$.historyModalOpen.set(true)} />,
           )}
           {nIf(
             isWeb,
@@ -355,7 +356,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           compactToolbar ? 'gap-1' : 'gap-2',
         )}
       >
-        {nIf(isWeb, <MaterialButton name="add" onPress={() => tabs$.openTab()} />)}
+        {nIf(isWeb, <MaterialButton color={headerControlColor} name="add" onPress={() => tabs$.openTab()} />)}
         {nIf(
           showPlaybackSpeedControl,
           <Pressable
@@ -384,7 +385,11 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
         )}
         {nIf(
           !isYTMusic && queueSize > 0,
-          <MaterialButton name="playlist-play" onPress={() => ui$.queueModalOpen.set(!ui$.queueModalOpen.get())} />,
+          <MaterialButton
+            color={headerControlColor}
+            name="playlist-play"
+            onPress={() => ui$.queueModalOpen.set(!ui$.queueModalOpen.get())}
+          />,
         )}
         {nIf(
           pageType?.type === 'watch' || hasDownloads,
@@ -409,12 +414,16 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
         )}
         {nIf(
           pinnedScripts.length === 1,
-          <MaterialCommunityButton name="puzzle-outline" onPress={() => runPinnedScript(pinnedScripts[0])} />,
+          <MaterialCommunityButton
+            color={headerControlColor}
+            name="puzzle-outline"
+            onPress={() => runPinnedScript(pinnedScripts[0])}
+          />,
         )}
         {nIf(
           pinnedScripts.length > 1,
           <NouMenu
-            trigger={<MaterialCommunityButton name="puzzle-outline" />}
+            trigger={<MaterialCommunityButton color={headerControlColor} name="puzzle-outline" />}
             items={pinnedScripts.map((script) => ({
               label: script.name,
               icon: <MaterialIcons name="code" size={18} color={headerControlColor} />,
@@ -424,7 +433,9 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           />,
         )}
         <NouMenu
-          trigger={isWeb ? <MaterialButton name="more-vert" /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
+          trigger={
+            isWeb ? <MaterialButton color={headerControlColor} name="more-vert" /> : isIos ? 'ellipsis' : 'filled.MoreVert'
+          }
           items={[
             {
               label: isYTMusic ? 'YouTube' : 'YouTube Music',

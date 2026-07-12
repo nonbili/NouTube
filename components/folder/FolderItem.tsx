@@ -1,5 +1,5 @@
 import { View, Pressable, useColorScheme } from 'react-native'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { Folder, removeFolder } from '@/states/folders'
 import { ui$ } from '@/states/ui'
 import { colors } from '@/lib/colors'

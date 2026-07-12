@@ -1,4 +1,4 @@
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { Image, type ImageProps, type ImageSource } from 'expo-image'
 import { memo, useEffect, useMemo, useState } from 'react'
 import { Pressable, View } from 'react-native'

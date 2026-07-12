@@ -13,7 +13,7 @@ import { NouMenu } from '../menu/NouMenu'
 import { isIos, isWeb } from '@/lib/utils'
 import { t } from 'i18next'
 import { RetryImage } from '../image/RetryImage'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import MaterialIcons from '@react-native-vector-icons/material-icons'
 
 dayjs.extend(relativeTime)
 

@@ -20,7 +20,7 @@ import { SettingsChangelogContent } from './SettingsModalTabChangelog'
 import { SettingsUserStylesContent } from './SettingsUserStylesContent'
 import { SettingsBlocklistContent } from './SettingsBlocklistContent'
 import { t } from 'i18next'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import MaterialIcons, { type MaterialIconsIconName } from '@react-native-vector-icons/material-icons'
 import { auth$ } from '@/states/auth'
 import { capitalize } from 'es-toolkit'
 import { settings$ } from '@/states/settings'
@@ -66,7 +66,7 @@ const SettingsSection: React.FC<React.PropsWithChildren<{ label?: string }>> = (
 const SettingsNavRow: React.FC<{
   title: string
   description: string
-  icon: keyof typeof MaterialIcons.glyphMap
+  icon: MaterialIconsIconName
   meta?: string
   onPress: () => void
   isLast?: boolean
@@ -102,7 +102,7 @@ const SettingsExternalRow: React.FC<{
   title: string
   detail: string
   href: string
-  icon?: keyof typeof MaterialIcons.glyphMap
+  icon?: MaterialIconsIconName
   isLast?: boolean
 }> = ({ title, detail, href, icon = 'open-in-new', isLast = false }) => {
   const colorScheme = useColorScheme()

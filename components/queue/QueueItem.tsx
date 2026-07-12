@@ -1,5 +1,5 @@
 import { View, Pressable } from 'react-native'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { Bookmark } from '@/states/bookmarks'
 import { updateUrl } from '@/states/ui'
 import { colors } from '@/lib/colors'

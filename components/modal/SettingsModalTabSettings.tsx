@@ -18,7 +18,7 @@ import { t } from 'i18next'
 import { saveFile } from '@/lib/file'
 import { NouText } from '../NouText'
 import { NouButton } from '../button/NouButton'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import MaterialIcons, { type MaterialIconsIconName } from '@react-native-vector-icons/material-icons'
 import { formatSleepTimerRemaining, useSleepTimerStatus } from '@/lib/sleep-timer'
 import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
 import { mainClient } from '@/lib/main-client'
@@ -43,7 +43,7 @@ const SettingsSection: React.FC<React.PropsWithChildren<{ label?: string }>> = (
 
 const SettingsToggleRow: React.FC<{
   label: string
-  icon: keyof typeof MaterialIcons.glyphMap
+  icon: MaterialIconsIconName
   value: boolean
   onPress: () => void
   isLast?: boolean
@@ -82,7 +82,7 @@ const SettingsToggleRow: React.FC<{
 export const SettingsActionRow: React.FC<{
   label: string
   description?: string
-  icon: keyof typeof MaterialIcons.glyphMap
+  icon: MaterialIconsIconName
   onPress: () => void
   isLast?: boolean
   loading?: boolean

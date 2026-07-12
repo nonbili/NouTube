@@ -1,7 +1,7 @@
 import { Pressable, Switch, TextInput, View, useColorScheme } from 'react-native'
 import { useState } from 'react'
 import { useValue } from '@legendapp/state/react'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import MaterialIcons, { type MaterialIconsIconName } from '@react-native-vector-icons/material-icons'
 import { t } from 'i18next'
 import { blocklist$ } from '@/states/blocklist'
 import type { BlocklistEntry, BlocklistKind } from '@/lib/blocklist'
@@ -71,7 +71,7 @@ const BlocklistSection: React.FC<{
   placeholder: string
   empty: string
   note: string
-  icon: keyof typeof MaterialIcons.glyphMap
+  icon: MaterialIconsIconName
   kind: BlocklistKind
   entries: BlocklistEntry[]
 }> = ({ label, placeholder, empty, note, icon, kind, entries }) => {

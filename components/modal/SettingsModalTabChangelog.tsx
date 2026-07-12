@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Linking, Pressable, View } from 'react-native'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { version } from '../../package.json'
 import { version as desktopVersion } from '../../desktop/package.json'
 import { NouText } from '../NouText'

@@ -24,7 +24,7 @@ import {
   type FeedManageSort,
 } from '@/lib/feed-management'
 import { FeedManageItem } from '../feed/FeedManageItem'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import MaterialIcons, { type MaterialIconsIconName } from '@react-native-vector-icons/material-icons'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Image } from 'expo-image'
 import { gray } from '@radix-ui/colors'
@@ -36,14 +36,14 @@ const MENU_TOP = 68
 interface FeedFilterOption {
   key: string
   name: string
-  icon: keyof typeof MaterialIcons.glyphMap
+  icon: MaterialIconsIconName
   thumbnail?: string
 }
 
 interface FeedMenuItem {
   key: string
   label: string
-  icon: keyof typeof MaterialIcons.glyphMap
+  icon: MaterialIconsIconName
   thumbnail?: string
   selected?: boolean
   onPress: () => void
@@ -53,7 +53,7 @@ interface FeedEmptyStateAction {
   key: string
   label: string
   onPress: () => void
-  icon?: keyof typeof MaterialIcons.glyphMap
+  icon?: MaterialIconsIconName
   loading?: boolean
   disabled?: boolean
   tone?: 'default' | 'accent'
