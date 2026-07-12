@@ -123,6 +123,26 @@ jobs:
           cat changelogs/template.txt changelogs/v$VER.txt > note.txt
           echo "TAG=v$VER" >> $GITHUB_ENV
 
+      - name: find snap artifact
+        id: snap
+        working-directory: .
+        run: |
+          set -euo pipefail
+          mapfile -t snaps < <(find dist -maxdepth 1 -type f -name '*.snap')
+          if [ "${#snaps[@]}" -ne 1 ]; then
+            echo "::error::Expected exactly one snap artifact, found ${#snaps[@]}."
+            exit 1
+          fi
+          echo "path=${snaps[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: publish snap
+        uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        with:
+          snap: ${{ steps.snap.outputs.path }}
+          release: stable
+
       - name: release
         uses: softprops/action-gh-release@v2
         with:
