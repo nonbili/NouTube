@@ -224,7 +224,11 @@
       "port": "Port du proxy",
       "hostPlaceholder": "par exemple : 127.0.0.1 ou proxy.example.com",
       "portPlaceholder": "par exemple 1080"
-    }
+    },
+    "toolbar": "Barre d'outils",
+    "toolbarButtons": "Boutons de la barre d'outils",
+    "showHistoryButtonInHeader": "Bouton « Afficher l'historique » dans la barre d'outils",
+    "doubleTapToToggleHeader": "Appuyez deux fois sur la page pour masquer ou afficher la barre d'outils"
   },
   "sync": {
     "label": "Synchronisation",

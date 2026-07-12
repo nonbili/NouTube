@@ -289,7 +289,11 @@
       "port": "Puerto proxy",
       "hostPlaceholder": "e.j., 127.0.0.1 o proxy.ejemplo.com",
       "portPlaceholder": "e.j., 1080"
-    }
+    },
+    "toolbar": "Barra de herramientas",
+    "toolbarButtons": "Botones de la barra de herramientas",
+    "showHistoryButtonInHeader": "Mostrar botón de historial en la barra de herramientas",
+    "doubleTapToToggleHeader": "Presione dos veces la página para ocultar/mostrar la barra de herramientas"
   },
   "native": {
     "format_bestQuality": "Mejor calidad",

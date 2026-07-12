@@ -1,1 +1,325 @@
-{}
+{
+  "about": {
+    "label": "Про програму",
+    "code": "Початковий код",
+    "donate": "Пожертвувати",
+    "updates": "Оновлення",
+    "hint": "Інформація про версію, оновлення, початковий код, та підтримка."
+  },
+  "changelog": {
+    "label": "Зміни",
+    "hint": "Недавні релізи і виправлення з GitHub.",
+    "loading": "Завантаження дописів релізу...",
+    "error": "Невдалось завантажити допис релізу.",
+    "retry": "Повторити",
+    "empty": "Дописів релізу незнайдено.",
+    "current": "Поточна",
+    "noNotes": "Для цієї версії дописів релізу не представлено."
+  },
+  "buttons": {
+    "clear": "Очистити",
+    "clearAll": "Очистити все",
+    "import": "Імпортувати",
+    "export": "Експортувати",
+    "open": "Відкрити",
+    "cancel": "Відмінити",
+    "openUrl": "Відкрити URL",
+    "save": "Зберегти",
+    "remove": "Прибрати",
+    "unsubscribe": "Відписатись",
+    "signOut": "Вийти",
+    "next": "Далі",
+    "show": "Показати",
+    "download": "Завантажити",
+    "browse": "Перегляд",
+    "updateYtDlp": "Оновити yt-dlp",
+    "updating": "Оновлення...",
+    "ytDlpUpdated": "yt-dlp оновлено",
+    "move": "Перемістити"
+  },
+  "library": {
+    "videos": "Відео",
+    "channels": "Канали",
+    "playlists": "Плейлисти",
+    "songs": "Пісні",
+    "artists": "Виконавці"
+  },
+  "menus": {
+    "openInNewTab": "Відкрити в новій вкладці",
+    "edit": "Редагувати",
+    "remove": "Прибрати",
+    "unsubscribe": "Відписатись",
+    "reload": "Перезавантажити",
+    "share": "Поділитись",
+    "pip": "Картинка в картинці",
+    "duplicateTab": "Дуплікація вкладки",
+    "close": "Закрити",
+    "tools": "Розширення",
+    "desktop": "Десктопний вид",
+    "on": "Вкл",
+    "off": "Вимк"
+  },
+  "modals": {
+    "editBookmark": "Редагувати закладку",
+    "title": "Назва",
+    "folder": "Тека",
+    "ungrouped": "Незгруповані",
+    "feeds": "Стрічки",
+    "history": "Історія",
+    "queue": "Черга",
+    "downloadVideo": "Завантажити відео",
+    "downloadsFolder": "Тека завантаження",
+    "activeDownloads": "Поточні завантаження",
+    "downloadHistory": "Історія завантажень",
+    "starting": "Початок...",
+    "downloadComplete": "Завантаження завершено",
+    "downloadFailed": "Не вдалось завантажити",
+    "failedToLoadFormats": "Помилка завантаження форматів",
+    "playbackSpeed": "Швидкість відтворення",
+    "playbackQuality": "Якість відтворення"
+  },
+  "update": {
+    "check": "Перевірити оновлення",
+    "checkHint": "Перевірити, чи доступне оновлення",
+    "upToDate": "Ви користуєтесь останньою ресією",
+    "downloading": "Завантажується оновлення в{{version}}…",
+    "error": "Не вдалось перевірити оновлення",
+    "downloadedTitle": "Оновлення готове",
+    "downloadedHint": "Версію {{version}} завантажено. Перезапустити зараз для встановлення?"
+  },
+  "sleepTimer": {
+    "label": "Таймер сну",
+    "hint": "Зупинити відтворення після назначеного терміну, чи власного часу.",
+    "activeHint": "Відтворення зупиниться після закінчення часу.",
+    "off": "Вимк",
+    "endsIn": "Закінчення через {{value}}",
+    "preset": "{{value}} хв",
+    "customPlaceholder": "Власний час",
+    "set": "Встановити таймер",
+    "cancel": "Скасувати таймер",
+    "replace": "Змінити",
+    "validation": {
+      "minutes": "Введіть ціле число хвилин від 1 до 1440"
+    },
+    "setToast": "Таймер сну встановлено на {{value}} хвилин",
+    "cancelToast": "Таймер сну скасовано",
+    "expiredToast": "Таймер сну вичерпано"
+  },
+  "feeds": {
+    "updates": "Оновлення",
+    "manage": "Керування",
+    "sortLastVideo": "Нові відео",
+    "sortFrequency": "Частота",
+    "lastVideoNewest": "Останні відео: спочатку нові",
+    "lastVideoOldest": "Останні відео: спочатку старі",
+    "frequencyHighest": "Частота: спочатку більші",
+    "frequencyLowest": "Частота: спочатку менші",
+    "frequencyLabel": "Частота",
+    "lastVideoLabel": "Останнє відео",
+    "videosPerDay": "{{value}} відео/день",
+    "never": "Ніколи",
+    "allFolders": "Всі",
+    "newFolder": "+ Нова тека",
+    "editFeed": "Редагувати стрічку",
+    "manageEmpty": "Немає збережених стрічок.",
+    "manageNoResults": "Нема стрічок відповідних фільтрам.",
+    "updatesEmpty": "Нема відео зі стрічки відповідних фільтру в теці.",
+    "filterDropdownPlaceholder": "Фільтрувати теки та канали",
+    "filterDropdownEmpty": "Нема відповідних тек чи каналів.",
+    "emptyTitleFolder": "Нема оновлень в {{folder}}",
+    "emptyTitleChannel": "Нема оновлень з {{channel}}",
+    "emptyBodyFiltered": "Зараз тут немає нових відео. Перевірте пізніше або перемкніть на Всі.",
+    "emptyActionFetchNow": "Підтягнути зараз",
+    "fetchToastSuccess": "Стрічку оновлено",
+    "fetchToastRunning": "Оновлення вже у процесі",
+    "fetchToastNotFound": "Не вдалось оновити цей канал. Стрічка видала 404.",
+    "fetchToastError": "Не вдалось оновити цей канал",
+    "emptyActionAllFolders": "Показати все",
+    "emptyTitleWaiting": "Очікується оновлення стрічки",
+    "emptyBodyWaiting": "Ваші збережені канали готові. Не закривайте програму або відкрийте пізніше, і ви побачите нові пости.",
+    "removeTitle": "Видалити {{title}}?",
+    "removeMessage": "Бібліотеку каналу буде видалено а стрічку відео очищено.",
+    "emptyTitleNoChannels": "Нема відмічених каналів",
+    "emptyBodyNoChannels": "Тут відображатимуться оновлення з відмічених YouTube каналів."
+  },
+  "settings": {
+    "label": "Налаштування",
+    "hubHint": "Відтворення, синхронізація, імпорт, webview всі інструменти в одному місці.",
+    "general": "Загальні",
+    "preferences": "Бажані",
+    "preferencesContent": "Контент",
+    "preferencesGeneral": "Загальні",
+    "zoom": {
+      "label": "Зум тексту",
+      "defaultLabel": "Зум тексту",
+      "defaultHint": "Налаштувати розмір тексту сторінок YouTube."
+    },
+    "appearance": "Вигляд",
+    "appearanceHint": "Контроль вигляду YouTube в програмі.",
+    "tools": "Розширення",
+    "toolsHint": "Керування оточенням webview та іншими інструментами.",
+    "transfer": "Імпорт й експорт",
+    "syncHintShort": "Акаунт, тариф та синхронізація девайсів.",
+    "restoreOnStart": "Відновлювати останню сесію при запуску",
+    "pullToRefresh": "Потягнути для оновлення",
+    "proxy": {
+      "label": "Проксі",
+      "enabled": "Увімкнути проксі",
+      "type": "Тип проксі",
+      "host": "Хост проксі",
+      "port": "Порт проксі",
+      "hostPlaceholder": "н. п. 127.0.0.1 або proxy.example.com",
+      "portPlaceholder": "н. п. 1080"
+    },
+    "autoHideHeader": "Приховати панель, показувати при скролі",
+    "hideToolbarWhenScrolled": "Приховувати панель коли сторінка не вгорі",
+    "toolbar": "Панель",
+    "headerPosition": {
+      "label": "Розташування панелі",
+      "top": "Вгорі",
+      "bottom": "Внизу"
+    },
+    "toolbarButtons": "Кнопки панелі",
+    "showHomeButtonInHeader": "Показувати кнопку Додому на панелі",
+    "showBackButtonInHeader": "Показувати кнопку Назад на панелі",
+    "showForwardButtonInHeader": "Показувати кнопку Вперед на панелі",
+    "showReloadButtonInHeader": "Показувати кнопку Перезавантаження на панелі",
+    "showHistoryButtonInHeader": "Показувати кнопку Історія на панелі",
+    "doubleTapToToggleHeader": "Подвійне натискання показує/ховає панель",
+    "hideShorts": "Приховати шортси зі стрічки",
+    "hideShortsInNavbar": "Приховати шортси з панелі навігації",
+    "hideMixPlaylist": "Приховати змішані плейлисти",
+    "miniPlayer": "YouTube міні плеєр",
+    "preferH264": "Надавати перевагу H.264 (блокувати VP9/AV1)",
+    "showDislikes": "Показувати дизлайки",
+    "showOriginalVideoTitle": "Показувати оригінальну назву відео",
+    "clickbaitThumbnail": {
+      "label": "Уникати клікбейтних прев'ю",
+      "hint": "Заміняти авторські прев'ю автоматичними кадрами з відео",
+      "optionDefault": "За замовчуванням",
+      "optionFrame": "Кадр {{n}}"
+    },
+    "blocklist": {
+      "label": "Блоклист",
+      "channels": "Канали",
+      "emptyChannels": "Ще жодних заблокованих каналів.",
+      "add": "Додати",
+      "hint": "Приховувати відео з YouTube каналу, чи за ключовим словом.",
+      "keywords": "Ключові слова",
+      "channelPlaceholder": "Назва каналу, псевдонім чиURL",
+      "keywordPlaceholder": "Ключове слово назви",
+      "emptyKeywords": "Ще жодних заблокованих ключових слів.",
+      "channelsNote": "Повний збіг каналів за назвою, псевдонімом чи ID каналу.",
+      "keywordsNote": "Ключові слова сходяться за включенням (пошук за рядками у назвах)."
+    },
+    "userStyles": {
+      "label": "Стилі і скрипти користувача",
+      "builtin": {
+        "hideShortsInNavbar": {
+          "label": "Приховати Шортси з панелі навігації"
+        },
+        "hideMixPlaylist": {
+          "label": "Приховати змішані плейлисти"
+        },
+        "hideCommunityPosts": {
+          "label": "Приховати пости спільноти"
+        },
+        "label": "Вбудовані стилі"
+      },
+      "custom": {
+        "label": "Особисті стилі",
+        "empty": "Ще жодних власних стилів."
+      },
+      "add": "Додати стиль",
+      "nameLabel": "Назва",
+      "validation": {
+        "css": "CSS не може бути порожнім"
+      },
+      "copyCss": "Копіювати CSS",
+      "cssCopied": "CSS скопійовано",
+      "copyFailed": "Невдалось копіювати CSS",
+      "importFailed": "Невдалось імпортувати CSS",
+      "scripts": {
+        "label": "Особисті скрипти",
+        "add": "Додати скрипт",
+        "namePlaceholder": "Мій скрипт",
+        "run": "Запуск",
+        "runComplete": "Запустити скрипт",
+        "runFailed": "Помилка скрипта",
+        "import": "Імпорт",
+        "importFailed": "Невдалось імпортувати скрипт",
+        "pinToHeader": "Закріпити на панелі",
+        "empty": "Ще жодних власних скриптів.",
+        "addTitle": "Додати власний скрипт",
+        "editTitle": "Редагувати власний скрипт",
+        "pinToHeaderHint": "Показувати цей скрип на панелі як дію.",
+        "pinnedToHeader": "Закріплені на панелі",
+        "deleteConfirm": "Видалити цей власний скрипт?",
+        "noActiveTab": "Нема активних webview",
+        "validation": {
+          "js": "JavaScript не може бути порожнім"
+        }
+      },
+      "hint": "Вбудовані CSS твіки та власні CSS, специфічні для сайту.",
+      "addTitle": "Додати власний стиль",
+      "editTitle": "Редагувати власний стиль",
+      "namePlaceholder": "Мій стиль",
+      "deleteConfirm": "Видалити цей власний стиль?"
+    },
+    "watchHistory": "Історія перегляду",
+    "theme": {
+      "label": "Тема YouTube",
+      "system": "Системна",
+      "dark": "Темна",
+      "light": "Світла",
+      "hint": "Перезавантажте власноруч, якщо зміни не відобразились уwebview."
+    },
+    "language": {
+      "label": "Мова",
+      "system": "Системна",
+      "hint": "Оберіть мову або залиште як в системі."
+    },
+    "userAgent": {
+      "title": "Власний User Agent",
+      "default": "Стандартний user agent"
+    },
+    "exportLabel": "Експортувати закладки у список",
+    "generalHint": "Налаштування відтворення, зовнішності, розширення та передача даних.",
+    "preferencesHint": "Відтворення, стрічка та історія.",
+    "preferencesPlayback": "Відтворення та відораження",
+    "transferHint": "Імпорт закладок для перенесення з собою.",
+    "autoHideSidebar": "Авто приховування та поява панелі при наведенні",
+    "channelsFeed": "Стрічка каналів",
+    "login": {
+      "label": "Спробуйте це, якщо не вдається увійти через webview",
+      "button": "Вхід в YouTube"
+    },
+    "openUrlLabel": "Напряму відкривати підтримувані URL",
+    "webview": {
+      "clearLabel": "Очистити дані webview"
+    },
+    "importList": "Імпортувати список посилань",
+    "importTakeout": "Імпорт з YouTube витягу",
+    "injectCookie": "Ввести кукі, якщо не вдається увійти через webview",
+    "injectCookieTitle": "Ввести кукі аутентифікації у webview",
+    "injectCookieHint": "Копіювати значення заголовків кукі з браузера ПК. Це обхід, в разі, якщо вам не вдається увійти з email/паролем."
+  },
+  "native": {
+    "download_complete": "Завантаження завершено",
+    "download_failed": "Не вдалось завантажити",
+    "format_bestQuality": "Найкраща якість",
+    "format_bestQualityDesc": "До {{height}}p відео + аудіо",
+    "format_1080pDesc": "1080p відео + аудіо",
+    "format_720pDesc": "720p відео + аудіо",
+    "format_audioOnly": "Лише аудіо",
+    "format_audio": "Аудіо ({{ext}})",
+    "format_audioStreamDesc": "Найкраща якість аудіопотоку",
+    "format_audioMp3Desc": "Найкраща якість конвертації аудіо в MP3"
+  },
+  "sync": {
+    "label": "Синхронізувати",
+    "currentPlan": "Поточний тариф",
+    "managePlan": "Керування тарифом",
+    "hint": "Синхронізувати закладки вашого телефону з комп'ютерами, як преміум користувач."
+  }
+}
