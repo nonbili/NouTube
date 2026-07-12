@@ -154,6 +154,8 @@ internal class NouYtDlp(private val context: Context) {
     if (isMp3) {
       request.addOption("--extract-audio")
       request.addOption("--audio-format", "mp3")
+      request.addOption("--add-metadata")
+      request.addOption("--embed-thumbnail")
     } else {
       request.addOption("--merge-output-format", "mp4")
     }

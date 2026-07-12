@@ -75,17 +75,20 @@ const interfaces = {
   downloadVideo: async (url: string, formatId: string, outputDir: string): Promise<void> => {
     const binary = await ensureYtDlp()
     const outputTemplate = `${outputDir}/%(title)s.%(ext)s`
+    const isMp3 = formatId === 'bestaudio-mp3'
+    const args = [
+      url,
+      '-f',
+      isMp3 ? 'bestaudio/best' : formatId,
+      '-o',
+      outputTemplate,
+      '--no-playlist',
+      ...(isMp3
+        ? ['--extract-audio', '--audio-format', 'mp3', '--add-metadata', '--embed-thumbnail']
+        : ['--merge-output-format', 'mp4']),
+    ]
     return new Promise((resolve, reject) => {
-      const proc = spawn(binary, [
-        url,
-        '-f',
-        formatId,
-        '-o',
-        outputTemplate,
-        '--no-playlist',
-        '--merge-output-format',
-        'mp4',
-      ])
+      const proc = spawn(binary, args)
       let filePath = ''
       let buffer = ''
       let lastUpdate = 0
@@ -210,6 +213,11 @@ function buildFormatOptions(info: any): FormatOption[] {
       formatId: 'bestaudio/best',
       label: 'Audio only',
       description: 'Best audio stream',
+    })
+    options.push({
+      formatId: 'bestaudio-mp3',
+      label: 'Audio (mp3)',
+      description: 'MP3 audio with metadata and cover art',
     })
   }
 
