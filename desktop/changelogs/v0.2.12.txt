@@ -1,0 +1,3 @@
+- support downloading MP3 audio with metadata and cover art
+- support rearranging queue videos
+- support history button on the toolbar

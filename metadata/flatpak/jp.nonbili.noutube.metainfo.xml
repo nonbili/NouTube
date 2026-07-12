@@ -59,6 +59,15 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.2.12" date="2026-07-12">
+      <description>
+        <ul>
+          <li>Support downloading MP3 audio with metadata and cover art</li>
+          <li>Support rearranging queue videos</li>
+          <li>Support history button on the toolbar</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.2.11" date="2026-06-05">
       <description>
         <ul>
