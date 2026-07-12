@@ -31,9 +31,9 @@ function isWatch(href: string): boolean {
 function isMiniPlayerEnabled(): boolean {
   try {
     const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')
-    return settings.miniPlayer !== false
+    return settings.miniPlayer === true
   } catch {
-    return true
+    return false
   }
 }
 

@@ -129,7 +129,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   hideShortsInNavbar: Boolean(value?.hideShortsInNavbar),
   hideMixPlaylist: Boolean(value?.hideMixPlaylist),
   keepHistory: typeof value?.keepHistory === 'boolean' ? value.keepHistory : true,
-  miniPlayer: typeof value?.miniPlayer === 'boolean' ? value.miniPlayer : true,
+  miniPlayer: typeof value?.miniPlayer === 'boolean' ? value.miniPlayer : false,
   preferH264: Boolean(value?.preferH264),
   clickbaitThumbnail: ['hq1', 'hq2', 'hq3'].includes(value?.clickbaitThumbnail || '')
     ? (value?.clickbaitThumbnail as SettingsSnapshot['clickbaitThumbnail'])
@@ -177,7 +177,7 @@ export const settings$ = observable<Store>({
   hideShortsInNavbar: false,
   hideMixPlaylist: false,
   keepHistory: true,
-  miniPlayer: true,
+  miniPlayer: false,
   preferH264: false,
   clickbaitThumbnail: 'default',
   playbackRate: 1,
