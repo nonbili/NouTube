@@ -274,16 +274,30 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
             view,
             FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
           )
-          activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
+          webView.evaluateJavascript(
+            "(() => { const video = document.querySelector('#movie_player video') || " +
+              "document.querySelector('video'); return !!video && video.videoHeight > video.videoWidth })()"
+          ) { isPortrait ->
+            if (customView !== view) {
+              return@evaluateJavascript
+            }
+            activity.setRequestedOrientation(
+              if (isPortrait == "true") ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+              else ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            )
+
+            if (isPortrait != "true" &&
+              Settings.System.getInt(activity.contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0) == 1
+            ) {
+              orientationListener.enable()
+            }
+          }
 
           // https://stackoverflow.com/a/64828067
           val controller = WindowCompat.getInsetsController(window, window.decorView)
           controller.hide(WindowInsetsCompat.Type.systemBars())
           controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
-          if (Settings.System.getInt(activity.contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0) == 1) {
-            orientationListener.enable()
-          }
         }
 
         override fun onHideCustomView() {

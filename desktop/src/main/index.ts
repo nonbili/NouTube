@@ -49,7 +49,7 @@ function createWindow(): void {
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    if (details.disposition === 'picture-in-picture') {
+    if (String(details.disposition) === 'picture-in-picture') {
       return { action: 'allow' }
     }
     if (isSupportedUrl(details.url)) {
@@ -137,7 +137,7 @@ function createWindow(): void {
     // @ts-expect-error electron-context-menu types mismatch
     contextMenu.default({ ...getContextMenuOptions(wc), window: wc })
     wc.setWindowOpenHandler((details) => {
-      if (details.disposition === 'picture-in-picture') {
+      if (String(details.disposition) === 'picture-in-picture') {
         return { action: 'allow' }
       }
       const url = resolveTargetUrl(details.url)

@@ -1,6 +1,6 @@
 import { colors } from '@/lib/colors'
-import { Button, ContextMenu, Divider, Host, Section } from '@expo/ui/swift-ui'
-import { frame } from '@expo/ui/swift-ui/modifiers'
+import { Button, Divider, Host, Menu, Section } from '@expo/ui/swift-ui'
+import { buttonStyle, disabled, frame, tint } from '@expo/ui/swift-ui/modifiers'
 import type { Item } from './NouMenu'
 import { cloneElement, Fragment, isValidElement, ReactNode } from 'react'
 import { useColorScheme } from 'react-native'
@@ -27,12 +27,11 @@ export const NouMenu: React.FC<{ trigger: ReactNode; items: Item[]; triggerColor
       .map((item, itemIndex) => (
         <Button
           key={`${groupIndex}-${itemIndex}`}
-          disabled={item.disabled}
           onPress={item.handler}
           systemImage={item.systemImage as never}
-        >
-          {item.metaLabel ? `${item.label} (${item.metaLabel})` : item.label}
-        </Button>
+          label={item.metaLabel ? `${item.label} (${item.metaLabel})` : item.label}
+          modifiers={item.disabled ? [disabled(true)] : undefined}
+        />
       ))
 
     const content = header ? (
@@ -53,21 +52,23 @@ export const NouMenu: React.FC<{ trigger: ReactNode; items: Item[]; triggerColor
 
   return (
     <Host matchContents>
-      <ContextMenu activationMethod="singlePress">
-        <ContextMenu.Items>{menuItems}</ContextMenu.Items>
-        <ContextMenu.Trigger>
-          {typeof trigger === 'string' ? (
-            <Button
-              variant="borderless"
-              color={resolvedTriggerColor}
-              systemImage={trigger as never}
-              modifiers={[frame({ width: 44, height: 44 })]}
-            />
-          ) : (
-            isValidElement(trigger) ? cloneElement(trigger as React.ReactElement<any>, { color: resolvedTriggerColor }) : trigger
-          )}
-        </ContextMenu.Trigger>
-      </ContextMenu>
+      <Menu
+        label={
+          typeof trigger === 'string'
+            ? ''
+            : isValidElement(trigger)
+              ? cloneElement(trigger as React.ReactElement<any>, { color: resolvedTriggerColor })
+              : trigger
+        }
+        systemImage={typeof trigger === 'string' ? trigger : undefined}
+        modifiers={
+          typeof trigger === 'string'
+            ? [buttonStyle('borderless'), tint(resolvedTriggerColor), frame({ width: 44, height: 44 })]
+            : undefined
+        }
+      >
+        {menuItems}
+      </Menu>
     </Host>
   )
 }
