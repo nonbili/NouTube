@@ -207,7 +207,7 @@
     "showDislikes": "显示“不喜欢”",
     "showOriginalVideoTitle": "显示原始视频标题",
     "pullToRefresh": "下拉刷新",
-    "showReloadButtonInHeader": "在工具栏中显示重新加载按钮",
+    "showReloadButtonInHeader": "在工具栏中显示“重新加载”按钮",
     "preferencesContent": "内容",
     "preferencesPlayback": "播放和显示",
     "preferencesGeneral": "常规",
@@ -224,7 +224,11 @@
       "port": "代理端口",
       "hostPlaceholder": "例如：127.0.0.1 或 proxy.example.com",
       "portPlaceholder": "例如：1080"
-    }
+    },
+    "toolbar": "工具栏",
+    "toolbarButtons": "工具栏按钮",
+    "showHistoryButtonInHeader": "在工具栏中显示“历史记录”按钮",
+    "doubleTapToToggleHeader": "点按两次页面即可隐藏或显示工具栏"
   },
   "sync": {
     "label": "同步",
