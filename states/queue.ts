@@ -35,8 +35,8 @@ export const queue$ = observable<Store>({
     }
   },
   moveUp: (index) => {
-    if (index <= 0) return
     const bookmarks = [...queue$.bookmarks.get()]
+    if (index <= 0 || index >= bookmarks.length) return
     const temp = bookmarks[index]
     bookmarks[index] = bookmarks[index - 1]
     bookmarks[index - 1] = temp
@@ -44,7 +44,7 @@ export const queue$ = observable<Store>({
   },
   moveDown: (index) => {
     const bookmarks = [...queue$.bookmarks.get()]
-    if (index >= bookmarks.length - 1) return
+    if (index < 0 || index >= bookmarks.length - 1) return
     const temp = bookmarks[index]
     bookmarks[index] = bookmarks[index + 1]
     bookmarks[index + 1] = temp

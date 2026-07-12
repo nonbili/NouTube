@@ -4,7 +4,7 @@ import { Bookmark } from '@/states/bookmarks'
 import { updateUrl } from '@/states/ui'
 import { colors } from '@/lib/colors'
 import { NouText } from '../NouText'
-import { isWeb, isIos } from '@/lib/utils'
+import { nIf, isWeb, isIos } from '@/lib/utils'
 import { getThumbnail } from '@/lib/page'
 import { queue$ } from '@/states/queue'
 import { NouMenu } from '../menu/NouMenu'
@@ -30,7 +30,7 @@ export const QueueItem: React.FC<{ bookmark: Bookmark; playing: boolean; index: 
   return (
     <View className="flex-row my-2 overflow-hidden">
       <View className="flex-row items-center">
-        <View className="w-6">{playing && <MaterialIcons name="play-arrow" color={colors.icon} size={16} />}</View>
+        <View className="w-6">{nIf(playing, <MaterialIcons name="play-arrow" color={colors.icon} size={16} />)}</View>
         <Pressable className="w-[120px]" onPress={onPress}>
           <RetryImage
             source={bookmark.thumbnail || getThumbnail(bookmark.url)}
@@ -46,8 +46,22 @@ export const QueueItem: React.FC<{ bookmark: Bookmark; playing: boolean; index: 
         </NouText>
       </Pressable>
       <View className="flex-col justify-center">
-        <MaterialButton name="keyboard-arrow-up" size={20} onPress={() => queue$.moveUp(index)} color={index === 0 ? colors.iconSubtle : undefined} />
-        <MaterialButton name="keyboard-arrow-down" size={20} onPress={() => queue$.moveDown(index)} color={index === total - 1 ? colors.iconSubtle : undefined} />
+        <MaterialButton
+          name="keyboard-arrow-up"
+          size={20}
+          style={{ height: 30, width: 30 }}
+          onPress={() => queue$.moveUp(index)}
+          disabled={index === 0}
+          color={index === 0 ? colors.iconSubtle : undefined}
+        />
+        <MaterialButton
+          name="keyboard-arrow-down"
+          size={20}
+          style={{ height: 30, width: 30 }}
+          onPress={() => queue$.moveDown(index)}
+          disabled={index === total - 1}
+          color={index === total - 1 ? colors.iconSubtle : undefined}
+        />
       </View>
       <NouMenu
         trigger={
