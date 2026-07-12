@@ -12,6 +12,11 @@ import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { Appearance } from 'react-native'
 import { initializeDesktopTabsForStartup } from '@/states/tabs'
+import { setDynamicLoadingEnabled } from '@react-native-vector-icons/common'
+
+// Vite emits font imports as URLs rather than React Native asset registry IDs.
+// The icon font is loaded by global.css for the desktop renderer.
+setDynamicLoadingEnabled(false)
 
 // Patch Appearance for react-native-web
 const originalAppearance = Appearance as any

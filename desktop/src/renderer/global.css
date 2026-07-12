@@ -7,3 +7,10 @@
 :focus-visible {
   outline: none;
 }
+@font-face {
+  font-family: 'MaterialIcons-Regular';
+  src: url('../../../node_modules/@react-native-vector-icons/material-icons/fonts/MaterialIcons.ttf') format('truetype');
+  font-style: normal;
+  font-weight: normal;
+  font-display: block;
+}

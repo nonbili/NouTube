@@ -17,6 +17,9 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin({ exclude: ['noutube'] })],
   },
   renderer: {
+    define: {
+      'process.env.EXPO_OS': JSON.stringify('web'),
+    },
     resolve: {
       alias: {
         '@': 'noutube',

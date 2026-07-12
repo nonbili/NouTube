@@ -229,7 +229,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
       onLayout={(e) => ui$.headerHeight.set(e.nativeEvent.layout.height)}
       className={clsx(
         'bg-zinc-100 dark:bg-zinc-800 flex-row justify-between px-2 py-1',
-        isWeb && 'lg:flex-col lg:px-1 lg:py-2',
+        isWeb && 'lg:w-14 lg:flex-none lg:flex-col lg:px-1 lg:py-2',
         isWeb &&
           autoHideSidebar &&
           'lg:fixed lg:left-0 lg:top-0 lg:bottom-0 lg:z-20 lg:w-14 lg:-translate-x-12 lg:opacity-0 lg:shadow-xl lg:transition lg:duration-200 lg:ease-out lg:hover:translate-x-0 lg:hover:opacity-100 lg:focus-within:translate-x-0 lg:focus-within:opacity-100',
@@ -361,9 +361,9 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           showPlaybackSpeedControl,
           <Pressable
             onPress={() => ui$.playbackSpeedModalOpen.set(true)}
-            className="h-11 min-w-11 px-1 items-center justify-center shrink-0"
+            className="h-11 min-w-11 px-1 items-center justify-center shrink-0 lg:w-full lg:min-w-0 lg:px-0"
           >
-            <View className="px-2 py-1 rounded-full border border-zinc-300 dark:border-zinc-600 bg-zinc-200/80 dark:bg-zinc-700/80">
+            <View className="max-w-full px-2 py-1 rounded-full border border-zinc-300 dark:border-zinc-600 bg-zinc-200/80 dark:bg-zinc-700/80 lg:px-1.5">
               <NouText className="text-xs font-medium">{playbackRateLabel}</NouText>
             </View>
           </Pressable>,
@@ -372,9 +372,9 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           showPlaybackQualityControl,
           <Pressable
             onPress={() => ui$.playbackQualityModalOpen.set(true)}
-            className="h-11 min-w-11 px-1 items-center justify-center shrink-0"
+            className="h-11 min-w-11 px-1 items-center justify-center shrink-0 lg:w-full lg:min-w-0 lg:px-0"
           >
-            <View className="px-2 py-1 rounded-full border border-zinc-300 dark:border-zinc-600 bg-zinc-200/80 dark:bg-zinc-700/80">
+            <View className="max-w-full px-2 py-1 rounded-full border border-zinc-300 dark:border-zinc-600 bg-zinc-200/80 dark:bg-zinc-700/80 lg:px-1.5">
               <NouText className="text-xs font-medium">{playbackQualityLabel}</NouText>
             </View>
           </Pressable>,
