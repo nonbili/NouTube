@@ -23,9 +23,6 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationCompat
-import androidx.media.AudioAttributesCompat
-import androidx.media.AudioFocusRequestCompat
-import androidx.media.AudioManagerCompat
 import androidx.media.session.MediaButtonReceiver
 import java.net.URL
 import kotlinx.coroutines.CoroutineScope
@@ -53,10 +50,6 @@ class NouService : Service() {
   private val mainHandler = Handler(Looper.getMainLooper())
   private var sleepTimerDeadlineMs: Long? = null
   private var sleepTimerRunnable: Runnable? = null
-  private var audioManager: AudioManager? = null
-  private var audioFocusRequest: AudioFocusRequestCompat? = null
-  private var hasAudioFocus = false
-  private var pausedByTransientLoss = false
   private val NOTIFICATION_ID = 777
   private val CHANNEL_ID = "noutube"
 
@@ -144,59 +137,6 @@ class NouService : Service() {
     mediaSession?.setActive(true)
   }
 
-  private fun evalOnMain(script: String) {
-    mainHandler.post { webView.evaluateJavascript(script, null) }
-  }
-
-  private val audioFocusListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
-    when (focusChange) {
-      AudioManager.AUDIOFOCUS_LOSS -> {
-        // Permanent loss (e.g. another media app took over): pause and don't auto-resume.
-        pausedByTransientLoss = false
-        evalOnMain("NouTube.pause()")
-      }
-      AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
-        // Temporary loss (e.g. incoming call): pause, remember to resume on regain.
-        pausedByTransientLoss = true
-        evalOnMain("NouTube.pause()")
-      }
-      AudioManager.AUDIOFOCUS_GAIN -> {
-        if (pausedByTransientLoss) {
-          pausedByTransientLoss = false
-          evalOnMain("NouTube.play()")
-        }
-      }
-    }
-  }
-
-  private fun requestAudioFocus() {
-    if (hasAudioFocus) {
-      return
-    }
-    val manager = audioManager
-      ?: (getSystemService(Context.AUDIO_SERVICE) as AudioManager).also { audioManager = it }
-    val request = audioFocusRequest ?: AudioFocusRequestCompat.Builder(AudioManagerCompat.AUDIOFOCUS_GAIN)
-      .setAudioAttributes(
-        AudioAttributesCompat.Builder()
-          .setUsage(AudioAttributesCompat.USAGE_MEDIA)
-          .setContentType(AudioAttributesCompat.CONTENT_TYPE_MOVIE)
-          .build()
-      )
-      .setOnAudioFocusChangeListener(audioFocusListener, mainHandler)
-      .build()
-      .also { audioFocusRequest = it }
-    hasAudioFocus = AudioManagerCompat.requestAudioFocus(manager, request) ==
-      AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-  }
-
-  private fun abandonAudioFocus() {
-    val manager = audioManager ?: return
-    val request = audioFocusRequest ?: return
-    AudioManagerCompat.abandonAudioFocusRequest(manager, request)
-    hasAudioFocus = false
-    pausedByTransientLoss = false
-  }
-
   fun getContentIntent(): PendingIntent {
     val launchIntent = Intent(this, activity!!.javaClass)
     launchIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -255,12 +195,6 @@ class NouService : Service() {
   }
 
   fun setPlaybackState(playing: Boolean, pos: Long = 0) {
-    if (playing) {
-      // Hold audio focus while playing so OEM audio policies don't pause us in the
-      // background (e.g. when switching to the home screen). Keep focus while paused
-      // so playback can resume; it's released in exit().
-      requestAudioFocus()
-    }
     if (stateBuilder == null) {
       stateBuilder = PlaybackStateCompat.Builder()
         .addCustomAction(
@@ -332,7 +266,6 @@ class NouService : Service() {
 
   fun exit() {
     clearSleepTimer(false)
-    abandonAudioFocus()
     notificationManager?.deleteNotificationChannel(CHANNEL_ID)
     notificationManager = null
     stopSelf()
