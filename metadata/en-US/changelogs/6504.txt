@@ -1,0 +1,5 @@
+- Support rearranging queue videos
+- Embed MP3 metadata and cover art when downloading audio
+- Use video aspect ratio for fullscreen orientation on Android
+- Default mini-player to off
+- Support Polish and Ukrainian languages
