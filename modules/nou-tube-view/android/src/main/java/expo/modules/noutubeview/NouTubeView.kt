@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.net.Uri
 import android.os.IBinder
 import android.provider.Settings
@@ -231,6 +232,10 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
         }
 
       webChromeClient = object : WebChromeClient() {
+        override fun getDefaultVideoPoster(): Bitmap {
+          return Bitmap.createBitmap(intArrayOf(Color.BLACK), 1, 1, Bitmap.Config.ARGB_8888)
+        }
+
         override fun onPermissionRequest(request: PermissionRequest) {
           val activity = currentActivity
           if (activity == null) {
