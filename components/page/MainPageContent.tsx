@@ -88,6 +88,8 @@ const getContentSettingsSnapshot = () => {
     showDislikes,
     showOriginalVideoTitle,
     doubleTapToToggleHeader,
+    translateComments,
+    translationTargetLanguage,
   } = settings$.get()
   return {
     sponsorBlock,
@@ -97,6 +99,7 @@ const getContentSettingsSnapshot = () => {
     showDislikes,
     showOriginalVideoTitle,
     doubleTapToToggleHeader,
+    translateComments: !isWeb && translateComments && Boolean(translationTargetLanguage),
   }
 }
 
@@ -316,6 +319,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const autoHideHeader = useValue(settings$.autoHideHeader)
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
   const doubleTapToToggleHeader = useValue(settings$.doubleTapToToggleHeader)
+  const translateComments = useValue(settings$.translateComments)
+  const translationTargetLanguage = useValue(settings$.translationTargetLanguage)
   const headerPosition = useValue(settings$.headerPosition)
   const headerHeight = useValue(ui$.headerHeight)
   const headerShown = useValue(ui$.headerShown)
@@ -468,6 +473,17 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           ui$.headerShown.set(!ui$.headerShown.get())
         }
         break
+      case 'translate-block':
+        if (!isWeb && translateComments && translationTargetLanguage && typeof data?.text === 'string') {
+          ui$.translation.set({
+            id: String(data.id || Date.now()),
+            text: data.text,
+            targetLanguage: translationTargetLanguage,
+            x: Number(data.x) || 16,
+            y: Number(data.y) || 96,
+          })
+        }
+        break
       case 'onload':
         const webview = ui$.webview.get() || nativeRef.current
         restoreLastPlaying(webview)
@@ -547,6 +563,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   }, [
     autoHideHeader,
     doubleTapToToggleHeader,
+    translateComments,
+    translationTargetLanguage,
     hideShorts,
     hideToolbarWhenScrolled,
     syncSettingsToWebview,
@@ -615,6 +633,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(settings$.showDislikes, () => syncSettingsToWebview())
   useObserveEffect(settings$.showOriginalVideoTitle, () => syncSettingsToWebview())
   useObserveEffect(settings$.doubleTapToToggleHeader, () => syncSettingsToWebview())
+  useObserveEffect(settings$.translateComments, () => syncSettingsToWebview())
+  useObserveEffect(settings$.translationTargetLanguage, () => syncSettingsToWebview())
   useObserveEffect(settings$.preferH264, ({ previous }) => {
     if (previous === undefined) return
     const native = nativeRef.current
@@ -633,6 +653,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(blocklist$, () => syncBlocklistToWebview())
 
   const onLoad = async (e: { nativeEvent: any }) => {
+    ui$.translation.set(null)
     setPageUrl(e.nativeEvent.url)
   }
 

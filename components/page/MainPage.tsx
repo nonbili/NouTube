@@ -26,6 +26,7 @@ import NouTubeViewModule from '@/modules/nou-tube-view'
 import { isWeb, nIf } from '@/lib/utils'
 import { resolveI18nLanguageFromExpoLocale } from '@/lib/i18n'
 import { settings$ } from '@/states/settings'
+import { TranslationCard } from '../translation/TranslationCard'
 
 export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   const locales = useLocales()
@@ -92,6 +93,7 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
       <PlaybackSpeedModal />
       <PlaybackQualityModal />
       <ToolsModal />
+      {nIf(!isWeb, <TranslationCard />)}
     </QueryClientProvider>
   )
 }

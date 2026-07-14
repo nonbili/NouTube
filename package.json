@@ -48,6 +48,7 @@
     "expo-status-bar": "~56.0.4",
     "expo-system-ui": "~56.0.5",
     "expo-web-browser": "~56.0.5",
+    "fast-mlkit-translate-text": "1.0.3",
     "fast-xml-parser": "^5.2.5",
     "i18next": "^25.7.3",
     "jszip": "^3.10.1",

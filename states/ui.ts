@@ -34,6 +34,14 @@ interface Store {
   toolsModalOpen: boolean
   toolsModalUrl: string
 
+  translation: {
+    id: string
+    text: string
+    targetLanguage: string
+    x: number
+    y: number
+  } | null
+
   // webview
   webview: any
 }
@@ -65,6 +73,8 @@ export const ui$ = observable<Store>({
   userAgentModalOpen: false,
   toolsModalOpen: false,
   toolsModalUrl: '',
+
+  translation: null,
 
   // webview
   webview: undefined,

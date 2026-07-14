@@ -24,6 +24,11 @@ describe('settings', () => {
     expect(getSettingsSnapshot({}).defaultZoom).toBe(100)
   })
 
+  it('defaults double-tap translation off with no target language', () => {
+    expect(getSettingsSnapshot({}).translateComments).toBe(false)
+    expect(getSettingsSnapshot({}).translationTargetLanguage).toBeNull()
+  })
+
   it('normalizes missing original video title setting to false', () => {
     const settings = normalizePartialSettings()
     expect(settings?.showOriginalVideoTitle).toBe(false)
@@ -47,5 +52,14 @@ describe('settings', () => {
   it('normalizes missing text zoom to 100', () => {
     const settings = normalizePartialSettings()
     expect(settings?.defaultZoom).toBe(100)
+  })
+
+  it('normalizes invalid double-tap translation settings', () => {
+    const settings = normalizeSettings<Partial<SettingsSnapshot>>({
+      translateComments: undefined,
+      translationTargetLanguage: '   ',
+    })
+    expect(settings?.translateComments).toBe(false)
+    expect(settings?.translationTargetLanguage).toBeNull()
   })
 })

@@ -12,6 +12,7 @@ import { pinchToZoom } from './pinch'
 import { enterMini, exitMini, getMiniCurrentTime, installMiniPlayerInterceptor } from './mini-player'
 import { installBlocklistFilter } from './blocklist'
 import { installDislikeCount } from './dislikes'
+import { installCommentTranslateButtons } from './translate'
 import { interceptClipboard } from './clipboard'
 
 try {
@@ -76,32 +77,51 @@ async function initObserver() {
   handleMenu()
   installBlocklistFilter()
   installDislikeCount()
-  installHeaderDoubleTapToggle()
+  installDoubleTapGestures()
+  installCommentTranslateButtons()
 
   pinchToZoom()
 }
 
-function installHeaderDoubleTapToggle() {
+function installDoubleTapGestures() {
   if (!window.isAndroid) {
     return
   }
 
+  const root = window as Window & typeof globalThis & { __noutubeDoubleTapGesturesInit?: boolean }
+  if (root.__noutubeDoubleTapGesturesInit) {
+    return
+  }
+  root.__noutubeDoubleTapGesturesInit = true
+
   let lastTapAt = 0
   let lastTapX = 0
   let lastTapY = 0
+  let multiTouchSequence = false
+
+  const isIgnored = (target: Element) =>
+    Boolean(
+      target.closest(
+        'input, textarea, select, button, a, video, audio, [contenteditable="true"], [role="button"]',
+      ),
+    )
+
+  document.addEventListener(
+    'touchstart',
+    (event) => {
+      if (event.touches.length > 1) multiTouchSequence = true
+    },
+    { passive: true, capture: true },
+  )
 
   document.addEventListener(
     'touchend',
     (event) => {
-      if (!window.NouTube?.getSettings?.().doubleTapToToggleHeader || event.changedTouches.length !== 1) {
+      if (multiTouchSequence) {
+        if (event.touches.length === 0) multiTouchSequence = false
         return
       }
-
-      const target = event.target
-      if (target instanceof Element && target.closest('input, textarea, select, button, a')) {
-        return
-      }
-
+      if (event.changedTouches.length !== 1) return
       const touch = event.changedTouches[0]
       const now = Date.now()
       const dx = touch.clientX - lastTapX
@@ -112,11 +132,18 @@ function installHeaderDoubleTapToggle() {
       lastTapX = touch.clientX
       lastTapY = touch.clientY
 
-      if (isDoubleTap) {
-        lastTapAt = 0
+      if (!isDoubleTap) return
+      lastTapAt = 0
+
+      const eventTarget = event.target instanceof Element ? event.target : null
+      const target = eventTarget || document.elementFromPoint(touch.clientX, touch.clientY)
+      if (!target || isIgnored(target)) return
+      const settings = window.NouTube?.getSettings?.()
+      if (settings?.doubleTapToToggleHeader) {
+        event.preventDefault()
         emit('header-double-tap')
       }
     },
-    { passive: true, capture: true },
+    { passive: false, capture: true },
   )
 }

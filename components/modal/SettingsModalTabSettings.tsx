@@ -23,6 +23,7 @@ import { formatSleepTimerRemaining, useSleepTimerStatus } from '@/lib/sleep-time
 import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
 import { mainClient } from '@/lib/main-client'
 import { i18nLanguageNativeNames, resolveI18nLanguageFromExpoLocale, supportedI18nLanguages } from '@/lib/i18n'
+import { getTranslationSupportedLanguages } from '@/lib/translation'
 
 const themes = [null, 'dark', 'light'] as const
 const headerPositions = ['top', 'bottom'] as const
@@ -31,6 +32,31 @@ const surfaceCls =
 const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500'
 const iconWrapCls =
   'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-950'
+
+const translationLanguageNames: Record<string, string> = {
+  af: 'Afrikaans', ar: 'Arabic', be: 'Belarusian', bg: 'Bulgarian', bn: 'Bengali', ca: 'Catalan', cs: 'Czech', cy: 'Welsh', da: 'Danish', de: 'German',
+  el: 'Greek', en: 'English', eo: 'Esperanto', es: 'Spanish', et: 'Estonian', fa: 'Persian', fi: 'Finnish', fr: 'French', ga: 'Irish', gl: 'Galician',
+  gu: 'Gujarati', he: 'Hebrew', hi: 'Hindi', hr: 'Croatian', ht: 'Haitian Creole', hu: 'Hungarian', id: 'Indonesian', is: 'Icelandic', it: 'Italian', ja: 'Japanese',
+  ka: 'Georgian', kn: 'Kannada', ko: 'Korean', lt: 'Lithuanian', lv: 'Latvian', mk: 'Macedonian', mr: 'Marathi', ms: 'Malay', mt: 'Maltese', nl: 'Dutch',
+  no: 'Norwegian', pl: 'Polish', pt: 'Portuguese', ro: 'Romanian', ru: 'Russian', sk: 'Slovak', sl: 'Slovenian', sq: 'Albanian', sv: 'Swedish', sw: 'Swahili',
+  ta: 'Tamil', te: 'Telugu', th: 'Thai', tl: 'Tagalog', tr: 'Turkish', uk: 'Ukrainian', ur: 'Urdu', vi: 'Vietnamese', zh: 'Chinese',
+}
+
+const translationLanguageLabel = (language: string, displayLanguage: string) => {
+  try {
+    const name = new Intl.DisplayNames([displayLanguage], { type: 'language' }).of(language)
+    if (name && name !== language) return name
+  } catch {
+    // Use the stable fallback below on runtimes with incomplete Intl support.
+  }
+  return translationLanguageNames[language] || language
+}
+
+const findSupportedTranslationLanguage = (language: string | undefined, available: string[]) => {
+  if (!language) return undefined
+  const base = language.replace('_', '-').split('-')[0].toLowerCase()
+  return available.find((candidate) => candidate.toLowerCase() === base)
+}
 
 const SettingsSection: React.FC<React.PropsWithChildren<{ label?: string }>> = ({ label, children }) => {
   return (
@@ -335,6 +361,29 @@ export const SettingsAppearanceContent = () => {
       metaLabel: settings.language === language ? '✓' : undefined,
     })),
   ]
+  const translationLanguages = getTranslationSupportedLanguages()
+  const appTranslationLanguage = findSupportedTranslationLanguage(effectiveLanguage, translationLanguages)
+  const systemTranslationLanguage = findSupportedTranslationLanguage(locales[0]?.languageCode ?? undefined, translationLanguages)
+  const preferredTranslationLanguages = [
+    appTranslationLanguage
+      ? { language: appTranslationLanguage, metaLabel: t('settings.translation.appLanguage') }
+      : null,
+    systemTranslationLanguage && systemTranslationLanguage !== appTranslationLanguage
+      ? { language: systemTranslationLanguage, metaLabel: t('settings.translation.systemLanguage') }
+      : null,
+  ].filter((item): item is { language: string; metaLabel: string } => Boolean(item))
+  const translationLanguageMenuItems = [
+    ...preferredTranslationLanguages,
+    ...translationLanguages
+      .filter((language) => !preferredTranslationLanguages.some((item) => item.language === language))
+      .sort((a, b) =>
+        translationLanguageLabel(a, effectiveLanguage).localeCompare(
+          translationLanguageLabel(b, effectiveLanguage),
+          effectiveLanguage,
+        ),
+      )
+      .map((language) => ({ language, metaLabel: undefined })),
+  ]
 
   return (
     <View className="pb-4">
@@ -488,14 +537,14 @@ export const SettingsAppearanceContent = () => {
       <View className="mt-8">
         <SettingsSection label={t('settings.language.label')}>
           <View className={surfaceCls}>
-            <View className="flex-row items-center justify-between gap-3 px-4 py-4">
+            <View className={clsx('flex-row items-center justify-between gap-3 px-4 py-4', !isWeb && 'border-b border-zinc-300 dark:border-zinc-800')}>
               <View className={iconWrapCls}>
                 <MaterialIcons name="translate" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
               </View>
               <View className="flex-1">
                 <NouText className="font-medium">{t('settings.language.label')}</NouText>
                 <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
-                  {t('settings.language.hint')}
+                  {currentLanguageLabel}
                 </NouText>
               </View>
               <NouMenu
@@ -511,6 +560,42 @@ export const SettingsAppearanceContent = () => {
                 items={languageMenuItems}
               />
             </View>
+            {nIf(
+              !isWeb,
+              <View className="flex-row items-center justify-between gap-3 px-4 py-4">
+                <View className={iconWrapCls}>
+                  <MaterialIcons name="g-translate" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+                </View>
+                <View className="flex-1">
+                  <NouText className="font-medium">{t('settings.translation.enable')}</NouText>
+                  <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
+                    {settings.translateComments && settings.translationTargetLanguage
+                      ? `${t('settings.translation.targetLanguage')} ${translationLanguageLabel(settings.translationTargetLanguage, effectiveLanguage)}`
+                      : t('menus.off')}
+                  </NouText>
+                </View>
+                <NouMenu
+                  trigger="ellipsis"
+                  items={[
+                    {
+                      label: t('menus.off'),
+                      metaLabel: settings.translateComments ? undefined : '✓',
+                      handler: () => settings$.translateComments.set(false),
+                    },
+                    { kind: 'separator', label: '', handler: () => {} },
+                    ...translationLanguageMenuItems.map(({ language, metaLabel }) => ({
+                      label: translationLanguageLabel(language, effectiveLanguage),
+                      metaLabel:
+                        settings.translateComments && settings.translationTargetLanguage === language
+                          ? '✓'
+                          : metaLabel,
+                      handler: () =>
+                        settings$.assign({ translationTargetLanguage: language, translateComments: true }),
+                    })),
+                  ]}
+                />
+              </View>,
+            )}
           </View>
         </SettingsSection>
       </View>
