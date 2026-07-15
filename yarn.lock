@@ -6338,11 +6338,6 @@ fast-levenshtein@^2.0.6:
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==
 
-fast-mlkit-translate-text@1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/fast-mlkit-translate-text/-/fast-mlkit-translate-text-1.0.3.tgz#d19ec1dfe8ba19e85a9d67f4fc0496f8f85b2af1"
-  integrity sha512-J2V55ImD7wGwytNJ33opw6OPpi5jIEM6owR+8qHAAZjmhtyS7zVp9INjaiKtJ8l6rDm2nP/33c3LnzDZt0fPgQ==
-
 fast-xml-parser@^5.2.5:
   version "5.2.5"
   resolved "https://registry.yarnpkg.com/fast-xml-parser/-/fast-xml-parser-5.2.5.tgz#4809fdfb1310494e341098c25cb1341a01a9144a"

@@ -174,6 +174,14 @@ class NouTubeViewModule : Module() {
       ytDlp().update()
     }
 
+    AsyncFunction("translateText") Coroutine { text: String, targetLanguage: String ->
+      return@Coroutine NouTranslation.translateText(text, targetLanguage)
+    }
+
+    Function("getTranslationSupportedLanguages") {
+      NouTranslation.getSupportedLanguages()
+    }
+
     View(NouTubeView::class) {
       Prop("scriptOnStart") { view: NouTubeView, script: String ->
         view.setScriptOnStart(script)

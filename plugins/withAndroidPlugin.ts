@@ -33,7 +33,16 @@ const withAndroidSigningConfig: ConfigPlugin = (config) => {
         'android {',
         `ext.abiCodes = [x86:1, x86_64:2, 'armeabi-v7a':3, 'arm64-v8a': 4]
 
-android {`,
+android {
+    flavorDimensions "distribution"
+    productFlavors {
+        full {
+            dimension "distribution"
+        }
+        foss {
+            dimension "distribution"
+        }
+    }`,
       )
       .replace('zh-Hans', 'b+zh+Hans')
       .replace('zh-Hant', 'b+zh+Hant')

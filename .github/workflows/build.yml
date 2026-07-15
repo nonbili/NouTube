@@ -25,7 +25,7 @@ jobs:
           yarn expo prebuild -p android --clean --no-install
 
       - name: build apk
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleFullRelease
         working-directory: android
 
       # https://github.com/r0adkll/sign-android-release/issues/84#issuecomment-1889636075
@@ -41,7 +41,7 @@ jobs:
         name: sign apk
         id: sign_apk
         with:
-          releaseDirectory: android/app/build/outputs/apk/release
+          releaseDirectory: android/app/build/outputs/apk/full/release
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
@@ -53,10 +53,10 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y rename
           rename 's/release-unsigned-signed/release/' *.apk
-        working-directory: android/app/build/outputs/apk/release
+        working-directory: android/app/build/outputs/apk/full/release
 
       - uses: softprops/action-gh-release@v2
         name: upload apk
         with:
           body_path: metadata/en-US/changelogs/${{ env.VERSION_CODE }}04.txt
-          files: android/app/build/outputs/apk/release/*-release.apk
+          files: android/app/build/outputs/apk/full/release/*-release.apk
