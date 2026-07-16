@@ -1,0 +1,5 @@
+- Show video title in fullscreen
+- Choose between page URL and video URL when sharing
+- Add FOSS flavor for F-Droid builds
+- Support on-device comment translation 
+- Replace distorted default video poster

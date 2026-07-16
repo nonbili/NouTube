@@ -84,6 +84,15 @@ def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 ext.abiCodes = [x86:1, x86_64:2, 'armeabi-v7a':3, 'arm64-v8a': 4]
 
 android {
+    flavorDimensions "distribution"
+    productFlavors {
+        full {
+            dimension "distribution"
+        }
+        foss {
+            dimension "distribution"
+        }
+    }
     ndkVersion rootProject.ext.ndkVersion
 
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -94,8 +103,8 @@ android {
         applicationId 'jp.nonbili.noutube'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 66
-        versionName "0.6.1"
+        versionCode 67
+        versionName "0.6.2"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
         resourceConfigurations += ["b+en", "b+de", "b+es", "b+fr", "b+id", "b+ja", "b+pl", "b+pt", "b+pt+BR", "b+ru", "b+tr", "b+uk", "b+vi", "b+zh+Hans", "b+zh+Hant"]
