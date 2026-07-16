@@ -293,7 +293,23 @@
     "toolbar": "Barra de herramientas",
     "toolbarButtons": "Botones de la barra de herramientas",
     "showHistoryButtonInHeader": "Mostrar botón de historial en la barra de herramientas",
-    "doubleTapToToggleHeader": "Presione dos veces la página para ocultar/mostrar la barra de herramientas"
+    "doubleTapToToggleHeader": "Presione dos veces la página para ocultar/mostrar la barra de herramientas",
+    "translation": {
+      "enable": "Traducir comentarios",
+      "hint": "Mostrar un botón de traducción en los comentarios para traducirlos en su dispositivo.",
+      "targetLanguage": "Traducir a",
+      "appLanguage": "App",
+      "systemLanguage": "Sistema",
+      "notSelected": "Elegir un idioma",
+      "chooseLanguage": "Elija primero un idioma de traducción",
+      "loading": "Traduciendo…",
+      "copy": "Copiar traducción",
+      "copySource": "Copiar origen",
+      "pin": "Fijar traducción",
+      "unpin": "Desfijar traducción",
+      "failed": "No se pudo traducir este texto",
+      "unsupported": "Este par de idiomas no está disponible en este dispositivo"
+    }
   },
   "native": {
     "format_bestQuality": "Mejor calidad",

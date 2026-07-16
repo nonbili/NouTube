@@ -13,7 +13,7 @@
     "error": "Nie udało się załadować informacji o wydaniu.",
     "retry": "Ponów",
     "empty": "Nie znaleziono żadnych informacji o wydaniu.",
-    "current": "Aktualne",
+    "current": "Aktualny",
     "noNotes": "Dla tej wersji nie udostępniono żadnych informacji o wydaniu."
   },
   "buttons": {
@@ -302,7 +302,23 @@
     "exportLabel": "Eksportuj zakładki do listy",
     "injectCookie": "Wstrzyknij plik cookie, jeśli nie można zalogować się przez webview",
     "injectCookieTitle": "Wstrzyknij autoryzacyjny plik cookie do webview",
-    "injectCookieHint": "Skopiuj wartość nagłówka pliku cookie z przeglądarki na komputerze. To obejście problemu, gdy nie możesz zalogować się za pomocą adresu e-mail i hasła."
+    "injectCookieHint": "Skopiuj wartość nagłówka pliku cookie z przeglądarki na komputerze. To obejście problemu, gdy nie możesz zalogować się za pomocą adresu e-mail i hasła.",
+    "translation": {
+      "enable": "Tłumaczenie komentarzy",
+      "hint": "Pokaż przycisk tłumaczenia w komentarzach, aby przetłumaczyć je na swoim urządzeniu.",
+      "targetLanguage": "Przetłumacz na",
+      "appLanguage": "Aplikacja",
+      "systemLanguage": "Systemu",
+      "notSelected": "Wybierz język",
+      "chooseLanguage": "Najpierw wybierz język tłumaczenia",
+      "loading": "Tłumaczenie…",
+      "copy": "Kopiuj tłumaczenie",
+      "copySource": "Skopiuj źródło",
+      "pin": "Przypnij tłumaczenie",
+      "unpin": "Odepnij tłumaczenie",
+      "failed": "Nie udało się przetłumaczyć tego tekstu",
+      "unsupported": "Ta para językowa jest niedostępna na tym urządzeniu"
+    }
   },
   "native": {
     "format_bestQuality": "Najlepsza jakość",

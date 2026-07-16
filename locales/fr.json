@@ -228,7 +228,23 @@
     "toolbar": "Barre d'outils",
     "toolbarButtons": "Boutons de la barre d'outils",
     "showHistoryButtonInHeader": "Bouton « Afficher l'historique » dans la barre d'outils",
-    "doubleTapToToggleHeader": "Appuyez deux fois sur la page pour masquer ou afficher la barre d'outils"
+    "doubleTapToToggleHeader": "Appuyez deux fois sur la page pour masquer ou afficher la barre d'outils",
+    "translation": {
+      "enable": "Traduire les commentaires",
+      "hint": "Afficher un bouton « Traduire » sur les commentaires pour les traduire sur votre appareil.",
+      "targetLanguage": "Traduire en",
+      "appLanguage": "Application",
+      "systemLanguage": "Système",
+      "notSelected": "Choisissez une langue",
+      "chooseLanguage": "Choisissez d'abord la langue de traduction",
+      "loading": "Traduction en cours…",
+      "copy": "Copier la traduction",
+      "copySource": "Copier le code source",
+      "pin": "Épingler la traduction",
+      "unpin": "Détacher la traduction",
+      "failed": "Impossible de traduire ce texte",
+      "unsupported": "Cette combinaison linguistique n'est pas disponible sur cet appareil."
+    }
   },
   "sync": {
     "label": "Synchronisation",
