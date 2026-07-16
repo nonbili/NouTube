@@ -33,6 +33,7 @@ interface Store {
   userAgentModalOpen: boolean
   toolsModalOpen: boolean
   toolsModalUrl: string
+  shareModalUrls: { pageUrl: string; videoUrl: string } | null
 
   translation: {
     id: string
@@ -73,6 +74,7 @@ export const ui$ = observable<Store>({
   userAgentModalOpen: false,
   toolsModalOpen: false,
   toolsModalUrl: '',
+  shareModalUrls: null,
 
   translation: null,
 

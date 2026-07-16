@@ -20,6 +20,7 @@ import { SleepTimerModal } from '../modal/SleepTimerModal'
 import { PlaybackSpeedModal } from '../modal/PlaybackSpeedModal'
 import { PlaybackQualityModal } from '../modal/PlaybackQualityModal'
 import { ToolsModal } from '../modal/ToolsModal'
+import { ShareModal } from '../modal/ShareModal'
 import { useLocales } from 'expo-localization'
 import { changeLanguage, t as i18nextT } from 'i18next'
 import NouTubeViewModule from '@/modules/nou-tube-view'
@@ -93,6 +94,7 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
       <PlaybackSpeedModal />
       <PlaybackQualityModal />
       <ToolsModal />
+      <ShareModal />
       {nIf(!isWeb, <TranslationCard />)}
     </QueryClientProvider>
   )

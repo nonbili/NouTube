@@ -80,6 +80,7 @@ export function initNouTube() {
     prev: () => getPlayer()?.previousVideo(),
     next: () => getPlayer()?.nextVideo(),
     seekBy: (delta: number) => getPlayer()?.seekBy(delta),
+    getVideoUrl: () => getPlayer()?.getVideoUrl?.() || '',
     getPlaybackRate: () => getPlayer()?.getPlaybackRate?.(),
     setPlaybackRate: (rate: number) => getPlayer()?.setPlaybackRate?.(rate),
     getPlaybackQuality: () => getPlayer()?.getPlaybackQuality?.(),

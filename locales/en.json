@@ -76,7 +76,10 @@
     "downloadFailed": "Download failed",
     "failedToLoadFormats": "Failed to load formats",
     "playbackSpeed": "Playback speed",
-    "playbackQuality": "Playback quality"
+    "playbackQuality": "Playback quality",
+    "sharePageUrl": "Page URL",
+    "shareVideoUrl": "Video URL",
+    "shareIncludePosition": "Include current position"
   },
   "update": {
     "check": "Check for updates",

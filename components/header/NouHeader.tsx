@@ -7,7 +7,7 @@ import { TabContextMenu } from '../menu/TabContextMenu'
 import { clsx, isAndroid, isIos, isWeb, nIf } from '@/lib/utils'
 import { ui$, updateUrl } from '@/states/ui'
 import { bookmarks$ } from '@/states/bookmarks'
-import { getPageType } from '@/lib/page'
+import { getPageType, getVideoId } from '@/lib/page'
 import { toggleStar } from '@/lib/bookmarks'
 import { queue$ } from '@/states/queue'
 import { share } from '@/lib/share'
@@ -165,6 +165,21 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
       return
     }
     webview?.executeJavaScript?.('document.location.reload()')
+  }
+
+  const onShare = async () => {
+    let videoUrl = ''
+    try {
+      videoUrl = (await getNoutube()?.executeJavaScript?.('window.NouTube?.getVideoUrl?.() || ""')) || ''
+    } catch {
+      // webview not ready; fall back to sharing the page url
+    }
+    const videoId = typeof videoUrl === 'string' ? getVideoId(videoUrl) : ''
+    if (!videoId) {
+      share(activePageUrl)
+      return
+    }
+    ui$.shareModalUrls.set({ pageUrl: activePageUrl, videoUrl })
   }
 
   const onToggleStar = () => {
@@ -523,7 +538,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
               label: t('menus.share'),
               icon: <MaterialIcons name="share" size={18} color={headerControlColor} />,
               systemImage: 'square.and.arrow.up',
-              handler: () => share(activePageUrl),
+              handler: () => void onShare(),
             },
             {
               label: t('menus.tools', 'Tools'),
