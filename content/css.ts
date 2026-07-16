@@ -19,6 +19,22 @@ const cssContentMobile = css`
     height: auto !important;
     max-height: none !important;
   }
+
+  #player-container-id:fullscreen #_nou_fullscreen_title {
+    position: absolute;
+    top: 14px;
+    left: 24px;
+    right: 192px;
+    z-index: 2;
+    overflow: hidden;
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 24px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+  }
 `
 
 const cssContent = css`

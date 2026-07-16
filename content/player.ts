@@ -8,6 +8,7 @@ import { playbackRates } from '../lib/playback-rate'
 export let player: any
 let curVideoId = ''
 let skipSegments: { videoId: string; segments: Segment[] } = { videoId: '', segments: [] }
+const fullscreenTitleId = '_nou_fullscreen_title'
 
 const keys = {
   playing: 'nou:playing',
@@ -35,6 +36,25 @@ function getSavedPlaybackQuality() {
 function getVideoElement(player: any) {
   const video = document.querySelector('#movie_player video') || player?.querySelector?.('video') || document.querySelector('video')
   return video instanceof HTMLVideoElement ? video : null
+}
+
+function renderFullscreenTitle(title: string) {
+  if (!window.isAndroid) {
+    return
+  }
+
+  const controls = document.querySelector('#player-control-overlay .player-controls-content')
+  if (!controls) {
+    return
+  }
+
+  let titleElement = controls.querySelector<HTMLElement>(`#${fullscreenTitleId}`)
+  if (!titleElement) {
+    titleElement = document.createElement('div')
+    titleElement.id = fullscreenTitleId
+    controls.append(titleElement)
+  }
+  titleElement.textContent = title
 }
 
 function extendPlaybackRates(player: any) {
@@ -200,6 +220,7 @@ export function handleVideoPlayer(el: any) {
     }
 
     const { title: _title, author, thumbnail, lengthSeconds, videoId } = videoDetails
+    renderFullscreenTitle(_title)
     if (curVideoId != videoId) {
       player.unMute()
       const thumb = thumbnail.thumbnails.at(-1)
