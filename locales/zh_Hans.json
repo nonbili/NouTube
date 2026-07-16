@@ -228,7 +228,23 @@
     "toolbar": "工具栏",
     "toolbarButtons": "工具栏按钮",
     "showHistoryButtonInHeader": "在工具栏中显示“历史记录”按钮",
-    "doubleTapToToggleHeader": "点按两次页面即可隐藏或显示工具栏"
+    "doubleTapToToggleHeader": "点按两次页面即可隐藏或显示工具栏",
+    "translation": {
+      "enable": "翻译评论",
+      "hint": "在评论上显示翻译按钮，以便在您的设备上翻译评论。",
+      "targetLanguage": "翻译为",
+      "appLanguage": "应用",
+      "systemLanguage": "系统",
+      "notSelected": "选择语言",
+      "chooseLanguage": "请先选择翻译语言",
+      "loading": "正在翻译…",
+      "copy": "复制翻译",
+      "copySource": "复制原文",
+      "pin": "固定翻译",
+      "unpin": "取消固定翻译",
+      "failed": "无法翻译此文本",
+      "unsupported": "此设备上不支持此语言对"
+    }
   },
   "sync": {
     "label": "同步",

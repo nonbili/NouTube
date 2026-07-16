@@ -298,7 +298,11 @@
       "port": "Vekil sunucu bağlantı noktası",
       "hostPlaceholder": "Vekil sunucu adresi (Örneğin: 127.0.0.1 veya proxy.example.com)",
       "portPlaceholder": "Örneğin: 1080"
-    }
+    },
+    "toolbar": "Araç çubuğu",
+    "toolbarButtons": "Araç çubuğu düğmeleri",
+    "showHistoryButtonInHeader": "Araç çubuğunda Geçmiş düğmesini göster",
+    "doubleTapToToggleHeader": "Araç çubuğunu gizlemek veya göstermek için sayfaya iki kez dokun"
   },
   "native": {
     "format_bestQuality": "En iyi kalite",
