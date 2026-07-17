@@ -93,10 +93,9 @@ export const FeedEditorSheet: React.FC<{
     [onClose, translateY],
   )
 
-  const channelFolders = useMemo(
-    () => sortBy(folders.filter((x) => !x.json.deleted && x.json.tab === 'channel'), ['name']),
-    [folders],
-  )
+  // No useMemo: legend-state mutates the folders array in place, so its
+  // reference stays stable and a memo would miss newly created folders.
+  const channelFolders = sortBy(folders.filter((x) => !x.json.deleted && x.json.tab === 'channel'), ['name'])
   const currentFolder = channelFolders.find((x) => x.id === folderId)
 
   if (!bookmark) {

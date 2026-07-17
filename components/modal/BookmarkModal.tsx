@@ -58,16 +58,16 @@ export const BookmarkModal = () => {
     return 'watch'
   }, [draftBookmark])
 
-  const filteredFolders = useMemo(() => {
-    return [
-      newFolder(folderTab, { id: UNGROUPED_FOLDER_ID, name: t('modals.ungrouped') }),
-      ...sortBy(
-        folders.filter((x) => !x.json.deleted && x.json.tab === folderTab),
-        ['name'],
-      ),
-      newFolder(folderTab, { id: NEW_FOLDER_ID, name: t('feeds.newFolder') }),
-    ]
-  }, [folders, folderTab])
+  // No useMemo: legend-state mutates the folders array in place, so its
+  // reference stays stable and a memo would miss newly created folders.
+  const filteredFolders = [
+    newFolder(folderTab, { id: UNGROUPED_FOLDER_ID, name: t('modals.ungrouped') }),
+    ...sortBy(
+      folders.filter((x) => !x.json.deleted && x.json.tab === folderTab),
+      ['name'],
+    ),
+    newFolder(folderTab, { id: NEW_FOLDER_ID, name: t('feeds.newFolder') }),
+  ]
 
   if (!draftBookmark) {
     return null
