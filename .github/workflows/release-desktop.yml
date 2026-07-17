@@ -28,7 +28,6 @@ jobs:
       - name: install
         run: |
           cd ..
-          rm yarn.lock
           bun link
           bun install
           bun bundle

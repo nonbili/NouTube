@@ -26,7 +26,6 @@ jobs:
       - name: install
         if: matrix.arch == 'x64'
         run: |
-          rm yarn.lock
           bun link
           bun install
 
@@ -39,7 +38,6 @@ jobs:
       - name: install
         if: matrix.arch == 'arm64'
         run: |
-            rm yarn.lock
             docker run --rm --platform ${{ matrix.platform }} \
               -v "$(pwd):/work" -w /work \
               oven/bun:1 \
