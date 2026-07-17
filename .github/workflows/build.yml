@@ -21,6 +21,7 @@ jobs:
 
       - name: install and prebuild
         run: |
+          bun link
           bun install --frozen-lockfile
           bun bundle:es
           bun expo prebuild -p android --clean --no-install

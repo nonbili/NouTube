@@ -320,6 +320,10 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
           controller.show(WindowInsetsCompat.Type.systemBars())
           controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
 
+          // removing the fullscreen view clears InputMethodManager's served view;
+          // requestFocus alone is a no-op (the WebView never lost view focus), so
+          // force a focus transition or the keyboard never shows again
+          this@apply.clearFocus()
           this@apply.requestFocus()
           orientationListener.disable()
         }

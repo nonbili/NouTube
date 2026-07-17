@@ -20,7 +20,12 @@ const cssContentMobile = css`
     max-height: none !important;
   }
 
+  #_nou_fullscreen_title {
+    display: none;
+  }
+
   #player-container-id:fullscreen #_nou_fullscreen_title {
+    display: block;
     position: absolute;
     top: 14px;
     left: 24px;
