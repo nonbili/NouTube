@@ -1,0 +1,3 @@
+- Fix video title showing when not in fullscreen
+- Fix keyboard not showing up in search input
+- Fix folder picker not showing newly created folders
