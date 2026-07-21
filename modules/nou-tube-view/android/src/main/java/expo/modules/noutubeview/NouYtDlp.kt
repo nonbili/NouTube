@@ -16,6 +16,8 @@ import org.json.JSONObject
 
 internal class NouYtDlp(private val context: Context) {
   companion object {
+    private val initializationLock = Any()
+
     @Volatile
     private var youtubeDLInitialized = false
 
@@ -35,23 +37,29 @@ internal class NouYtDlp(private val context: Context) {
 
   fun ensureYoutubeDLInitialized() {
     if (youtubeDLInitialized) return
-    try {
-      YoutubeDL.getInstance().init(context)
-      youtubeDLInitialized = true
-    } catch (e: Exception) {
-      Log.e("NouTubeView", "Failed to initialize YoutubeDL", e)
-      throw Exception("Failed to initialize YoutubeDL: ${e.message}")
+    synchronized(initializationLock) {
+      if (youtubeDLInitialized) return
+      try {
+        YoutubeDL.getInstance().init(context)
+        youtubeDLInitialized = true
+      } catch (e: Exception) {
+        Log.e("NouTubeView", "Failed to initialize YoutubeDL", e)
+        throw Exception("Failed to initialize YoutubeDL: ${e.message}")
+      }
     }
   }
 
   fun ensureFFmpegInitialized() {
     if (ffmpegInitialized) return
-    try {
-      FFmpeg.getInstance().init(context)
-      ffmpegInitialized = true
-    } catch (e: Exception) {
-      Log.e("NouTubeView", "Failed to initialize FFmpeg", e)
-      throw Exception("Failed to initialize FFmpeg: ${e.message}")
+    synchronized(initializationLock) {
+      if (ffmpegInitialized) return
+      try {
+        FFmpeg.getInstance().init(context)
+        ffmpegInitialized = true
+      } catch (e: Exception) {
+        Log.e("NouTubeView", "Failed to initialize FFmpeg", e)
+        throw Exception("Failed to initialize FFmpeg: ${e.message}")
+      }
     }
   }
 
@@ -184,6 +192,7 @@ internal class NouYtDlp(private val context: Context) {
   }
 
   fun update() {
+    ensureYoutubeDLInitialized()
     val youtubeDL = YoutubeDL.getInstance()
     val updateChannel = runCatching { resolveStableUpdateChannel() }.getOrNull()
 

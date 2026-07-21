@@ -1,7 +1,6 @@
 package expo.modules.noutubeview
 
 import android.net.Uri
-import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.webkit.ProxyConfig
 import androidx.webkit.ProxyController
@@ -75,17 +74,6 @@ class NouTubeViewModule : Module() {
     Name("NouTubeView")
 
     Events("log", "sleepTimer", "downloadProgress")
-
-    OnCreate {
-      try {
-        ytDlp().ensureInitialized()
-        sendEvent("log", mapOf("msg" to "YoutubeDL initialized successfully"))
-      } catch (e: Exception) {
-        // Log it, but the actual error will be thrown in the AsyncFunctions
-        Log.e("NouTubeView", "YoutubeDL initialization in OnCreate failed", e)
-        sendEvent("log", mapOf("msg" to "YoutubeDL initialization failed: ${e.message}"))
-      }
-    }
 
     Function("setTheme") { theme: String? ->
       var mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
