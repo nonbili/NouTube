@@ -14,36 +14,6 @@ const makeMenuItem = ({ icon, label }: { icon: string; label: string }) =>
     </button>
   `)
 
-const makeListItem = ({ icon, label }: { icon: string; label: string }) =>
-  nouPolicy.createHTML(/* HTML */ `
-    <div class="yt-list-item-view-model__layout-wrapper yt-list-item-view-model__container yt-list-item-view-model__container--compact yt-list-item-view-model__container--tappable yt-list-item-view-model__container--in-popup">
-      <div class="yt-list-item-view-model__main-container" style="display: flex; align-items: center; width: 100%;">
-        <div aria-hidden="true" class="yt-list-item-view-model__image-container yt-list-item-view-model__leading" style="flex-shrink: 0;">
-          <span
-            class="ytIconWrapperHost yt-list-item-view-model__accessory yt-list-item-view-model__image"
-            role="img"
-            style="width: 24px; height: 24px; display: block;"
-          >
-            <span class="yt-icon-shape ytSpecIconShapeHost" style="width: 24px; height: 24px; display: block;">
-              <div style="width: 24px; height: 24px; display: block; fill: currentcolor;">${icon}</div>
-            </span>
-          </span>
-        </div>
-        <div class="yt-list-item-view-model__text-wrapper" style="flex: 1;">
-          <div class="yt-list-item-view-model__title-wrapper">
-            <span
-              class="yt-core-attributed-string yt-list-item-view-model__title yt-core-attributed-string--white-space-pre-wrap"
-              role="text"
-              style="font-size: 14px; line-height: 2rem;"
-            >
-              ${label} 🦦
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  `)
-
 const makePaperItem = ({ icon, label }: { icon: string; label: string }) =>
   nouPolicy.createHTML(/* HTML */ `
     <tp-yt-paper-item
@@ -63,7 +33,9 @@ const makePaperItem = ({ icon, label }: { icon: string; label: string }) =>
 const updateClonedItem = (menuItem: HTMLElement, { icon, label }: { icon: string; label: string }) => {
   menuItem.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'))
 
-  const nativeIcon = menuItem.querySelector<HTMLElement>('c3-icon, yt-icon')
+  const nativeIcon = menuItem.querySelector<HTMLElement>(
+    '.ytListItemViewModelImage, .yt-list-item-view-model__image, c3-icon, yt-icon',
+  )
   if (nativeIcon) {
     const stableIcon = document.createElement('span')
     stableIcon.className = nativeIcon.className
@@ -94,24 +66,26 @@ const updateClonedItem = (menuItem: HTMLElement, { icon, label }: { icon: string
   return menuItem
 }
 
+const getNativeListItem = (menu: HTMLElement) =>
+  Array.from(menu.children).find(
+    (el) => el.tagName.toLowerCase() === 'yt-list-item-view-model' && !el.className.includes('_nou_'),
+  )
+
 const createMenuItem = (
   menu: HTMLElement,
   item: { icon: string; label: string },
   itemCls: string,
+  listItemTemplate?: HTMLElement,
 ) => {
   let menuItem: HTMLElement
 
   switch (menu.tagName.toLowerCase()) {
     case 'yt-list-view-model': {
-      const nativeItem = Array.from(menu.children).find(
-        (el) => el.tagName.toLowerCase() === 'yt-list-item-view-model' && !el.className.includes('_nou_'),
-      )
-      menuItem = nativeItem
-        ? updateClonedItem(nativeItem.cloneNode(true) as HTMLElement, item)
-        : document.createElement('yt-list-item-view-model')
+      const nativeItem = listItemTemplate || getNativeListItem(menu)
       if (!nativeItem) {
-        menuItem.innerHTML = makeListItem(item)
+        throw new Error('native list menu item is unavailable')
       }
+      menuItem = updateClonedItem(nativeItem.cloneNode(true) as HTMLElement, item)
       break
     }
     case 'tp-yt-paper-listbox':
@@ -142,22 +116,30 @@ export function handleMenu() {
       'ytm-media-item,ytm-compact-video-renderer,yt-lockup-metadata-view-model,ytd-video-renderer,ytd-grid-video-renderer',
     )
     if (videoItem) {
-      const menu = await retry(
+      const menuResult = await retry(
         async () => {
-          const menu1 = document.querySelector(
-            'ytm-menu-service-item-renderer,ytm-menu-navigation-item-renderer,yt-list-view-model',
-          ) as HTMLElement
-          const menu2 = document.querySelector('tp-yt-paper-listbox') as HTMLElement
-          if (menu1?.offsetHeight) {
-            return menu1
-          }
-          if (menu2?.offsetHeight) {
-            return menu2
+          const menus = document.querySelectorAll<HTMLElement>(
+            'ytm-menu-service-item-renderer,ytm-menu-navigation-item-renderer,yt-list-view-model,tp-yt-paper-listbox',
+          )
+          const readyMenu = Array.from(menus).find((candidate) => candidate.offsetHeight > 0)
+          if (readyMenu) {
+            if (readyMenu.tagName.toLowerCase() === 'yt-list-view-model') {
+              const nativeItem = getNativeListItem(readyMenu)
+              if (!nativeItem) {
+                throw 'menu items not ready'
+              }
+              return {
+                menu: readyMenu,
+                listItemTemplate: nativeItem.cloneNode(true) as HTMLElement,
+              }
+            }
+            return { menu: readyMenu }
           }
           throw 'menu not ready'
         },
         { retries: 50, delay: 100 },
       )
+      const { menu, listItemTemplate } = menuResult
       const title =
         videoItem.querySelector('h3')?.textContent?.trim() || videoItem.querySelector('h4')?.textContent?.trim()
       const url = videoItem.querySelector('a')?.href
@@ -166,7 +148,12 @@ export function handleMenu() {
       if (window.NouTubeI) {
         const queueCls = '_nou_queue_'
         menu.querySelectorAll(`.${queueCls}`).forEach((el) => el.remove())
-        menuItem = createMenuItem(menu, { icon: iconAddQueue, label: 'Add to queue' }, queueCls)
+        menuItem = createMenuItem(
+          menu,
+          { icon: iconAddQueue, label: 'Add to queue' },
+          queueCls,
+          listItemTemplate,
+        )
         menuItem.onclick = () => {
           if (url) {
             emit('add-queue', { title, url })
@@ -179,7 +166,7 @@ export function handleMenu() {
       const itemCls = '_nou_menu_'
       menu.querySelectorAll(`.${itemCls}`).forEach((el) => el.remove())
       const item = { icon: iconStar, label: 'Star' }
-      menuItem = createMenuItem(menu, item, itemCls)
+      menuItem = createMenuItem(menu, item, itemCls, listItemTemplate)
       menuItem.onclick = () => {
         if (url) {
           emit('star', { title, url })
@@ -191,7 +178,7 @@ export function handleMenu() {
         const downloadCls = '_nou_download_'
         menu.querySelectorAll(`.${downloadCls}`).forEach((el) => el.remove())
         const downloadItemData = { icon: iconDownload, label: 'Download' }
-        const downloadMenuItem = createMenuItem(menu, downloadItemData, downloadCls)
+        const downloadMenuItem = createMenuItem(menu, downloadItemData, downloadCls, listItemTemplate)
         downloadMenuItem.onclick = () => {
           if (url) emit('download', { url })
         }
