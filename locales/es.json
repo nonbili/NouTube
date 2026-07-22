@@ -76,7 +76,10 @@
     "downloadFailed": "Descarga fallida",
     "failedToLoadFormats": "Error al cargar los formatos",
     "playbackSpeed": "Velocidad de reproducción",
-    "playbackQuality": "Calidad de reproducción"
+    "playbackQuality": "Calidad de reproducción",
+    "sharePageUrl": "URL de la página",
+    "shareVideoUrl": "URL del video",
+    "shareIncludePosition": "Incluir posición actual"
   },
   "sleepTimer": {
     "label": "Temporizador de apagado",

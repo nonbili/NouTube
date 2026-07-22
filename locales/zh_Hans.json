@@ -12,7 +12,7 @@
     "export": "导出",
     "open": "打开",
     "cancel": "取消",
-    "openUrl": "打开网址",
+    "openUrl": "打开 URL",
     "move": "移动",
     "save": "保存",
     "signOut": "退出登录",
@@ -66,7 +66,10 @@
     "failedToLoadFormats": "无法加载格式",
     "playbackSpeed": "播放速度",
     "downloadHistory": "下载记录",
-    "playbackQuality": "播放质量"
+    "playbackQuality": "播放质量",
+    "sharePageUrl": "页面 URL",
+    "shareVideoUrl": "视频 URL",
+    "shareIncludePosition": "包含当前位置"
   },
   "settings": {
     "label": "设置",
@@ -86,7 +89,7 @@
       "button": "登录 YouTube",
       "label": "如果无法通过 WebView 登录，请尝试此操作"
     },
-    "openUrlLabel": "直接打开支持的网址",
+    "openUrlLabel": "直接打开支持的 URL",
     "webview": {
       "clearLabel": "清除 WebView 数据"
     },
