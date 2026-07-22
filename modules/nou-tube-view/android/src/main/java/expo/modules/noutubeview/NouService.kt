@@ -266,8 +266,12 @@ class NouService : Service() {
 
   fun exit() {
     clearSleepTimer(false)
-    notificationManager?.deleteNotificationChannel(CHANNEL_ID)
+    stopForeground(STOP_FOREGROUND_REMOVE)
+    notificationManager?.cancel(NOTIFICATION_ID)
     notificationManager = null
+    mediaSession?.setActive(false)
+    mediaSession?.release()
+    mediaSession = null
     stopSelf()
   }
 }

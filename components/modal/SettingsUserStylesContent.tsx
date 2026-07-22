@@ -10,6 +10,7 @@ import { NouText } from '../NouText'
 import { clsx, isWeb, nIf } from '@/lib/utils'
 import {
   buildUserScriptExecutionSource,
+  builtinUserScriptDefinitions,
   builtinUserStyleDefinitionById,
   builtinUserStyleDefinitions,
   parseUserscriptMetadata,
@@ -131,6 +132,7 @@ export const SettingsUserStylesContent = () => {
   const customStyles = useValue(userStyles$.customStyles)
   const customScripts = useValue(userStyles$.customScripts).filter((script): script is CustomUserScript => Boolean(script))
   const builtins = useValue(userStyles$.builtins)
+  const builtinScripts = useValue(userStyles$.builtinScripts)
   const [draft, setDraft] = useState<DraftState | null>(null)
   const [scriptDraft, setScriptDraft] = useState<ScriptDraftState | null>(null)
   const [previewBuiltinId, setPreviewBuiltinId] = useState<BuiltinUserStyleId | null>(null)
@@ -313,6 +315,40 @@ export const SettingsUserStylesContent = () => {
                     })}
                   />
                 </Pressable>
+              ))}
+            </View>
+          </View>
+
+          <View className="mt-10">
+            <NouText className={subheaderCls}>{t('settings.userStyles.builtinScripts.label')}</NouText>
+            <View className={surfaceCls}>
+              {builtinUserScriptDefinitions.map((definition, index) => (
+                <View
+                  key={definition.id}
+                  className={clsx(
+                    rowCls,
+                    'flex-row items-center justify-between',
+                    index !== builtinUserScriptDefinitions.length - 1 && rowBorderCls,
+                  )}
+                >
+                  <NouText className="flex-1 pr-4 font-medium" numberOfLines={1}>
+                    {t(definition.labelKey)}
+                  </NouText>
+                  <Switch
+                    value={builtinScripts[definition.id]?.enabled ?? false}
+                    onValueChange={() => userStyles$.toggleBuiltinScript(definition.id)}
+                    trackColor={{ false: '#27272a', true: '#3730a3' }}
+                    thumbColor={(builtinScripts[definition.id]?.enabled ?? false) ? '#818cf8' : '#71717a'}
+                    {...Platform.select({
+                      web: {
+                        activeThumbColor: '#818cf8',
+                      },
+                      ios: {
+                        style: { transform: [{ scale: 0.8 }] },
+                      },
+                    })}
+                  />
+                </View>
               ))}
             </View>
           </View>

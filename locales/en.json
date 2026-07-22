@@ -251,6 +251,12 @@
           "label": "Hide community posts"
         }
       },
+      "builtinScripts": {
+        "label": "Built-in scripts",
+        "fixEncodedAuthorNames": {
+          "label": "Fix special characters in author names"
+        }
+      },
       "custom": {
         "label": "Custom styles",
         "empty": "No custom styles yet."

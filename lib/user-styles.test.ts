@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test'
 import {
   USER_STYLES_SCHEMA_VERSION,
+  getEnabledBuiltinUserScriptIds,
   getEnabledUserScripts,
   getEnabledUserStyleCss,
   normalizeUserStyles,
@@ -39,6 +40,26 @@ describe('user styles', () => {
 })
 
 describe('user scripts', () => {
+  it('keeps the encoded author name workaround off by default', () => {
+    const snapshot = normalizeUserStyles()
+
+    expect(snapshot.builtinScripts['fix-encoded-author-names'].enabled).toBe(false)
+    expect(getEnabledBuiltinUserScriptIds(snapshot)).toHaveLength(0)
+    expect(getEnabledUserScripts(snapshot)).toHaveLength(0)
+  })
+
+  it('includes the encoded author name workaround when enabled', () => {
+    const snapshot = normalizeUserStyles({
+      builtinScripts: {
+        'fix-encoded-author-names': { enabled: true },
+      },
+    })
+
+    const enabled = getEnabledBuiltinUserScriptIds(snapshot)
+    expect(enabled).toHaveLength(1)
+    expect(enabled[0]).toBe('fix-encoded-author-names')
+  })
+
   it('filters out invalid custom scripts', () => {
     const snapshot = normalizeUserStyles({
       customScripts: [

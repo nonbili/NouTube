@@ -12,6 +12,7 @@ declare global {
     isAndroid: boolean
     NouTubeInitialSettings?: Record<string, unknown>
     NouTubeBlocklist?: import('../lib/blocklist').BlocklistSnapshot
+    NouTubeUserStyles?: import('../lib/user-styles').UserStylesSnapshot
     NouTubeI: NouTubeI
     NouTube: any
     trustedTypes: any

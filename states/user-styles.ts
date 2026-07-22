@@ -2,12 +2,14 @@ import { observable } from '@legendapp/state'
 import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import {
+  builtinUserScriptIds,
   builtinUserStyleIds,
   createDefaultUserStylesSnapshot,
   createNormalizedCustomUserScript,
   createNormalizedCustomUserStyle,
   normalizeUserStyles,
   USER_STYLES_SCHEMA_VERSION,
+  type BuiltinUserScriptId,
   type BuiltinUserStyleId,
   type CustomUserScript,
   type CustomUserStyle,
@@ -17,6 +19,7 @@ import {
 interface Store extends UserStylesSnapshot {
   toggleBuiltin: (id: BuiltinUserStyleId) => void
   setBuiltinEnabled: (id: BuiltinUserStyleId, enabled: boolean) => void
+  toggleBuiltinScript: (id: BuiltinUserScriptId) => void
   addCustomStyle: (input: Omit<CustomUserStyle, 'id'>) => string
   updateCustomStyle: (id: string, input: Omit<CustomUserStyle, 'id'>) => void
   toggleCustomStyle: (id: string) => void
@@ -37,6 +40,11 @@ export const userStyles$ = observable<Store>({
 
   setBuiltinEnabled: (id, enabled) => {
     userStyles$.builtins[id].enabled.set(enabled)
+  },
+
+  toggleBuiltinScript: (id) => {
+    const enabled = userStyles$.builtinScripts[id].enabled.get()
+    userStyles$.builtinScripts[id].enabled.set(!enabled)
   },
 
   addCustomStyle: (input) => {
@@ -138,6 +146,15 @@ export const getUserStylesSnapshot = (value: Partial<Store> | undefined = userSt
       return acc
     },
     {} as UserStylesSnapshot['builtins'],
+  ),
+  builtinScripts: builtinUserScriptIds.reduce(
+    (acc, id) => {
+      acc[id] = {
+        enabled: typeof value?.builtinScripts?.[id]?.enabled === 'boolean' ? value.builtinScripts[id].enabled : false,
+      }
+      return acc
+    },
+    {} as UserStylesSnapshot['builtinScripts'],
   ),
   customStyles: (value?.customStyles || [])
     .filter((style): style is CustomUserStyle => Boolean(style))

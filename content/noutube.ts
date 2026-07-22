@@ -67,6 +67,10 @@ export function initNouTube() {
     setBlocklist(window.NouTubeBlocklist)
   }
 
+  if (window.NouTubeUserStyles) {
+    setUserStyles(window.NouTubeUserStyles)
+  }
+
   return {
     getSettings,
     setSettings,
