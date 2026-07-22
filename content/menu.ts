@@ -60,8 +60,80 @@ const makePaperItem = ({ icon, label }: { icon: string; label: string }) =>
     </tp-yt-paper-item>
   `)
 
-const htmlMenuStar = makeMenuItem({ icon: iconStar, label: 'Star' })
-const htmlMenuQueue = makeMenuItem({ icon: iconAddQueue, label: 'Add to queue' })
+const updateClonedItem = (menuItem: HTMLElement, { icon, label }: { icon: string; label: string }) => {
+  menuItem.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'))
+
+  const nativeIcon = menuItem.querySelector<HTMLElement>('c3-icon, yt-icon')
+  if (nativeIcon) {
+    const stableIcon = document.createElement('span')
+    stableIcon.className = nativeIcon.className
+    stableIcon.setAttribute('aria-hidden', 'true')
+    stableIcon.style.display = 'block'
+    stableIcon.style.width = '24px'
+    stableIcon.style.height = '24px'
+    stableIcon.style.flexShrink = '0'
+    if (menuItem.tagName.toLowerCase() === 'ytm-menu-item') {
+      stableIcon.style.marginRight = '16px'
+    }
+    stableIcon.innerHTML = nouPolicy.createHTML(/* HTML */ `
+      <span class="yt-icon-shape ytSpecIconShapeHost" style="width: 24px; height: 24px; display: block;">
+        <div style="width: 24px; height: 24px; display: block; fill: currentcolor;">${icon}</div>
+      </span>
+    `)
+    nativeIcon.replaceWith(stableIcon)
+  }
+
+  const text = menuItem.querySelector<HTMLElement>(
+    '.ytListItemViewModelTitle, .yt-list-item-view-model__title, .ytAttributedStringHost, .yt-core-attributed-string[role="text"], yt-formatted-string',
+  )
+  if (text) {
+    text.textContent = `${label} 🦦`
+    text.removeAttribute('is-empty')
+  }
+
+  return menuItem
+}
+
+const createMenuItem = (
+  menu: HTMLElement,
+  item: { icon: string; label: string },
+  itemCls: string,
+) => {
+  let menuItem: HTMLElement
+
+  switch (menu.tagName.toLowerCase()) {
+    case 'yt-list-view-model': {
+      const nativeItem = Array.from(menu.children).find(
+        (el) => el.tagName.toLowerCase() === 'yt-list-item-view-model' && !el.className.includes('_nou_'),
+      )
+      menuItem = nativeItem
+        ? updateClonedItem(nativeItem.cloneNode(true) as HTMLElement, item)
+        : document.createElement('yt-list-item-view-model')
+      if (!nativeItem) {
+        menuItem.innerHTML = makeListItem(item)
+      }
+      break
+    }
+    case 'tp-yt-paper-listbox':
+      menuItem = document.createElement('ytd-menu-service-item-renderer')
+      menuItem.innerHTML = makePaperItem(item)
+      break
+    default: {
+      const nativeItem = Array.from(menu.children).find(
+        (el) => el.tagName.toLowerCase() === 'ytm-menu-item' && !el.className.includes('_nou_'),
+      )
+      menuItem = nativeItem
+        ? updateClonedItem(nativeItem.cloneNode(true) as HTMLElement, item)
+        : document.createElement('ytm-menu-item')
+      if (!nativeItem) {
+        menuItem.innerHTML = makeMenuItem(item)
+      }
+    }
+  }
+
+  menuItem.classList.add(itemCls)
+  return menuItem
+}
 
 export function handleMenu() {
   document.addEventListener('click', async (e) => {
@@ -92,8 +164,9 @@ export function handleMenu() {
       let menuItem: HTMLElement
 
       if (window.NouTubeI) {
-        menuItem = document.createElement('ytm-menu-item')
-        menuItem.innerHTML = htmlMenuQueue
+        const queueCls = '_nou_queue_'
+        menu.querySelectorAll(`.${queueCls}`).forEach((el) => el.remove())
+        menuItem = createMenuItem(menu, { icon: iconAddQueue, label: 'Add to queue' }, queueCls)
         menuItem.onclick = () => {
           if (url) {
             emit('add-queue', { title, url })
@@ -106,24 +179,7 @@ export function handleMenu() {
       const itemCls = '_nou_menu_'
       menu.querySelectorAll(`.${itemCls}`).forEach((el) => el.remove())
       const item = { icon: iconStar, label: 'Star' }
-      switch (menu.tagName.toLowerCase()) {
-        case 'yt-list-view-model':
-          // desktop home page
-          menuItem = document.createElement('yt-list-item-view-model')
-          menuItem.classList.add(itemCls)
-          menuItem.innerHTML = makeListItem(item)
-          break
-        case 'tp-yt-paper-listbox':
-          // desktop channel and search page
-          menuItem = document.createElement('ytd-menu-service-item-renderer')
-          menuItem.classList.add(itemCls)
-          menuItem.innerHTML = makePaperItem(item)
-          break
-        default:
-          // mobile
-          menuItem = document.createElement('ytm-menu-item')
-          menuItem.innerHTML = makeMenuItem(item)
-      }
+      menuItem = createMenuItem(menu, item, itemCls)
       menuItem.onclick = () => {
         if (url) {
           emit('star', { title, url })
@@ -135,22 +191,7 @@ export function handleMenu() {
         const downloadCls = '_nou_download_'
         menu.querySelectorAll(`.${downloadCls}`).forEach((el) => el.remove())
         const downloadItemData = { icon: iconDownload, label: 'Download' }
-        let downloadMenuItem: HTMLElement
-        switch (menu.tagName.toLowerCase()) {
-          case 'yt-list-view-model':
-            downloadMenuItem = document.createElement('yt-list-item-view-model')
-            downloadMenuItem.classList.add(downloadCls)
-            downloadMenuItem.innerHTML = makeListItem(downloadItemData)
-            break
-          case 'tp-yt-paper-listbox':
-            downloadMenuItem = document.createElement('ytd-menu-service-item-renderer')
-            downloadMenuItem.classList.add(downloadCls)
-            downloadMenuItem.innerHTML = makePaperItem(downloadItemData)
-            break
-          default:
-            downloadMenuItem = document.createElement('ytm-menu-item')
-            downloadMenuItem.innerHTML = makeMenuItem(downloadItemData)
-        }
+        const downloadMenuItem = createMenuItem(menu, downloadItemData, downloadCls)
         downloadMenuItem.onclick = () => {
           if (url) emit('download', { url })
         }
