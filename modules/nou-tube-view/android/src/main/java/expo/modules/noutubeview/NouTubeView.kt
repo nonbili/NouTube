@@ -54,6 +54,10 @@ val VIEW_HOSTS = arrayOf(
   "youtu.be"
 )
 
+internal fun fullscreenOrientationFor(isPortrait: Boolean): Int =
+  if (isPortrait) ActivityInfo.SCREEN_ORIENTATION_USER
+  else ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+
 class NouWebView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
   WebView(context, attrs, defStyleAttr) {
 
@@ -287,8 +291,10 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
               return@evaluateJavascript
             }
             activity.setRequestedOrientation(
-              if (isPortrait == "true") ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
-              else ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+              // Do not force portrait videos back to portrait when the user rotates the device.
+              // That conflicts with the web player's orientation-driven fullscreen handling and
+              // causes it to repeatedly enter and exit fullscreen.
+              fullscreenOrientationFor(isPortrait == "true")
             )
 
             if (isPortrait != "true" &&
