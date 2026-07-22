@@ -76,7 +76,10 @@
     "downloadFailed": "Błąd pobierania",
     "failedToLoadFormats": "Nie udało się załadować formatów",
     "playbackSpeed": "Prędkość odtwarzania",
-    "playbackQuality": "Jakość odtwarzania"
+    "playbackQuality": "Jakość odtwarzania",
+    "sharePageUrl": "Adres URL strony",
+    "shareVideoUrl": "Adres URL filmu",
+    "shareIncludePosition": "Uwzględnij aktualną pozycję"
   },
   "update": {
     "check": "Sprawdź aktualizacje",
