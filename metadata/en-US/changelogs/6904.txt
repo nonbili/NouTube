@@ -1,0 +1,4 @@
+- Lazily initialize yt-dlp
+- Fix portrait video rotation loop
+- Fix non-ASCII author names
+- Fix injected bottom sheet menu layout
