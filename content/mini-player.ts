@@ -15,6 +15,7 @@ type MiniState = {
   playButton: HTMLButtonElement
   currentTime: number
   lastProgressAt: number
+  rateApplied: boolean
 }
 
 let miniState: MiniState | null = null
@@ -34,6 +35,16 @@ function isMiniPlayerEnabled(): boolean {
     return settings.miniPlayer === true
   } catch {
     return false
+  }
+}
+
+function getSavedPlaybackRate(): number {
+  try {
+    const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')
+    const rate = settings.playbackRate
+    return typeof rate === 'number' && Number.isFinite(rate) ? rate : 1
+  } catch {
+    return 1
   }
 }
 
@@ -323,9 +334,23 @@ function pauseMainPlayer() {
   } catch {}
 }
 
-function postMiniPlayerCommand(command: 'playVideo' | 'pauseVideo') {
+function postMiniPlayerCommand(func: string, args: unknown[] = []) {
   const iframe = miniState?.iframe
-  iframe?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: command, args: [] }), '*')
+  iframe?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args }), '*')
+}
+
+function applyMiniPlaybackRate() {
+  if (!miniState) return
+  const rate = getSavedPlaybackRate()
+  if (rate === 1) {
+    miniState.rateApplied = true
+    return
+  }
+  // The embed iframe is cross-origin, so we can only drive it through the
+  // postMessage API, which caps playback rate at 2. Higher custom rates fall
+  // back to 2 rather than the default 1.
+  postMiniPlayerCommand('setPlaybackRate', [Math.min(rate, 2)])
+  miniState.rateApplied = true
 }
 
 function setMiniPlaying(playing: boolean) {
@@ -358,8 +383,16 @@ function installMiniMessageListener() {
       return
     }
 
+    if (data?.event === 'onReady' || data?.event === 'initialDelivery') {
+      applyMiniPlaybackRate()
+    }
+
     const info = data?.info
     if (!info) return
+
+    if (!miniState.rateApplied) {
+      applyMiniPlaybackRate()
+    }
 
     if (typeof info.currentTime === 'number' && Number.isFinite(info.currentTime)) {
       miniState.currentTime = info.currentTime
@@ -382,6 +415,7 @@ function enterMiniFromWatch(watchUrl: string) {
 
   if (miniState) {
     miniState.watchUrl = watchUrl
+    miniState.rateApplied = false
     miniState.iframe.src = embedUrl
     miniState.currentTime = getStartSeconds(watchUrl)
     miniState.lastProgressAt = Date.now()
@@ -405,6 +439,11 @@ function enterMiniFromWatch(watchUrl: string) {
   iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'
   iframe.allowFullscreen = true
   iframe.referrerPolicy = 'strict-origin-when-cross-origin'
+  iframe.addEventListener('load', () => {
+    // Register for the embed's widget events (onReady / infoDelivery) so the
+    // saved playback rate can be applied once the player is live.
+    iframe.contentWindow?.postMessage(JSON.stringify({ event: 'listening' }), '*')
+  })
   stage.appendChild(iframe)
 
   const restoreButton = document.createElement('button')
@@ -440,7 +479,15 @@ function enterMiniFromWatch(watchUrl: string) {
   root.append(stage, restoreButton, playButton, closeButton)
   installDragHandlers(root)
   document.body.appendChild(root)
-  miniState = { watchUrl, iframe, playing: true, playButton, currentTime: getStartSeconds(watchUrl), lastProgressAt: Date.now() }
+  miniState = {
+    watchUrl,
+    iframe,
+    playing: true,
+    playButton,
+    currentTime: getStartSeconds(watchUrl),
+    lastProgressAt: Date.now(),
+    rateApplied: false,
+  }
 }
 
 function resolveHistoryUrl(url: unknown): string {
