@@ -14,6 +14,7 @@ import { installBlocklistFilter } from './blocklist'
 import { installDislikeCount } from './dislikes'
 import { installCommentTranslateButtons } from './translate'
 import { interceptClipboard } from './clipboard'
+import { installWatchNavigation } from './watch-nav'
 
 try {
   if ((window as any).NouTubePreferH264) {
@@ -27,6 +28,7 @@ try {
 
   window.NouTube = initNouTube()
   interceptClipboard()
+  installWatchNavigation()
 
   if (!window.electron) {
     intercept()

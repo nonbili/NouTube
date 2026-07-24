@@ -298,6 +298,7 @@
     },
     "channelsFeed": "Channels feed",
     "watchHistory": "Watch history",
+    "replaceWatchNavigation": "Back skips watched videos",
     "theme": {
       "label": "YouTube Theme",
       "system": "System",

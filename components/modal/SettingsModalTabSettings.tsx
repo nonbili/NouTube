@@ -249,8 +249,18 @@ export const SettingsPreferencesContent = () => {
             icon="history"
             value={settings.keepHistory}
             onPress={() => settings$.keepHistory.set(!settings.keepHistory)}
-            isLast
+            isLast={isWeb}
           />
+          {nIf(
+            !isWeb,
+            <SettingsToggleRow
+              label={t('settings.replaceWatchNavigation')}
+              icon="swap-horiz"
+              value={settings.replaceWatchNavigation}
+              onPress={() => settings$.replaceWatchNavigation.set(!settings.replaceWatchNavigation)}
+              isLast
+            />,
+          )}
         </View>
       </SettingsSection>
 

@@ -90,6 +90,7 @@ const getContentSettingsSnapshot = () => {
     doubleTapToToggleHeader,
     translateComments,
     translationTargetLanguage,
+    replaceWatchNavigation,
   } = settings$.get()
   return {
     sponsorBlock,
@@ -100,6 +101,7 @@ const getContentSettingsSnapshot = () => {
     showOriginalVideoTitle,
     doubleTapToToggleHeader,
     translateComments: !isWeb && translateComments && Boolean(translationTargetLanguage),
+    replaceWatchNavigation,
   }
 }
 
