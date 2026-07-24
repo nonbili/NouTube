@@ -5,7 +5,8 @@ import { checkForUpdate, isUpdateSupported, quitAndInstall } from 'main/lib/auto
 import { consumePendingDeeplinks } from 'main/lib/deeplink.js'
 import { MAIN_CHANNEL } from './constants.js'
 import { uiClient } from './ui.js'
-import { ipcMain, session, app, shell, dialog } from 'electron'
+import { applyProxy, getProxyUrl } from 'main/lib/proxy.js'
+import { ipcMain, session, app, shell, dialog, net } from 'electron'
 import { spawn, exec } from 'child_process'
 import path from 'path'
 
@@ -18,7 +19,9 @@ const interfaces = {
     try {
       const controller = new AbortController()
       const timeout = setTimeout(() => controller.abort(), 10000)
-      const res = await fetch(url, { signal: controller.signal })
+      // net.fetch routes through the Electron session (default partition), so it
+      // honors the configured proxy; global fetch (undici) would bypass it.
+      const res = await net.fetch(url, { signal: controller.signal })
       clearTimeout(timeout)
       return {
         ok: res.ok,
@@ -41,7 +44,7 @@ const interfaces = {
   listFormats: async (url: string): Promise<{ title: string; formats: FormatOption[] }> => {
     const binary = await ensureYtDlp()
     return new Promise((resolve, reject) => {
-      const proc = spawn(binary, ['--dump-json', '--no-playlist', url])
+      const proc = spawn(binary, [...ytDlpProxyArgs(), '--dump-json', '--no-playlist', url])
       let stdout = ''
       let stderr = ''
       proc.stdout.on('data', (d) => (stdout += d))
@@ -77,6 +80,7 @@ const interfaces = {
     const outputTemplate = `${outputDir}/%(title)s.%(ext)s`
     const isMp3 = formatId === 'bestaudio-mp3'
     const args = [
+      ...ytDlpProxyArgs(),
       url,
       '-f',
       isMp3 ? 'bestaudio/best' : formatId,
@@ -138,6 +142,7 @@ const interfaces = {
   openFolder: (filePath: string): void => {
     shell.showItemInFolder(filePath)
   },
+  setProxy: applyProxy,
   setCookie: async (cookie: string) => {
     const ses = session.fromPartition('persist:webview')
     const items = cookie.split(';').map((x) => x.trim())
@@ -173,6 +178,11 @@ const interfaces = {
       }
     }
   },
+}
+
+function ytDlpProxyArgs(): string[] {
+  const proxyUrl = getProxyUrl()
+  return proxyUrl ? ['--proxy', proxyUrl] : []
 }
 
 export type FormatOption = { formatId: string; label: string; description: string }

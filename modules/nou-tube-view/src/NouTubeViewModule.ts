@@ -3,6 +3,7 @@ import { NativeModule, requireNativeModule } from 'expo'
 declare class NouTubeViewModule extends NativeModule {
   executeJavaScript(script: string): Promise<string>
   loadUrl(url: string): void
+  fetchFeed(url: string): Promise<{ ok: boolean; status: number; statusText: string; body: string }>
   setSettings(settings: {
     proxyEnabled?: boolean
     proxyType?: 'http' | 'socks'
@@ -13,7 +14,9 @@ declare class NouTubeViewModule extends NativeModule {
   setSleepTimer(durationMs: number): Promise<void>
   clearSleepTimer(): Promise<void>
   getSleepTimerRemainingMs(): Promise<number | null>
-  listFormats(url: string): Promise<{ title: string; formats: Array<{ formatId: string; label: string; description: string }> }>
+  listFormats(
+    url: string,
+  ): Promise<{ title: string; formats: Array<{ formatId: string; label: string; description: string }> }>
   downloadVideo(url: string, formatId: string, outputDir: string): Promise<void>
   getDownloadsPath(): Promise<string>
   updateYtDlp(): Promise<void>

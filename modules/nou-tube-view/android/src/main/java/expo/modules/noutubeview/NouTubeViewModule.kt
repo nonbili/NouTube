@@ -90,7 +90,12 @@ class NouTubeViewModule : Module() {
     }
 
     Function("setSettings") { settings: NouSettings ->
+      NouProxy.update(settings)
       applyProxy(settings)
+    }
+
+    AsyncFunction("fetchFeed") Coroutine { url: String ->
+      return@Coroutine fetchFeed(url)
     }
 
     Function("setLocaleStrings") { v: JavaScriptObject ->
@@ -208,6 +213,30 @@ class NouTubeViewModule : Module() {
       AsyncFunction("loadUrl") { view: NouTubeView, url: String ->
         view.webView.loadUrl(url)
       }
+    }
+  }
+
+  private fun fetchFeed(url: String): Map<String, Any> {
+    val parsed = java.net.URL(url)
+    val proxy = NouProxy.javaProxy()
+    val connection = (if (proxy != null) parsed.openConnection(proxy) else parsed.openConnection())
+      as java.net.HttpURLConnection
+    connection.connectTimeout = 10000
+    connection.readTimeout = 10000
+    connection.requestMethod = "GET"
+    try {
+      val status = connection.responseCode
+      val ok = status in 200..299
+      val stream = if (ok) connection.inputStream else (connection.errorStream ?: connection.inputStream)
+      val body = stream.bufferedReader().use { it.readText() }
+      return mapOf(
+        "ok" to ok,
+        "status" to status,
+        "statusText" to (connection.responseMessage ?: ""),
+        "body" to body,
+      )
+    } finally {
+      connection.disconnect()
     }
   }
 

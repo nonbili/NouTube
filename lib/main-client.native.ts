@@ -65,6 +65,11 @@ export const mainClient: MainClient = {
     return nativeModule.updateYtDlp()
   },
   async fetchFeed(url) {
+    // Route through the native module so the request honors the configured proxy;
+    // RN's global fetch ignores the WebView ProxyController.
+    if (typeof (NouTubeViewModule as { fetchFeed?: unknown }).fetchFeed === 'function') {
+      return NouTubeViewModule.fetchFeed(url)
+    }
     const res = await fetch(url)
     return {
       ok: res.ok,

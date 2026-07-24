@@ -347,16 +347,14 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     `window.NouTubeUserStyles = ${JSON.stringify(getUserStylesSnapshot())};` +
     `window.NouTubeBlocklist = ${JSON.stringify(getBlocklistSnapshot(blocklistState))};`
   const { userId, me } = useMe()
-  const userAgent = resolveUserAgent(
-    isWeb ? window.electron.process.platform : 'android',
-    customUserAgent,
-    desktopMode,
-  )
+  const userAgent = resolveUserAgent(isWeb ? window.electron.process.platform : 'android', customUserAgent, desktopMode)
   const getNoutube = useCallback(() => ui$.webview.get() || nativeRef.current, [])
   const isHorizontal = width > windowHeight
   const nativeDoubleTapHeader = isAndroid && doubleTapToToggleHeader
   const nativeHeaderOverlays =
-    !isWeb && (autoHideHeader || hideToolbarWhenScrolled || nativeDoubleTapHeader) && (!isHorizontal || nativeDoubleTapHeader)
+    !isWeb &&
+    (autoHideHeader || hideToolbarWhenScrolled || nativeDoubleTapHeader) &&
+    (!isHorizontal || nativeDoubleTapHeader)
   const nativeHeaderInset = nativeHeaderOverlays && headerShown ? headerHeight : 0
 
   useEffect(() => {
@@ -455,127 +453,130 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     }
   }, [me?.plan, userId])
 
-  const onMessage = useCallback(async (type: string, data: any) => {
-    switch (type) {
-      case '[content]':
-      case '[kotlin]':
-      case 'log':
-        console.log(type, data)
-        if (data.msg === 'YoutubeDL initialized successfully') {
-          showToast(data.msg)
-        } else if (typeof data.msg === 'string' && data.msg.startsWith('YoutubeDL initialization failed')) {
-          showToast(data.msg)
-        }
-        break
-      case 'scroll':
-        onScroll({ dy: data.dy, y: data.y, autoHideHeader, hideToolbarWhenScrolled })
-        break
-      case 'header-double-tap':
-        if (isAndroid && doubleTapToToggleHeader) {
-          ui$.headerShown.set(!ui$.headerShown.get())
-        }
-        break
-      case 'translate-block':
-        if (!isWeb && translateComments && translationTargetLanguage && typeof data?.text === 'string') {
-          ui$.translation.set({
-            id: String(data.id || Date.now()),
-            text: data.text,
-            targetLanguage: translationTargetLanguage,
-            x: Number(data.x) || 16,
-            y: Number(data.y) || 96,
+  const onMessage = useCallback(
+    async (type: string, data: any) => {
+      switch (type) {
+        case '[content]':
+        case '[kotlin]':
+        case 'log':
+          console.log(type, data)
+          if (data.msg === 'YoutubeDL initialized successfully') {
+            showToast(data.msg)
+          } else if (typeof data.msg === 'string' && data.msg.startsWith('YoutubeDL initialization failed')) {
+            showToast(data.msg)
+          }
+          break
+        case 'scroll':
+          onScroll({ dy: data.dy, y: data.y, autoHideHeader, hideToolbarWhenScrolled })
+          break
+        case 'header-double-tap':
+          if (isAndroid && doubleTapToToggleHeader) {
+            ui$.headerShown.set(!ui$.headerShown.get())
+          }
+          break
+        case 'translate-block':
+          if (!isWeb && translateComments && translationTargetLanguage && typeof data?.text === 'string') {
+            ui$.translation.set({
+              id: String(data.id || Date.now()),
+              text: data.text,
+              targetLanguage: translationTargetLanguage,
+              x: Number(data.x) || 16,
+              y: Number(data.y) || 96,
+            })
+          }
+          break
+        case 'onload':
+          const webview = ui$.webview.get() || nativeRef.current
+          restoreLastPlaying(webview)
+          if (!isWeb) {
+            toggleShorts(hideShorts)
+            syncUserStylesToWebview()
+            syncBlocklistToWebview()
+            syncSettingsToWebview()
+          }
+          if (isWeb) {
+            webview?.executeJavaScript('window.NouTube.bridgeShortcuts()')
+          }
+          break
+        case 'add-queue':
+          queue$.addBookmark(data)
+          showToast(`Added to queue`)
+          break
+        case 'star':
+          bookmarks$.addBookmark(newBookmark(data))
+          showToast(`Saved to bookmarks`)
+          break
+        case 'progress':
+          history$.addHistory({
+            videoId: data.videoId,
+            url: data.url,
+            title: data.title,
+            current: data.current,
+            duration: data.duration,
           })
-        }
-        break
-      case 'onload':
-        const webview = ui$.webview.get() || nativeRef.current
-        restoreLastPlaying(webview)
-        if (!isWeb) {
-          toggleShorts(hideShorts)
-          syncUserStylesToWebview()
-          syncBlocklistToWebview()
-          syncSettingsToWebview()
-        }
-        if (isWeb) {
-          webview?.executeJavaScript('window.NouTube.bridgeShortcuts()')
-        }
-        break
-      case 'add-queue':
-        queue$.addBookmark(data)
-        showToast(`Added to queue`)
-        break
-      case 'star':
-        bookmarks$.addBookmark(newBookmark(data))
-        showToast(`Saved to bookmarks`)
-        break
-      case 'progress':
-        history$.addHistory({
-          videoId: data.videoId,
-          url: data.url,
-          title: data.title,
-          current: data.current,
-          duration: data.duration,
-        })
-        break
-      case 'playback-rate':
-        if (typeof data?.playbackRate == 'number' && Number.isFinite(data.playbackRate)) {
-          settings$.playbackRate.set(data.playbackRate)
-        }
-        break
-      case 'playback-quality':
-        if (typeof data?.playbackQuality == 'string') {
-          settings$.playbackQuality.set(data.playbackQuality)
-        }
-        break
-      case 'playback-end':
-        const currentPageUrl = isWeb ? activePageUrl : pageUrl
-        const videoId = getVideoId(currentPageUrl)
-        const bookmarks = queue$.bookmarks.get()
-        const hasPlaylistParam = currentPageUrl.includes('list=')
-        if (videoId && bookmarks.length && !hasPlaylistParam) {
-          const queueIndex = bookmarks.findIndex((x) => getVideoId(x.url) == videoId)
-          if (queueIndex != bookmarks.length - 1) {
-            if (isWeb) {
-              tabs$.updateTabUrl(bookmarks[queueIndex + 1].url)
-            } else {
-              ui$.url.set(bookmarks[queueIndex + 1].url)
+          break
+        case 'playback-rate':
+          if (typeof data?.playbackRate == 'number' && Number.isFinite(data.playbackRate)) {
+            settings$.playbackRate.set(data.playbackRate)
+          }
+          break
+        case 'playback-quality':
+          if (typeof data?.playbackQuality == 'string') {
+            settings$.playbackQuality.set(data.playbackQuality)
+          }
+          break
+        case 'playback-end':
+          const currentPageUrl = isWeb ? activePageUrl : pageUrl
+          const videoId = getVideoId(currentPageUrl)
+          const bookmarks = queue$.bookmarks.get()
+          const hasPlaylistParam = currentPageUrl.includes('list=')
+          if (videoId && bookmarks.length && !hasPlaylistParam) {
+            const queueIndex = bookmarks.findIndex((x) => getVideoId(x.url) == videoId)
+            if (queueIndex != bookmarks.length - 1) {
+              if (isWeb) {
+                tabs$.updateTabUrl(bookmarks[queueIndex + 1].url)
+              } else {
+                ui$.url.set(bookmarks[queueIndex + 1].url)
+              }
             }
           }
-        }
-        break
-      case 'embed':
-        ui$.embedVideoId.set(data)
-        break
-      case 'download':
-        ui$.toolsModalUrl.set(data.url)
-        ui$.toolsModalOpen.set(true)
-        break
-      case 'keyup':
-        handleShortcuts(data)
-        break
-      case 'yt-music-desktop':
-        if (settings$.desktopMode.get()) break
-        settings$.desktopMode.set(true)
-        if (isWeb) {
-          tabs$.updateTabUrl('https://music.youtube.com')
-        } else {
-          ui$.url.set('https://music.youtube.com')
-        }
-        break
-    }
-  }, [
-    autoHideHeader,
-    doubleTapToToggleHeader,
-    translateComments,
-    translationTargetLanguage,
-    hideShorts,
-    hideToolbarWhenScrolled,
-    syncSettingsToWebview,
-    syncBlocklistToWebview,
-    syncUserStylesToWebview,
-    toggleShorts,
-    activePageUrl,
-    pageUrl,
-  ])
+          break
+        case 'embed':
+          ui$.embedVideoId.set(data)
+          break
+        case 'download':
+          ui$.toolsModalUrl.set(data.url)
+          ui$.toolsModalOpen.set(true)
+          break
+        case 'keyup':
+          handleShortcuts(data)
+          break
+        case 'yt-music-desktop':
+          if (settings$.desktopMode.get()) break
+          settings$.desktopMode.set(true)
+          if (isWeb) {
+            tabs$.updateTabUrl('https://music.youtube.com')
+          } else {
+            ui$.url.set('https://music.youtube.com')
+          }
+          break
+      }
+    },
+    [
+      autoHideHeader,
+      doubleTapToToggleHeader,
+      translateComments,
+      translationTargetLanguage,
+      hideShorts,
+      hideToolbarWhenScrolled,
+      syncSettingsToWebview,
+      syncBlocklistToWebview,
+      syncUserStylesToWebview,
+      toggleShorts,
+      activePageUrl,
+      pageUrl,
+    ],
+  )
 
   const onNativeMessage = async (e: { nativeEvent: { payload: string } }) => {
     const { payload } = e.nativeEvent
@@ -653,6 +654,38 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   })
   useObserveEffect(userStyles$, () => syncUserStylesToWebview())
   useObserveEffect(blocklist$, () => syncBlocklistToWebview())
+
+  const syncProxyToSession = useCallback(() => {
+    if (!isWeb) return
+    const settings = settings$.get()
+    void mainClient.setProxy({
+      enabled: settings.proxyEnabled,
+      type: settings.proxyType,
+      host: settings.proxyHost,
+      port: settings.proxyPort,
+    })
+  }, [])
+
+  useEffect(() => {
+    syncProxyToSession()
+  }, [syncProxyToSession])
+
+  useObserveEffect(settings$.proxyEnabled, ({ previous }) => {
+    if (previous === undefined) return
+    syncProxyToSession()
+  })
+  useObserveEffect(settings$.proxyType, ({ previous }) => {
+    if (previous === undefined) return
+    syncProxyToSession()
+  })
+  useObserveEffect(settings$.proxyHost, ({ previous }) => {
+    if (previous === undefined) return
+    syncProxyToSession()
+  })
+  useObserveEffect(settings$.proxyPort, ({ previous }) => {
+    if (previous === undefined) return
+    syncProxyToSession()
+  })
 
   const onLoad = async (e: { nativeEvent: any }) => {
     ui$.translation.set(null)

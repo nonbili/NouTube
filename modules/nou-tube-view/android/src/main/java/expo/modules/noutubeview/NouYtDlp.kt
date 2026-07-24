@@ -71,6 +71,7 @@ internal class NouYtDlp(private val context: Context) {
     request.addOption("--no-playlist")
     request.addOption("-R", "1")
     request.addOption("--socket-timeout", "5")
+    NouProxy.ytDlpUrl()?.let { request.addOption("--proxy", it) }
     val response = YoutubeDL.getInstance().execute(request)
     val json = JSONObject(response.out ?: throw Exception("yt-dlp returned empty format output"))
     val formats = (0 until json.optJSONArray("formats")?.length().orZero())
@@ -159,6 +160,7 @@ internal class NouYtDlp(private val context: Context) {
     request.addOption("-f", if (isMp3) "bestaudio/best" else formatId)
     request.addOption("-o", "${tempDir.absolutePath}/%(title)s.%(ext)s")
     request.addOption("--no-playlist")
+    NouProxy.ytDlpUrl()?.let { request.addOption("--proxy", it) }
     if (isMp3) {
       request.addOption("--extract-audio")
       request.addOption("--audio-format", "mp3")
