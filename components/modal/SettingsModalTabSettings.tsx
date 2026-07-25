@@ -13,7 +13,7 @@ import NouTubeViewModule from '@/modules/nou-tube-view'
 import { showToast } from '@/lib/toast'
 import { showConfirm } from '@/lib/confirm'
 import JSZip from 'jszip'
-import { bookmarks$ } from '@/states/bookmarks'
+import { exportBookmarksCsv } from '@/lib/export'
 import { t } from 'i18next'
 import { saveFile } from '@/lib/file'
 import { NouText } from '../NouText'
@@ -779,7 +779,11 @@ export const SettingsTransferContent: React.FC<{
     if (isImporting) {
       return
     }
-    const res = await getDocumentAsync({ copyToCacheDirectory: true, type: 'text/*' })
+    // Some pickers report CSV with a non text/* mime type, so list those too.
+    const res = await getDocumentAsync({
+      copyToCacheDirectory: true,
+      type: ['text/*', 'text/csv', 'text/comma-separated-values', 'application/vnd.ms-excel'],
+    })
     setImportingList(true)
     try {
       const csv = res.assets?.[0]
@@ -796,12 +800,8 @@ export const SettingsTransferContent: React.FC<{
   }
 
   const onClickExportList = async () => {
-    const content = bookmarks$.bookmarks
-      .get()
-      .map((x) => x.url)
-      .join('\n')
-    const filename = `NouTube_bookmarks_${Date.now()}.txt`
-    await saveFile(filename, content)
+    const filename = `NouTube_bookmarks_${Date.now()}.csv`
+    await saveFile(filename, exportBookmarksCsv())
   }
 
   const onClickImportTakeout = async () => {
@@ -860,7 +860,7 @@ export const SettingsTransferContent: React.FC<{
         <View className={surfaceCls}>
           <SettingsActionRow
             label={t('settings.importList')}
-            description="Plain text or copied links"
+            description="Plain text, copied links, or a NouTube CSV export"
             icon="playlist-add"
             onPress={() => {
               void onClickImportList()
@@ -882,21 +882,19 @@ export const SettingsTransferContent: React.FC<{
         </View>
       </SettingsSection>
 
-      {!isWeb ? (
-        <SettingsSection label={t('buttons.export')}>
-          <View className={surfaceCls}>
-            <SettingsActionRow
-              label={t('settings.exportLabel')}
-              description="Save starred links as a plain text list"
-              icon="upload-file"
-              onPress={() => {
-                void onClickExportList()
-              }}
-              isLast
-            />
-          </View>
-        </SettingsSection>
-      ) : null}
+      <SettingsSection label={t('buttons.export')}>
+        <View className={surfaceCls}>
+          <SettingsActionRow
+            label={t('settings.exportLabel')}
+            description="Save starred links as a CSV file, folders included"
+            icon="upload-file"
+            onPress={() => {
+              void onClickExportList()
+            }}
+            isLast
+          />
+        </View>
+      </SettingsSection>
     </View>
   )
 }

@@ -325,7 +325,7 @@
     },
     "importList": "Import a list of links",
     "importTakeout": "Import from YouTube takeout",
-    "exportLabel": "Export bookmarks to a list",
+    "exportLabel": "Export bookmarks to a CSV file",
     "injectCookie": "Inject cookie if couldn't login from webview",
     "injectCookieTitle": "Inject auth cookie into the webview",
     "injectCookieHint": "Copy the Cookie header value from your PC browser. This is a workaround when you couldn't login with email/password."

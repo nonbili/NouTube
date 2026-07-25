@@ -73,6 +73,9 @@ function detectShape(row: string[]): CsvShape {
  * Takeout exports (non-English column headers and filenames) work too.
  */
 export async function importCsv(csv: string, filename?: string): Promise<number> {
+  if (isBookmarksCsv(csv)) {
+    return importBookmarksCsv(csv)
+  }
   const res = pp.parse<string[]>(csv.trim())
   if (!res.data || res.data.length < 1) return 0
 
@@ -150,7 +153,50 @@ export async function importZip(zip: JSZip) {
   }
 }
 
+/**
+ * Import a CSV produced by `exportBookmarksCsv`. Titles and thumbnails come
+ * from the file, and folders are recreated by name in their original tab.
+ */
+export function importBookmarksCsv(csv: string): number {
+  const res = pp.parse<Record<string, string>>(csv.trim(), { header: true, skipEmptyLines: true })
+  let bookmarks: Bookmark[] = []
+  for (const row of res.data) {
+    const url = row.url?.trim()
+    if (!url || !getPageType(url)?.canStar) {
+      continue
+    }
+    const folderName = row.folder?.trim()
+    const folder = folderName ? folders$.getOrCreateFolder(row.tab?.trim() || 'watch', folderName) : undefined
+    bookmarks.push(
+      newBookmark({
+        url,
+        title: row.title || '',
+        json: {
+          thumbnail: row.thumbnail || undefined,
+          id: row.channel_id || undefined,
+          folder: folder?.id,
+        },
+      }),
+    )
+  }
+
+  if (!bookmarks.length) return 0
+  // importBookmarks returns the number of new bookmarks, but is typed void.
+  const count = bookmarks$.importBookmarks(bookmarks) as unknown as number
+  showToast(`🎉 Imported ${count} pages`)
+  return count
+}
+
+function isBookmarksCsv(list: string) {
+  const firstLine = list.trim().split(/\r?\n/)[0] || ''
+  return /^url\s*,/i.test(firstLine)
+}
+
 export async function importList(list: string) {
+  if (isBookmarksCsv(list)) {
+    importBookmarksCsv(list)
+    return
+  }
   let sep = list.includes('\r\n') ? '\r\n' : '\n'
   const lines = list.split(sep)
   let bookmarks: Bookmark[] = []

@@ -7,7 +7,7 @@ export async function saveFile(filename: string, content: string) {
     file.create()
     file.write(content)
     await shareAsync(file.uri, {
-      mimeType: 'text/plain',
+      mimeType: filename.toLowerCase().endsWith('.csv') ? 'text/csv' : 'text/plain',
       dialogTitle: 'Save the file',
     })
   } catch (e) {
