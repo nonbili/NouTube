@@ -60,6 +60,8 @@ function ensureStyle() {
       align-items: center !important;
       margin-left: 6px !important;
       font: inherit !important;
+      font-size: 0.8em !important;
+      font-weight: 400 !important;
       white-space: nowrap !important;
     }
   `
@@ -235,12 +237,18 @@ async function updateDislikes() {
 export function installDislikeCount() {
   updateDislikes()
   window.addEventListener(noutubeSettingsEvent, updateDislikes)
-  window.addEventListener('yt-navigate-finish', updateDislikes)
-  document.addEventListener('yt-navigate-finish', updateDislikes)
+  for (const name of ['yt-navigate-finish', 'state-navigateend', 'popstate']) {
+    window.addEventListener(name, updateDislikes)
+    document.addEventListener(name, updateDislikes)
+  }
 
   const observer = new MutationObserver(() => {
-    if (currentVideoId && cache.has(currentVideoId)) {
-      renderCount(cache.get(currentVideoId) || '')
+    // Only take the cheap path while still on the video the cached count belongs
+    // to, otherwise a navigation without a navigate event would keep re-rendering
+    // the previous video's count forever.
+    const videoId = getVideoId()
+    if (videoId && videoId === currentVideoId && cache.has(videoId)) {
+      renderCount(cache.get(videoId) || '')
       return
     }
     updateDislikes()

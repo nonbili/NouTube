@@ -251,6 +251,9 @@
         },
         "hideCommunityPosts": {
           "label": "Hide community posts"
+        },
+        "hideAskButton": {
+          "label": "Hide Ask Gemini button"
         }
       },
       "builtinScripts": {

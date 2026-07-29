@@ -1,6 +1,11 @@
 export const USER_STYLES_SCHEMA_VERSION = 3
 
-export const builtinUserStyleIds = ['hide-mix-playlist', 'hide-shorts-navbar', 'hide-community-posts'] as const
+export const builtinUserStyleIds = [
+  'hide-mix-playlist',
+  'hide-shorts-navbar',
+  'hide-community-posts',
+  'hide-ask-button',
+] as const
 export const builtinUserScriptIds = ['fix-encoded-author-names'] as const
 
 export type BuiltinUserStyleId = (typeof builtinUserStyleIds)[number]
@@ -94,6 +99,16 @@ export const builtinUserStyleDefinitions: BuiltinUserStyleDefinition[] = [
       }
     `,
   },
+  {
+    id: 'hide-ask-button',
+    labelKey: 'settings.userStyles.builtin.hideAskButton.label',
+    css: css`
+      .you-chat-entrypoint-button,
+      yt-button-view-model:has(> .you-chat-entrypoint-button) {
+        display: none !important;
+      }
+    `,
+  },
 ]
 
 export const builtinUserStyleDefinitionById = builtinUserStyleDefinitions.reduce(
@@ -115,6 +130,7 @@ export const createDefaultBuiltinUserStyles = (): Record<BuiltinUserStyleId, Bui
   'hide-mix-playlist': { enabled: false },
   'hide-shorts-navbar': { enabled: false },
   'hide-community-posts': { enabled: false },
+  'hide-ask-button': { enabled: false },
 })
 
 export const createDefaultBuiltinUserScripts = (): Record<BuiltinUserScriptId, BuiltinUserScriptState> => ({

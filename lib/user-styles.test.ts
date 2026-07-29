@@ -18,6 +18,7 @@ describe('user styles', () => {
           'hide-mix-playlist': { enabled: true },
           'hide-shorts-navbar': { enabled: true },
           'hide-community-posts': { enabled: false },
+          'hide-ask-button': { enabled: false },
         },
       }),
     )
