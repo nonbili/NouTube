@@ -1,0 +1,6 @@
+- Add option to skip watched videos in back press
+- Apply saved playback speed to mini-player
+- Support export/import settings
+- Support passing cookies to yt-dlp
+- Highlight SponsorBlock segments in video progress bar
+- Support hiding the Ask Gemini button
