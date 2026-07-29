@@ -2,12 +2,13 @@ import { retry, throttle } from 'es-toolkit'
 import { emit, log, isYTMusic, nouPolicy, parseJson } from './utils'
 import { hideLiveChat, showLiveChatButton } from './livechat'
 import { originalLabels } from './audio'
-import { getSkipSegments, isSponsorBlockEnabled, Segment } from './sponsorblock'
+import { clearSkipSegments, getSkipSegments, isSponsorBlockEnabled, renderSkipSegments, Segment } from './sponsorblock'
 import { playbackRates } from '../lib/playback-rate'
 
 export let player: any
 let curVideoId = ''
 let skipSegments: { videoId: string; segments: Segment[] } = { videoId: '', segments: [] }
+let segmentsResizeBinded = false
 const fullscreenTitleId = '_nou_fullscreen_title'
 
 const keys = {
@@ -182,6 +183,7 @@ export function handleVideoPlayer(el: any) {
     window.NouTubeI?.notifyProgress(el.getPlayerState() == 1, currentTime)
     saveProgress(currentTime)
     if (isSponsorBlockEnabled() && curVideoId == skipSegments.videoId && skipSegments.segments.length) {
+      renderSkipSegments(curVideoId, skipSegments.segments, duration || el.getDuration?.() || 0)
       for (const segment of skipSegments.segments) {
         const [start, end] = segment.segment
         if (currentTime > start && currentTime < end) {
@@ -189,8 +191,29 @@ export function handleVideoPlayer(el: any) {
           return
         }
       }
+    } else {
+      clearSkipSegments()
     }
   }, 1000)
+
+  // Entering fullscreen or rotating resizes the progress bar, and the redraw
+  // above only rides on playback ticks, so a paused video would keep segments
+  // drawn at the old width.
+  const redrawSegments = () => {
+    if (isSponsorBlockEnabled() && curVideoId == skipSegments.videoId && skipSegments.segments.length) {
+      renderSkipSegments(curVideoId, skipSegments.segments, duration || el.getDuration?.() || 0)
+    }
+  }
+  if (!segmentsResizeBinded) {
+    segmentsResizeBinded = true
+    window.addEventListener('resize', redrawSegments)
+    document.addEventListener('fullscreenchange', () => {
+      redrawSegments()
+      // The fullscreen transition animates, so catch the settled layout too.
+      setTimeout(redrawSegments, 400)
+    })
+  }
+
   let progressBinded = false
   el.addEventListener('onStateChange', async (state: number) => {
     const { playabilityStatus, videoDetails } = el.getPlayerResponse() || {}
@@ -238,8 +261,11 @@ export function handleVideoPlayer(el: any) {
         }
       }
 
+      clearSkipSegments()
+      skipSegments = { videoId: '', segments: [] }
       if (isSponsorBlockEnabled()) {
         skipSegments = await getSkipSegments(videoId)
+        renderSkipSegments(videoId, skipSegments.segments, duration)
       }
 
       applySavedPlaybackRate(player)

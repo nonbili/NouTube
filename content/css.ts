@@ -20,6 +20,24 @@ const cssContentMobile = css`
     max-height: none !important;
   }
 
+  /*
+   * YouTube's control scrim fades to fully transparent at the bottom, but the
+   * progress bar sits ~80% down, so the track (white at 35% alpha) disappears
+   * over a bright frame. Darken the bottom and outline the bar to keep it and
+   * the SponsorBlock segments readable.
+   */
+  #player-control-overlay .player-controls-background::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0) 35%);
+    pointer-events: none;
+  }
+
+  #player-control-overlay .ytPlayerProgressBarHost {
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
+  }
+
   #_nou_fullscreen_title {
     display: none;
   }
@@ -132,6 +150,22 @@ const cssContent = css`
     background: #a7f3d0;
     color: #44403c;
     padding: 2px;
+  }
+
+  ._nou_sb_segments {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+  ._nou_sb_segment {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    opacity: 0.85;
   }
 `
 
