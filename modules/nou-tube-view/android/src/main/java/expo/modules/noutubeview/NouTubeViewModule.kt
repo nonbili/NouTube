@@ -1,5 +1,6 @@
 package expo.modules.noutubeview
 
+import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.webkit.ProxyConfig
@@ -157,6 +158,21 @@ class NouTubeViewModule : Module() {
         ))
         throw e
       }
+    }
+
+    AsyncFunction("openFile") { path: String ->
+      val context = appContext.reactContext ?: throw Exception("Application context is unavailable")
+      val uri = if (path.startsWith("content://") || path.startsWith("file://")) {
+        Uri.parse(path)
+      } else {
+        Uri.fromFile(File(path))
+      }
+      val mimeType = context.contentResolver.getType(uri) ?: "video/*"
+      val intent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(uri, mimeType)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+      }
+      context.startActivity(intent)
     }
 
     AsyncFunction("getDownloadsPath") {

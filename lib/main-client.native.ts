@@ -11,6 +11,7 @@ export interface MainClient {
   getDownloadsPath(): Promise<string>
   selectFolder(): Promise<string | null>
   openFolder(filePath: string): Promise<void> | void
+  openFile(filePath: string): Promise<void> | void
   updateYtDlp(): Promise<void>
   fetchFeed(url: string): Promise<{ ok: boolean; status: number; statusText: string; body: string }>
   setCookie(cookie: string): Promise<void>
@@ -24,6 +25,7 @@ type NouTubeDownloadClient = {
   listFormats?: MainClient['listFormats']
   downloadVideo?: MainClient['downloadVideo']
   getDownloadsPath?: MainClient['getDownloadsPath']
+  openFile?: MainClient['openFile']
   updateYtDlp?: MainClient['updateYtDlp']
 }
 
@@ -58,6 +60,12 @@ export const mainClient: MainClient = {
     return null
   },
   async openFolder() {},
+  async openFile(filePath) {
+    if (typeof nativeModule.openFile !== 'function') {
+      return
+    }
+    return nativeModule.openFile(filePath)
+  },
   async updateYtDlp() {
     if (typeof nativeModule.updateYtDlp !== 'function') {
       return

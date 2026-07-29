@@ -73,6 +73,12 @@ export const ToolsModal = () => {
     setFormats([])
   }, [isOpen, toolsModalUrl, loadFormats])
 
+  const openSavedFile = (savedPath: string) => {
+    Promise.resolve(mainClient.openFile(savedPath)).catch((err: any) => {
+      console.error('failed to open file', err)
+    })
+  }
+
   const handleDownload = (formatId: string) => {
     const targetUrl = toolsModalUrl || url
     downloads$[targetUrl].set({
@@ -220,11 +226,15 @@ export const ToolsModal = () => {
                   }
                 >
                   <View className="flex-row items-start justify-between gap-3">
-                    <View className="flex-1 gap-1">
+                    <Pressable
+                      className="flex-1 gap-1"
+                      disabled={d.phase !== 'done' || !d.savedPath}
+                      onPress={() => openSavedFile(d.savedPath)}
+                    >
                       <NouText className="text-sm font-semibold text-zinc-900 dark:text-zinc-100" numberOfLines={2}>
                         {d.title || dUrl}
                       </NouText>
-                    </View>
+                    </Pressable>
                     {nIf(
                       d.phase === 'error',
                       <MaterialIcons name="error-outline" size={18} color={isDark ? '#f87171' : '#dc2626'} />,
@@ -250,12 +260,22 @@ export const ToolsModal = () => {
                   {d.phase === 'done' && (
                     <View className="gap-2">
                       <View className="mt-1 flex-row items-center gap-2">
-                        <View className="flex-row items-center gap-2 mr-auto">
+                        <View className="flex-1 shrink flex-row items-center gap-2 mr-auto">
                           <MaterialIcons name="check-circle" size={18} color={isDark ? '#86efac' : '#16a34a'} />
-                          <NouText className="text-xs text-zinc-500 dark:text-zinc-400" numberOfLines={1}>
+                          <NouText className="flex-1 text-xs text-zinc-500 dark:text-zinc-400" numberOfLines={2}>
                             {isAndroid ? 'Saved to the Downloads folder' : t('modals.downloadComplete')}
                           </NouText>
                         </View>
+                        {!!d.savedPath && (
+                          <Pressable
+                            onPress={() => openSavedFile(d.savedPath)}
+                            className="bg-zinc-200 dark:bg-zinc-800 px-3 py-1.5 rounded-lg active:bg-zinc-300 dark:active:bg-zinc-700"
+                          >
+                            <NouText className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                              {t('buttons.open')}
+                            </NouText>
+                          </Pressable>
+                        )}
                         {!!d.savedPath && !isAndroid && (
                           <Pressable
                             onPress={() => mainClient.openFolder(d.savedPath)}

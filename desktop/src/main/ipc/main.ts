@@ -142,6 +142,9 @@ const interfaces = {
   openFolder: (filePath: string): void => {
     shell.showItemInFolder(filePath)
   },
+  openFile: async (filePath: string): Promise<void> => {
+    await shell.openPath(filePath)
+  },
   setProxy: applyProxy,
   setCookie: async (cookie: string) => {
     const ses = session.fromPartition('persist:webview')
