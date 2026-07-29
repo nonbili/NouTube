@@ -169,6 +169,12 @@
         "pinToHeader": "Épingler à la barre d'outils",
         "pinToHeaderHint": "Afficher ce script sous forme d'action de la barre d'outils.",
         "pinnedToHeader": "Épinglé à la barre d'outils"
+      },
+      "builtinScripts": {
+        "label": "Scripts intégrés",
+        "fixEncodedAuthorNames": {
+          "label": "Corriger les caractères spéciaux dans les noms d'auteurs"
+        }
       }
     },
     "hideToolbarWhenScrolled": "Masquer la barre d'outils lorsque la page n'est pas en haut de page",

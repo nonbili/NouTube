@@ -216,6 +216,12 @@
         "pinToHeader": "Fijar en la barra de herramientas",
         "pinToHeaderHint": "­Mostrar este script como una acción de la barra de herramientas.",
         "pinnedToHeader": "Fijado en la barra de herramientas"
+      },
+      "builtinScripts": {
+        "label": "Scripts integrados",
+        "fixEncodedAuthorNames": {
+          "label": "Corregir carácteres especiales en los nombres de los autores"
+        }
       }
     },
     "channelsFeed": "Feed de canales",

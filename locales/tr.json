@@ -76,7 +76,10 @@
     "downloadFailed": "İndirme başarısız oldu",
     "failedToLoadFormats": "Formatlar yüklenemedi",
     "playbackSpeed": "Oynatma hızı",
-    "playbackQuality": "Oynatma kalitesi"
+    "playbackQuality": "Oynatma kalitesi",
+    "sharePageUrl": "Sayfa URL'si",
+    "shareVideoUrl": "Video URL'si",
+    "shareIncludePosition": "Geçerli konumu dahil et"
   },
   "update": {
     "check": "Güncellemeleri denetle",
@@ -246,6 +249,12 @@
         "validation": {
           "js": "JavaScript alanı boş bırakılamaz"
         }
+      },
+      "builtinScripts": {
+        "label": "Yerleşik betikler",
+        "fixEncodedAuthorNames": {
+          "label": "Yazar adlarındaki özel karakterleri düzelt"
+        }
       }
     },
     "channelsFeed": "Kanallar akışı",
@@ -302,7 +311,23 @@
     "toolbar": "Araç çubuğu",
     "toolbarButtons": "Araç çubuğu düğmeleri",
     "showHistoryButtonInHeader": "Araç çubuğunda Geçmiş düğmesini göster",
-    "doubleTapToToggleHeader": "Araç çubuğunu gizlemek veya göstermek için sayfaya iki kez dokun"
+    "doubleTapToToggleHeader": "Araç çubuğunu gizlemek veya göstermek için sayfaya iki kez dokun",
+    "translation": {
+      "enable": "Yorumları çevir",
+      "hint": "Aygıtınızda yorumları çevirmek için yorumların üzerinde bir Çevir düğmesi göster.",
+      "targetLanguage": "Şuna çevir",
+      "appLanguage": "Uygulama",
+      "systemLanguage": "Sistem",
+      "notSelected": "Dil seçin",
+      "chooseLanguage": "Önce bir çeviri dili seçin",
+      "loading": "Çevriliyor…",
+      "copy": "Çeviriyi kopyala",
+      "copySource": "Kaynağı kopyala",
+      "pin": "Çeviriyi sabitle",
+      "unpin": "Çevirinin sabitlemesini kaldır",
+      "failed": "Bu metin çevrilemedi",
+      "unsupported": "Bu diller bu aygıtta kullanılabilir değil"
+    }
   },
   "native": {
     "format_bestQuality": "En iyi kalite",

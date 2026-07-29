@@ -272,6 +272,12 @@
         "validation": {
           "js": "JavaScript nie może być pusty"
         }
+      },
+      "builtinScripts": {
+        "label": "Wbudowane skrypty",
+        "fixEncodedAuthorNames": {
+          "label": "Napraw znaki specjalne w nazwach autorów"
+        }
       }
     },
     "channelsFeed": "Karty kanałów",
