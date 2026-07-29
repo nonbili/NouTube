@@ -106,6 +106,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   private var pageUrl = ""
   private var customView: View? = null
   private var pullToRefreshEnabled = true
+  private var pendingClearHistory = false
   private lateinit var orientationListener: NouOrientationListener
   private val swipeRefreshLayout = SwipeRefreshLayout(context).apply {
     layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
@@ -197,6 +198,10 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
           override fun onPageFinished(view: WebView, url: String) {
             swipeRefreshLayout.isRefreshing = false
+            if (pendingClearHistory) {
+              pendingClearHistory = false
+              view.clearHistory()
+            }
           }
 
           override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
@@ -356,6 +361,13 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   fun setPullToRefreshEnabled(enabled: Boolean) {
     pullToRefreshEnabled = enabled
     updateSwipeRefreshEnabled()
+  }
+
+  fun requestGoHome() {
+    val home = Uri.parse(webView.url ?: "").buildUpon()?.path("/")?.clearQuery()?.fragment(null)?.build()?.toString()
+    if (home.isNullOrBlank()) return
+    pendingClearHistory = true
+    webView.loadUrl(home)
   }
 
   private fun updateSwipeRefreshEnabled() {
