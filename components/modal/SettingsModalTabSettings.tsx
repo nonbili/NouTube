@@ -14,6 +14,7 @@ import { showToast } from '@/lib/toast'
 import { showConfirm } from '@/lib/confirm'
 import JSZip from 'jszip'
 import { exportBookmarksCsv } from '@/lib/export'
+import { applySettingsBackup, exportSettingsJson, parseSettingsBackup, settingsBackupFilename } from '@/lib/settings-transfer'
 import { t } from 'i18next'
 import { saveFile } from '@/lib/file'
 import { NouText } from '../NouText'
@@ -773,7 +774,8 @@ export const SettingsTransferContent: React.FC<{
   importingTakeout: boolean
   setImportingTakeout: React.Dispatch<React.SetStateAction<boolean>>
 }> = ({ importingList, setImportingList, importingTakeout, setImportingTakeout }) => {
-  const isImporting = importingList || importingTakeout
+  const [importingSettings, setImportingSettings] = useState(false)
+  const isImporting = importingList || importingTakeout || importingSettings
 
   const onClickImportList = async () => {
     if (isImporting) {
@@ -802,6 +804,44 @@ export const SettingsTransferContent: React.FC<{
   const onClickExportList = async () => {
     const filename = `NouTube_bookmarks_${Date.now()}.csv`
     await saveFile(filename, exportBookmarksCsv())
+  }
+
+  const onClickExportSettings = async () => {
+    await saveFile(settingsBackupFilename(), exportSettingsJson())
+  }
+
+  const onClickImportSettings = async () => {
+    if (isImporting) {
+      return
+    }
+    // Some pickers report JSON as a generic type, so accept text/* as well.
+    const res = await getDocumentAsync({
+      copyToCacheDirectory: true,
+      type: ['application/json', 'text/*'],
+    })
+    const asset = res.assets?.[0]
+    if (!asset) {
+      return
+    }
+
+    setImportingSettings(true)
+    try {
+      const response = await fetch(asset.uri)
+      const text = await response.text()
+      const backup = parseSettingsBackup(text)
+      const enabledScripts = backup.userStyles?.customScripts.filter((script) => script.enabled).length || 0
+      const confirmationKey =
+        enabledScripts > 0 ? 'settings.importSettingsWithScriptsConfirm' : 'settings.importSettingsConfirm'
+      showConfirm(t('settings.importSettings'), t(confirmationKey, { count: enabledScripts }), () => {
+        const restored = applySettingsBackup(backup)
+        showToast(t('settings.importSettingsDone', { sections: restored.join(', ') }))
+      })
+    } catch (e) {
+      console.error(e)
+      showToast('Import failed: ' + (e as Error).message)
+    } finally {
+      setImportingSettings(false)
+    }
   }
 
   const onClickImportTakeout = async () => {
@@ -877,6 +917,16 @@ export const SettingsTransferContent: React.FC<{
             }}
             loading={importingTakeout}
             disabled={isImporting}
+          />
+          <SettingsActionRow
+            label={t('settings.importSettings')}
+            description={t('settings.importSettingsDescription')}
+            icon="settings-backup-restore"
+            onPress={() => {
+              void onClickImportSettings()
+            }}
+            loading={importingSettings}
+            disabled={isImporting}
             isLast
           />
         </View>
@@ -890,6 +940,14 @@ export const SettingsTransferContent: React.FC<{
             icon="upload-file"
             onPress={() => {
               void onClickExportList()
+            }}
+          />
+          <SettingsActionRow
+            label={t('settings.exportSettings')}
+            description={t('settings.exportSettingsDescription')}
+            icon="tune"
+            onPress={() => {
+              void onClickExportSettings()
             }}
             isLast
           />

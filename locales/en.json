@@ -331,6 +331,13 @@
     "importList": "Import a list of links",
     "importTakeout": "Import from YouTube takeout",
     "exportLabel": "Export bookmarks to a CSV file",
+    "importSettings": "Import settings",
+    "importSettingsDescription": "Restore settings from a NouTube settings file",
+    "importSettingsConfirm": "This replaces your current settings, blocklist, user styles and custom scripts. Continue?",
+    "importSettingsWithScriptsConfirm": "This file contains {{count}} enabled custom script(s), which can run code inside YouTube. Only continue if you trust the file. Your current settings, blocklist, user styles and custom scripts will be replaced.",
+    "importSettingsDone": "Imported: {{sections}}",
+    "exportSettings": "Export settings",
+    "exportSettingsDescription": "Save settings, blocklist, user styles and custom scripts as a JSON file",
     "injectCookie": "Inject cookie if couldn't login from webview",
     "injectCookieTitle": "Inject auth cookie into the webview",
     "injectCookieHint": "Copy the Cookie header value from your PC browser. This is a workaround when you couldn't login with email/password."

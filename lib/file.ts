@@ -1,5 +1,9 @@
 function getMimeType(filename: string) {
-  return filename.toLowerCase().endsWith('.csv') ? 'text/csv' : 'text/plain'
+  const name = filename.toLowerCase()
+  if (name.endsWith('.csv')) {
+    return 'text/csv'
+  }
+  return name.endsWith('.json') ? 'application/json' : 'text/plain'
 }
 
 export async function saveFile(filename: string, content: string) {

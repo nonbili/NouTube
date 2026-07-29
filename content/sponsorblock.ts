@@ -101,12 +101,19 @@ export function renderSkipSegments(videoId: string, segments: Segment[], duratio
     return
   }
 
-  const key = `${videoId}:${segments.length}`
+  const segmentKey = segments
+    .map(({ actionType, category, segment }) => `${actionType}:${category}:${segment[0]}:${segment[1]}`)
+    .join(',')
   for (const bar of getProgressBars()) {
     const overlay = bar.querySelector<HTMLElement>(`.${overlayClass}`)
+    const chapters = getChapters(bar)
+    const chapterKey = chapters
+      .map(({ start, end, left, width }) => `${start}:${end}:${left}:${width}`)
+      .join(',')
+    const key = `${videoId}:${duration}:${segmentKey}:${bar.offsetWidth}:${chapterKey}`
     // YouTube re-renders and resizes its controls, so redraw whenever the
-    // overlay went away or the bar no longer matches what we drew it against.
-    if (overlay && bar.dataset.nouSb == `${key}:${bar.offsetWidth}`) {
+    // overlay went away or its segments/chapter geometry changed.
+    if (overlay && bar.dataset.nouSb === key) {
       continue
     }
     overlay?.remove()
@@ -114,8 +121,8 @@ export function renderSkipSegments(videoId: string, segments: Segment[], duratio
     if (getComputedStyle(bar).position == 'static') {
       bar.style.position = 'relative'
     }
-    bar.append(buildOverlay(segments, duration, getChapters(bar)))
-    bar.dataset.nouSb = `${key}:${bar.offsetWidth}`
+    bar.append(buildOverlay(segments, duration, chapters))
+    bar.dataset.nouSb = key
   }
 }
 

@@ -264,8 +264,14 @@ export function handleVideoPlayer(el: any) {
       clearSkipSegments()
       skipSegments = { videoId: '', segments: [] }
       if (isSponsorBlockEnabled()) {
-        skipSegments = await getSkipSegments(videoId)
-        renderSkipSegments(videoId, skipSegments.segments, duration)
+        const nextSkipSegments = await getSkipSegments(videoId)
+        // A previous request may finish after the user has navigated to a new
+        // video. Never let that stale response replace or paint the new video.
+        if (curVideoId !== videoId) {
+          return
+        }
+        skipSegments = nextSkipSegments
+        renderSkipSegments(videoId, nextSkipSegments.segments, duration)
       }
 
       applySavedPlaybackRate(player)
