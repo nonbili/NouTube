@@ -51,6 +51,7 @@ export interface SettingsSnapshot {
 
 interface Store extends SettingsSnapshot {
   downloadPath: string
+  downloadUseCookies: boolean
   lastYtDlpUpdate: number
   setLanguage: (language: SupportedI18nLanguage | null) => void
   isYTMusic: () => boolean
@@ -225,6 +226,7 @@ export const settings$ = observable<Store>({
   proxyHost: '',
   proxyPort: '',
   downloadPath: '',
+  downloadUseCookies: false,
   lastYtDlpUpdate: 0,
 })
 

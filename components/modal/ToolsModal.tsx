@@ -6,6 +6,7 @@ import { settings$ } from '@/states/settings'
 import { BaseModal } from './BaseModal'
 import { NouText } from '../NouText'
 import { NouButton } from '../button/NouButton'
+import { NouSwitch } from '../switch/NouSwitch'
 import { mainClient } from '@/lib/main-client'
 import { downloads$ } from '@/states/downloads'
 import { t } from 'i18next'
@@ -20,6 +21,7 @@ export const ToolsModal = () => {
   const toolsModalUrl = useValue(ui$.toolsModalUrl)
   const isOpen = toolsModalOpen || !!toolsModalUrl
   const downloadPath = useValue(settings$.downloadPath)
+  const useCookies = useValue(settings$.downloadUseCookies)
   const [url, setUrl] = useState('')
   const [resolvedDownloadsPath, setResolvedDownloadsPath] = useState('')
   const [phase, setPhase] = useState<Phase>('idle')
@@ -43,7 +45,7 @@ export const ToolsModal = () => {
     setParsedTitle('')
     setErrorMsg('')
     mainClient
-      .listFormats(targetUrl)
+      .listFormats(targetUrl, settings$.downloadUseCookies.peek())
       .then((result) => {
         if (loadingUrlRef.current !== targetUrl) return
         setFormats(result.formats)
@@ -94,7 +96,7 @@ export const ToolsModal = () => {
     setUrl('')
     ui$.toolsModalUrl.set('')
 
-    mainClient.downloadVideo(targetUrl, formatId, effectiveDownloadPath).catch(() => {
+    mainClient.downloadVideo(targetUrl, formatId, effectiveDownloadPath, useCookies).catch(() => {
       // handled via downloadProgress done+error
     })
   }
@@ -150,12 +152,27 @@ export const ToolsModal = () => {
           </View>,
         )}
 
-        {phase === 'idle' && (
+        {nIf(
+          phase === 'idle' || phase === 'choosing' || phase === 'error',
+          <View className="gap-1">
+            <NouSwitch
+              label={t('modals.downloadUseCookies')}
+              value={useCookies}
+              onPress={() => settings$.downloadUseCookies.set(!settings$.downloadUseCookies.peek())}
+            />
+            <NouText className="text-xs text-zinc-500 dark:text-zinc-400">
+              {t('modals.downloadUseCookiesHint')}
+            </NouText>
+          </View>,
+        )}
+
+        {nIf(
+          phase === 'idle' || phase === 'error',
           <View className="flex-row justify-end">
             <NouButton disabled={!url.trim()} onPress={() => loadFormats(url.trim())}>
               {t('buttons.next')}
             </NouButton>
-          </View>
+          </View>,
         )}
 
         {phase === 'loading' && <ActivityIndicator color={isDark ? 'white' : '#3f3f46'} />}

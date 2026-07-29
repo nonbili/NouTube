@@ -121,13 +121,13 @@ class NouTubeViewModule : Module() {
       extractTakeoutCsvFiles(uri)
     }
 
-    AsyncFunction("listFormats") Coroutine { url: String ->
-      return@Coroutine ytDlp().listFormats(url)
+    AsyncFunction("listFormats") Coroutine { url: String, useCookies: Boolean ->
+      return@Coroutine ytDlp().listFormats(url, useCookies)
     }
 
-    AsyncFunction("downloadVideo") Coroutine { url: String, formatId: String, outputDir: String ->
+    AsyncFunction("downloadVideo") Coroutine { url: String, formatId: String, outputDir: String, useCookies: Boolean ->
       try {
-        val result = ytDlp().downloadVideo(url, formatId, outputDir) { progress, etaInSeconds, line ->
+        val result = ytDlp().downloadVideo(url, formatId, outputDir, useCookies) { progress, etaInSeconds, line ->
           sendEvent("downloadProgress", mapOf(
             "url" to url,
             "progress" to progress,

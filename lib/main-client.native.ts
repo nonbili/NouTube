@@ -6,8 +6,8 @@ export type FormatOption = { formatId: string; label: string; description: strin
 export interface MainClient {
   clearData(): Promise<void> | void
   toggleInterception(enabled: boolean): Promise<void> | void
-  listFormats(url: string): Promise<{ title: string; formats: FormatOption[] }>
-  downloadVideo(url: string, formatId: string, outputDir: string): Promise<void>
+  listFormats(url: string, useCookies: boolean): Promise<{ title: string; formats: FormatOption[] }>
+  downloadVideo(url: string, formatId: string, outputDir: string, useCookies: boolean): Promise<void>
   getDownloadsPath(): Promise<string>
   selectFolder(): Promise<string | null>
   openFolder(filePath: string): Promise<void> | void
@@ -34,17 +34,17 @@ const nativeModule = NouTubeViewModule as NouTubeDownloadClient
 export const mainClient: MainClient = {
   async clearData() {},
   async toggleInterception() {},
-  async listFormats(url) {
+  async listFormats(url, useCookies) {
     if (typeof nativeModule.listFormats !== 'function') {
       throw new Error('download API unavailable')
     }
-    return nativeModule.listFormats(url)
+    return nativeModule.listFormats(url, useCookies)
   },
-  async downloadVideo(url, formatId, outputDir) {
+  async downloadVideo(url, formatId, outputDir, useCookies) {
     if (typeof nativeModule.downloadVideo !== 'function') {
       throw new Error('download API unavailable')
     }
-    return nativeModule.downloadVideo(url, formatId, outputDir)
+    return nativeModule.downloadVideo(url, formatId, outputDir, useCookies)
   },
   async getDownloadsPath() {
     if (typeof nativeModule.getDownloadsPath !== 'function') {

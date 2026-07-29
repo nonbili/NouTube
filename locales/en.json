@@ -69,6 +69,8 @@
     "queue": "Queue",
     "downloadVideo": "Download video",
     "downloadsFolder": "Downloads folder",
+    "downloadUseCookies": "Use my cookies",
+    "downloadUseCookiesHint": "Needed for age-restricted, members-only or private videos. May sign you out of YouTube, and using an account this way carries a risk of it being flagged.",
     "activeDownloads": "Active Downloads",
     "downloadHistory": "Download History",
     "starting": "Starting...",

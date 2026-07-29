@@ -16,8 +16,9 @@ declare class NouTubeViewModule extends NativeModule {
   getSleepTimerRemainingMs(): Promise<number | null>
   listFormats(
     url: string,
+    useCookies: boolean,
   ): Promise<{ title: string; formats: Array<{ formatId: string; label: string; description: string }> }>
-  downloadVideo(url: string, formatId: string, outputDir: string): Promise<void>
+  downloadVideo(url: string, formatId: string, outputDir: string, useCookies: boolean): Promise<void>
   getDownloadsPath(): Promise<string>
   updateYtDlp(): Promise<void>
   setLocaleStrings(strings: Record<string, string>): void

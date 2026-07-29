@@ -8,6 +8,7 @@ import { uiClient } from './ui.js'
 import { applyProxy, getProxyUrl } from 'main/lib/proxy.js'
 import { ipcMain, session, app, shell, dialog, net } from 'electron'
 import { spawn, exec } from 'child_process'
+import fs from 'fs/promises'
 import path from 'path'
 
 const interfaces = {
@@ -41,30 +42,34 @@ const interfaces = {
   isUpdateSupported: () => isUpdateSupported,
   checkForUpdate,
   quitAndInstall,
-  listFormats: async (url: string): Promise<{ title: string; formats: FormatOption[] }> => {
+  listFormats: async (url: string, useCookies = false): Promise<{ title: string; formats: FormatOption[] }> => {
     const binary = await ensureYtDlp()
-    return new Promise((resolve, reject) => {
-      const proc = spawn(binary, [...ytDlpProxyArgs(), '--dump-json', '--no-playlist', url])
-      let stdout = ''
-      let stderr = ''
-      proc.stdout.on('data', (d) => (stdout += d))
-      proc.stderr.on('data', (d) => (stderr += d))
-      proc.on('close', (code) => {
-        if (code !== 0) {
-          reject(new Error(stderr.slice(0, 300) || `yt-dlp exited with code ${code}`))
-          return
-        }
-        try {
-          const info = JSON.parse(stdout)
-          resolve({
-            title: info.title || '',
-            formats: buildFormatOptions(info),
+    return withCookiesArgs(
+      useCookies,
+      (cookiesArgs) =>
+        new Promise<{ title: string; formats: FormatOption[] }>((resolve, reject) => {
+          const proc = spawn(binary, [...ytDlpProxyArgs(), ...cookiesArgs, '--dump-json', '--no-playlist', url])
+          let stdout = ''
+          let stderr = ''
+          proc.stdout.on('data', (d) => (stdout += d))
+          proc.stderr.on('data', (d) => (stderr += d))
+          proc.on('close', (code) => {
+            if (code !== 0) {
+              reject(new Error(stderr.slice(0, 300) || `yt-dlp exited with code ${code}`))
+              return
+            }
+            try {
+              const info = JSON.parse(stdout)
+              resolve({
+                title: info.title || '',
+                formats: buildFormatOptions(info),
+              })
+            } catch {
+              reject(new Error('Failed to parse yt-dlp output'))
+            }
           })
-        } catch {
-          reject(new Error('Failed to parse yt-dlp output'))
-        }
-      })
-    })
+        }),
+    )
   },
   getDownloadsPath: (): string => app.getPath('downloads'),
   consumePendingDeeplinks,
@@ -75,67 +80,70 @@ const interfaces = {
     })
     return result.canceled ? null : result.filePaths[0]
   },
-  downloadVideo: async (url: string, formatId: string, outputDir: string): Promise<void> => {
+  downloadVideo: async (url: string, formatId: string, outputDir: string, useCookies = false): Promise<void> => {
     const binary = await ensureYtDlp()
     const outputTemplate = `${outputDir}/%(title)s.%(ext)s`
     const isMp3 = formatId === 'bestaudio-mp3'
-    const args = [
-      ...ytDlpProxyArgs(),
-      url,
-      '-f',
-      isMp3 ? 'bestaudio/best' : formatId,
-      '-o',
-      outputTemplate,
-      '--no-playlist',
-      ...(isMp3
-        ? ['--extract-audio', '--audio-format', 'mp3', '--add-metadata', '--embed-thumbnail']
-        : ['--merge-output-format', 'mp4']),
-    ]
-    return new Promise((resolve, reject) => {
-      const proc = spawn(binary, args)
-      let filePath = ''
-      let buffer = ''
-      let lastUpdate = 0
-      const THROTTLE_MS = 200
+    return withCookiesArgs(useCookies, (cookiesArgs) => {
+      const args = [
+        ...ytDlpProxyArgs(),
+        ...cookiesArgs,
+        url,
+        '-f',
+        isMp3 ? 'bestaudio/best' : formatId,
+        '-o',
+        outputTemplate,
+        '--no-playlist',
+        ...(isMp3
+          ? ['--extract-audio', '--audio-format', 'mp3', '--add-metadata', '--embed-thumbnail']
+          : ['--merge-output-format', 'mp4']),
+      ]
+      return new Promise<void>((resolve, reject) => {
+        const proc = spawn(binary, args)
+        let filePath = ''
+        let buffer = ''
+        let lastUpdate = 0
+        const THROTTLE_MS = 200
 
-      const onData = (d: Buffer) => {
-        buffer += d.toString()
-        const lines = buffer.split(/\r?\n/)
-        buffer = lines.pop() || ''
+        const onData = (d: Buffer) => {
+          buffer += d.toString()
+          const lines = buffer.split(/\r?\n/)
+          buffer = lines.pop() || ''
 
-        for (const line of lines) {
-          if (!line.trim()) continue
+          for (const line of lines) {
+            if (!line.trim()) continue
 
-          // Parse final output path from yt-dlp progress lines
-          const mergerMatch = line.match(/\[Merger\] Merging formats into "(.+)"/)
-          const destMatch = line.match(/\[(?:download|ExtractAudio)\] Destination: (.+)/)
-          if (mergerMatch) filePath = mergerMatch[1].trim()
-          else if (destMatch) filePath = destMatch[1].trim()
+            // Parse final output path from yt-dlp progress lines
+            const mergerMatch = line.match(/\[Merger\] Merging formats into "(.+)"/)
+            const destMatch = line.match(/\[(?:download|ExtractAudio)\] Destination: (.+)/)
+            if (mergerMatch) filePath = mergerMatch[1].trim()
+            else if (destMatch) filePath = destMatch[1].trim()
 
-          const now = Date.now()
-          if (now - lastUpdate > THROTTLE_MS) {
-            uiClient.downloadProgress({ url, line: line.trim(), done: false })
-            lastUpdate = now
+            const now = Date.now()
+            if (now - lastUpdate > THROTTLE_MS) {
+              uiClient.downloadProgress({ url, line: line.trim(), done: false })
+              lastUpdate = now
+            }
           }
         }
-      }
-      proc.stdout.on('data', onData)
-      proc.stderr.on('data', onData)
-      proc.on('close', (code) => {
-        // Final update with the last line if any, and done=true
-        uiClient.downloadProgress({
-          url,
-          line: buffer.trim(),
-          done: true,
-          filePath,
-          error: code !== 0,
-        })
+        proc.stdout.on('data', onData)
+        proc.stderr.on('data', onData)
+        proc.on('close', (code) => {
+          // Final update with the last line if any, and done=true
+          uiClient.downloadProgress({
+            url,
+            line: buffer.trim(),
+            done: true,
+            filePath,
+            error: code !== 0,
+          })
 
-        if (code === 0) {
-          resolve()
-        } else {
-          reject(new Error(`yt-dlp exited with code ${code}`))
-        }
+          if (code === 0) {
+            resolve()
+          } else {
+            reject(new Error(`yt-dlp exited with code ${code}`))
+          }
+        })
       })
     })
   },
@@ -186,6 +194,45 @@ const interfaces = {
 function ytDlpProxyArgs(): string[] {
   const proxyUrl = getProxyUrl()
   return proxyUrl ? ['--proxy', proxyUrl] : []
+}
+
+// Exports the webview's YouTube cookies to a temporary Netscape cookie file for
+// `yt-dlp --cookies`. yt-dlp cannot read the Electron cookie store, and passing
+// them as a Cookie header does not work for YouTube.
+async function writeCookiesFile(): Promise<string | null> {
+  const cookies = await session.fromPartition('persist:webview').cookies.get({})
+  const lines = cookies
+    .filter((c) => c.domain?.endsWith('youtube.com') || c.domain?.endsWith('google.com'))
+    .map((c) => {
+      const domain = c.domain || ''
+      const includeSubdomains = domain.startsWith('.') ? 'TRUE' : 'FALSE'
+      const expiry = Math.floor(c.expirationDate ?? 0)
+      return [domain, includeSubdomains, c.path || '/', c.secure ? 'TRUE' : 'FALSE', expiry, c.name, c.value].join('\t')
+    })
+  if (!lines.length) return null
+
+  const filePath = path.join(app.getPath('temp'), `noutube-cookies-${Date.now()}.txt`)
+  await fs.writeFile(filePath, `# Netscape HTTP Cookie File\n${lines.join('\n')}\n`, { mode: 0o600 })
+  return filePath
+}
+
+// Runs `fn` with the yt-dlp `--cookies` args, cleaning up the temp file afterwards.
+async function withCookiesArgs<T>(useCookies: boolean, fn: (args: string[]) => Promise<T>): Promise<T> {
+  if (!useCookies) return fn([])
+
+  let filePath: string | null = null
+  try {
+    filePath = await writeCookiesFile()
+  } catch (e) {
+    console.error('Failed to export cookies for yt-dlp', e)
+  }
+  try {
+    return await fn(filePath ? ['--cookies', filePath] : [])
+  } finally {
+    if (filePath) {
+      await fs.rm(filePath, { force: true }).catch(() => {})
+    }
+  }
 }
 
 export type FormatOption = { formatId: string; label: string; description: string }
