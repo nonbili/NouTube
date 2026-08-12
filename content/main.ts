@@ -15,6 +15,7 @@ import { installDislikeCount } from './dislikes'
 import { installCommentTranslateButtons } from './translate'
 import { interceptClipboard } from './clipboard'
 import { installWatchNavigation } from './watch-nav'
+import { installScreenLock } from './lock'
 
 try {
   if ((window as any).NouTubePreferH264) {
@@ -80,6 +81,7 @@ async function initObserver() {
   installBlocklistFilter()
   installDislikeCount()
   installDoubleTapGestures()
+  installScreenLock()
   installCommentTranslateButtons()
 
   pinchToZoom()

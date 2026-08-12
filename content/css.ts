@@ -78,6 +78,73 @@ const cssContentMobile = css`
     #_nou_fullscreen_title {
     display: none;
   }
+
+  /*
+   * Lock button: only in fullscreen, only while playback is running (locking a
+   * paused video is pointless), and only while the controls are showing, so it
+   * never burns over the video. Left edge keeps it clear of the centered
+   * play/seek buttons and the top-right control cluster. Hidden once locked,
+   * where the unlock button takes over the same spot.
+   */
+  #_nou_lock_btn {
+    display: none;
+  }
+
+  #player-container-id:fullscreen:has(#player-control-overlay.fadein):has(
+      #movie_player.playing-mode,
+      #movie_player.buffering-mode
+    ):not(:has(#_nou_lock_overlay))
+    > #_nou_lock_btn {
+    display: flex;
+    position: fixed;
+    top: 50%;
+    left: 16px;
+    z-index: 2147483646;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    transform: translateY(-50%);
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+  }
+
+  #_nou_lock_overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  #_nou_lock_overlay ._nou_lock_unlock {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    transform: translateY(-50%);
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+
+  #_nou_lock_overlay.reveal ._nou_lock_unlock {
+    opacity: 1;
+    pointer-events: auto;
+  }
 `
 
 const cssContent = css`
