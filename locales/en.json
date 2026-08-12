@@ -155,6 +155,7 @@
     "preferences": "Preferences",
     "preferencesHint": "Playback, feed, and history behavior.",
     "preferencesContent": "Content",
+    "preferencesDistractionFree": "Distraction-free",
     "preferencesPlayback": "Playback & display",
     "preferencesGeneral": "General",
     "zoom": {
@@ -254,6 +255,15 @@
         },
         "hideAskButton": {
           "label": "Hide Ask Gemini button"
+        },
+        "hideHomeFeed": {
+          "label": "Hide home feed"
+        },
+        "hideRelatedVideos": {
+          "label": "Hide related videos"
+        },
+        "hideEndScreens": {
+          "label": "Hide end screens"
         }
       },
       "builtinScripts": {

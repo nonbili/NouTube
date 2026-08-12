@@ -1,10 +1,13 @@
-export const USER_STYLES_SCHEMA_VERSION = 3
+export const USER_STYLES_SCHEMA_VERSION = 4
 
 export const builtinUserStyleIds = [
   'hide-mix-playlist',
   'hide-shorts-navbar',
   'hide-community-posts',
   'hide-ask-button',
+  'hide-home-feed',
+  'hide-related-videos',
+  'hide-end-screens',
 ] as const
 export const builtinUserScriptIds = ['fix-encoded-author-names'] as const
 
@@ -109,6 +112,43 @@ export const builtinUserStyleDefinitions: BuiltinUserStyleDefinition[] = [
       }
     `,
   },
+  {
+    id: 'hide-home-feed',
+    labelKey: 'settings.userStyles.builtin.hideHomeFeed.label',
+    // m.youtube.com has no page-subtype attribute; the home tab is identified by its
+    // browse endpoint (FEwhat_to_watch) on the tab-content wrapper.
+    css: css`
+      ytd-browse[page-subtype='home'] #contents,
+      ytm-browse [tab-identifier='FEwhat_to_watch'] ytm-rich-grid-renderer {
+        display: none !important;
+      }
+    `,
+  },
+  {
+    id: 'hide-related-videos',
+    labelKey: 'settings.userStyles.builtin.hideRelatedVideos.label',
+    css: css`
+      #related,
+      ytd-watch-next-secondary-results-renderer,
+      ytm-watch-next-secondary-results-renderer,
+      ytm-item-section-renderer[section-identifier='related-items'] {
+        display: none !important;
+      }
+    `,
+  },
+  {
+    id: 'hide-end-screens',
+    labelKey: 'settings.userStyles.builtin.hideEndScreens.label',
+    css: css`
+      .ytp-ce-element,
+      .ytp-endscreen-content,
+      .ytp-suggested-video-overlay,
+      .ytp-pause-overlay,
+      .ytp-pause-overlay-container {
+        display: none !important;
+      }
+    `,
+  },
 ]
 
 export const builtinUserStyleDefinitionById = builtinUserStyleDefinitions.reduce(
@@ -131,6 +171,9 @@ export const createDefaultBuiltinUserStyles = (): Record<BuiltinUserStyleId, Bui
   'hide-shorts-navbar': { enabled: false },
   'hide-community-posts': { enabled: false },
   'hide-ask-button': { enabled: false },
+  'hide-home-feed': { enabled: false },
+  'hide-related-videos': { enabled: false },
+  'hide-end-screens': { enabled: false },
 })
 
 export const createDefaultBuiltinUserScripts = (): Record<BuiltinUserScriptId, BuiltinUserScriptState> => ({

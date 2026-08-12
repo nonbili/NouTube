@@ -30,6 +30,8 @@ import {
   toBcp47Locale,
 } from '@/lib/i18n'
 import { getTranslationSupportedLanguages } from '@/lib/translation'
+import { builtinUserStyleDefinitions, type BuiltinUserStyleId } from '@/lib/user-styles'
+import { userStyles$ } from '@/states/user-styles'
 
 const themes = [null, 'dark', 'light'] as const
 const headerPositions = ['top', 'bottom'] as const
@@ -110,6 +112,22 @@ const translationLanguageLabel = (language: string, displayLanguage: string) => 
   }
   return translationLanguageNames[language] || language
 }
+
+// Built-in user styles that hide something are mirrored here so they sit next to the other
+// content toggles; the Styles page still lists (and previews) all of them.
+const hideBuiltinStyleIcons: Partial<Record<BuiltinUserStyleId, MaterialIconsIconName>> = {
+  'hide-home-feed': 'home',
+  'hide-related-videos': 'view-list',
+  'hide-end-screens': 'smart-display',
+  'hide-shorts-navbar': 'menu',
+  'hide-mix-playlist': 'playlist-play',
+  'hide-community-posts': 'forum',
+  'hide-ask-button': 'auto-awesome',
+}
+
+const hideBuiltinStyleDefinitions = builtinUserStyleDefinitions.filter((definition) =>
+  definition.id.startsWith('hide-'),
+)
 
 const findSupportedTranslationLanguage = (language: string | undefined, available: string[]) => {
   if (!language) return undefined
@@ -213,6 +231,7 @@ const clickbaitLabel = (value: (typeof clickbaitOptions)[number]) => {
 
 export const SettingsPreferencesContent = () => {
   const settings = useValue(settings$)
+  const builtinStyles = useValue(userStyles$.builtins)
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
 
@@ -271,7 +290,7 @@ export const SettingsPreferencesContent = () => {
       </SettingsSection>
 
       <View className="mt-8">
-        <SettingsSection label={t('settings.preferencesContent')}>
+        <SettingsSection label={t('settings.preferencesDistractionFree')}>
           <View className={surfaceCls}>
             <SettingsToggleRow
               label={t('settings.hideShorts')}
@@ -279,6 +298,25 @@ export const SettingsPreferencesContent = () => {
               value={settings.hideShorts}
               onPress={() => settings$.hideShorts.set(!settings.hideShorts)}
             />
+            {hideBuiltinStyleDefinitions.map((definition, index) => (
+              <SettingsToggleRow
+                key={definition.id}
+                label={t(definition.labelKey)}
+                icon={hideBuiltinStyleIcons[definition.id] || 'visibility-off'}
+                value={Boolean(builtinStyles[definition.id]?.enabled)}
+                onPress={() =>
+                  userStyles$.setBuiltinEnabled(definition.id, !builtinStyles[definition.id]?.enabled)
+                }
+                isLast={index === hideBuiltinStyleDefinitions.length - 1}
+              />
+            ))}
+          </View>
+        </SettingsSection>
+      </View>
+
+      <View className="mt-8">
+        <SettingsSection label={t('settings.preferencesContent')}>
+          <View className={surfaceCls}>
             <SettingsToggleRow
               label="Sponsor block"
               icon="block"

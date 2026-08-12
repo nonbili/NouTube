@@ -19,12 +19,42 @@ describe('user styles', () => {
           'hide-shorts-navbar': { enabled: true },
           'hide-community-posts': { enabled: false },
           'hide-ask-button': { enabled: false },
+          'hide-home-feed': { enabled: false },
+          'hide-related-videos': { enabled: false },
+          'hide-end-screens': { enabled: false },
         },
       }),
     )
 
     expect(css).toContain('ytm-compact-radio-renderer')
     expect(css).toContain('.pivot-shorts')
+  })
+
+  it('keeps the distraction-free builtins off by default', () => {
+    const snapshot = normalizeUserStyles()
+
+    expect(snapshot.builtins['hide-home-feed'].enabled).toBe(false)
+    expect(snapshot.builtins['hide-related-videos'].enabled).toBe(false)
+    expect(snapshot.builtins['hide-end-screens'].enabled).toBe(false)
+
+    const css = getEnabledUserStyleCss('m.youtube.com', snapshot)
+    expect(css).not.toContain('ytp-endscreen-content')
+  })
+
+  it('includes the distraction-free builtins when enabled', () => {
+    const snapshot = normalizeUserStyles({
+      builtins: {
+        'hide-home-feed': { enabled: true },
+        'hide-related-videos': { enabled: true },
+        'hide-end-screens': { enabled: true },
+      } as any,
+    })
+
+    const css = getEnabledUserStyleCss('m.youtube.com', snapshot)
+    expect(css).toContain("ytd-browse[page-subtype='home']")
+    expect(css).toContain("[tab-identifier='FEwhat_to_watch']")
+    expect(css).toContain('ytd-watch-next-secondary-results-renderer')
+    expect(css).toContain('.ytp-endscreen-content')
   })
 
   it('filters out invalid custom styles', () => {
