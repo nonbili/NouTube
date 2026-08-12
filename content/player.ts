@@ -49,6 +49,11 @@ function renderFullscreenTitle(title: string) {
     return
   }
 
+  // Newer YouTube has its own fullscreen title; css.ts unhides that one instead.
+  if (controls.querySelector('player-fullscreen-top-controls')) {
+    return
+  }
+
   let titleElement = controls.querySelector<HTMLElement>(`#${fullscreenTitleId}`)
   if (!titleElement) {
     titleElement = document.createElement('div')

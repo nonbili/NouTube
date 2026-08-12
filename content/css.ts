@@ -58,6 +58,26 @@ const cssContentMobile = css`
     white-space: nowrap;
     pointer-events: none;
   }
+
+  /*
+   * Newer YouTube ships its own fullscreen title inside
+   * player-fullscreen-top-controls, but keeps the whole host visibility:hidden
+   * until the "More videos" panel opens. Unhide just the title (not the close
+   * button next to it) and drop ours, otherwise both stack in the same corner.
+   * Scoped to .fadein because the controls hide by flipping visibility, and a
+   * title forced visible would stay burned over the video.
+   */
+  #player-container-id:fullscreen
+    #player-control-overlay.fadein
+    .ytwPlayerFullscreenTopControlsFullscreenControlsVideoTitle {
+    visibility: visible;
+  }
+
+  #player-container-id:fullscreen
+    #player-control-overlay:has(player-fullscreen-top-controls)
+    #_nou_fullscreen_title {
+    display: none;
+  }
 `
 
 const cssContent = css`

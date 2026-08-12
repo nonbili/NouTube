@@ -101,12 +101,17 @@ function installDoubleTapGestures() {
   let lastTapY = 0
   let multiTouchSequence = false
 
+  // YouTube uses double-tap inside the player to seek ±10s, so never steal it there.
   const isIgnored = (target: Element) =>
     Boolean(
       target.closest(
-        'input, textarea, select, button, a, video, audio, [contenteditable="true"], [role="button"]',
+        'input, textarea, select, button, a, video, audio, [contenteditable="true"], [role="button"],' +
+          '#movie_player, .html5-video-player, #player, #player-container-id, ytm-player, ytd-player, #shorts-player',
       ),
     )
+
+  const isFullscreen = () =>
+    Boolean(document.fullscreenElement || (document as any).webkitFullscreenElement)
 
   document.addEventListener(
     'touchstart',
@@ -124,6 +129,11 @@ function installDoubleTapGestures() {
         return
       }
       if (event.changedTouches.length !== 1) return
+      // In fullscreen the toolbar is hidden anyway and the player owns double-tap seeking.
+      if (isFullscreen()) {
+        lastTapAt = 0
+        return
+      }
       const touch = event.changedTouches[0]
       const now = Date.now()
       const dx = touch.clientX - lastTapX
