@@ -23,7 +23,12 @@ import MaterialIcons, { type MaterialIconsIconName } from '@react-native-vector-
 import { formatSleepTimerRemaining, useSleepTimerStatus } from '@/lib/sleep-timer'
 import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
 import { mainClient } from '@/lib/main-client'
-import { i18nLanguageNativeNames, resolveI18nLanguageFromExpoLocale, supportedI18nLanguages } from '@/lib/i18n'
+import {
+  i18nLanguageNativeNames,
+  resolveI18nLanguageFromExpoLocale,
+  supportedI18nLanguages,
+  toBcp47Locale,
+} from '@/lib/i18n'
 import { getTranslationSupportedLanguages } from '@/lib/translation'
 
 const themes = [null, 'dark', 'light'] as const
@@ -98,7 +103,7 @@ const translationLanguageNames: Record<string, string> = {
 
 const translationLanguageLabel = (language: string, displayLanguage: string) => {
   try {
-    const name = new Intl.DisplayNames([displayLanguage], { type: 'language' }).of(language)
+    const name = new Intl.DisplayNames([toBcp47Locale(displayLanguage)], { type: 'language' }).of(language)
     if (name && name !== language) return name
   } catch {
     // Use the stable fallback below on runtimes with incomplete Intl support.
@@ -443,7 +448,7 @@ export const SettingsAppearanceContent = () => {
       .sort((a, b) =>
         translationLanguageLabel(a, effectiveLanguage).localeCompare(
           translationLanguageLabel(b, effectiveLanguage),
-          effectiveLanguage,
+          toBcp47Locale(effectiveLanguage),
         ),
       )
       .map((language) => ({ language, metaLabel: undefined })),

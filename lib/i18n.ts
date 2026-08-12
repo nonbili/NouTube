@@ -113,6 +113,9 @@ export const resolveI18nLanguageFromExpoLocale = (locale?: Locale): SupportedI18
   return isSupportedLanguage(locale.languageCode) ? locale.languageCode : undefined
 }
 
+// Our language codes use i18next style (zh_Hans, pt_BR), which Intl rejects as invalid subtags.
+export const toBcp47Locale = (language: string) => language.replace('_', '-')
+
 export const normalizeI18nLanguage = (value?: string | null): SupportedI18nLanguage | null =>
   value == null ? null : isSupportedLanguage(value) ? value : null
 
