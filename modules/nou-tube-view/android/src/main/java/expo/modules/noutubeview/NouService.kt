@@ -126,6 +126,11 @@ class NouService : Service() {
         webView?.evaluateJavascript("NouTube.next()", null)
       }
 
+      override fun onSeekTo(pos: Long) {
+        val seconds = maxOf(0L, pos) / 1000.0
+        webView?.evaluateJavascript("NouTube.seekTo($seconds)", null)
+      }
+
       override fun onCustomAction(action: String?, extras: Bundle?) {
         when (action) {
           "Rewind" -> webView?.evaluateJavascript("NouTube.seekBy(-10)", null)
@@ -207,6 +212,7 @@ class NouService : Service() {
           PlaybackStateCompat.ACTION_PLAY_PAUSE
             or PlaybackStateCompat.ACTION_PLAY
             or PlaybackStateCompat.ACTION_PAUSE
+            or PlaybackStateCompat.ACTION_SEEK_TO
             or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
             or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
         )
