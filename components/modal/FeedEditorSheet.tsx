@@ -22,7 +22,7 @@ import { clsx, isWeb } from '@/lib/utils'
 import { NouText } from '../NouText'
 import { NouButton } from '../button/NouButton'
 
-const UNGROUPED_ID = '__ungrouped__'
+const NO_FOLDER_ID = '__no_folder__'
 const NEW_FOLDER_ID = '__new__'
 
 export const FeedEditorSheet: React.FC<{
@@ -103,7 +103,7 @@ export const FeedEditorSheet: React.FC<{
   }
 
   const folderOptions = [
-    { id: UNGROUPED_ID, name: t('modals.ungrouped') },
+    { id: NO_FOLDER_ID, name: t('modals.noFolder') },
     ...channelFolders.map((folder) => ({ id: folder.id, name: folder.name })),
     { id: NEW_FOLDER_ID, name: t('feeds.newFolder') },
   ]
@@ -130,7 +130,7 @@ export const FeedEditorSheet: React.FC<{
       setFolderPickerShown(false)
       return
     }
-    setFolderId(nextFolderId === UNGROUPED_ID ? undefined : nextFolderId)
+    setFolderId(nextFolderId === NO_FOLDER_ID ? undefined : nextFolderId)
     setFolderPickerShown(false)
   }
 
@@ -181,7 +181,7 @@ export const FeedEditorSheet: React.FC<{
             onPress={() => setFolderPickerShown((value) => !value)}
             className="rounded-2xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 px-4 py-3"
           >
-            <NouText>{currentFolder?.name || t('modals.ungrouped')}</NouText>
+            <NouText>{currentFolder?.name || t('modals.noFolder')}</NouText>
           </Pressable>
           {folderPickerShown ? (
             <View className="mt-3 overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900">

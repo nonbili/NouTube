@@ -18,12 +18,13 @@ export const FolderItem: React.FC<{ folder: Folder; readOnly?: boolean; onPress:
   const isDark = colorScheme !== 'light'
 
   return (
-    <View className="flex-row overflow-hidden">
-      <Pressable className="flex-1 flex-row items-center gap-2 ml-3 py-2" onPress={onPress}>
-        <MaterialIcons name="folder-open" color={isDark ? colors.icon : colors.iconLight} size={20} />
-        <NouText className="leading-6" numberOfLines={4} ellipsizeMode="tail">
+    <View className="flex-row items-center min-h-[56px] px-2">
+      <Pressable className="flex-1 flex-row items-center gap-3 py-2" onPress={onPress}>
+        <MaterialIcons name="folder" color={isDark ? colors.icon : colors.iconLight} size={24} />
+        <NouText className="flex-1 leading-5" numberOfLines={2} ellipsizeMode="tail">
           {folder.name}
         </NouText>
+        <MaterialIcons name="chevron-right" color={isDark ? colors.icon : colors.iconLight} size={22} />
       </Pressable>
       {nIf(
         !readOnly,

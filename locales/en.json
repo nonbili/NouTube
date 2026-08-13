@@ -63,7 +63,7 @@
     "editBookmark": "Edit bookmark",
     "title": "Title",
     "folder": "Folder",
-    "ungrouped": "Ungrouped",
+    "noFolder": "No folder",
     "feeds": "Feeds",
     "history": "History",
     "queue": "Queue",

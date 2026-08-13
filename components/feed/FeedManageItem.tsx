@@ -49,7 +49,7 @@ export const FeedManageItem: React.FC<{
           <View className="mt-2 flex-row flex-wrap items-center gap-2">
             <View className="flex-row items-center gap-1 rounded-full bg-zinc-200 dark:bg-zinc-800 px-3 py-1">
               <MaterialIcons name="folder-open" color={isDark ? '#d4d4d8' : '#475569'} size={12} />
-              <NouText className="text-xs text-zinc-700 dark:text-zinc-300">{item.folder?.name || t('modals.ungrouped')}</NouText>
+              <NouText className="text-xs text-zinc-700 dark:text-zinc-300">{item.folder?.name || t('modals.noFolder')}</NouText>
             </View>
             <View className="flex-row items-center gap-1 rounded-full bg-zinc-100 dark:bg-zinc-950 px-3 py-1">
               <MaterialIcons name="trending-up" color={isDark ? '#d4d4d8' : '#475569'} size={12} />

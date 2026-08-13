@@ -12,9 +12,7 @@ import { useEffect } from 'react'
 
 function RootLayoutContent() {
   useObserveEffect(settings$.theme, ({ value }) => {
-    const nextColorScheme = value === 'dark' || value === 'light' ? value : Appearance.getColorScheme() === 'light' ? 'light' : 'dark'
-    Appearance.setColorScheme?.(nextColorScheme)
-    ;(NouTubeViewModule as any).setTheme?.(value)
+    Appearance.setColorScheme?.(value ?? 'unspecified')
   })
 
   useEffect(() => {

@@ -2,43 +2,48 @@ import { useValue } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { BaseCenterModal } from './BaseCenterModal'
 import { NouText } from '../NouText'
-import { FlatList, TextInput, View } from 'react-native'
-import { useEffect, useMemo, useState } from 'react'
+import { FlatList, Pressable, TextInput, View } from 'react-native'
+import { useMemo, useState } from 'react'
 import { gray } from '@radix-ui/colors'
-import { bookmarks$ } from '@/states/bookmarks'
+import { Bookmark, bookmarks$ } from '@/states/bookmarks'
 import { Folder, folders$, newFolder } from '@/states/folders'
 import { NouButton } from '../button/NouButton'
 import { sortBy } from 'es-toolkit'
-import { FolderItem } from '../folder/FolderItem'
 import { t } from 'i18next'
 import { getPageType } from '@/lib/page'
 import { feeds$ } from '@/states/feeds'
 import { showConfirm } from '@/lib/confirm'
+import MaterialIcons from '@react-native-vector-icons/material-icons'
+import { clsx, nIf } from '@/lib/utils'
 
-const UNGROUPED_FOLDER_ID = '__ungrouped__'
+const NO_FOLDER_ID = '__no_folder__'
 const NEW_FOLDER_ID = '__new__'
 
 export const BookmarkModal = () => {
   const bookmark = useValue(ui$.bookmarkModalBookmark)
   const bookmarkModalMode = useValue(ui$.bookmarkModalMode)
+
+  if (!bookmark) {
+    return null
+  }
+
+  return <BookmarkModalContent key={bookmark.id} bookmark={bookmark} bookmarkModalMode={bookmarkModalMode} />
+}
+
+const BookmarkModalContent: React.FC<{
+  bookmark: Bookmark
+  bookmarkModalMode: 'default' | 'feed'
+}> = ({ bookmark, bookmarkModalMode }) => {
   const onClose = () => {
     ui$.bookmarkModalBookmark.set(undefined)
     ui$.bookmarkModalMode.set('default')
   }
-  const [title, setTitle] = useState('')
+  const [title, setTitle] = useState(bookmark.title)
   const folders = useValue(folders$.folders)
   const [folderPickerShown, setFolderPickerShown] = useState(false)
   const [draftBookmark, setDraftBookmark] = useState(bookmark)
 
-  useEffect(() => {
-    setTitle(bookmark?.title || '')
-    setDraftBookmark(bookmark)
-  }, [bookmark])
-
   const folderTab = useMemo(() => {
-    if (!draftBookmark) {
-      return 'watch'
-    }
     const pageType = getPageType(draftBookmark.url)
     if (pageType?.home === 'yt-music') {
       if (pageType.type === 'channel') {
@@ -61,7 +66,7 @@ export const BookmarkModal = () => {
   // No useMemo: legend-state mutates the folders array in place, so its
   // reference stays stable and a memo would miss newly created folders.
   const filteredFolders = [
-    newFolder(folderTab, { id: UNGROUPED_FOLDER_ID, name: t('modals.ungrouped') }),
+    newFolder(folderTab, { id: NO_FOLDER_ID, name: t('modals.noFolder') }),
     ...sortBy(
       folders.filter((x) => !x.json.deleted && x.json.tab === folderTab),
       ['name'],
@@ -69,11 +74,8 @@ export const BookmarkModal = () => {
     newFolder(folderTab, { id: NEW_FOLDER_ID, name: t('feeds.newFolder') }),
   ]
 
-  if (!draftBookmark) {
-    return null
-  }
-
   const folder = folders.find((x) => x.id === draftBookmark.json.folder)
+  const selectedFolderId = folder?.id || NO_FOLDER_ID
 
   const onChangeFolder = (folder: Folder) => {
     if (folder.id === NEW_FOLDER_ID) {
@@ -84,7 +86,7 @@ export const BookmarkModal = () => {
       ...draftBookmark,
       json: {
         ...draftBookmark.json,
-        folder: folder.id === UNGROUPED_FOLDER_ID ? undefined : folder.id,
+        folder: folder.id === NO_FOLDER_ID ? undefined : folder.id,
       },
     })
     setFolderPickerShown(false)
@@ -94,13 +96,8 @@ export const BookmarkModal = () => {
     if (!title) {
       return
     }
-    draftBookmark.title = title
-    bookmarks$.saveBookmark(draftBookmark)
+    bookmarks$.saveBookmark({ ...draftBookmark, title })
     onClose()
-  }
-
-  if (!bookmark) {
-    return null
   }
 
   const onRemove = () => {
@@ -125,39 +122,61 @@ export const BookmarkModal = () => {
 
   return (
     <BaseCenterModal onClose={onClose}>
-      <View className="p-5">
-        <NouText className="text-lg font-semibold mb-4">
+      <View className="p-6">
+        <NouText className="text-xl font-semibold mb-5">
           {bookmarkModalMode === 'feed' ? t('feeds.editFeed') : t('modals.editBookmark')}
         </NouText>
-        <NouText className="mb-1 font-semibold text-zinc-700 dark:text-gray-300">{t('modals.title')}</NouText>
+        <NouText className="mb-2 font-semibold text-zinc-700 dark:text-zinc-300">{t('modals.title')}</NouText>
         <TextInput
-          className="border border-zinc-300 dark:border-gray-600 bg-white dark:bg-zinc-900 rounded mb-3 text-zinc-900 dark:text-white p-2 text-sm"
+          className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 py-3 text-zinc-900 dark:text-white"
           value={title}
           onChangeText={setTitle}
           placeholder="Later"
           placeholderTextColor={gray.gray11}
         />
-        <NouText className="text-sm">{draftBookmark.url}</NouText>
-        <NouText className="mt-5 mb-1 font-semibold text-zinc-700 dark:text-gray-300">{t('modals.folder')}</NouText>
-        <View className="flex-row items-center gap-3">
-          <NouText className="text-sm">{folder?.name || t('modals.ungrouped')}</NouText>
-          <NouButton variant="soft" size="1" onPress={() => setFolderPickerShown(!folderPickerShown)}>
-            {t('buttons.move')}
-          </NouButton>
-        </View>
+        <NouText className="mt-2 text-xs text-zinc-500 dark:text-zinc-400" numberOfLines={2} ellipsizeMode="middle">
+          {draftBookmark.url}
+        </NouText>
+
+        <NouText className="mt-5 mb-2 font-semibold text-zinc-700 dark:text-zinc-300">{t('modals.folder')}</NouText>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => setFolderPickerShown(!folderPickerShown)}
+          className="flex-row items-center gap-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 py-3 active:bg-zinc-100 dark:active:bg-zinc-800"
+        >
+          <MaterialIcons name="folder" size={22} color="#a1a1aa" />
+          <NouText className="flex-1">{folder?.name || t('modals.noFolder')}</NouText>
+          <MaterialIcons name={folderPickerShown ? 'expand-less' : 'expand-more'} size={24} color="#a1a1aa" />
+        </Pressable>
         {folderPickerShown ? (
           <FlatList
-            className="border border-zinc-300 dark:border-gray-600 bg-zinc-100 dark:bg-zinc-900 rounded my-2 max-h-[200px]"
+            className="mt-2 max-h-[220px] overflow-hidden rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900"
             data={filteredFolders}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <FolderItem folder={item} onPress={() => onChangeFolder(item)} readOnly />}
+            ItemSeparatorComponent={() => <View className="h-px bg-zinc-200 dark:bg-zinc-800" />}
+            renderItem={({ item }) => {
+              const selected = item.id === selectedFolderId
+              return (
+                <Pressable
+                  onPress={() => onChangeFolder(item)}
+                  className={clsx(
+                    'flex-row items-center gap-3 px-4 py-3 active:bg-zinc-100 dark:active:bg-zinc-800',
+                    selected && 'bg-indigo-50 dark:bg-zinc-800',
+                  )}
+                >
+                  <MaterialIcons name={item.id === NEW_FOLDER_ID ? 'create-new-folder' : 'folder'} size={22} color="#a1a1aa" />
+                  <NouText className={clsx('flex-1', selected && 'font-semibold')}>{item.name}</NouText>
+                  {nIf(selected, <MaterialIcons name="check" size={22} color="#6366f1" />)}
+                </Pressable>
+              )
+            }}
           />
         ) : null}
-        <View className="flex-row items-center justify-between mt-6">
-          <NouButton variant="outline" size="1" onPress={onRemove}>
+        <View className="flex-row items-center justify-between mt-8">
+          <NouButton variant="outline" size="2" textClassName="text-red-600 dark:text-red-400" onPress={onRemove}>
             {bookmarkModalMode === 'feed' ? t('buttons.unsubscribe') : t('buttons.remove')}
           </NouButton>
-          <NouButton onPress={onSubmit}>{t('buttons.save')}</NouButton>
+          <NouButton size="2" onPress={onSubmit}>{t('buttons.save')}</NouButton>
         </View>
       </View>
     </BaseCenterModal>

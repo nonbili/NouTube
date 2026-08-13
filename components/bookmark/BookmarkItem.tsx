@@ -4,7 +4,7 @@ import { Bookmark, bookmarks$ } from '@/states/bookmarks'
 import { tabs$ } from '@/states/tabs'
 import { ui$, updateUrl } from '@/states/ui'
 import { NouText } from '../NouText'
-import { clsx, isWeb, isIos } from '@/lib/utils'
+import { isWeb, isIos } from '@/lib/utils'
 import { getPageType, getVideoThumbnail } from '@/lib/page'
 import { NouMenu } from '../menu/NouMenu'
 import { t } from 'i18next'
@@ -38,18 +38,21 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = memo(({ bookmark }
   const round = pageType?.type === 'channel'
   const square = round || pageType?.home === 'yt-music'
 
+  const thumbnailWidth = square ? 48 : isWeb ? 160 : 112
+  const thumbnailHeight = square ? 48 : isWeb ? 90 : 63
+
   return (
-    <View className="flex flex-row my-2 overflow-hidden px-2">
-      <Pressable className={clsx(square ? 'w-[48px]' : 'w-[160px]')} onPress={onPress}>
+    <View className="flex-row items-start py-2 px-2">
+      <Pressable style={{ width: thumbnailWidth }} onPress={onPress}>
         <RetryImage
           source={bookmark.json?.thumbnail || getThumbnail(bookmark.url)}
           contentFit="cover"
           placeholder={{ blurhash }}
-          style={{ height: square ? 48 : 90, borderRadius: round ? 45 : 8 }}
+          style={{ height: thumbnailHeight, borderRadius: round ? 24 : 8 }}
         />
       </Pressable>
       <Pressable className="flex-1 ml-3" onPress={onPress}>
-        <NouText className="leading-6" numberOfLines={4} ellipsizeMode="tail">
+        <NouText className="leading-5" numberOfLines={isWeb ? 4 : 3} ellipsizeMode="tail">
           {bookmark.title}
         </NouText>
       </Pressable>

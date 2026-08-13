@@ -129,7 +129,7 @@ export const FeedModal = () => {
 
   const folderFilterOptions: FeedFilterOption[] = [
     { key: ALL_FEED_FILTER_KEY, name: t('feeds.allFolders'), icon: 'view-list' },
-    { key: makeFolderFeedFilterKey(''), name: t('modals.ungrouped'), icon: 'folder-open' },
+    { key: makeFolderFeedFilterKey(''), name: t('modals.noFolder'), icon: 'folder-open' },
     ...sortBy(
       folders.filter((x) => !x.json.deleted && x.json.tab === 'channel'),
       ['name'],

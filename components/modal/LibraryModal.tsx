@@ -27,8 +27,6 @@ const tabsYTMusic = [
   { label: t('library.playlists'), value: 'm-playlist' },
 ]
 
-const ungroupedFolder = newFolder('', { name: t('modals.ungrouped'), id: '' })
-
 export const LibraryModal = () => {
   const libraryModalOpen = useValue(ui$.libraryModalOpen)
   const activePageUrl = useActivePageUrl()
@@ -42,6 +40,7 @@ export const LibraryModal = () => {
   
   const tabs = isYTMusic ? tabsYTMusic : tabsYT
   const currentTab = tabs[tabIndex]
+  const selectedFolder = currentFolder?.json.tab === currentTab.value ? currentFolder : undefined
 
   const filteredFolders = sortBy(
     folders.filter((x) => !x.json.deleted && x.json.tab === currentTab.value),
@@ -50,7 +49,7 @@ export const LibraryModal = () => {
 
   const types = [['podcast', 'shorts', 'watch'], ['channel'], ['playlist']][tabIndex]
   const filteredBookmarks = bookmarks.filter((x) => {
-    if (x.json.deleted || (currentFolder ? (x.json.folder || '') !== currentFolder.id : x.json.folder)) {
+    if (x.json.deleted || (selectedFolder ? (x.json.folder || '') !== selectedFolder.id : x.json.folder)) {
       return false
     }
     const pageType = getPageType(x.url)
@@ -58,11 +57,13 @@ export const LibraryModal = () => {
   })
 
   useEffect(() => {
-    setCurrentFolder(filteredFolders.length ? undefined : ungroupedFolder)
     ui$.libraryModalTab.set(currentTab.value)
-  }, [currentTab.value, filteredFolders.length])
+  }, [currentTab.value])
 
-  const visibleFolders = (filteredBookmarks.length ? [ungroupedFolder] : []).concat(filteredFolders)
+  const visibleItems = [
+    ...filteredFolders.map((folder) => ({ type: 'folder' as const, folder })),
+    ...filteredBookmarks.map((bookmark) => ({ type: 'bookmark' as const, bookmark })),
+  ]
 
   if (!libraryModalOpen) return null
 
@@ -70,21 +71,26 @@ export const LibraryModal = () => {
     <BaseModal onClose={() => ui$.libraryModalOpen.set(false)} useNativeModal={false}>
       <View className={clsx('px-2 flex-row justify-between items-center mb-4', isWeb && 'mt-4')}>
         {isWeb ? <NouText /> : null}
-        <Segmented options={tabs.map((x) => x.label)} selectedIndex={tabIndex} onChange={setTabIndex} />
+        <Segmented
+          options={tabs.map((x) => x.label)}
+          selectedIndex={tabIndex}
+          onChange={(index) => {
+            setCurrentFolder(undefined)
+            setTabIndex(index)
+          }}
+        />
         <MaterialCommunityButton
           name="folder-plus-outline"
           size={20}
           onPress={() => ui$.folderModalFolder.set(newFolder(currentTab.value))}
         />
       </View>
-      {currentFolder !== undefined ? (
+      {selectedFolder !== undefined ? (
         <>
-          {filteredFolders.length ? (
-            <View className="flex-row items-center gap-2 mb-2">
-              <MaterialButton name="arrow-back" size={20} onPress={() => setCurrentFolder(undefined)} />
-              <NouText className="flex-1">{currentFolder.name}</NouText>
-            </View>
-          ) : null}
+          <View className="flex-row items-center gap-2 mb-2">
+            <MaterialButton name="arrow-back" size={20} onPress={() => setCurrentFolder(undefined)} />
+            <NouText className="flex-1">{selectedFolder.name}</NouText>
+          </View>
           <FlatList
             data={filteredBookmarks}
             keyExtractor={(item) => item.url}
@@ -97,9 +103,19 @@ export const LibraryModal = () => {
         </>
       ) : (
         <FlatList
-          data={visibleFolders}
-          keyExtractor={(item) => item.id || 'ungrouped'}
-          renderItem={({ item }) => <FolderItem folder={item} onPress={() => setCurrentFolder(item)} />}
+          data={visibleItems}
+          keyExtractor={(item) => (item.type === 'folder' ? `folder-${item.folder.id}` : `bookmark-${item.bookmark.url}`)}
+          renderItem={({ item }) =>
+            item.type === 'folder' ? (
+              <FolderItem folder={item.folder} onPress={() => setCurrentFolder(item.folder)} />
+            ) : (
+              <BookmarkItem bookmark={item.bookmark} />
+            )
+          }
+          initialNumToRender={15}
+          maxToRenderPerBatch={10}
+          windowSize={5}
+          removeClippedSubviews={true}
         />
       )}
     </BaseModal>
