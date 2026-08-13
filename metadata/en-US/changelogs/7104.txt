@@ -1,0 +1,8 @@
+- Add lock button in fullscreen player
+- Make media notification progress seekable
+- Add distraction-free toggles for home feed, related videos, and end screens
+- Add bookmark moving to menu and undoable removal
+- Improve bookmark library layout and reorganize settings
+- Fix YouTube double-tap seek and player title display
+- Fix settings crash on certain locales
+- Fix rendering issues on secondary displays in desktop mode
