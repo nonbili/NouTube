@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'bun:test'
-import { folders$, newFolder } from './folders'
+import { bookmarks$, newBookmark } from './bookmarks'
+import { folders$, newFolder, removeFolder } from './folders'
+import { runUndoAction } from './undo-toast'
 
 describe('folders$', () => {
   it('makes a newly saved folder visible to consumers filtering by tab (#280)', () => {
@@ -27,6 +29,38 @@ describe('folders$', () => {
 
     const saved = folders$.folders.get().find((x) => x.id === folder.id)
     expect(saved?.json.deleted).toBe(true)
+  })
+
+  it('restores a removed folder', () => {
+    const folder = newFolder('watch', { name: 'Restored' })
+    folders$.saveFolder(folder)
+    folders$.removeFolder(folder)
+    folders$.restoreFolder(folder)
+
+    const saved = folders$.folders.get().find((x) => x.id === folder.id)
+    expect(saved?.json.deleted).toBe(false)
+  })
+
+  it('undoes folder removal without reviving bookmarks deleted earlier', () => {
+    const folder = newFolder('watch', { name: 'Undo folder' })
+    const activeBookmark = newBookmark({
+      url: 'https://www.youtube.com/watch?v=folderundo1',
+      json: { folder: folder.id },
+    })
+    const previouslyRemovedBookmark = newBookmark({
+      url: 'https://www.youtube.com/watch?v=folderundo2',
+      json: { folder: folder.id, deleted: true },
+    })
+    folders$.saveFolder(folder)
+    bookmarks$.addBookmark(activeBookmark)
+    bookmarks$.bookmarks.unshift(previouslyRemovedBookmark)
+
+    removeFolder(folder)
+    runUndoAction()
+
+    expect(folders$.folders.get().find((x) => x.id === folder.id)?.json.deleted).toBe(false)
+    expect(bookmarks$.bookmarks.get().find((x) => x.id === activeBookmark.id)?.json.deleted).toBe(false)
+    expect(bookmarks$.bookmarks.get().find((x) => x.id === previouslyRemovedBookmark.id)?.json.deleted).toBe(true)
   })
 
   it('reuses an existing folder with the same tab and name', () => {

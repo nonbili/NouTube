@@ -28,6 +28,8 @@ import { isWeb, nIf } from '@/lib/utils'
 import { resolveI18nLanguageFromExpoLocale } from '@/lib/i18n'
 import { settings$ } from '@/states/settings'
 import { TranslationCard } from '../translation/TranslationCard'
+import { MoveBookmarkModal } from '../modal/MoveBookmarkModal'
+import { UndoToast } from '../UndoToast'
 
 export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   const locales = useLocales()
@@ -83,6 +85,7 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
       <LibraryModal />
       <FeedModal />
       <BookmarkModal />
+      <MoveBookmarkModal />
       <FolderModal />
       <HistoryModal />
       <QueueModal />
@@ -96,6 +99,7 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
       <ToolsModal />
       <ShareModal />
       {nIf(!isWeb, <TranslationCard />)}
+      <UndoToast />
     </QueryClientProvider>
   )
 }

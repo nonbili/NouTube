@@ -3,9 +3,9 @@ import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import { genId, isWeb } from '@/lib/utils'
 import { getIndexedDBPlugin } from './indexeddb'
-import { showToast } from '@/lib/toast'
-import { showConfirm } from '@/lib/confirm'
 import { bookmarks$ } from './bookmarks'
+import { showUndoToast } from './undo-toast'
+import { t } from 'i18next'
 
 export interface Folder {
   id: string
@@ -24,6 +24,7 @@ interface Store {
   addFolder: (folder: Folder) => void
   saveFolder: (folder: Folder) => void
   removeFolder: (folder: Folder) => void
+  restoreFolder: (folder: Folder) => void
   importFolders: (folders: Folder[]) => void
   getOrCreateFolder: (tab: string, name: string) => Folder
   setUpdatedTime: () => void
@@ -52,6 +53,17 @@ export const folders$ = observable<Store>({
     const index = getFolderIndex(folder)
     folders$.folders[index].json.deleted.set(true)
     folders$.folders[index].updated_at.set(new Date())
+    folders$.setUpdatedTime()
+  },
+  restoreFolder: (folder) => {
+    const index = getFolderIndex(folder)
+    if (index === -1) {
+      folders$.folders.unshift({ ...folder, json: { ...folder.json, deleted: false }, updated_at: new Date() })
+    } else {
+      const json = folders$.folders[index].json.get()
+      folders$.folders[index].json.set({ ...json, deleted: false })
+      folders$.folders[index].updated_at.set(new Date())
+    }
     folders$.setUpdatedTime()
   },
   importFolders: (folders) => {
@@ -108,9 +120,15 @@ export function newFolder(tab: string, folder?: Partial<Folder>): Folder {
 }
 
 export function removeFolder(folder: Folder) {
-  showConfirm(`Delete ${folder.name}`, 'All items in the folder will be deleted.', () => {
-    folders$.removeFolder(folder)
-    bookmarks$.removeByFolder(folder.id)
-    showToast(`Folder ${folder.name} deleted`)
+  const bookmarkIds = bookmarks$.bookmarks
+    .get()
+    .filter((bookmark) => bookmark.json.folder === folder.id && !bookmark.json.deleted)
+    .map((bookmark) => bookmark.id)
+
+  folders$.removeFolder(folder)
+  bookmarks$.removeByFolder(folder.id)
+  showUndoToast(t('folders.removed', { name: folder.name }), () => {
+    folders$.restoreFolder(folder)
+    bookmarks$.restoreByIds(bookmarkIds)
   })
 }

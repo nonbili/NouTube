@@ -1,6 +1,6 @@
 import { View, Pressable, useColorScheme } from 'react-native'
 import { memo } from 'react'
-import { Bookmark, bookmarks$ } from '@/states/bookmarks'
+import { Bookmark, removeBookmark } from '@/states/bookmarks'
 import { tabs$ } from '@/states/tabs'
 import { ui$, updateUrl } from '@/states/ui'
 import { NouText } from '../NouText'
@@ -79,6 +79,12 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = memo(({ bookmark }
               handler: () => ui$.bookmarkModalBookmark.set(bookmark),
             },
             {
+              label: t('menus.moveTo'),
+              icon: <MaterialIcons name="drive-file-move-outline" size={18} color={isDark ? '#d4d4d8' : '#475569'} />,
+              systemImage: 'folder',
+              handler: () => ui$.moveBookmarkModalBookmark.set(bookmark),
+            },
+            {
               label: t('menus.share'),
               icon: <MaterialIcons name="share" size={18} color={isDark ? '#d4d4d8' : '#475569'} />,
               systemImage: 'square.and.arrow.up',
@@ -88,7 +94,7 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = memo(({ bookmark }
               label: t('menus.remove'),
               icon: <MaterialIcons name="delete-outline" size={18} color={isDark ? '#d4d4d8' : '#475569'} />,
               systemImage: 'trash',
-              handler: () => bookmarks$.toggleBookmark(bookmark),
+              handler: () => removeBookmark(bookmark),
             },
           ]}
         />

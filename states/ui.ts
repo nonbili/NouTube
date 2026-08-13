@@ -17,6 +17,7 @@ interface Store {
   // modals
   bookmarkModalBookmark: Bookmark | undefined
   bookmarkModalMode: 'default' | 'feed'
+  moveBookmarkModalBookmark: Bookmark | undefined
   embedVideoId: string
   feedModalOpen: boolean
   folderModalFolder: Folder | undefined
@@ -58,6 +59,7 @@ export const ui$ = observable<Store>({
   // modals
   bookmarkModalBookmark: undefined,
   bookmarkModalMode: 'default',
+  moveBookmarkModalBookmark: undefined,
   embedVideoId: '',
   feedModalOpen: false,
   folderModalFolder: undefined,

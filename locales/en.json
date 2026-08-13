@@ -25,6 +25,7 @@
     "cancel": "Cancel",
     "openUrl": "Open URL",
     "move": "Move",
+    "undo": "Undo",
     "save": "Save",
     "remove": "Remove",
     "unsubscribe": "Unsubscribe",
@@ -47,6 +48,7 @@
   "menus": {
     "openInNewTab": "Open in New Tab",
     "edit": "Edit",
+    "moveTo": "Move to…",
     "remove": "Remove",
     "unsubscribe": "Unsubscribe",
     "reload": "Reload",
@@ -58,6 +60,14 @@
     "desktop": "Desktop site",
     "on": "On",
     "off": "Off"
+  },
+  "bookmarks": {
+    "removed": "Bookmark removed",
+    "moved": "Moved to {{folder}}",
+    "movedToRoot": "Moved out of folder"
+  },
+  "folders": {
+    "removed": "Folder {{name}} removed"
   },
   "modals": {
     "editBookmark": "Edit bookmark",

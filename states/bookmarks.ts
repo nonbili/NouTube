@@ -4,6 +4,8 @@ import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import { genId, isWeb } from '@/lib/utils'
 import { getIndexedDBPlugin } from './indexeddb'
 import { normalizeUrl } from '@/lib/url'
+import { showUndoToast } from './undo-toast'
+import { t } from 'i18next'
 
 export interface Bookmark {
   id: string
@@ -29,6 +31,9 @@ interface Store {
   saveBookmark: (bookmark: Bookmark) => void
   importBookmarks: (bookmarks: Bookmark[]) => void
   removeByFolder: (folderId: string) => void
+  removeById: (bookmarkId: string) => boolean
+  restoreByIds: (bookmarkIds: string[]) => void
+  moveToFolder: (bookmarkId: string, folderId: string | undefined) => boolean
   setUpdatedTime: () => void
 }
 
@@ -101,10 +106,63 @@ export const bookmarks$ = observable<Store>({
       bookmarks$.setUpdatedTime()
     })
   },
+  removeById: (bookmarkId) => {
+    const bookmark = bookmarks$.bookmarks.find((x) => x.id.get() === bookmarkId)
+    if (!bookmark || bookmark.json.deleted.get()) {
+      return false
+    }
+    const json = bookmark.json.get()
+    bookmark.updated_at.set(new Date())
+    bookmark.json.set({ ...json, deleted: true })
+    bookmarks$.setUpdatedTime()
+    return true
+  },
+  restoreByIds: (bookmarkIds) => {
+    const ids = new Set(bookmarkIds)
+    const bookmarks = bookmarks$.bookmarks.filter((x) => ids.has(x.id.get()))
+    const now = new Date()
+    batch(() => {
+      bookmarks.forEach((x) => {
+        const json = x.json.get()
+        x.updated_at.set(now)
+        x.json.set({ ...json, deleted: false })
+      })
+      bookmarks$.setUpdatedTime()
+    })
+  },
+  moveToFolder: (bookmarkId, folderId) => {
+    const bookmark = bookmarks$.bookmarks.find((x) => x.id.get() === bookmarkId)
+    if (!bookmark || bookmark.json.deleted.get()) {
+      return false
+    }
+    const json = bookmark.json.get()
+    bookmark.updated_at.set(new Date())
+    bookmark.json.set({ ...json, folder: folderId })
+    bookmarks$.setUpdatedTime()
+    return true
+  },
   setUpdatedTime() {
     bookmarks$.updatedAt.set(new Date())
   },
 })
+
+export function removeBookmark(bookmark: Bookmark) {
+  let existing = bookmarks$.bookmarks.find((item) => item.id.get() === bookmark.id)
+  if (!existing) {
+    let normalizedUrl: string
+    try {
+      normalizedUrl = normalizeUrl(bookmark.url)
+    } catch {
+      return
+    }
+    existing = bookmarks$.bookmarks.find((item) => item.url.get() === normalizedUrl && !item.json.deleted.get())
+  }
+  const bookmarkId = existing?.id.get()
+  if (!bookmarkId || !bookmarks$.removeById(bookmarkId)) {
+    return
+  }
+  showUndoToast(t('bookmarks.removed'), () => bookmarks$.restoreByIds([bookmarkId]))
+}
 
 if (isWeb) {
   syncObservable(bookmarks$, {

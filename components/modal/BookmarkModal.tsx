@@ -5,16 +5,16 @@ import { NouText } from '../NouText'
 import { FlatList, Pressable, TextInput, View } from 'react-native'
 import { useMemo, useState } from 'react'
 import { gray } from '@radix-ui/colors'
-import { Bookmark, bookmarks$ } from '@/states/bookmarks'
+import { Bookmark, bookmarks$, removeBookmark } from '@/states/bookmarks'
 import { Folder, folders$, newFolder } from '@/states/folders'
 import { NouButton } from '../button/NouButton'
 import { sortBy } from 'es-toolkit'
 import { t } from 'i18next'
-import { getPageType } from '@/lib/page'
 import { feeds$ } from '@/states/feeds'
 import { showConfirm } from '@/lib/confirm'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { clsx, nIf } from '@/lib/utils'
+import { getBookmarkFolderTab } from '@/lib/bookmark-folders'
 
 const NO_FOLDER_ID = '__no_folder__'
 const NEW_FOLDER_ID = '__new__'
@@ -44,23 +44,7 @@ const BookmarkModalContent: React.FC<{
   const [draftBookmark, setDraftBookmark] = useState(bookmark)
 
   const folderTab = useMemo(() => {
-    const pageType = getPageType(draftBookmark.url)
-    if (pageType?.home === 'yt-music') {
-      if (pageType.type === 'channel') {
-        return 'm-channel'
-      }
-      if (pageType.type === 'playlist') {
-        return 'm-playlist'
-      }
-      return 'm-watch'
-    }
-    if (pageType?.type === 'channel') {
-      return 'channel'
-    }
-    if (pageType?.type === 'playlist') {
-      return 'playlist'
-    }
-    return 'watch'
+    return getBookmarkFolderTab(draftBookmark.url)
   }, [draftBookmark])
 
   // No useMemo: legend-state mutates the folders array in place, so its
@@ -116,7 +100,7 @@ const BookmarkModalContent: React.FC<{
       return
     }
 
-    bookmarks$.toggleBookmark(bookmark)
+    removeBookmark(bookmark)
     onClose()
   }
 
