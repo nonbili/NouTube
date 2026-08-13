@@ -79,7 +79,9 @@
     "playbackQuality": "Oynatma kalitesi",
     "sharePageUrl": "Sayfa URL'si",
     "shareVideoUrl": "Video URL'si",
-    "shareIncludePosition": "Geçerli konumu dahil et"
+    "shareIncludePosition": "Geçerli konumu dahil et",
+    "downloadUseCookies": "Çerezlerimi kullan",
+    "downloadUseCookiesHint": "Yaş sınırlaması olan, yalnızca üyelere açık veya özel videolar için gereklidir. Bu işlem YouTube oturumunuzu kapatabilir ve hesabınızı bu şekilde kullanmak, hesabınızın işaretlenme riskini beraberinde getirir."
   },
   "update": {
     "check": "Güncellemeleri denetle",
@@ -210,6 +212,9 @@
         },
         "hideCommunityPosts": {
           "label": "Topluluk gönderilerini gizle"
+        },
+        "hideAskButton": {
+          "label": "Gemini'ye Sor düğmesini gizle"
         }
       },
       "custom": {
@@ -285,7 +290,7 @@
     },
     "importList": "Bağlantı listesini içe aktar",
     "importTakeout": "YouTube Takeout'tan içe aktar",
-    "exportLabel": "Yer işaretlerini bir liste olarak dışa aktar",
+    "exportLabel": "Yer işaretlerini CSV dosyasına aktar",
     "injectCookie": "Web görünümünden giriş yapılamadıysa çerez (cookie) enjekte edin",
     "injectCookieTitle": "Web görünümüne kimlik doğrulama çerezi enjekte edin",
     "injectCookieHint": "PC tarayıcınızdan 'Cookie' üstbilgi (header) değerini kopyalayın. E-posta/şifre ile giriş yapamadığınız durumlar için bu alternatif bir çözümdür.",
@@ -327,7 +332,15 @@
       "unpin": "Çevirinin sabitlemesini kaldır",
       "failed": "Bu metin çevrilemedi",
       "unsupported": "Bu diller bu aygıtta kullanılabilir değil"
-    }
+    },
+    "replaceWatchNavigation": "Geri düğmesi izlenen videoları atlar",
+    "importSettings": "Ayarları içe aktar",
+    "importSettingsDescription": "NouTube ayar dosyasından ayarları geri yükle",
+    "importSettingsConfirm": "Bu, geçerli ayarlarınızı, engelleme listenizi, kullanıcı biçimlerinizi ve özel betiklerinizi değiştirir. Devam etmek istiyor musunuz?",
+    "importSettingsWithScriptsConfirm": "Bu dosya, YouTube içinde kod çalıştırabilen {{count}} adet etkinleştirilen özel betik içerir. Yalnızca dosyaya güveniyorsanız devam edin. Geçerli ayarlarınız, engelleme listeniz, kullanıcı biçimleriniz ve özel betikleriniz değiştirilecektir.",
+    "importSettingsDone": "İçe aktarıldı: {{sections}}",
+    "exportSettings": "Ayarları dışa aktar",
+    "exportSettingsDescription": "Ayarları, engelleme listesini, kullanıcı biçimlerini ve özel betikleri JSON dosyası olarak kaydet"
   },
   "native": {
     "format_bestQuality": "En iyi kalite",

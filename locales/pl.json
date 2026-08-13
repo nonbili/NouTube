@@ -1,6 +1,6 @@
 {
   "about": {
-    "label": "O",
+    "label": "O aplikacji",
     "code": "Kod źródłowy",
     "updates": "Aktualizacje",
     "hint": "Informacje o wersji, aktualizacje, kod źródłowy i linki pomocy technicznej.",
@@ -56,8 +56,8 @@
     "close": "Zamknij",
     "tools": "Narzędzia",
     "desktop": "Wersja na komputer",
-    "on": "Włącz",
-    "off": "Wyłącz"
+    "on": "Włączone",
+    "off": "Wyłączone"
   },
   "modals": {
     "editBookmark": "Edytuj zakładkę",
@@ -79,7 +79,9 @@
     "playbackQuality": "Jakość odtwarzania",
     "sharePageUrl": "Adres URL strony",
     "shareVideoUrl": "Adres URL filmu",
-    "shareIncludePosition": "Uwzględnij aktualną pozycję"
+    "shareIncludePosition": "Uwzględnij aktualną pozycję",
+    "downloadUseCookies": "Użyj moich plików cookie",
+    "downloadUseCookiesHint": "Wymagane w przypadku filmów z ograniczeniami wiekowymi, tylko dla członków lub prywatnych. Może spowodować wylogowanie z YouTube, a korzystanie z konta w ten sposób wiąże się z ryzykiem oznaczenia go."
   },
   "update": {
     "check": "Sprawdź aktualizacje",
@@ -233,6 +235,9 @@
         },
         "hideCommunityPosts": {
           "label": "Ukryj posty społeczności"
+        },
+        "hideAskButton": {
+          "label": "Ukryj przycisk Zapytaj Gemini"
         }
       },
       "custom": {
@@ -308,7 +313,7 @@
     },
     "importList": "Importuj listę linków",
     "importTakeout": "Importuj z YouTube takeout",
-    "exportLabel": "Eksportuj zakładki do listy",
+    "exportLabel": "Eksportuj zakładki do pliku CSV",
     "injectCookie": "Wstrzyknij plik cookie, jeśli nie można zalogować się przez webview",
     "injectCookieTitle": "Wstrzyknij autoryzacyjny plik cookie do webview",
     "injectCookieHint": "Skopiuj wartość nagłówka pliku cookie z przeglądarki na komputerze. To obejście problemu, gdy nie możesz zalogować się za pomocą adresu e-mail i hasła.",
@@ -327,7 +332,15 @@
       "unpin": "Odepnij tłumaczenie",
       "failed": "Nie udało się przetłumaczyć tego tekstu",
       "unsupported": "Ta para językowa jest niedostępna na tym urządzeniu"
-    }
+    },
+    "replaceWatchNavigation": "Wstecz pomija obejrzane filmy",
+    "importSettings": "Ustawienia importu",
+    "importSettingsDescription": "Przywracanie ustawień z pliku ustawień NouTube",
+    "importSettingsConfirm": "To zastępuje Twoje obecne ustawienia, listę blokowanych, style użytkownika i niestandardowe skrypty. Kontynuować?",
+    "importSettingsWithScriptsConfirm": "Ten plik zawiera {{count}} włączony(ch) skrypt(ów) użytkownika, które mogą uruchamiać kod w serwisie YouTube. Kontynuuj tylko wtedy, gdy ufasz temu plikowi. Twoje obecne ustawienia, lista blokowanych, style użytkownika i niestandardowe skrypty zostaną zastąpione.",
+    "importSettingsDone": "Zaimportowano: {{sections}}",
+    "exportSettings": "Ustawienia eksportu",
+    "exportSettingsDescription": "Zapisz ustawienia, listę blokowanych, style użytkownika i niestandardowe skrypty jako plik JSON"
   },
   "native": {
     "format_bestQuality": "Najlepsza jakość",
