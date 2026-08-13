@@ -14,3 +14,17 @@
   font-weight: normal;
   font-display: block;
 }
+@font-face {
+  font-family: 'MaterialDesignIcons';
+  src: url('../../../node_modules/@react-native-vector-icons/material-design-icons/fonts/MaterialDesignIcons.ttf') format('truetype');
+  font-style: normal;
+  font-weight: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'AntDesign';
+  src: url('../../../node_modules/@react-native-vector-icons/ant-design/fonts/AntDesign.ttf') format('truetype');
+  font-style: normal;
+  font-weight: normal;
+  font-display: block;
+}

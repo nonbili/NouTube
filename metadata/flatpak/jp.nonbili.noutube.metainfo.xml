@@ -59,6 +59,20 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.2.14" date="2026-08-13">
+      <description>
+        <ul>
+          <li>Highlight SponsorBlock segments in the video progress bar</li>
+          <li>Support exporting/importing settings, blocklist and user styles as JSON</li>
+          <li>Add distraction-free toggles for home feed, related videos and end screens</li>
+          <li>Open downloaded video by clicking it in download history</li>
+          <li>Support passing cookies to yt-dlp</li>
+          <li>Support hiding the Ask Gemini button</li>
+          <li>Reorganize settings into YouTube and NouTube preferences</li>
+          <li>Improve bookmark library layout and support moving bookmarks via menu</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.2.13" date="2026-07-25">
       <description>
         <ul>

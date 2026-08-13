@@ -1,0 +1,8 @@
+- highlight SponsorBlock segments in the video progress bar
+- support exporting/importing settings, blocklist and user styles as JSON
+- add distraction-free toggles for home feed, related videos and end screens
+- open downloaded video by clicking it in download history
+- support passing cookies to yt-dlp
+- support hiding the Ask Gemini button
+- reorganize settings into YouTube and NouTube preferences
+- improve bookmark library layout and support moving bookmarks via menu
