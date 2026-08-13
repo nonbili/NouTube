@@ -79,7 +79,9 @@
     "playbackQuality": "Calidad de reproducción",
     "sharePageUrl": "URL de la página",
     "shareVideoUrl": "URL del video",
-    "shareIncludePosition": "Incluir posición actual"
+    "shareIncludePosition": "Incluir posición actual",
+    "downloadUseCookies": "Usar mis cookies",
+    "downloadUseCookiesHint": "Necesario para videos privados, con restricción de edad o exclusivos para miembros. Puede cerrar tú sesión en YouTube, y usar una cuenta de esta forma conlleva el riesgo de que sea suspendida o marcada."
   },
   "sleepTimer": {
     "label": "Temporizador de apagado",
@@ -177,6 +179,9 @@
         },
         "hideCommunityPosts": {
           "label": "Ocultar publicaciones de la comunidad"
+        },
+        "hideAskButton": {
+          "label": "Ocultar el botón \"Preguntar a Gemini\""
         }
       },
       "custom": {
@@ -252,7 +257,7 @@
     },
     "importList": "Importar una lista de enlaces",
     "importTakeout": "Importar desde YouTube Takeout",
-    "exportLabel": "Exportar marcadores a una lista",
+    "exportLabel": "Exportar marcadores a un archivo CSV",
     "injectCookie": "Inyectar cookie si no pudiste iniciar sesión desde la vista web",
     "injectCookieTitle": "Inyectar cookie de autenticación en la vista web",
     "injectCookieHint": "Copiar el valor del encabezado Cookie del navegador de tu PC. Esta es una solución alternativa cuando no pudiste iniciar sesión con email/contraseña.",
@@ -318,7 +323,15 @@
       "unpin": "Desfijar traducción",
       "failed": "No se pudo traducir este texto",
       "unsupported": "Este par de idiomas no está disponible en este dispositivo"
-    }
+    },
+    "replaceWatchNavigation": "El botón \"Atrás\" omite los videos ya vistos",
+    "importSettings": "Importar configuración",
+    "importSettingsDescription": "Restaurar configuración desde un archivo de configuración de NouTube",
+    "importSettingsConfirm": "Esto reemplazará tú configuración actual, lista de bloqueos, estilos de usuario y scripts personalizados. ¿Continuar?",
+    "importSettingsWithScriptsConfirm": "Este archivo contiene {{count}} script(s) personalizado(s) activado(s), que pueden ejecutar código dentro de YouTube. Continúa solo si confías en el archivo. Se reemplazará tu configuración actual, lista de bloqueos, estilos de usuario y scripts personalizados.",
+    "importSettingsDone": "Importado: {{sections}}",
+    "exportSettings": "Exportar configuración",
+    "exportSettingsDescription": "Guardar configuración, lista de bloqueos, estilos de usuario y scripts personalizados como un archivo JSON"
   },
   "native": {
     "format_bestQuality": "Mejor calidad",

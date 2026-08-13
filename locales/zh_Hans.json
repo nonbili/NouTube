@@ -259,7 +259,14 @@
       "failed": "无法翻译此文本",
       "unsupported": "此设备上不支持此语言对"
     },
-    "replaceWatchNavigation": "返回跳过已观看的视频"
+    "replaceWatchNavigation": "返回跳过已观看的视频",
+    "importSettings": "导入设置",
+    "importSettingsDescription": "从 NouTube 设置文件恢复设置",
+    "importSettingsConfirm": "这将替换您当前的设置、屏蔽列表、用户样式和自定义脚本。继续？",
+    "importSettingsWithScriptsConfirm": "此文件包含 {{count}} 个已启用的自定义脚本，这些脚本可以在 YouTube 内运行代码。请仅在您信任此文件时继续操作。您当前的设置、屏蔽列表、用户样式和自定义脚本将被替换。",
+    "importSettingsDone": "已导入：{{sections}}",
+    "exportSettings": "导出设置",
+    "exportSettingsDescription": "将设置、屏蔽列表、用户样式和自定义脚本保存为 JSON 文件"
   },
   "sync": {
     "label": "同步",

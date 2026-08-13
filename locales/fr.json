@@ -69,7 +69,9 @@
     "playbackQuality": "Qualité de lecture",
     "sharePageUrl": "URL de la page",
     "shareVideoUrl": "URL de la vidéo",
-    "shareIncludePosition": "Indiquer le poste actuel"
+    "shareIncludePosition": "Indiquer le poste actuel",
+    "downloadUseCookies": "Utiliser mes cookies",
+    "downloadUseCookiesHint": "Nécessaire pour les vidéos soumises à une restriction d'âge, réservées aux membres ou privées. Cela peut entraîner votre déconnexion de YouTube, et l'utilisation d'un compte de cette manière comporte un risque de signalement."
   },
   "settings": {
     "label": "Paramètres",
@@ -95,7 +97,7 @@
     },
     "importList": "Importer une liste de liens",
     "importTakeout": "Importer depuis YouTube",
-    "exportLabel": "Exporter les signets vers une liste",
+    "exportLabel": "Exporter les signets vers un fichier CSV",
     "injectCookie": "Injecter un cookie si la connexion depuis la vue Web a échoué",
     "injectCookieTitle": "Injecter le cookie d'authentification dans la vue Web",
     "injectCookieHint": "Copiez la valeur de l'en-tête Cookie depuis le navigateur de votre PC. Ceci constitue une solution de contournement si vous ne parvenez pas à vous connecter avec votre adresse e-mail et votre mot de passe.",
@@ -130,6 +132,9 @@
         },
         "hideCommunityPosts": {
           "label": "Masquer les publications de la communauté"
+        },
+        "hideAskButton": {
+          "label": "Masquer le bouton « Demander à Gemini »"
         }
       },
       "custom": {
@@ -253,7 +258,15 @@
       "unpin": "Détacher la traduction",
       "failed": "Impossible de traduire ce texte",
       "unsupported": "Cette combinaison linguistique n'est pas disponible sur cet appareil."
-    }
+    },
+    "replaceWatchNavigation": "Retour aux vidéos visionnées",
+    "importSettings": "Importer les paramètres",
+    "importSettingsDescription": "Restaurer les paramètres à partir d'un fichier de paramètres NouTube",
+    "importSettingsConfirm": "Cela remplacera vos paramètres actuels, votre liste de blocage, vos styles personnalisés et vos scripts personnalisés. Voulez-vous continuer ?",
+    "importSettingsWithScriptsConfirm": "Ce fichier contient {{count}} script(s) personnalisé(s) activé(s), qui peuvent exécuter du code au sein de YouTube. Ne poursuivez l'opération que si vous faites confiance à ce fichier. Vos paramètres actuels, votre liste de blocage, vos styles utilisateur et vos scripts personnalisés seront remplacés.",
+    "importSettingsDone": "Importé : {{sections}}",
+    "exportSettings": "Paramètres d'exportation",
+    "exportSettingsDescription": "Enregistrer les paramètres, la liste noire, les styles utilisateur et les scripts personnalisés dans un fichier JSON"
   },
   "sync": {
     "label": "Synchronisation",
