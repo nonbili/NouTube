@@ -166,6 +166,14 @@ export const builtinUserScriptDefinitions: BuiltinUserScriptDefinition[] = [
   },
 ]
 
+export const builtinUserScriptDefinitionById = builtinUserScriptDefinitions.reduce(
+  (acc, definition) => {
+    acc[definition.id] = definition
+    return acc
+  },
+  {} as Record<BuiltinUserScriptId, BuiltinUserScriptDefinition>,
+)
+
 export const createDefaultBuiltinUserStyles = (): Record<BuiltinUserStyleId, BuiltinUserStyleState> => ({
   'hide-mix-playlist': { enabled: false },
   'hide-shorts-navbar': { enabled: false },

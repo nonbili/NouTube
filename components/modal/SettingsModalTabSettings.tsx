@@ -30,7 +30,12 @@ import {
   toBcp47Locale,
 } from '@/lib/i18n'
 import { getTranslationSupportedLanguages } from '@/lib/translation'
-import { builtinUserStyleDefinitions, type BuiltinUserStyleId } from '@/lib/user-styles'
+import {
+  builtinUserScriptDefinitionById,
+  builtinUserStyleDefinitionById,
+  type BuiltinUserScriptId,
+  type BuiltinUserStyleId,
+} from '@/lib/user-styles'
 import { userStyles$ } from '@/states/user-styles'
 
 const themes = [null, 'dark', 'light'] as const
@@ -113,21 +118,36 @@ const translationLanguageLabel = (language: string, displayLanguage: string) => 
   return translationLanguageNames[language] || language
 }
 
-// Built-in user styles that hide something are mirrored here so they sit next to the other
-// content toggles; the Styles page still lists (and previews) all of them.
-const hideBuiltinStyleIcons: Partial<Record<BuiltinUserStyleId, MaterialIconsIconName>> = {
-  'hide-home-feed': 'home',
-  'hide-related-videos': 'view-list',
-  'hide-end-screens': 'smart-display',
-  'hide-shorts-navbar': 'menu',
-  'hide-mix-playlist': 'playlist-play',
-  'hide-community-posts': 'forum',
-  'hide-ask-button': 'auto-awesome',
+// Built-in user styles live here, not on the Styles page: they are product toggles rather than
+// authoring surface. Adding a built-in style is a deliberate placement decision, so list the ids
+// explicitly instead of deriving them from the definitions.
+const distractionFreeStyleRows: { id: BuiltinUserStyleId; icon: MaterialIconsIconName }[] = [
+  // Sits directly under the "hide shorts in timeline" toggle above; the two Shorts rows pair up.
+  { id: 'hide-shorts-navbar', icon: 'menu' },
+  { id: 'hide-home-feed', icon: 'home' },
+  { id: 'hide-related-videos', icon: 'view-list' },
+  { id: 'hide-end-screens', icon: 'smart-display' },
+  { id: 'hide-mix-playlist', icon: 'playlist-play' },
+  { id: 'hide-community-posts', icon: 'forum' },
+  { id: 'hide-ask-button', icon: 'auto-awesome' },
+]
+
+const distractionFreeStyleDefinitions = distractionFreeStyleRows.map((row) => ({
+  ...builtinUserStyleDefinitionById[row.id],
+  icon: row.icon,
+}))
+
+// Built-in user scripts are fixes rather than distraction-free toggles, so they sit with the
+// other content preferences.
+const builtinScriptIcons: Record<BuiltinUserScriptId, MaterialIconsIconName> = {
+  'fix-encoded-author-names': 'text-fields',
 }
 
-const hideBuiltinStyleDefinitions = builtinUserStyleDefinitions.filter((definition) =>
-  definition.id.startsWith('hide-'),
-)
+const builtinScriptRows = (Object.keys(builtinScriptIcons) as BuiltinUserScriptId[]).map((id) => ({
+  id,
+  icon: builtinScriptIcons[id],
+  labelKey: builtinUserScriptDefinitionById[id].labelKey,
+}))
 
 const findSupportedTranslationLanguage = (language: string | undefined, available: string[]) => {
   if (!language) return undefined
@@ -229,20 +249,10 @@ const clickbaitLabel = (value: (typeof clickbaitOptions)[number]) => {
   return t('settings.clickbaitThumbnail.optionFrame', { n: Number(value.slice(2)) })
 }
 
+// NouTube's own behavior. Anything that changes the YouTube page itself belongs on the YouTube
+// side of the settings index instead (see SettingsYouTubeContent).
 export const SettingsPreferencesContent = () => {
   const settings = useValue(settings$)
-  const builtinStyles = useValue(userStyles$.builtins)
-  const colorScheme = useColorScheme()
-  const isDark = colorScheme !== 'light'
-
-  const clickbaitMenuItems = clickbaitOptions.map((option) => ({
-    label: clickbaitLabel(option),
-    handler: () => settings$.clickbaitThumbnail.set(option),
-    meta:
-      settings.clickbaitThumbnail === option ? (
-        <MaterialIcons name="check" size={18} color={isDark ? '#60a5fa' : '#1d4ed8'} />
-      ) : undefined,
-  }))
 
   return (
     <View className="pb-4">
@@ -290,29 +300,128 @@ export const SettingsPreferencesContent = () => {
       </SettingsSection>
 
       <View className="mt-8">
-        <SettingsSection label={t('settings.preferencesDistractionFree')}>
+        <SettingsSection label={t('settings.proxy.label')}>
           <View className={surfaceCls}>
             <SettingsToggleRow
-              label={t('settings.hideShorts')}
-              icon="movie-filter"
-              value={settings.hideShorts}
-              onPress={() => settings$.hideShorts.set(!settings.hideShorts)}
+              label={t('settings.proxy.enabled')}
+              icon="settings-ethernet"
+              value={settings.proxyEnabled}
+              onPress={() => settings$.proxyEnabled.set(!settings.proxyEnabled)}
+              isLast={!settings.proxyEnabled}
             />
-            {hideBuiltinStyleDefinitions.map((definition, index) => (
-              <SettingsToggleRow
-                key={definition.id}
-                label={t(definition.labelKey)}
-                icon={hideBuiltinStyleIcons[definition.id] || 'visibility-off'}
-                value={Boolean(builtinStyles[definition.id]?.enabled)}
-                onPress={() =>
-                  userStyles$.setBuiltinEnabled(definition.id, !builtinStyles[definition.id]?.enabled)
-                }
-                isLast={index === hideBuiltinStyleDefinitions.length - 1}
-              />
-            ))}
+            {nIf(
+              settings.proxyEnabled,
+              <>
+                <View className="flex-row items-center justify-between gap-3 border-b border-zinc-300 px-4 py-4 dark:border-zinc-800">
+                  <NouText className="font-medium">{t('settings.proxy.type')}</NouText>
+                  <Segmented
+                    options={['HTTP', 'SOCKS']}
+                    selectedIndex={settings.proxyType === 'socks' ? 1 : 0}
+                    size={1}
+                    onChange={(index) => settings$.proxyType.set(index === 1 ? 'socks' : 'http')}
+                  />
+                </View>
+                <View className="flex-row items-center justify-between gap-3 border-b border-zinc-300 px-4 py-4 dark:border-zinc-800">
+                  <NouText className="w-24 font-medium">{t('settings.proxy.host')}</NouText>
+                  <TextInput
+                    className="flex-1 rounded-lg border border-zinc-300 bg-zinc-100 px-3 py-2 text-right text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                    value={settings.proxyHost}
+                    onChangeText={(text) => settings$.proxyHost.set(text)}
+                    placeholder={t('settings.proxy.hostPlaceholder')}
+                    placeholderTextColor="#71717a"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                </View>
+                <View className="flex-row items-center justify-between gap-3 px-4 py-4">
+                  <NouText className="w-24 font-medium">{t('settings.proxy.port')}</NouText>
+                  <TextInput
+                    className="w-32 rounded-lg border border-zinc-300 bg-zinc-100 px-3 py-2 text-right text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                    value={settings.proxyPort}
+                    onChangeText={(text) => settings$.proxyPort.set(text)}
+                    placeholder={t('settings.proxy.portPlaceholder')}
+                    placeholderTextColor="#71717a"
+                    keyboardType="numeric"
+                    returnKeyType="done"
+                  />
+                </View>
+              </>,
+            )}
           </View>
         </SettingsSection>
       </View>
+    </View>
+  )
+}
+
+// Everything that changes what the YouTube page itself shows.
+export const SettingsYouTubeContent = () => {
+  const settings = useValue(settings$)
+  const builtinStyles = useValue(userStyles$.builtins)
+  const builtinScripts = useValue(userStyles$.builtinScripts)
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
+  const locales = useLocales()
+  const systemLanguage = resolveI18nLanguageFromExpoLocale(locales[0]) || 'en'
+  const effectiveLanguage = settings.language || systemLanguage
+  const translationLanguages = getTranslationSupportedLanguages()
+  const appTranslationLanguage = findSupportedTranslationLanguage(effectiveLanguage, translationLanguages)
+  const systemTranslationLanguage = findSupportedTranslationLanguage(
+    locales[0]?.languageCode ?? undefined,
+    translationLanguages,
+  )
+  const preferredTranslationLanguages = [
+    appTranslationLanguage
+      ? { language: appTranslationLanguage, metaLabel: t('settings.translation.appLanguage') }
+      : null,
+    systemTranslationLanguage && systemTranslationLanguage !== appTranslationLanguage
+      ? { language: systemTranslationLanguage, metaLabel: t('settings.translation.systemLanguage') }
+      : null,
+  ].filter((item): item is { language: string; metaLabel: string } => Boolean(item))
+  const translationLanguageMenuItems = [
+    ...preferredTranslationLanguages,
+    ...translationLanguages
+      .filter((language) => !preferredTranslationLanguages.some((item) => item.language === language))
+      .sort((a, b) =>
+        translationLanguageLabel(a, effectiveLanguage).localeCompare(
+          translationLanguageLabel(b, effectiveLanguage),
+          toBcp47Locale(effectiveLanguage),
+        ),
+      )
+      .map((language) => ({ language, metaLabel: undefined })),
+  ]
+
+  const clickbaitMenuItems = clickbaitOptions.map((option) => ({
+    label: clickbaitLabel(option),
+    handler: () => settings$.clickbaitThumbnail.set(option),
+    meta:
+      settings.clickbaitThumbnail === option ? (
+        <MaterialIcons name="check" size={18} color={isDark ? '#60a5fa' : '#1d4ed8'} />
+      ) : undefined,
+  }))
+
+  return (
+    <View className="pb-4">
+      <SettingsSection label={t('settings.preferencesDistractionFree')}>
+        <View className={surfaceCls}>
+          <SettingsToggleRow
+            label={t('settings.hideShorts')}
+            icon="movie-filter"
+            value={settings.hideShorts}
+            onPress={() => settings$.hideShorts.set(!settings.hideShorts)}
+          />
+          {distractionFreeStyleDefinitions.map((definition, index) => (
+            <SettingsToggleRow
+              key={definition.id}
+              label={t(definition.labelKey)}
+              icon={definition.icon}
+              value={Boolean(builtinStyles[definition.id]?.enabled)}
+              onPress={() => userStyles$.setBuiltinEnabled(definition.id, !builtinStyles[definition.id]?.enabled)}
+              isLast={index === distractionFreeStyleDefinitions.length - 1}
+            />
+          ))}
+        </View>
+      </SettingsSection>
 
       <View className="mt-8">
         <SettingsSection label={t('settings.preferencesContent')}>
@@ -323,6 +432,15 @@ export const SettingsPreferencesContent = () => {
               value={settings.sponsorBlock}
               onPress={() => settings$.sponsorBlock.set(!settings.sponsorBlock)}
             />
+            {builtinScriptRows.map(({ id, icon, labelKey }) => (
+              <SettingsToggleRow
+                key={id}
+                label={t(labelKey)}
+                icon={icon}
+                value={Boolean(builtinScripts[id]?.enabled)}
+                onPress={() => userStyles$.toggleBuiltinScript(id)}
+              />
+            ))}
             <View className="flex-row items-center gap-3 px-4 py-4">
               <View className={iconWrapCls}>
                 <MaterialIcons name="image" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
@@ -384,57 +502,78 @@ export const SettingsPreferencesContent = () => {
         </SettingsSection>
       </View>
 
-      <View className="mt-8">
-        <SettingsSection label={t('settings.proxy.label')}>
-          <View className={surfaceCls}>
-            <SettingsToggleRow
-              label={t('settings.proxy.enabled')}
-              icon="settings-ethernet"
-              value={settings.proxyEnabled}
-              onPress={() => settings$.proxyEnabled.set(!settings.proxyEnabled)}
-              isLast={!settings.proxyEnabled}
-            />
-            {nIf(
-              settings.proxyEnabled,
-              <>
-                <View className="flex-row items-center justify-between gap-3 border-b border-zinc-300 px-4 py-4 dark:border-zinc-800">
-                  <NouText className="font-medium">{t('settings.proxy.type')}</NouText>
-                  <Segmented
-                    options={['HTTP', 'SOCKS']}
-                    selectedIndex={settings.proxyType === 'socks' ? 1 : 0}
-                    size={1}
-                    onChange={(index) => settings$.proxyType.set(index === 1 ? 'socks' : 'http')}
-                  />
+      {nIf(
+        isAndroid,
+        <View className="mt-8">
+          <SettingsSection label={t('settings.zoom.label')}>
+            <View className={surfaceCls}>
+              <View className="flex-row items-center gap-3 px-4 py-4">
+                <View className={iconWrapCls}>
+                  <MaterialIcons name="zoom-in" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
                 </View>
-                <View className="flex-row items-center justify-between gap-3 border-b border-zinc-300 px-4 py-4 dark:border-zinc-800">
-                  <NouText className="w-24 font-medium">{t('settings.proxy.host')}</NouText>
-                  <TextInput
-                    className="flex-1 rounded-lg border border-zinc-300 bg-zinc-100 px-3 py-2 text-right text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-                    value={settings.proxyHost}
-                    onChangeText={(text) => settings$.proxyHost.set(text)}
-                    placeholder={t('settings.proxy.hostPlaceholder')}
-                    placeholderTextColor="#71717a"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                  />
+                <View className="flex-1">
+                  <NouText className="font-medium">{t('settings.zoom.defaultLabel')}</NouText>
+                  <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
+                    {t('settings.zoom.defaultHint')}
+                  </NouText>
                 </View>
-                <View className="flex-row items-center justify-between gap-3 px-4 py-4">
-                  <NouText className="w-24 font-medium">{t('settings.proxy.port')}</NouText>
-                  <TextInput
-                    className="w-32 rounded-lg border border-zinc-300 bg-zinc-100 px-3 py-2 text-right text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-                    value={settings.proxyPort}
-                    onChangeText={(text) => settings$.proxyPort.set(text)}
-                    placeholder={t('settings.proxy.portPlaceholder')}
-                    placeholderTextColor="#71717a"
-                    keyboardType="numeric"
-                    returnKeyType="done"
-                  />
+                <NouMenu
+                  trigger={
+                    <NouButton size="1" variant="outline" onPress={() => {}}>
+                      {settings.defaultZoom}%
+                    </NouButton>
+                  }
+                  items={ZOOM_PRESETS.map((zoom) => ({
+                    label: `${zoom}%`,
+                    handler: () => settings$.defaultZoom.set(zoom),
+                    metaLabel: settings.defaultZoom === zoom ? '✓' : undefined,
+                  }))}
+                />
+              </View>
+            </View>
+          </SettingsSection>
+        </View>,
+      )}
+
+      {nIf(
+        !isWeb,
+        <View className="mt-8">
+          <SettingsSection label={t('settings.preferencesComments')}>
+            <View className={surfaceCls}>
+              <View className="flex-row items-center justify-between gap-3 px-4 py-4">
+                <View className={iconWrapCls}>
+                  <MaterialIcons name="g-translate" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
                 </View>
-              </>,
-            )}
-          </View>
-        </SettingsSection>
-      </View>
+                <View className="flex-1">
+                  <NouText className="font-medium">{t('settings.translation.enable')}</NouText>
+                  <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
+                    {settings.translateComments && settings.translationTargetLanguage
+                      ? `${t('settings.translation.targetLanguage')} ${translationLanguageLabel(settings.translationTargetLanguage, effectiveLanguage)}`
+                      : t('menus.off')}
+                  </NouText>
+                </View>
+                <NouMenu
+                  trigger="ellipsis"
+                  items={[
+                    {
+                      label: t('menus.off'),
+                      metaLabel: settings.translateComments ? undefined : '✓',
+                      handler: () => settings$.translateComments.set(false),
+                    },
+                    { kind: 'separator', label: '', handler: () => {} },
+                    ...translationLanguageMenuItems.map(({ language, metaLabel }) => ({
+                      label: translationLanguageLabel(language, effectiveLanguage),
+                      metaLabel:
+                        settings.translateComments && settings.translationTargetLanguage === language ? '✓' : metaLabel,
+                      handler: () => settings$.assign({ translationTargetLanguage: language, translateComments: true }),
+                    })),
+                  ]}
+                />
+              </View>
+            </View>
+          </SettingsSection>
+        </View>,
+      )}
     </View>
   )
 }
@@ -464,32 +603,6 @@ export const SettingsAppearanceContent = () => {
       handler: () => settings$.setLanguage(language),
       metaLabel: settings.language === language ? '✓' : undefined,
     })),
-  ]
-  const translationLanguages = getTranslationSupportedLanguages()
-  const appTranslationLanguage = findSupportedTranslationLanguage(effectiveLanguage, translationLanguages)
-  const systemTranslationLanguage = findSupportedTranslationLanguage(
-    locales[0]?.languageCode ?? undefined,
-    translationLanguages,
-  )
-  const preferredTranslationLanguages = [
-    appTranslationLanguage
-      ? { language: appTranslationLanguage, metaLabel: t('settings.translation.appLanguage') }
-      : null,
-    systemTranslationLanguage && systemTranslationLanguage !== appTranslationLanguage
-      ? { language: systemTranslationLanguage, metaLabel: t('settings.translation.systemLanguage') }
-      : null,
-  ].filter((item): item is { language: string; metaLabel: string } => Boolean(item))
-  const translationLanguageMenuItems = [
-    ...preferredTranslationLanguages,
-    ...translationLanguages
-      .filter((language) => !preferredTranslationLanguages.some((item) => item.language === language))
-      .sort((a, b) =>
-        translationLanguageLabel(a, effectiveLanguage).localeCompare(
-          translationLanguageLabel(b, effectiveLanguage),
-          toBcp47Locale(effectiveLanguage),
-        ),
-      )
-      .map((language) => ({ language, metaLabel: undefined })),
   ]
 
   return (
@@ -594,7 +707,7 @@ export const SettingsAppearanceContent = () => {
       {nIf(
         isWeb,
         <View className="mt-8">
-          <SettingsSection label={t('settings.preferences')}>
+          <SettingsSection label={t('settings.sidebar')}>
             <View className={surfaceCls}>
               <SettingsToggleRow
                 label={t('settings.autoHideSidebar')}
@@ -608,48 +721,10 @@ export const SettingsAppearanceContent = () => {
         </View>,
       )}
 
-      {nIf(
-        isAndroid,
-        <View className="mt-8">
-          <SettingsSection label={t('settings.zoom.label')}>
-            <View className={surfaceCls}>
-              <View className="flex-row items-center gap-3 px-4 py-4">
-                <View className={iconWrapCls}>
-                  <MaterialIcons name="zoom-in" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
-                </View>
-                <View className="flex-1">
-                  <NouText className="font-medium">{t('settings.zoom.defaultLabel')}</NouText>
-                  <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
-                    {t('settings.zoom.defaultHint')}
-                  </NouText>
-                </View>
-                <NouMenu
-                  trigger={
-                    <NouButton size="1" variant="outline" onPress={() => {}}>
-                      {settings.defaultZoom}%
-                    </NouButton>
-                  }
-                  items={ZOOM_PRESETS.map((zoom) => ({
-                    label: `${zoom}%`,
-                    handler: () => settings$.defaultZoom.set(zoom),
-                    metaLabel: settings.defaultZoom === zoom ? '✓' : undefined,
-                  }))}
-                />
-              </View>
-            </View>
-          </SettingsSection>
-        </View>,
-      )}
-
       <View className="mt-8">
         <SettingsSection label={t('settings.language.label')}>
           <View className={surfaceCls}>
-            <View
-              className={clsx(
-                'flex-row items-center justify-between gap-3 px-4 py-4',
-                !isWeb && 'border-b border-zinc-300 dark:border-zinc-800',
-              )}
-            >
+            <View className="flex-row items-center justify-between gap-3 px-4 py-4">
               <View className={iconWrapCls}>
                 <MaterialIcons name="translate" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
               </View>
@@ -672,39 +747,6 @@ export const SettingsAppearanceContent = () => {
                 items={languageMenuItems}
               />
             </View>
-            {nIf(
-              !isWeb,
-              <View className="flex-row items-center justify-between gap-3 px-4 py-4">
-                <View className={iconWrapCls}>
-                  <MaterialIcons name="g-translate" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
-                </View>
-                <View className="flex-1">
-                  <NouText className="font-medium">{t('settings.translation.enable')}</NouText>
-                  <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
-                    {settings.translateComments && settings.translationTargetLanguage
-                      ? `${t('settings.translation.targetLanguage')} ${translationLanguageLabel(settings.translationTargetLanguage, effectiveLanguage)}`
-                      : t('menus.off')}
-                  </NouText>
-                </View>
-                <NouMenu
-                  trigger="ellipsis"
-                  items={[
-                    {
-                      label: t('menus.off'),
-                      metaLabel: settings.translateComments ? undefined : '✓',
-                      handler: () => settings$.translateComments.set(false),
-                    },
-                    { kind: 'separator', label: '', handler: () => {} },
-                    ...translationLanguageMenuItems.map(({ language, metaLabel }) => ({
-                      label: translationLanguageLabel(language, effectiveLanguage),
-                      metaLabel:
-                        settings.translateComments && settings.translationTargetLanguage === language ? '✓' : metaLabel,
-                      handler: () => settings$.assign({ translationTargetLanguage: language, translateComments: true }),
-                    })),
-                  ]}
-                />
-              </View>,
-            )}
           </View>
         </SettingsSection>
       </View>

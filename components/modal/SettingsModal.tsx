@@ -4,7 +4,7 @@ import { NouLink } from '../link/NouLink'
 import { version } from '../../package.json'
 import { version as desktopVersion } from '../../desktop/package.json'
 import { useCallback, useEffect, useState } from 'react'
-import { clsx, isWeb } from '@/lib/utils'
+import { clsx, isWeb, nIf } from '@/lib/utils'
 import { useValue } from '@legendapp/state/react'
 import { BaseModal } from './BaseModal'
 import { ui$ } from '@/states/ui'
@@ -15,6 +15,7 @@ import {
   SettingsPreferencesContent,
   SettingsToolsContent,
   SettingsTransferContent,
+  SettingsYouTubeContent,
 } from './SettingsModalTabSettings'
 import { SettingsChangelogContent } from './SettingsModalTabChangelog'
 import { SettingsUserStylesContent } from './SettingsUserStylesContent'
@@ -44,6 +45,7 @@ const iconWrapCls =
 
 type SettingsPage =
   | 'home'
+  | 'content'
   | 'preferences'
   | 'appearance'
   | 'blocklist'
@@ -289,6 +291,7 @@ export const SettingsModal = () => {
 
   const pageMeta = {
     home: { title: t('settings.label') },
+    content: { title: t('settings.preferences') },
     preferences: { title: t('settings.preferences') },
     appearance: { title: t('settings.appearance') },
     blocklist: { title: t('settings.blocklist.label') },
@@ -301,171 +304,187 @@ export const SettingsModal = () => {
   } satisfies Record<SettingsPage, { title: string }>
 
   const renderPage = () => {
-    if (currentPage === 'home') {
-      return (
-        <View className="gap-8">
-          <SettingsSection label={t('settings.general')}>
+    switch (currentPage) {
+      case 'home':
+        return (
+          <View className="gap-8">
+            <SettingsSection label={t('settings.groupYouTube')}>
+              <View className={surfaceCls}>
+                <SettingsNavRow
+                  title={t('settings.preferences')}
+                  description={t('settings.preferencesYouTubeHint')}
+                  icon="tune"
+                  onPress={() => pushPage('content')}
+                />
+                <SettingsNavRow
+                  title={t('settings.blocklist.label')}
+                  description={t('settings.blocklist.hint')}
+                  icon="block"
+                  onPress={() => pushPage('blocklist')}
+                />
+                <SettingsNavRow
+                  title={t('settings.userStyles.label')}
+                  description={t('settings.userStyles.hint')}
+                  icon="brush"
+                  onPress={() => pushPage('styles')}
+                  isLast
+                />
+              </View>
+            </SettingsSection>
+
+            <SettingsSection label={t('settings.groupNouTube')}>
+              <View className={surfaceCls}>
+                <SettingsNavRow
+                  title={t('settings.preferences')}
+                  description={t('settings.preferencesNouTubeHint')}
+                  icon="toggle-on"
+                  onPress={() => pushPage('preferences')}
+                />
+                <SettingsNavRow
+                  title={t('settings.appearance')}
+                  description={t('settings.appearanceHint')}
+                  icon="palette"
+                  meta={themeLabel}
+                  onPress={() => pushPage('appearance')}
+                  isLast
+                />
+              </View>
+            </SettingsSection>
+
+            <SettingsSection label={t('settings.tools')}>
+              <View className={surfaceCls}>
+                <SettingsNavRow
+                  title={t('sync.label')}
+                  description={user?.email || t('settings.syncHintShort')}
+                  icon="sync"
+                  meta={formatPlanLabel(plan)}
+                  onPress={() => pushPage('sync')}
+                />
+                <SettingsNavRow
+                  title={t('settings.transfer')}
+                  description={t('settings.transferHint')}
+                  icon="import-export"
+                  onPress={() => pushPage('transfer')}
+                />
+                <SettingsNavRow
+                  title={t('settings.tools')}
+                  description={t('settings.toolsHint')}
+                  icon="build"
+                  onPress={() => pushPage('tools')}
+                  isLast
+                />
+              </View>
+            </SettingsSection>
+
+            <SettingsSection label={t('about.label')}>
+              <View className={surfaceCls}>
+                <SettingsNavRow
+                  title={t('about.label')}
+                  description={t('about.hint')}
+                  icon="info-outline"
+                  meta={`v${appVersion}`}
+                  onPress={() => pushPage('about')}
+                />
+                <SettingsNavRow
+                  title={t('changelog.label')}
+                  description={t('changelog.hint')}
+                  icon="history"
+                  onPress={() => pushPage('changelog')}
+                  isLast
+                />
+              </View>
+            </SettingsSection>
+          </View>
+        )
+
+      case 'content':
+        return <SettingsYouTubeContent />
+
+      case 'preferences':
+        return <SettingsPreferencesContent />
+
+      case 'appearance':
+        return <SettingsAppearanceContent />
+
+      case 'blocklist':
+        return <SettingsBlocklistContent />
+
+      case 'styles':
+        return <SettingsUserStylesContent />
+
+      case 'tools':
+        return <SettingsToolsContent />
+
+      case 'transfer':
+        return (
+          <SettingsTransferContent
+            importingList={importingList}
+            setImportingList={setImportingList}
+            importingTakeout={importingTakeout}
+            setImportingTakeout={setImportingTakeout}
+          />
+        )
+
+      case 'sync':
+        return <SettingsModalTabSync />
+
+      case 'changelog':
+        return <SettingsChangelogContent />
+
+
+      case 'about':
+        return (
+        <View className="gap-6">
+          <View className="rounded-[28px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/80 px-5 py-5">
+            <NouText className="text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500">
+              NouTube
+            </NouText>
+            <NouText className="mt-2 text-xl font-semibold tracking-tight">v{appVersion}</NouText>
+          </View>
+
+          {updateSupported ? (
+            <SettingsSection label={t('about.updates')}>
+              <View className={surfaceCls}>
+                <SettingsActionRow
+                  label={t('update.check')}
+                  description={t('update.checkHint')}
+                  icon="system-update"
+                  onPress={handleCheckForUpdate}
+                  loading={checkingUpdate}
+                  isLast
+                />
+              </View>
+            </SettingsSection>
+          ) : null}
+
+          <SettingsSection label={t('about.code')}>
             <View className={surfaceCls}>
-              <SettingsNavRow
-                title={t('settings.preferences')}
-                description={t('settings.preferencesHint')}
-                icon="toggle-on"
-                onPress={() => pushPage('preferences')}
-              />
-              <SettingsNavRow
-                title={t('settings.appearance')}
-                description={t('settings.appearanceHint')}
-                icon="palette"
-                meta={themeLabel}
-                onPress={() => pushPage('appearance')}
-              />
-              <SettingsNavRow
-                title={t('settings.blocklist.label')}
-                description={t('settings.blocklist.hint')}
-                icon="block"
-                onPress={() => pushPage('blocklist')}
-              />
-              <SettingsNavRow
-                title={t('settings.userStyles.label')}
-                description={t('settings.userStyles.hint')}
-                icon="brush"
-                onPress={() => pushPage('styles')}
-                isLast
-              />
+              <SettingsExternalRow title="GitHub" detail="github.com/nonbili/NouTube" href={repo} icon="code" isLast />
             </View>
           </SettingsSection>
 
-          <SettingsSection label={t('settings.tools')}>
+          <SettingsSection label={t('about.donate')}>
             <View className={surfaceCls}>
-              <SettingsNavRow
-                title={t('sync.label')}
-                description={user?.email || t('settings.syncHintShort')}
-                icon="sync"
-                meta={formatPlanLabel(plan)}
-                onPress={() => pushPage('sync')}
-              />
-              <SettingsNavRow
-                title={t('settings.transfer')}
-                description={t('settings.transferHint')}
-                icon="import-export"
-                onPress={() => pushPage('transfer')}
-              />
-              <SettingsNavRow
-                title={t('settings.tools')}
-                description={t('settings.toolsHint')}
-                icon="build"
-                onPress={() => pushPage('tools')}
-                isLast
-              />
-            </View>
-          </SettingsSection>
-
-          <SettingsSection label={t('about.label')}>
-            <View className={surfaceCls}>
-              <SettingsNavRow
-                title={t('about.label')}
-                description={t('about.hint')}
-                icon="info-outline"
-                meta={`v${appVersion}`}
-                onPress={() => pushPage('about')}
-              />
-              <SettingsNavRow
-                title={t('changelog.label')}
-                description={t('changelog.hint')}
-                icon="history"
-                onPress={() => pushPage('changelog')}
-                isLast
-              />
+              {donateLinks.map((item, index) => (
+                <SettingsExternalRow
+                  key={item.url}
+                  title={item.label}
+                  detail={item.detail}
+                  href={item.url}
+                  isLast={index === donateLinks.length - 1}
+                />
+              ))}
             </View>
           </SettingsSection>
         </View>
       )
+
+      default: {
+        // Adding a SettingsPage without a case here is a compile error rather than a blank page.
+        const unhandled: never = currentPage
+        return unhandled
+      }
     }
-
-    if (currentPage === 'preferences') {
-      return <SettingsPreferencesContent />
-    }
-
-    if (currentPage === 'appearance') {
-      return <SettingsAppearanceContent />
-    }
-
-    if (currentPage === 'blocklist') {
-      return <SettingsBlocklistContent />
-    }
-
-    if (currentPage === 'styles') {
-      return <SettingsUserStylesContent />
-    }
-
-    if (currentPage === 'tools') {
-      return <SettingsToolsContent />
-    }
-
-    if (currentPage === 'transfer') {
-      return (
-        <SettingsTransferContent
-          importingList={importingList}
-          setImportingList={setImportingList}
-          importingTakeout={importingTakeout}
-          setImportingTakeout={setImportingTakeout}
-        />
-      )
-    }
-
-    if (currentPage === 'sync') {
-      return <SettingsModalTabSync />
-    }
-
-    if (currentPage === 'changelog') {
-      return <SettingsChangelogContent />
-    }
-
-    return (
-      <View className="gap-6">
-        <View className="rounded-[28px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/80 px-5 py-5">
-          <NouText className="text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500">
-            NouTube
-          </NouText>
-          <NouText className="mt-2 text-xl font-semibold tracking-tight">v{appVersion}</NouText>
-        </View>
-
-        {updateSupported ? (
-          <SettingsSection label={t('about.updates')}>
-            <View className={surfaceCls}>
-              <SettingsActionRow
-                label={t('update.check')}
-                description={t('update.checkHint')}
-                icon="system-update"
-                onPress={handleCheckForUpdate}
-                loading={checkingUpdate}
-                isLast
-              />
-            </View>
-          </SettingsSection>
-        ) : null}
-
-        <SettingsSection label={t('about.code')}>
-          <View className={surfaceCls}>
-            <SettingsExternalRow title="GitHub" detail="github.com/nonbili/NouTube" href={repo} icon="code" isLast />
-          </View>
-        </SettingsSection>
-
-        <SettingsSection label={t('about.donate')}>
-          <View className={surfaceCls}>
-            {donateLinks.map((item, index) => (
-              <SettingsExternalRow
-                key={item.url}
-                title={item.label}
-                detail={item.detail}
-                href={item.url}
-                isLast={index === donateLinks.length - 1}
-              />
-            ))}
-          </View>
-        </SettingsSection>
-      </View>
-    )
   }
 
   if (!settingsModalOpen) {

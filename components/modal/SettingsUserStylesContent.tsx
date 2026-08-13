@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Alert, Keyboard, Platform, Pressable, ScrollView, Switch, TextInput, View, useWindowDimensions } from 'react-native'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
-import * as Clipboard from 'expo-clipboard'
 import { getDocumentAsync } from 'expo-document-picker'
 import { useValue } from '@legendapp/state/react'
 import { t } from 'i18next'
@@ -10,12 +9,8 @@ import { NouText } from '../NouText'
 import { clsx, isWeb, nIf } from '@/lib/utils'
 import {
   buildUserScriptExecutionSource,
-  builtinUserScriptDefinitions,
-  builtinUserStyleDefinitionById,
-  builtinUserStyleDefinitions,
   parseUserscriptMetadata,
   stripUserscriptMetadata,
-  type BuiltinUserStyleId,
   type CustomUserScript,
   type CustomUserStyle,
 } from '@/lib/user-styles'
@@ -38,20 +33,6 @@ type DraftState = {
   name: string
   enabled: boolean
   css: string
-}
-
-const cleanCss = (value: string) => {
-  const lines = value
-    .replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '')
-    .split('\n')
-    .filter((line) => line.trim())
-
-  if (lines.length === 0) {
-    return ''
-  }
-
-  const firstLineIndent = lines[0].match(/^\s*/)?.[0].length || 0
-  return lines.map((line) => line.slice(firstLineIndent)).join('\n')
 }
 
 const createDraft = (style?: CustomUserStyle | null): DraftState => {
@@ -131,17 +112,12 @@ async function readPickedScript() {
 export const SettingsUserStylesContent = () => {
   const customStyles = useValue(userStyles$.customStyles)
   const customScripts = useValue(userStyles$.customScripts).filter((script): script is CustomUserScript => Boolean(script))
-  const builtins = useValue(userStyles$.builtins)
-  const builtinScripts = useValue(userStyles$.builtinScripts)
   const [draft, setDraft] = useState<DraftState | null>(null)
   const [scriptDraft, setScriptDraft] = useState<ScriptDraftState | null>(null)
-  const [previewBuiltinId, setPreviewBuiltinId] = useState<BuiltinUserStyleId | null>(null)
   const [keyboardHeight, setKeyboardHeight] = useState(0)
   const { height: windowHeight } = useWindowDimensions()
-  const previewDefinition = previewBuiltinId ? builtinUserStyleDefinitionById[previewBuiltinId] : null
   const hasStyles = customStyles.length > 0
   const hasScripts = customScripts.length > 0
-  const sortedBuiltins = useMemo(() => builtinUserStyleDefinitions, [])
   const scriptEditorHeight =
     keyboardHeight > 0 && Platform.OS !== 'web'
       ? Math.max(140, Math.min(300, windowHeight - keyboardHeight - 260))
@@ -239,20 +215,6 @@ export const SettingsUserStylesContent = () => {
     }
   }
 
-  const onCopyBuiltinCss = async () => {
-    if (!previewDefinition) {
-      return
-    }
-
-    try {
-      await Clipboard.setStringAsync(previewDefinition.css.trim())
-      showToast(t('settings.userStyles.cssCopied'))
-    } catch (error) {
-      console.warn('[SettingsUserStylesContent] failed to copy css', error)
-      showToast(t('settings.userStyles.copyFailed'))
-    }
-  }
-
   const onSave = () => {
     if (!draft) {
       return
@@ -283,28 +245,47 @@ export const SettingsUserStylesContent = () => {
       {isWeb && (draft || scriptDraft) ? null : (
         <>
           <View>
-            <NouText className={subheaderCls}>{t('settings.userStyles.builtin.label')}</NouText>
+            <View className="mb-3 flex-row items-center justify-between">
+              <NouText className={subheaderCls}>{t('settings.userStyles.custom.label')}</NouText>
+              <Pressable
+                onPress={() => setDraft(createDraft())}
+                className="flex-row items-center gap-1 rounded-full bg-indigo-600/10 px-3 py-1.5 active:bg-indigo-600/20"
+              >
+                <MaterialIcons name="add" color="#818cf8" size={18} />
+                <NouText className="text-xs font-semibold text-indigo-400">{t('settings.userStyles.add')}</NouText>
+              </Pressable>
+            </View>
             <View className={surfaceCls}>
-              {sortedBuiltins.map((definition, index) => (
+              {!hasStyles ? (
+                <View className="items-center justify-center px-6 py-10">
+                  <View className="h-12 w-12 items-center justify-center rounded-2xl bg-zinc-200 dark:bg-zinc-950">
+                    <MaterialIcons name="brush" color="#3f3f46" size={24} />
+                  </View>
+                  <NouText className="mt-4 text-center text-sm leading-6 text-zinc-600 dark:text-zinc-500">
+                    {t('settings.userStyles.custom.empty')}
+                  </NouText>
+                </View>
+              ) : null}
+              {customStyles.map((style, index) => (
                 <Pressable
-                  key={definition.id}
-                  onPress={() => setPreviewBuiltinId(definition.id)}
+                  key={style.id}
+                  onPress={() => setDraft(createDraft(style))}
                   className={clsx(
                     rowCls,
                     'flex-row items-center justify-between active:bg-zinc-200/50 dark:active:bg-zinc-800/50',
-                    index !== sortedBuiltins.length - 1 && rowBorderCls,
+                    index !== customStyles.length - 1 && rowBorderCls,
                   )}
                 >
                   <View className="flex-1 pr-4">
-                    <NouText className="font-medium" numberOfLines={1}>
-                      {t(definition.labelKey)}
+                    <NouText className={clsx('font-medium', !style.enabled && 'text-zinc-500')} numberOfLines={1}>
+                      {style.name}
                     </NouText>
                   </View>
                   <Switch
-                    value={builtins[definition.id]?.enabled ?? true}
-                    onValueChange={() => userStyles$.toggleBuiltin(definition.id)}
+                    value={style.enabled}
+                    onValueChange={() => userStyles$.toggleCustomStyle(style.id)}
                     trackColor={{ false: '#27272a', true: '#3730a3' }}
-                    thumbColor={(builtins[definition.id]?.enabled ?? true) ? '#818cf8' : '#71717a'}
+                    thumbColor={style.enabled ? '#818cf8' : '#71717a'}
                     {...Platform.select({
                       web: {
                         activeThumbColor: '#818cf8',
@@ -318,96 +299,6 @@ export const SettingsUserStylesContent = () => {
               ))}
             </View>
           </View>
-
-          <View className="mt-10">
-            <NouText className={subheaderCls}>{t('settings.userStyles.builtinScripts.label')}</NouText>
-            <View className={surfaceCls}>
-              {builtinUserScriptDefinitions.map((definition, index) => (
-                <View
-                  key={definition.id}
-                  className={clsx(
-                    rowCls,
-                    'flex-row items-center justify-between',
-                    index !== builtinUserScriptDefinitions.length - 1 && rowBorderCls,
-                  )}
-                >
-                  <NouText className="flex-1 pr-4 font-medium" numberOfLines={1}>
-                    {t(definition.labelKey)}
-                  </NouText>
-                  <Switch
-                    value={builtinScripts[definition.id]?.enabled ?? false}
-                    onValueChange={() => userStyles$.toggleBuiltinScript(definition.id)}
-                    trackColor={{ false: '#27272a', true: '#3730a3' }}
-                    thumbColor={(builtinScripts[definition.id]?.enabled ?? false) ? '#818cf8' : '#71717a'}
-                    {...Platform.select({
-                      web: {
-                        activeThumbColor: '#818cf8',
-                      },
-                      ios: {
-                        style: { transform: [{ scale: 0.8 }] },
-                      },
-                    })}
-                  />
-                </View>
-              ))}
-            </View>
-          </View>
-
-      <View className="mt-10">
-        <View className="mb-3 flex-row items-center justify-between">
-          <NouText className={subheaderCls}>{t('settings.userStyles.custom.label')}</NouText>
-          <Pressable
-            onPress={() => setDraft(createDraft())}
-            className="flex-row items-center gap-1 rounded-full bg-indigo-600/10 px-3 py-1.5 active:bg-indigo-600/20"
-          >
-            <MaterialIcons name="add" color="#818cf8" size={18} />
-            <NouText className="text-xs font-semibold text-indigo-400">{t('settings.userStyles.add')}</NouText>
-          </Pressable>
-        </View>
-        <View className={surfaceCls}>
-          {!hasStyles ? (
-            <View className="items-center justify-center px-6 py-10">
-              <View className="h-12 w-12 items-center justify-center rounded-2xl bg-zinc-200 dark:bg-zinc-950">
-                <MaterialIcons name="brush" color="#3f3f46" size={24} />
-              </View>
-              <NouText className="mt-4 text-center text-sm leading-6 text-zinc-600 dark:text-zinc-500">
-                {t('settings.userStyles.custom.empty')}
-              </NouText>
-            </View>
-          ) : null}
-          {customStyles.map((style, index) => (
-            <Pressable
-              key={style.id}
-              onPress={() => setDraft(createDraft(style))}
-              className={clsx(
-                rowCls,
-                'flex-row items-center justify-between active:bg-zinc-200/50 dark:active:bg-zinc-800/50',
-                index !== customStyles.length - 1 && rowBorderCls,
-              )}
-            >
-              <View className="flex-1 pr-4">
-                <NouText className={clsx('font-medium', !style.enabled && 'text-zinc-500')} numberOfLines={1}>
-                  {style.name}
-                </NouText>
-              </View>
-              <Switch
-                value={style.enabled}
-                onValueChange={() => userStyles$.toggleCustomStyle(style.id)}
-                trackColor={{ false: '#27272a', true: '#3730a3' }}
-                thumbColor={style.enabled ? '#818cf8' : '#71717a'}
-                {...Platform.select({
-                  web: {
-                    activeThumbColor: '#818cf8',
-                  },
-                  ios: {
-                    style: { transform: [{ scale: 0.8 }] },
-                  },
-                })}
-              />
-            </Pressable>
-          ))}
-        </View>
-      </View>
 
           <View className="mt-10">
             <View className="mb-3 flex-row items-center justify-between">
@@ -907,49 +798,6 @@ export const SettingsUserStylesContent = () => {
             </ScrollView>
           </BaseCenterModal>
         )
-      ) : null}
-
-      {previewDefinition ? (
-        <BaseCenterModal
-          onClose={() => setPreviewBuiltinId(null)}
-          containerClassName="lg:w-[50rem] xl:w-[60rem] max-w-[95vw]"
-        >
-          <View className="p-6">
-            <View className="flex-row items-center gap-3">
-              <View className="h-10 w-10 items-center justify-center rounded-xl bg-zinc-200 dark:bg-zinc-950">
-                <MaterialIcons name="code" color="#818cf8" size={20} />
-              </View>
-              <View className="flex-1">
-                <NouText className="text-lg font-bold">{t(previewDefinition.labelKey)}</NouText>
-              </View>
-            </View>
-
-            <View className="mt-6 overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-              <ScrollView className="max-h-[400px]" showsVerticalScrollIndicator={false}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View className="items-start p-4">
-                    <NouText
-                      className="font-mono text-[11px] leading-5 text-indigo-700 dark:text-indigo-300"
-                      style={{ fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' }}
-                    >
-                      {cleanCss(previewDefinition.css)}
-                    </NouText>
-                  </View>
-                </ScrollView>
-              </ScrollView>
-            </View>
-
-            <View className="mt-6 flex-row items-center justify-end gap-3">
-              <NouButton variant="outline" size="1" onPress={() => setPreviewBuiltinId(null)}>
-                {t('buttons.cancel')}
-              </NouButton>
-              <NouButton onPress={onCopyBuiltinCss}>
-                <MaterialIcons name="content-copy" color="white" size={16} />
-                {t('settings.userStyles.copyCss')}
-              </NouButton>
-            </View>
-          </View>
-        </BaseCenterModal>
       ) : null}
     </View>
   )
