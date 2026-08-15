@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useValue, useObserveEffect } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { tabs$, type Tab } from '@/states/tabs'
@@ -335,6 +335,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const preferH264 = useValue(settings$.preferH264)
   const clickbaitThumbnail = useValue(settings$.clickbaitThumbnail)
   const blocklistState = useValue(blocklist$)
+  const [blocklistSynced, setBlocklistSynced] = useState(!isWeb)
   const buildPrelude = () =>
     `window.NouTubeInitialSettings = ${JSON.stringify(getContentSettingsSnapshot())};` +
     `window.NouTubePreferH264 = ${settings$.preferH264.get() ? 'true' : 'false'};` +
@@ -361,7 +362,12 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   useEffect(() => {
     if (isWeb) {
-      void mainClient.setBlocklist(getBlocklistSnapshot())
+      // The main process filters the server-rendered ytInitialData, so it needs
+      // the blocklist before any webview starts navigating.
+      void mainClient
+        .setBlocklist(getBlocklistSnapshot())
+        .catch(() => undefined)
+        .then(() => setBlocklistSynced(true))
     }
 
     // Background yt-dlp update every 2 weeks
@@ -707,7 +713,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         {nIf(isWeb, <SettingsModal />)}
         {isWeb ? (
           <View className="relative flex-1 min-h-0">
-            {tabs.map((tab, index) => (
+            {(blocklistSynced ? tabs : []).map((tab, index) => (
               <DesktopTabView
                 key={tab.id}
                 tab={tab}

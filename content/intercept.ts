@@ -36,12 +36,7 @@ export function intercept() {
     const blocklist = window.NouTube?.getBlocklist?.()
     const settings = window.NouTube?.getSettings?.()
     const options = { showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle) }
-    const hasBlocklist = Boolean(blocklist?.channels?.length || blocklist?.keywords?.length)
-    if (
-      res.status > 200 ||
-      !match ||
-      (match[1] == 'search' && !window.NouTube.shortsHidden && !hasBlocklist && !options.showOriginalVideoTitle)
-    ) {
+    if (res.status > 200 || !match) {
       return res
     }
 
@@ -86,11 +81,6 @@ export function intercept() {
       const blocklist = window.NouTube?.getBlocklist?.()
       const settings = window.NouTube?.getSettings?.()
       const options = { showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle) }
-      const hasBlocklist = Boolean(blocklist?.channels?.length || blocklist?.keywords?.length)
-      if (match[1] == 'search' && !window.NouTube.shortsHidden && !hasBlocklist && !options.showOriginalVideoTitle) {
-        return
-      }
-
       try {
         const fn =
           {

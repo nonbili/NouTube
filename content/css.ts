@@ -159,6 +159,20 @@ const cssContent = css`
     display: none !important;
   }
 
+  /* Ads are normally dropped from the feed data, but if one still renders, hide
+   * its grid cell too, otherwise the hidden ad leaves a blank tile behind. */
+  ytd-rich-item-renderer:has(ytd-ad-slot-renderer),
+  ytd-rich-item-renderer:has(ytd-in-feed-ad-layout-renderer),
+  ytd-rich-section-renderer:has(ytd-ad-slot-renderer),
+  ytd-rich-section-renderer:has(ytd-statement-banner-renderer),
+  ytd-item-section-renderer:has(ytd-ad-slot-renderer),
+  ytm-rich-item-renderer:has(ad-slot-renderer),
+  ytm-item-section-renderer:has(ad-slot-renderer),
+  ytd-rich-item-renderer:has(ad-slot-renderer),
+  ytd-rich-item-renderer:has(.ytwFeedAdMetadataViewModelHostMetadata) {
+    display: none !important;
+  }
+
   #_nou_livechat {
     width: 100%;
     height: 50vh;

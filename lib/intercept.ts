@@ -92,12 +92,51 @@ export function filterListResponse(data: any, blocklist?: BlocklistSnapshot) {
   for (const key of Object.keys(data)) {
     const value = data[key]
     if (Array.isArray(value)) {
-      data[key] = value.filter((item) => !itemMatchesBlocklist(item, blocklist))
+      data[key] = value.filter((item) => !isAdItem(item) && !itemMatchesBlocklist(item, blocklist))
       data[key].forEach((item: any) => filterListResponse(item, blocklist))
     } else if (value && typeof value === 'object') {
       filterListResponse(value, blocklist)
     }
   }
+}
+
+// Renderers that carry an ad/promo instead of real content. Dropping the whole
+// list item (rather than hiding it with css) also removes the grid cell, which
+// is what leaves a blank tile in the home feed.
+const AD_RENDERER_KEYS = [
+  'adSlotRenderer',
+  'adsEngagementPanelRenderer',
+  'bannerPromoRenderer',
+  'brandVideoShelfRenderer',
+  'brandVideoSingletonRenderer',
+  'carouselAdRenderer',
+  'compactPromotedItemRenderer',
+  'compactPromotedVideoRenderer',
+  'displayAdRenderer',
+  'inFeedAdLayoutRenderer',
+  'mealbarPromoRenderer',
+  'primetimePromoRenderer',
+  'promotedSparklesTextSearchRenderer',
+  'promotedSparklesWebRenderer',
+  'promotedVideoRenderer',
+  'searchPyvRenderer',
+  'statementBannerRenderer',
+]
+
+function isAdItem(item: any): boolean {
+  if (!item || typeof item !== 'object') {
+    return false
+  }
+
+  // Wrappers keep the ad one level down, e.g. richItemRenderer.content.adSlotRenderer.
+  const candidates = [
+    item,
+    item.richItemRenderer?.content,
+    item.richSectionRenderer?.content,
+    item.itemSectionRenderer?.contents?.length === 1 ? item.itemSectionRenderer.contents[0] : undefined,
+  ].filter(Boolean)
+
+  return candidates.some((candidate) => AD_RENDERER_KEYS.some((key) => candidate[key]))
 }
 
 function itemMatchesBlocklist(item: any, blocklist?: BlocklistSnapshot) {

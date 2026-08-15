@@ -55,11 +55,16 @@ function findJsonBounds(text: string, startIndex: number) {
   return null
 }
 
-function transformHtml(html: string) {
-  const targetKey = 'var ytInitialPlayerResponse ='
-  let index = html.indexOf(targetKey)
+// JSON.stringify happily emits `<`, which would end the inline <script> early.
+// YouTube itself escapes these, so mirror that.
+function escapeForScriptTag(json: string) {
+  return json.replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
+}
+
+function transformEmbeddedJson(html: string, key: string, transform: (json: string) => string) {
+  let index = html.indexOf(`var ${key} =`)
   if (index === -1) {
-    index = html.indexOf('ytInitialPlayerResponse =')
+    index = html.indexOf(`${key} =`)
     if (index === -1) {
       return html
     }
@@ -71,13 +76,22 @@ function transformHtml(html: string) {
   }
 
   try {
-    const jsonStr = html.slice(bounds.start, bounds.end)
-    const transformedJson = transformPlayerResponse(jsonStr)
-    return html.slice(0, bounds.start) + transformedJson + html.slice(bounds.end)
+    const transformed = escapeForScriptTag(transform(html.slice(bounds.start, bounds.end)))
+    return html.slice(0, bounds.start) + transformed + html.slice(bounds.end)
   } catch (e) {
-    console.error('Failed to transform ytInitialPlayerResponse inside HTML:', e)
+    console.error(`Failed to transform ${key} inside HTML:`, e)
     return html
   }
+}
+
+function transformHtml(html: string) {
+  // ytInitialData carries the server-rendered feed (home, subscriptions, watch
+  // sidebar), which is where feed ads and blocklisted items come from on first
+  // paint; continuations go through /youtubei/v1/browse below.
+  const withoutAds = transformEmbeddedJson(html, 'ytInitialData', (json) =>
+    transformBrowseResponse(json, currentBlocklist),
+  )
+  return transformEmbeddedJson(withoutAds, 'ytInitialPlayerResponse', (json) => transformPlayerResponse(json))
 }
 
 function isYouTubeHost(url: string) {
@@ -102,6 +116,15 @@ function getTransformTarget(url: string) {
   }
 
   return null
+}
+
+// Any YouTube page navigation, so the server-rendered ytInitialData of the home
+// feed gets filtered too, not just /watch.
+function isDocumentRequest(req: Request) {
+  if (req.method !== 'GET') {
+    return false
+  }
+  return (req.headers.get('accept') || '').includes('text/html')
 }
 
 export function interceptHttpRequest() {
@@ -134,7 +157,8 @@ export function interceptHttpRequest() {
     }
 
     const target = getTransformTarget(req.url)
-    if (!target) {
+    const isDocument = isDocumentRequest(req)
+    if (!target && !isDocument) {
       return ses.fetch(req, {
         bypassCustomProtocolHandlers: true,
       })
@@ -150,11 +174,12 @@ export function interceptHttpRequest() {
       return Response.error()
     }
 
-    const { pathname, match } = target
-    if (res.status > 200 || (!pathname.startsWith('/watch') && !match)) {
+    const isHtml = (res.headers.get('content-type') || '').includes('text/html')
+    if (res.status > 200 || (!isHtml && !target?.match)) {
       return res
     }
 
+    const match = target?.match
     const text = await res.text()
     const headers = new Headers(res.headers)
     headers.delete('content-length')
@@ -165,7 +190,7 @@ export function interceptHttpRequest() {
       headers,
     }
     try {
-      if (pathname.startsWith('/watch')) {
+      if (isHtml) {
         return new Response(transformHtml(text), responseInit)
       }
 

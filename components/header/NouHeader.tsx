@@ -210,7 +210,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     Number(showHomeButtonInHeader) +
     Number(!isWeb && showBackButtonInHeader) +
     Number(!isWeb && showForwardButtonInHeader) +
-    Number(!isWeb && showReloadButtonInHeader) +
+    Number(showReloadButtonInHeader) +
     Number(showHistoryButtonInHeader) +
     Number(isWeb) * 2
   const trailingToolbarItemCount =
@@ -294,6 +294,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
                 disabled={!canGoForward}
                 onPress={goForward}
               />
+              {nIf(showReloadButtonInHeader, <MaterialButton color={headerControlColor} name="refresh" onPress={reloadPage} />)}
             </>,
           )}
         </ScrollView>
