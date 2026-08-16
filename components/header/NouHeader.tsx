@@ -29,6 +29,7 @@ import { tabs$, type Tab } from '@/states/tabs'
 import { buildUserScriptExecutionSource } from '@/lib/user-styles'
 import { userStyles$ } from '@/states/user-styles'
 import { useHeaderAnimation } from './header-animation'
+import { toolbarPillLabelClass, toolbarPillPressableClass } from './toolbar-classes'
 import { useActivePageUrl } from '@/lib/hooks/useActivePageUrl'
 
 const getTabLabel = (tab: { title?: string; pageUrl?: string; url?: string }) => {
@@ -377,9 +378,9 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           showPlaybackSpeedControl,
           <Pressable
             onPress={() => ui$.playbackSpeedModalOpen.set(true)}
-            className="h-11 min-w-11 px-1 items-center justify-center shrink-0 lg:w-full lg:min-w-0 lg:px-0"
+            className={toolbarPillPressableClass()}
           >
-            <View className="max-w-full px-2 py-1 rounded-full border border-zinc-300 dark:border-zinc-600 bg-zinc-200/80 dark:bg-zinc-700/80 lg:px-1.5">
+            <View className={toolbarPillLabelClass()}>
               <NouText className="text-xs font-medium">{playbackRateLabel}</NouText>
             </View>
           </Pressable>,
@@ -388,9 +389,9 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           showPlaybackQualityControl,
           <Pressable
             onPress={() => ui$.playbackQualityModalOpen.set(true)}
-            className="h-11 min-w-11 px-1 items-center justify-center shrink-0 lg:w-full lg:min-w-0 lg:px-0"
+            className={toolbarPillPressableClass()}
           >
-            <View className="max-w-full px-2 py-1 rounded-full border border-zinc-300 dark:border-zinc-600 bg-zinc-200/80 dark:bg-zinc-700/80 lg:px-1.5">
+            <View className={toolbarPillLabelClass()}>
               <NouText className="text-xs font-medium">{playbackQualityLabel}</NouText>
             </View>
           </Pressable>,
