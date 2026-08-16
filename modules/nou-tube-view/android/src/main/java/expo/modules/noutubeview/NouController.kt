@@ -1,11 +1,13 @@
 package expo.modules.noutubeview
 
+import android.content.Context
 import android.os.SystemClock
 import expo.modules.kotlin.records.Field
 import expo.modules.kotlin.records.Record
 
 typealias LogFn = (String) -> Unit
 typealias SleepTimerEventFn = (Map<String, Any?>) -> Unit
+typealias DesktopModeEventFn = (Boolean) -> Unit
 
 private const val SLEEP_TIMER_REASON_SET = "set"
 private const val SLEEP_TIMER_REASON_CLEAR = "clear"
@@ -29,12 +31,28 @@ class NouController {
   internal var service: NouService? = null
   internal var logFn: LogFn? = null
   internal var sleepTimerEventFn: SleepTimerEventFn? = null
+  internal var desktopModeEventFn: DesktopModeEventFn? = null
   internal var i18nStrings = mutableMapOf<String, String>()
+  private var lastDesktopMode: Boolean? = null
   private var pendingSleepTimerDeadlineMs: Long? = null
   private var hasPendingSleepTimerChange = false
 
   fun log(msg: String) {
     logFn?.invoke(msg)
+  }
+
+  /**
+   * Called by MainActivity whenever its display or configuration changes, so
+   * moving the window between the phone screen and an external monitor reaches
+   * JS without polling.
+   */
+  fun updateDesktopMode(context: Context) {
+    val desktopMode = isSystemDesktopMode(context)
+    if (desktopMode == lastDesktopMode) {
+      return
+    }
+    lastDesktopMode = desktopMode
+    desktopModeEventFn?.invoke(desktopMode)
   }
 
   fun t(key: String): String {

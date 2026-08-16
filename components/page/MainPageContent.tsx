@@ -28,6 +28,8 @@ import { history$ } from '@/states/history'
 import { getUserStylesSnapshot, userStyles$ } from '@/states/user-styles'
 import { blocklist$, getBlocklistSnapshot } from '@/states/blocklist'
 import { addSystemCaptionStyleListener, getSystemCaptionStyle } from '@/lib/system-captions'
+import { addSystemDesktopModeListener, getSystemDesktopMode } from '@/lib/desktop-mode'
+import { useDesktopMode } from '@/lib/hooks/useDesktopMode'
 import { SettingsModal } from '../modal/SettingsModal'
 
 let restored = false
@@ -332,9 +334,15 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const pullToRefreshEnabled = useValue(settings$.pullToRefreshEnabled)
   const defaultZoom = useValue(settings$.defaultZoom)
   const customUserAgent = useValue(settings$.userAgent)
-  const desktopModeYTMusic = useValue(settings$.desktopMode)
-  const desktopModeYT = useValue(settings$.desktopModeYT)
-  const desktopMode = isYTMusic ? desktopModeYTMusic : desktopModeYT
+  // Seeded before the first render reads it, so a start on an external display
+  // mounts the webview with the desktop user agent instead of loading the
+  // mobile site and reloading right after.
+  const seededSystemDesktopMode = useRef(false)
+  if (!seededSystemDesktopMode.current) {
+    seededSystemDesktopMode.current = true
+    ui$.systemDesktopMode.set(getSystemDesktopMode())
+  }
+  const desktopMode = useDesktopMode(isYTMusic)
   const preferH264 = useValue(settings$.preferH264)
   const clickbaitThumbnail = useValue(settings$.clickbaitThumbnail)
   const blocklistState = useValue(blocklist$)
@@ -650,6 +658,43 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(settings$.translateComments, () => syncSettingsToWebview())
   useObserveEffect(settings$.translationTargetLanguage, () => syncSettingsToWebview())
   useObserveEffect(settings$.useSystemCaptionStyle, () => syncSettingsToWebview())
+
+  // Track whether Android runs us on a desktop-class screen. The manual
+  // desktop-site override only lasts for one such session, so drop it whenever
+  // the mode flips.
+  useEffect(() => {
+    const apply = (systemDesktopMode: boolean) => {
+      if (ui$.systemDesktopMode.get() == systemDesktopMode) {
+        return
+      }
+      ui$.systemDesktopMode.set(systemDesktopMode)
+      ui$.desktopModeOverride.set(undefined)
+    }
+    const subscription = addSystemDesktopModeListener(apply)
+    // Subscribe first, then re-read: the native side only emits on a change, so
+    // a display swap between the seed above and this line would otherwise leave
+    // JS on the stale mode until the next real transition.
+    apply(getSystemDesktopMode())
+    return () => subscription?.remove?.()
+  }, [])
+
+  // The webview applies a new user agent on the next load, so every change to
+  // it -- desktop mode, the desktop-site toggle, a custom agent -- needs a
+  // reload once the prop has been handed over.
+  const previousUserAgentRef = useRef(userAgent)
+  useEffect(() => {
+    if (previousUserAgentRef.current == userAgent) {
+      return
+    }
+    previousUserAgentRef.current = userAgent
+    // Fire and forget: the native call rejects if the view is between mounts,
+    // and the fresh view loads with the new agent anyway.
+    try {
+      void getNoutube()
+        ?.executeJavaScript?.('document.location.reload()')
+        ?.catch?.(() => undefined)
+    } catch {}
+  }, [userAgent, getNoutube])
 
   // Changing the preferences in Android Settings has to reach the open webview
   // without a reload.

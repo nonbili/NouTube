@@ -12,11 +12,17 @@ const cssContentMobile = css`
    * YouTube hardcodes on its text containers, so zoomed titles/headlines get
    * clipped. Drop those height clamps so the boxes grow with the text;
    * -webkit-line-clamp still truncates long titles to the intended line count.
+   *
+   * The player is excluded: its own class list carries title-related flags
+   * (ytp-hide-fullscreen-title), and forcing height:auto on #movie_player
+   * collapses it to 0, clipping the video away.
    */
-  [class*='headline' i],
-  [class*='title' i],
-  [class*='subhead' i],
-  [class*='channel-name' i] {
+  :is(
+      [class*='headline' i],
+      [class*='title' i],
+      [class*='subhead' i],
+      [class*='channel-name' i]
+    ):not(#movie_player, #movie_player *) {
     height: auto !important;
     max-height: none !important;
   }

@@ -14,6 +14,13 @@ interface Store {
   headerHeight: number
   headerShown: boolean
 
+  // desktop mode: whether Android runs us on a desktop-class screen, plus the
+  // manual desktop-site choice made while it lasts. Both are session state --
+  // leaving desktop mode clears the override and the persisted settings apply
+  // again.
+  systemDesktopMode: boolean
+  desktopModeOverride: boolean | undefined
+
   // modals
   bookmarkModalBookmark: Bookmark | undefined
   bookmarkModalMode: 'default' | 'feed'
@@ -55,6 +62,9 @@ export const ui$ = observable<Store>({
   // header
   headerHeight: 0,
   headerShown: true,
+
+  systemDesktopMode: false,
+  desktopModeOverride: undefined,
 
   // modals
   bookmarkModalBookmark: undefined,

@@ -32,6 +32,7 @@ declare class NouTubeViewModule extends NativeModule {
     edgeType?: number | null
     edgeColor?: number | null
   }
+  isSystemDesktopMode(): boolean
   translateText(text: string, targetLanguage: string): Promise<{ text: string; sourceLanguage?: string }>
   getTranslationSupportedLanguages(): string[]
 }

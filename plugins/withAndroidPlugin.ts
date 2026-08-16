@@ -9,6 +9,11 @@ import { withAndroidManifest, withAppBuildGradle } from '@expo/config-plugins/bu
 // metrics, so all text (icon fonts included) rasterises at the wrong scale while
 // Fabric lays out at the correct one. Re-point the holder at this activity's
 // display once React Native has initialised it.
+//
+// The same hooks also tell the native module which display we are on, so JS can
+// mirror desktop mode onto the YouTube user agent.
+const DESKTOP_MODE_ANCHOR = 'com.facebook.react.uimanager.DisplayMetricsHolder.setWindowDisplayMetrics(activityMetrics)'
+const DESKTOP_MODE_NOTIFY = `    expo.modules.noutubeview.nouController.updateDesktopMode(this)`
 const DISPLAY_METRICS_FIX = `
   private fun syncDisplayMetricsToCurrentDisplay() {
     val activityMetrics = resources.displayMetrics
@@ -31,7 +36,8 @@ const DISPLAY_METRICS_FIX = `
     screenMetrics.xdpi = activityMetrics.xdpi
     screenMetrics.ydpi = activityMetrics.ydpi
     com.facebook.react.uimanager.DisplayMetricsHolder.setScreenDisplayMetrics(screenMetrics)
-    com.facebook.react.uimanager.DisplayMetricsHolder.setWindowDisplayMetrics(activityMetrics)
+    ${DESKTOP_MODE_ANCHOR}
+${DESKTOP_MODE_NOTIFY}
   }
 
   override fun onResume() {
@@ -58,7 +64,19 @@ const withSecondaryDisplayMetricsFix: ConfigPlugin = (config) =>
     if (config.modResults.language !== 'kt') {
       throw new Error('withSecondaryDisplayMetricsFix expects a Kotlin MainActivity')
     }
+    if (config.modResults.contents.includes('nouController.updateDesktopMode')) {
+      return config
+    }
     if (config.modResults.contents.includes('syncDisplayMetricsToCurrentDisplay')) {
+      // A prebuild from before desktop mode reached JS: the metrics fix is
+      // already there, only the notification is missing.
+      if (!config.modResults.contents.includes(DESKTOP_MODE_ANCHOR)) {
+        throw new Error('withSecondaryDisplayMetricsFix could not upgrade the existing fix; run expo prebuild --clean')
+      }
+      config.modResults.contents = config.modResults.contents.replace(
+        DESKTOP_MODE_ANCHOR,
+        `${DESKTOP_MODE_ANCHOR}\n${DESKTOP_MODE_NOTIFY}`,
+      )
       return config
     }
     const anchor = 'class MainActivity : ReactActivity() {'

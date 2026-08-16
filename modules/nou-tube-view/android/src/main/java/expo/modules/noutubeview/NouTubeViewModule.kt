@@ -106,12 +106,15 @@ class NouTubeViewModule : Module() {
     nouController.sleepTimerEventFn = { payload ->
       sendEvent("sleepTimer", payload)
     }
+    nouController.desktopModeEventFn = { desktopMode ->
+      sendEvent("desktopMode", mapOf("desktopMode" to desktopMode))
+    }
   }
 
   override fun definition() = ModuleDefinition {
     Name("NouTubeView")
 
-    Events("log", "sleepTimer", "downloadProgress", "captionStyle")
+    Events("log", "sleepTimer", "downloadProgress", "captionStyle", "desktopMode")
 
     OnCreate {
       val manager = captioning() ?: return@OnCreate
@@ -133,6 +136,10 @@ class NouTubeViewModule : Module() {
 
     Function("getSystemCaptionStyle") {
       readCaptionStyle()
+    }
+
+    Function("isSystemDesktopMode") {
+      isSystemDesktopMode(appContext.currentActivity ?: appContext.reactContext)
     }
 
     Function("setTheme") { theme: String? ->

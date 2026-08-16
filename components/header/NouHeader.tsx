@@ -31,6 +31,7 @@ import { userStyles$ } from '@/states/user-styles'
 import { useHeaderAnimation } from './header-animation'
 import { toolbarPillLabelClass, toolbarPillPressableClass } from './toolbar-classes'
 import { useActivePageUrl } from '@/lib/hooks/useActivePageUrl'
+import { toggleDesktopMode, useDesktopMode } from '@/lib/hooks/useDesktopMode'
 
 const getTabLabel = (tab: { title?: string; pageUrl?: string; url?: string }) => {
   if (tab.title) {
@@ -75,8 +76,6 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const doubleTapToToggleHeader = useValue(settings$.doubleTapToToggleHeader)
   const hideToolbarWhenScrolled = useValue(settings$.hideToolbarWhenScrolled)
   const headerPosition = useValue(settings$.headerPosition)
-  const desktopModeYTMusic = useValue(settings$.desktopMode)
-  const desktopModeYT = useValue(settings$.desktopModeYT)
   const playbackRate = useValue(settings$.playbackRate)
   const playbackQuality = useValue(settings$.playbackQuality)
   const showBackButtonInHeader = useValue(settings$.showBackButtonInHeader)
@@ -94,7 +93,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const activeTab = tabs[activeTabIndex]
   const activePageUrl = useActivePageUrl()
   const isYTMusic = activePageUrl.includes('music.youtube.com')
-  const desktopMode = isYTMusic ? desktopModeYTMusic : desktopModeYT
+  const desktopMode = useDesktopMode(isYTMusic)
   const normalizedActivePageUrl = activePageUrl ? normalizeUrl(activePageUrl) : ''
   const feedsEnabled = useValue(settings$.feedsEnabled)
   const allStarred = useValue(library$.urls)
@@ -522,11 +521,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
                         </NouText>
                       </View>
                     ),
-                    handler: () => {
-                      const key = isYTMusic ? settings$.desktopMode : settings$.desktopModeYT
-                      key.set(!desktopMode)
-                      getNoutube()?.executeJavaScript?.('document.location.reload()')
-                    },
+                    handler: () => toggleDesktopMode(isYTMusic),
                   },
                 ]
               : []),
