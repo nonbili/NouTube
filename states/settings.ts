@@ -31,6 +31,7 @@ export interface SettingsSnapshot {
   sponsorBlock: boolean
   showDislikes: boolean
   showOriginalVideoTitle: boolean
+  useSystemCaptionStyle: boolean
   showBackButtonInHeader: boolean
   showForwardButtonInHeader: boolean
   showHomeButtonInHeader: boolean
@@ -91,6 +92,9 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   }
   if (typeof data.showOriginalVideoTitle !== 'boolean') {
     data.showOriginalVideoTitle = false
+  }
+  if (typeof data.useSystemCaptionStyle !== 'boolean') {
+    data.useSystemCaptionStyle = false
   }
   if (typeof data.autoHideSidebar !== 'boolean') {
     data.autoHideSidebar = false
@@ -160,6 +164,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   sponsorBlock: typeof value?.sponsorBlock === 'boolean' ? value.sponsorBlock : true,
   showDislikes: Boolean(value?.showDislikes),
   showOriginalVideoTitle: Boolean(value?.showOriginalVideoTitle),
+  useSystemCaptionStyle: Boolean(value?.useSystemCaptionStyle),
   showBackButtonInHeader: Boolean(value?.showBackButtonInHeader),
   showForwardButtonInHeader: Boolean(value?.showForwardButtonInHeader),
   showHomeButtonInHeader: Boolean(value?.showHomeButtonInHeader),
@@ -209,6 +214,7 @@ export const settings$ = observable<Store>({
   sponsorBlock: true,
   showDislikes: false,
   showOriginalVideoTitle: false,
+  useSystemCaptionStyle: false,
   showBackButtonInHeader: false,
   showForwardButtonInHeader: false,
   showHomeButtonInHeader: false,

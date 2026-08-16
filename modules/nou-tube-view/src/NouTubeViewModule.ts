@@ -22,6 +22,16 @@ declare class NouTubeViewModule extends NativeModule {
   getDownloadsPath(): Promise<string>
   updateYtDlp(): Promise<void>
   setLocaleStrings(strings: Record<string, string>): void
+  getSystemCaptionStyle(): {
+    enabled: boolean
+    fontScale: number
+    locale?: string | null
+    foregroundColor?: number | null
+    backgroundColor?: number | null
+    windowColor?: number | null
+    edgeType?: number | null
+    edgeColor?: number | null
+  }
   translateText(text: string, targetLanguage: string): Promise<{ text: string; sourceLanguage?: string }>
   getTranslationSupportedLanguages(): string[]
 }

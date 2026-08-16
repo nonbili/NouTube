@@ -27,6 +27,7 @@ import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
 import { history$ } from '@/states/history'
 import { getUserStylesSnapshot, userStyles$ } from '@/states/user-styles'
 import { blocklist$, getBlocklistSnapshot } from '@/states/blocklist'
+import { addSystemCaptionStyleListener, getSystemCaptionStyle } from '@/lib/system-captions'
 import { SettingsModal } from '../modal/SettingsModal'
 
 let restored = false
@@ -91,6 +92,7 @@ const getContentSettingsSnapshot = () => {
     translateComments,
     translationTargetLanguage,
     replaceWatchNavigation,
+    useSystemCaptionStyle,
   } = settings$.get()
   return {
     sponsorBlock,
@@ -102,6 +104,7 @@ const getContentSettingsSnapshot = () => {
     doubleTapToToggleHeader,
     translateComments: !isWeb && translateComments && Boolean(translationTargetLanguage),
     replaceWatchNavigation,
+    captionStyle: useSystemCaptionStyle ? getSystemCaptionStyle() : null,
   }
 }
 
@@ -646,6 +649,19 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(settings$.doubleTapToToggleHeader, () => syncSettingsToWebview())
   useObserveEffect(settings$.translateComments, () => syncSettingsToWebview())
   useObserveEffect(settings$.translationTargetLanguage, () => syncSettingsToWebview())
+  useObserveEffect(settings$.useSystemCaptionStyle, () => syncSettingsToWebview())
+
+  // Changing the preferences in Android Settings has to reach the open webview
+  // without a reload.
+  useEffect(() => {
+    const subscription = addSystemCaptionStyleListener(() => {
+      if (settings$.useSystemCaptionStyle.get()) {
+        syncSettingsToWebview()
+      }
+    })
+    return () => subscription?.remove?.()
+  }, [syncSettingsToWebview])
+
   useObserveEffect(settings$.preferH264, ({ previous }) => {
     if (previous === undefined) return
     const native = nativeRef.current

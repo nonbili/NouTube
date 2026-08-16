@@ -1,4 +1,5 @@
 import { getEnabledUserStyleCss } from '../lib/user-styles'
+import { getCaptionCss } from './captions'
 import { noutubeSettingsEvent, noutubeUserStylesEvent } from './noutube'
 
 const injectedStyleId = '_nou_injected_css'
@@ -277,7 +278,9 @@ const cssContent = css`
 export const getCoreCss = () => cssContent + (window.NouTubeI ? cssContentMobile : '')
 
 export const getInjectedCss = (userStyles?: any) => {
-  return [getCoreCss(), getEnabledUserStyleCss(document.location.host, userStyles)].filter(Boolean).join('\n\n')
+  return [getCoreCss(), getCaptionCss(), getEnabledUserStyleCss(document.location.host, userStyles)]
+    .filter(Boolean)
+    .join('\n\n')
 }
 
 export function injectCSS() {

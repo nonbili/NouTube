@@ -22,6 +22,7 @@ import { NouButton } from '../button/NouButton'
 import MaterialIcons, { type MaterialIconsIconName } from '@react-native-vector-icons/material-icons'
 import { formatSleepTimerRemaining, useSleepTimerStatus } from '@/lib/sleep-timer'
 import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
+import { hasSystemCaptionStyleSupport, openSystemCaptionSettings } from '@/lib/system-captions'
 import { mainClient } from '@/lib/main-client'
 import {
   i18nLanguageNativeNames,
@@ -496,8 +497,26 @@ export const SettingsYouTubeContent = () => {
               icon="thumb-down"
               value={settings.showDislikes}
               onPress={() => settings$.showDislikes.set(!settings.showDislikes)}
-              isLast
+              isLast={!hasSystemCaptionStyleSupport()}
             />
+            {nIf(
+              hasSystemCaptionStyleSupport(),
+              <>
+                <SettingsToggleRow
+                  label={t('settings.systemCaptionStyle.label')}
+                  icon="closed-caption"
+                  value={settings.useSystemCaptionStyle}
+                  onPress={() => settings$.useSystemCaptionStyle.set(!settings.useSystemCaptionStyle)}
+                />
+                <SettingsActionRow
+                  label={t('settings.systemCaptionStyle.openSystemSettings')}
+                  description={t('settings.systemCaptionStyle.hint')}
+                  icon="settings"
+                  onPress={() => openSystemCaptionSettings()}
+                  isLast
+                />
+              </>,
+            )}
           </View>
         </SettingsSection>
       </View>

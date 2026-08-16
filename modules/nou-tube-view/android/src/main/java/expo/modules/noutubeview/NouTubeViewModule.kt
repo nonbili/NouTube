@@ -1,7 +1,9 @@
 package expo.modules.noutubeview
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.view.accessibility.CaptioningManager
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.webkit.ProxyConfig
 import androidx.webkit.ProxyController
@@ -62,6 +64,41 @@ class NouTubeViewModule : Module() {
     }
   }
 
+  private var captioningManager: CaptioningManager? = null
+  private var captioningListener: CaptioningManager.CaptioningChangeListener? = null
+
+  private fun captioning(): CaptioningManager? {
+    captioningManager?.let { return it }
+    val context = appContext.reactContext ?: return null
+    val manager = context.getSystemService(Context.CAPTIONING_SERVICE) as? CaptioningManager
+    captioningManager = manager
+    return manager
+  }
+
+  /**
+   * The system caption preferences. `userStyle` always returns a fully
+   * populated style (white on black when untouched), so the has*() guards keep
+   * unset fields null and let the web side fall back to YouTube's own styling.
+   */
+  private fun readCaptionStyle(): Map<String, Any?> {
+    val manager = captioning() ?: return mapOf("enabled" to false, "fontScale" to 1.0f)
+    val style = manager.userStyle
+    return mapOf(
+      "enabled" to manager.isEnabled,
+      "fontScale" to manager.fontScale,
+      "locale" to manager.locale?.toLanguageTag(),
+      "foregroundColor" to style.foregroundColor.takeIf { style.hasForegroundColor() },
+      "backgroundColor" to style.backgroundColor.takeIf { style.hasBackgroundColor() },
+      "windowColor" to style.windowColor.takeIf { style.hasWindowColor() },
+      "edgeType" to style.edgeType.takeIf { style.hasEdgeType() },
+      "edgeColor" to style.edgeColor.takeIf { style.hasEdgeColor() },
+    )
+  }
+
+  private fun emitCaptionStyle() {
+    sendEvent("captionStyle", readCaptionStyle())
+  }
+
   init {
     nouController.logFn = { msg: String ->
       sendEvent("log", mapOf("msg" to msg))
@@ -74,7 +111,29 @@ class NouTubeViewModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("NouTubeView")
 
-    Events("log", "sleepTimer", "downloadProgress")
+    Events("log", "sleepTimer", "downloadProgress", "captionStyle")
+
+    OnCreate {
+      val manager = captioning() ?: return@OnCreate
+      val listener = object : CaptioningManager.CaptioningChangeListener() {
+        override fun onEnabledChanged(enabled: Boolean) = emitCaptionStyle()
+        override fun onUserStyleChanged(userStyle: CaptioningManager.CaptionStyle) = emitCaptionStyle()
+        override fun onFontScaleChanged(fontScale: Float) = emitCaptionStyle()
+        override fun onLocaleChanged(locale: java.util.Locale?) = emitCaptionStyle()
+      }
+      manager.addCaptioningChangeListener(listener)
+      captioningListener = listener
+    }
+
+    OnDestroy {
+      captioningListener?.let { captioningManager?.removeCaptioningChangeListener(it) }
+      captioningListener = null
+      captioningManager = null
+    }
+
+    Function("getSystemCaptionStyle") {
+      readCaptionStyle()
+    }
 
     Function("setTheme") { theme: String? ->
       var mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM

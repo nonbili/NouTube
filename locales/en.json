@@ -227,6 +227,11 @@
     "preferH264": "Prefer H.264 (block VP9/AV1)",
     "showDislikes": "Show dislikes",
     "showOriginalVideoTitle": "Show original video title",
+    "systemCaptionStyle": {
+      "label": "Use system caption style",
+      "hint": "Applies Android's caption color, background and text size to YouTube captions.",
+      "openSystemSettings": "System caption settings"
+    },
     "clickbaitThumbnail": {
       "label": "Avoid clickbait thumbnails",
       "hint": "Replace creator thumbnails with auto-generated video frames",

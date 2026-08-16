@@ -18,6 +18,10 @@ class NouTubeViewModule extends NativeModule {
   async getSleepTimerRemainingMs() {
     return null
   }
+
+  getSystemCaptionStyle() {
+    return null
+  }
 }
 
 export default registerWebModule(NouTubeViewModule, 'NouTubeViewModule')

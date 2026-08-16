@@ -16,6 +16,7 @@ import { installCommentTranslateButtons } from './translate'
 import { interceptClipboard } from './clipboard'
 import { installWatchNavigation } from './watch-nav'
 import { installScreenLock } from './lock'
+import { installSystemCaptionStyle } from './captions'
 
 try {
   if ((window as any).NouTubePreferH264) {
@@ -45,12 +46,14 @@ try {
   if (document.documentElement) {
     injectCSS()
     initUserScripts()
+    installSystemCaptionStyle()
     emit('onload')
     initObserver()
   } else {
     document.addEventListener('DOMContentLoaded', () => {
       injectCSS()
       initUserScripts()
+      installSystemCaptionStyle()
       emit('onload')
       initObserver()
     })

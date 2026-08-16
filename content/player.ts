@@ -4,6 +4,7 @@ import { hideLiveChat, showLiveChatButton } from './livechat'
 import { originalLabels } from './audio'
 import { clearSkipSegments, getSkipSegments, isSponsorBlockEnabled, renderSkipSegments, Segment } from './sponsorblock'
 import { playbackRates } from '../lib/playback-rate'
+import { applyCaptionFontScale } from './captions'
 
 export let player: any
 let curVideoId = ''
@@ -171,6 +172,10 @@ export function handleVideoPlayer(el: any) {
   player = el
   extendPlaybackRates(player)
   extendPlaybackQuality(player)
+  // onApiChange fires when the player's modules (captions included) load, which
+  // is the earliest point setOption('captions', ...) is accepted.
+  el.addEventListener('onApiChange', () => applyCaptionFontScale(el))
+  applyCaptionFontScale(el)
   let title = ''
   let duration = 0
 
