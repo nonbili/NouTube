@@ -133,28 +133,29 @@ const BookmarkModalContent: React.FC<{
           <MaterialIcons name={folderPickerShown ? 'expand-less' : 'expand-more'} size={24} color="#a1a1aa" />
         </Pressable>
         {folderPickerShown ? (
-          <FlatList
-            className="mt-2 max-h-[220px] overflow-hidden rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900"
-            data={filteredFolders}
-            keyExtractor={(item) => item.id}
-            ItemSeparatorComponent={() => <View className="h-px bg-zinc-200 dark:bg-zinc-800" />}
-            renderItem={({ item }) => {
-              const selected = item.id === selectedFolderId
-              return (
-                <Pressable
-                  onPress={() => onChangeFolder(item)}
-                  className={clsx(
-                    'flex-row items-center gap-3 px-4 py-3 active:bg-zinc-100 dark:active:bg-zinc-800',
-                    selected && 'bg-indigo-50 dark:bg-zinc-800',
-                  )}
-                >
-                  <MaterialIcons name={item.id === NEW_FOLDER_ID ? 'create-new-folder' : 'folder'} size={22} color="#a1a1aa" />
-                  <NouText className={clsx('flex-1', selected && 'font-semibold')}>{item.name}</NouText>
-                  {nIf(selected, <MaterialIcons name="check" size={22} color="#6366f1" />)}
-                </Pressable>
-              )
-            }}
-          />
+          <View className="mt-2 max-h-[220px] overflow-hidden rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900">
+            <FlatList
+              data={filteredFolders}
+              keyExtractor={(item) => item.id}
+              ItemSeparatorComponent={() => <View className="h-px bg-zinc-200 dark:bg-zinc-800" />}
+              renderItem={({ item }) => {
+                const selected = item.id === selectedFolderId
+                return (
+                  <Pressable
+                    onPress={() => onChangeFolder(item)}
+                    className={clsx(
+                      'flex-row items-center gap-3 px-4 py-3 active:bg-zinc-100 dark:active:bg-zinc-800',
+                      selected && 'bg-indigo-50 dark:bg-zinc-800',
+                    )}
+                  >
+                    <MaterialIcons name={item.id === NEW_FOLDER_ID ? 'create-new-folder' : 'folder'} size={22} color="#a1a1aa" />
+                    <NouText className={clsx('flex-1', selected && 'font-semibold')}>{item.name}</NouText>
+                    {nIf(selected, <MaterialIcons name="check" size={22} color="#6366f1" />)}
+                  </Pressable>
+                )
+              }}
+            />
+          </View>
         ) : null}
         <View className="flex-row items-center justify-between mt-8">
           <NouButton variant="outline" size="2" textClassName="text-red-600 dark:text-red-400" onPress={onRemove}>
