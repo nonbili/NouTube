@@ -1,0 +1,3 @@
+- support reload button in toolbar
+- prevent blank tiles in home timeline
+- fix bookmark folder list scrolling

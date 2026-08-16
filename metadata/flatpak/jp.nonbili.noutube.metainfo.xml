@@ -59,6 +59,15 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.2.15" date="2026-08-16">
+      <description>
+        <ul>
+          <li>Support reload button in toolbar</li>
+          <li>Prevent blank tiles in home timeline</li>
+          <li>Fix bookmark folder list scrolling</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.2.14" date="2026-08-13">
       <description>
         <ul>
