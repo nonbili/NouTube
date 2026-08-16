@@ -11,6 +11,7 @@ mock.module('react-native', () => ({
     select: (obj: Record<string, unknown>) => obj?.android ?? obj?.native ?? obj?.default,
   },
   Alert: { alert: () => {} },
+  Appearance: { getColorScheme: () => 'dark' },
 }))
 
 class MMKVStub {

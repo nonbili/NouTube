@@ -1,14 +1,17 @@
 import { useValue } from '@legendapp/state/react'
 import { useEffect } from 'react'
-import { AppState, Pressable, View } from 'react-native'
+import { AppState, Pressable, View, useColorScheme } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { t } from 'i18next'
 import { NouText } from './NouText'
+import { getToastColors } from '@/lib/toast-theme'
 import { pruneExpiredUndoToasts, runUndoAction, undoToasts$ } from '@/states/undo-toast'
 
 export const UndoToast = () => {
   const toasts = useValue(undoToasts$)
   const insets = useSafeAreaInsets()
+  const colorScheme = useColorScheme()
+  const toastColors = getToastColors(colorScheme !== 'light')
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (state) => {
@@ -34,13 +37,21 @@ export const UndoToast = () => {
           <View
             key={toast.id}
             accessibilityLiveRegion="polite"
-            className="flex-row items-center rounded-xl bg-zinc-900 px-4 py-3 shadow-xl dark:bg-zinc-100"
+            className="flex-row items-center rounded-xl px-4 py-3 shadow-xl"
+            style={{ backgroundColor: toastColors.background }}
           >
-            <NouText pointerEvents="none" className="min-w-0 flex-1 text-white dark:text-zinc-900" numberOfLines={2}>
+            <NouText
+              pointerEvents="none"
+              className="min-w-0 flex-1"
+              style={{ color: toastColors.text }}
+              numberOfLines={2}
+            >
               {toast.message}
             </NouText>
             <Pressable accessibilityRole="button" onPress={() => runUndoAction(toast.id)} className="ml-4 px-2 py-1">
-              <NouText className="font-semibold text-indigo-300 dark:text-indigo-700">{t('buttons.undo')}</NouText>
+              <NouText className="font-semibold" style={{ color: toastColors.accent }}>
+                {t('buttons.undo')}
+              </NouText>
             </Pressable>
           </View>
         ))}
