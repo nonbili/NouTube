@@ -106,6 +106,8 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   private var pageUrl = ""
   private var customView: View? = null
   private var pullToRefreshEnabled = true
+  private var cutoutLeft = 0
+  private var cutoutRight = 0
   private lateinit var orientationListener: NouOrientationListener
   private val swipeRefreshLayout = SwipeRefreshLayout(context).apply {
     layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
@@ -197,6 +199,8 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
           override fun onPageFinished(view: WebView, url: String) {
             swipeRefreshLayout.isRefreshing = false
+            // insets are usually dispatched once, long before this document exists
+            applyCutoutInsets()
           }
 
           override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
@@ -348,9 +352,32 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     webView.addJavascriptInterface(NouJsInterface(context, this), "NouTubeI")
 
     // some websites have `padding-bottom: env(safe-area-inset-bottom)`, this set it to 0
-    ViewCompat.setOnApplyWindowInsetsListener(webView) { _, _ ->
+    ViewCompat.setOnApplyWindowInsetsListener(webView) { _, insets ->
+      val cutout = insets.getInsets(WindowInsetsCompat.Type.displayCutout())
+      val density = resources.displayMetrics.density
+      val left = (cutout.left / density).toInt()
+      val right = (cutout.right / density).toInt()
+      if (left != cutoutLeft || right != cutoutRight) {
+        cutoutLeft = left
+        cutoutRight = right
+        applyCutoutInsets()
+      }
       WindowInsetsCompat.CONSUMED
     }
+  }
+
+  // Consuming the insets above also zeroes env(safe-area-inset-*) in the page,
+  // but fullscreen overlays still have to dodge the display cutout: fullscreen
+  // draws under it (targetSdk 35+ defaults to LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS)
+  // and in landscape the camera lands on a side edge, right where the lock
+  // button sits. Publish it as a CSS variable instead.
+  private fun applyCutoutInsets() {
+    webView.evaluateJavascript(
+      "document.documentElement && (" +
+        "document.documentElement.style.setProperty('--_nou_cutout_left', '${cutoutLeft}px')," +
+        "document.documentElement.style.setProperty('--_nou_cutout_right', '${cutoutRight}px'))",
+      null
+    )
   }
 
   fun setPullToRefreshEnabled(enabled: Boolean) {

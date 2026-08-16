@@ -85,6 +85,10 @@ const cssContentMobile = css`
    * never burns over the video. Left edge keeps it clear of the centered
    * play/seek buttons and the top-right control cluster. Hidden once locked,
    * where the unlock button takes over the same spot.
+   *
+   * --_nou_cutout_left is published by the native view (NouTubeView.kt): the
+   * fullscreen window draws under the display cutout, and in landscape the
+   * camera sits on a side edge at the same height as the button.
    */
   #_nou_lock_btn {
     display: none;
@@ -98,7 +102,7 @@ const cssContentMobile = css`
     display: flex;
     position: fixed;
     top: 50%;
-    left: 16px;
+    left: calc(16px + var(--_nou_cutout_left, 0px));
     z-index: 2147483646;
     align-items: center;
     justify-content: center;
@@ -124,7 +128,7 @@ const cssContentMobile = css`
   #_nou_lock_overlay ._nou_lock_unlock {
     position: absolute;
     top: 50%;
-    left: 16px;
+    left: calc(16px + var(--_nou_cutout_left, 0px));
     display: flex;
     align-items: center;
     justify-content: center;
