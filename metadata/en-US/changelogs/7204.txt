@@ -1,0 +1,6 @@
+- Apply system caption style to YouTube captions
+- Switch YouTube to desktop site automatically in desktop mode
+- Avoid display cutout for fullscreen lock button
+- Fix tablet toolbar layout with playback controls
+- Fix bookmark folder list scrolling
+- Fix toast text color in light mode
