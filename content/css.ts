@@ -284,6 +284,14 @@ const cssFullscreenPanel = css`
     background: #4f46e5;
   }
 
+  #_nou_fs_panel ._nou_fs_value {
+    flex: none;
+    width: 40px;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
   #_nou_fs_panel #_nou_fs_lock {
     display: flex;
     align-items: center;
@@ -397,6 +405,27 @@ const cssContentDesktop = css`
   /* Faded rather than display:none so it can still be hovered back into view. */
   :fullscreen > #_nou_fs_btn.hidden {
     opacity: 0;
+  }
+
+  /*
+   * A mouse cannot swipe a chip strip, and shift+wheel is not something to make
+   * the only way to reach the last few chips, so wrap them instead of scrolling
+   * on desktop.
+   */
+  #_nou_fs_panel ._nou_fs_chips {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+
+  /* Once the chips wrap, the label belongs beside the first row of them, not
+     centred against the whole block. 23px is a chip's height: 13px of text plus
+     its 5px padding. */
+  #_nou_fs_panel ._nou_fs_row:has(._nou_fs_chips) {
+    align-items: flex-start;
+  }
+
+  #_nou_fs_panel ._nou_fs_row:has(._nou_fs_chips) ._nou_fs_label {
+    line-height: 23px;
   }
 
   #_nou_fs_panel ._nou_fs_chip,

@@ -274,6 +274,59 @@ function setPlayerVolume(value: number) {
   }
 }
 
+const getVideoElement = () => {
+  const video = document.querySelector('#movie_player video') || document.querySelector('video')
+  return video instanceof HTMLVideoElement ? video : null
+}
+
+// The player's own volume tops out at 100, so a slider that starts there has
+// nowhere to go. Above 100 the extra gain comes from a Web Audio graph on the
+// media element instead. YouTube keeps one <video> across navigations, but it
+// does get replaced now and then, and createMediaElementSource throws on an
+// element that already has a source, so the graph is rebuilt per element.
+const maxBoost = 2
+let audioContext: AudioContext | undefined
+let gainNode: GainNode | undefined
+let gainSource: HTMLVideoElement | undefined
+let boost = 1
+
+function getGainNode() {
+  const video = getVideoElement()
+  if (!video) {
+    return undefined
+  }
+  if (gainNode && gainSource === video) {
+    return gainNode
+  }
+  try {
+    audioContext ||= new AudioContext()
+    const source = audioContext.createMediaElementSource(video)
+    gainNode = audioContext.createGain()
+    source.connect(gainNode).connect(audioContext.destination)
+    gainSource = video
+  } catch {
+    // Routing failed; stay on the plain 0..100 range rather than lose audio.
+    return undefined
+  }
+  return gainNode
+}
+
+function setBoost(value: number) {
+  boost = value
+  // Only build the graph once boosting is actually asked for: while it is at 1
+  // the untouched element sounds exactly the same and cannot break.
+  if (value === 1 && !gainNode) {
+    return
+  }
+  const gain = getGainNode()
+  if (!gain) {
+    return
+  }
+  gain.gain.value = value
+  // A context created before any user gesture starts suspended.
+  void audioContext?.resume?.()
+}
+
 // Whichever volume control this platform can actually offer, or nothing.
 function getVolumeControl() {
   if (hasNativeVolume()) {
@@ -281,10 +334,25 @@ function getVolumeControl() {
     return steps ? { native: true, max: steps, value: getVolumeIndex() } : undefined
   }
   if (isDesktop() && hasPlayerVolume()) {
-    return { native: false, max: 100, value: getPlayerVolume() }
+    const volume = getPlayerVolume()
+    return {
+      native: false,
+      max: 100 * maxBoost,
+      value: volume < 100 ? volume : Math.round(boost * 100),
+    }
   }
   return undefined
 }
+
+// Desktop slider values run 0..200: the player's own volume up to 100, extra
+// gain beyond it.
+function setDesktopVolume(value: number) {
+  setPlayerVolume(Math.min(value, 100))
+  setBoost(value <= 100 ? 1 : value / 100)
+}
+
+const formatVolume = (value: number, max: number) =>
+  `${Math.round(hasNativeVolume() ? (value / max) * 100 : value)}%`
 
 function getAvailableQualities() {
   const levels = getPlayer()?.getAvailableQualityLevels?.()
@@ -364,6 +432,9 @@ function renderPanelContent(panel: HTMLElement) {
             step="1"
             value="${volume.value}"
           />
+          <span class="_nou_fs_value" id="_nou_fs_volume_value"
+            >${formatVolume(volume.value, volume.max)}</span
+          >
         </div>`
       : ''}
     ${hasNativeBrightness()
@@ -417,14 +488,18 @@ function renderPanelContent(panel: HTMLElement) {
   })
 
   const volumeInput = panel.querySelector<HTMLInputElement>('#_nou_fs_volume')
+  const volumeValue = panel.querySelector<HTMLElement>('#_nou_fs_volume_value')
   volumeInput?.addEventListener('input', () => {
     const value = Number(volumeInput.value)
     if (volume?.native) {
       window.NouTubeI?.setVolumeIndex?.(bridgeToken(), value)
     } else {
-      setPlayerVolume(value)
+      setDesktopVolume(value)
     }
     paintSlider(volumeInput)
+    if (volumeValue) {
+      volumeValue.textContent = formatVolume(value, volume!.max)
+    }
   })
   paintSlider(volumeInput)
 
@@ -451,6 +526,12 @@ function openPanel() {
   const host = getFullscreenElement()
   if (!host || document.getElementById(panelId)) {
     return
+  }
+
+  // The graph is bound to one <video>; if YouTube swapped the element out, this
+  // rebuilds it on the current one so the slider and what is heard still agree.
+  if (boost > 1) {
+    setBoost(boost)
   }
 
   const scrim = document.createElement('div')
