@@ -1,0 +1,4 @@
+- Add fullscreen control panel with speed, quality, volume, and brightness
+- Add full yt-dlp format list for download options
+- Fix YouTube Music minimized player overlay layout
+- Fix HTML-encoded author names in YouTube Music
