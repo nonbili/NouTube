@@ -1,0 +1,5 @@
+- add fullscreen control panel with speed, quality, and volume boost
+- support selecting custom download format from yt-dlp format list
+- open URL dialog when pasting a YouTube link anywhere in the app
+- restore last playing video at the saved position
+- fix HTML-encoded channel and author names

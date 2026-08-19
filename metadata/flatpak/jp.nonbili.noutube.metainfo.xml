@@ -59,6 +59,17 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.3.0" date="2026-08-19">
+      <description>
+        <ul>
+          <li>Add fullscreen control panel with speed, quality, and volume boost</li>
+          <li>Support selecting custom download format from yt-dlp format list</li>
+          <li>Open URL dialog when pasting a YouTube link anywhere in the app</li>
+          <li>Restore last playing video at the saved position</li>
+          <li>Fix HTML-encoded channel and author names</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.2.15" date="2026-08-16">
       <description>
         <ul>
