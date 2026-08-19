@@ -1,4 +1,4 @@
-const chromeVersion = 142
+const chromeVersion = 150
 
 export function getUserAgent(platform = 'android', isDesktop = false) {
   const mobile = platform == 'android' && !isDesktop ? 'Mobile ' : ''
