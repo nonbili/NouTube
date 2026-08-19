@@ -13,6 +13,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import android.os.IBinder
+import android.media.AudioManager
 import android.provider.Settings
 import android.util.AttributeSet
 import android.view.ContextMenu
@@ -22,6 +23,7 @@ import android.view.MotionEvent
 import android.view.OrientationEventListener
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.webkit.CookieManager
 import android.webkit.JsResult
 import android.webkit.PermissionRequest
@@ -41,6 +43,7 @@ import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.viewevent.EventDispatcher
 import expo.modules.kotlin.views.ExpoView
 import java.io.ByteArrayInputStream
+import java.util.UUID
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -103,6 +106,14 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   internal val onMessage by EventDispatcher()
 
   private var scriptOnStart = ""
+
+  // addJavascriptInterface hands NouTubeI to every frame, ad iframes included,
+  // and gives no way to tell them apart. This token is only ever evaluated into
+  // the main frame (see onPageStarted), so cross-origin frames cannot read it
+  // and the device-level setters below stay out of their reach.
+  private val bridgeToken = UUID.randomUUID().toString()
+
+  internal fun isBridgeTokenValid(token: String?) = token == bridgeToken
   private var pageUrl = ""
   private var customView: View? = null
   private var pullToRefreshEnabled = true
@@ -194,7 +205,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
           }
 
           override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
-            evaluateJavascript(scriptOnStart, null)
+            evaluateJavascript("window.NouTubeToken = '$bridgeToken';$scriptOnStart", null)
           }
 
           override fun onPageFinished(view: WebView, url: String) {
@@ -322,6 +333,10 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
           }
           val window = activity.window
           (window.decorView as FrameLayout).removeView(customView)
+          // The brightness override belongs to the fullscreen player only.
+          window.attributes = window.attributes.apply {
+            screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+          }
           customView?.setKeepScreenOn(false)
           customView = null
           activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER)
@@ -451,6 +466,54 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     currentActivity?.runOnUiThread {
       webView.keepScreenOn = playing
       customView?.keepScreenOn = playing
+    }
+  }
+
+  private val audioManager: AudioManager
+    get() = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+  fun getVolumeSteps(): Int =
+    try {
+      audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+    } catch (e: Exception) {
+      0
+    }
+
+  fun getVolumeIndex(): Int =
+    try {
+      audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+    } catch (e: Exception) {
+      0
+    }
+
+  fun setVolumeIndex(index: Int) {
+    try {
+      val max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+      audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, index.coerceIn(0, max), 0)
+    } catch (e: Exception) {
+      // Do Not Disturb can reject volume changes; nothing to recover here.
+    }
+  }
+
+  // The window override once set, otherwise the system brightness the window is
+  // currently inheriting.
+  fun getBrightness(): Float {
+    val override = currentActivity?.window?.attributes?.screenBrightness ?: -1f
+    if (override >= 0) {
+      return override
+    }
+    return try {
+      Settings.System.getInt(context.contentResolver, Settings.System.SCREEN_BRIGHTNESS) / 255f
+    } catch (e: Exception) {
+      -1f
+    }
+  }
+
+  fun setBrightness(value: Float) {
+    val clamped = if (value < 0) WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE else value.coerceIn(0.01f, 1f)
+    currentActivity?.runOnUiThread {
+      val window = currentActivity?.window ?: return@runOnUiThread
+      window.attributes = window.attributes.apply { screenBrightness = clamped }
     }
   }
 

@@ -15,7 +15,7 @@ import { installDislikeCount } from './dislikes'
 import { installCommentTranslateButtons } from './translate'
 import { interceptClipboard } from './clipboard'
 import { installWatchNavigation } from './watch-nav'
-import { installScreenLock } from './lock'
+import { installFullscreenControls } from './fullscreen-controls'
 import { installSystemCaptionStyle } from './captions'
 import { installEncodedAuthorNameFix } from './author-names'
 
@@ -85,7 +85,7 @@ async function initObserver() {
   installBlocklistFilter()
   installDislikeCount()
   installDoubleTapGestures()
-  installScreenLock()
+  installFullscreenControls()
   installCommentTranslateButtons()
   installEncodedAuthorNameFix()
 

@@ -109,25 +109,23 @@ const cssContentMobile = css`
   }
 
   /*
-   * Lock button: only in fullscreen, only while playback is running (locking a
-   * paused video is pointless), and only while the controls are showing, so it
-   * never burns over the video. Left edge keeps it clear of the centered
-   * play/seek buttons and the top-right control cluster. Hidden once locked,
-   * where the unlock button takes over the same spot.
+   * Fullscreen controls button: only in fullscreen, and only while the controls
+   * are showing, so it never burns over the video. Left edge keeps it clear of
+   * the centered play/seek buttons and the top-right control cluster. Hidden
+   * once the panel or the lock overlay takes over.
    *
    * --_nou_cutout_left is published by the native view (NouTubeView.kt): the
    * fullscreen window draws under the display cutout, and in landscape the
    * camera sits on a side edge at the same height as the button.
    */
-  #_nou_lock_btn {
+  #_nou_fs_btn {
     display: none;
   }
 
-  #player-container-id:fullscreen:has(#player-control-overlay.fadein):has(
-      #movie_player.playing-mode,
-      #movie_player.buffering-mode
-    ):not(:has(#_nou_lock_overlay))
-    > #_nou_lock_btn {
+  #player-container-id:fullscreen:has(#player-control-overlay.fadein):not(
+      :has(#_nou_lock_overlay, #_nou_fs_panel)
+    )
+    > #_nou_fs_btn {
     display: flex;
     position: fixed;
     top: 50%;
@@ -143,6 +141,156 @@ const cssContentMobile = css`
     border-radius: 50%;
     background: rgba(0, 0, 0, 0.5);
     color: white;
+  }
+
+  /* Same chain as above so it outweighs the left-edge rule. */
+  #player-container-id:fullscreen:has(#player-control-overlay.fadein):not(
+      :has(#_nou_lock_overlay, #_nou_fs_panel)
+    )
+    > #_nou_fs_btn.right {
+    left: auto;
+    right: calc(16px + var(--_nou_cutout_right, 0px));
+  }
+
+  /*
+   * The scrim only exists to give taps outside the panel something to land on;
+   * the panel's own event blocking still runs, this just keeps the hit area from
+   * falling through to YouTube's own layers visually.
+   */
+  #_nou_fs_scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483646;
+  }
+
+  #_nou_fs_panel {
+    position: fixed;
+    top: 50%;
+    left: calc(16px + var(--_nou_cutout_left, 0px));
+    z-index: 2147483647;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: min(420px, calc(100vw - 32px - var(--_nou_cutout_left, 0px) - var(--_nou_cutout_right, 0px)));
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 14px 16px;
+    transform: translateY(-50%);
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.82);
+    color: white;
+    font-size: 13px;
+    touch-action: pan-x pan-y;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  #_nou_fs_panel.right {
+    left: auto;
+    right: calc(16px + var(--_nou_cutout_right, 0px));
+  }
+
+  #_nou_fs_panel ._nou_fs_row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #_nou_fs_panel ._nou_fs_label {
+    flex: none;
+    width: 52px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  #_nou_fs_panel ._nou_fs_chips {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  #_nou_fs_panel ._nou_fs_chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  #_nou_fs_panel ._nou_fs_chip {
+    flex: none;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    font-size: 13px;
+    line-height: 1;
+  }
+
+  #_nou_fs_panel ._nou_fs_chip.active {
+    background: #4f46e5;
+  }
+
+  #_nou_fs_panel #_nou_fs_lock {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    font-size: 14px;
+  }
+
+  #_nou_fs_panel #_nou_fs_side {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+  }
+
+  /*
+   * The WebView's native range widget centres its thumb on its own track
+   * metrics, which do not match the 4px track we want, so draw both parts
+   * ourselves. --_nou_fill is written by the panel on every input so the filled
+   * portion still tracks the value without accent-color.
+   */
+  #_nou_fs_panel ._nou_fs_slider {
+    flex: 1;
+    height: 16px;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  #_nou_fs_panel ._nou_fs_slider::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(
+      to right,
+      #4f46e5 var(--_nou_fill, 0%),
+      rgba(255, 255, 255, 0.3) var(--_nou_fill, 0%)
+    );
+  }
+
+  #_nou_fs_panel ._nou_fs_slider::-webkit-slider-thumb {
+    width: 14px;
+    height: 14px;
+    margin-top: -5px;
+    border: none;
+    border-radius: 50%;
+    background: white;
+    -webkit-appearance: none;
+    appearance: none;
   }
 
   #_nou_lock_overlay {
@@ -172,6 +320,11 @@ const cssContentMobile = css`
     opacity: 0;
     transition: opacity 0.2s;
     pointer-events: none;
+  }
+
+  #_nou_lock_overlay.right ._nou_lock_unlock {
+    left: auto;
+    right: calc(16px + var(--_nou_cutout_right, 0px));
   }
 
   #_nou_lock_overlay.reveal ._nou_lock_unlock {

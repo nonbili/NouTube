@@ -18,4 +18,39 @@ class NouJsInterface(private val context: Context, private val view: NouTubeView
   fun notifyProgress(playing: Boolean, pos: Long) {
     view.notifyProgress(playing, pos)
   }
+
+  // The setters below reach past the page: brightness owns the activity window
+  // and volume owns the system media stream. Every frame in the WebView sees
+  // this interface, so they are gated on the token that only the main frame
+  // gets (see NouTubeView.bridgeToken).
+  //
+  // 0..1 dims/brightens the fullscreen player only; -1 hands control back to
+  // the system brightness setting.
+  @JavascriptInterface
+  fun setBrightness(token: String?, value: Float) {
+    if (!view.isBridgeTokenValid(token)) {
+      return
+    }
+    view.setBrightness(value)
+  }
+
+  // -1 when the current brightness cannot be read.
+  @JavascriptInterface
+  fun getBrightness(token: String?): Float = if (view.isBridgeTokenValid(token)) view.getBrightness() else -1f
+
+  // The media stream is stepped, not continuous, so the panel drives it by
+  // index instead of by percent.
+  @JavascriptInterface
+  fun getVolumeSteps(token: String?): Int = if (view.isBridgeTokenValid(token)) view.getVolumeSteps() else 0
+
+  @JavascriptInterface
+  fun getVolumeIndex(token: String?): Int = if (view.isBridgeTokenValid(token)) view.getVolumeIndex() else 0
+
+  @JavascriptInterface
+  fun setVolumeIndex(token: String?, index: Int) {
+    if (!view.isBridgeTokenValid(token)) {
+      return
+    }
+    view.setVolumeIndex(index)
+  }
 }

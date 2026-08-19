@@ -8,7 +8,7 @@ export function useHeaderAnimation({
   headerPosition,
   headerShown,
   hideToolbarWhenScrolled,
-  isHorizontal,
+  isSidebarLayout,
 }: {
   autoHideHeader: boolean
   doubleTapToToggleHeader: boolean
@@ -16,13 +16,15 @@ export function useHeaderAnimation({
   headerPosition: 'top' | 'bottom'
   headerShown: boolean
   hideToolbarWhenScrolled: boolean
-  isHorizontal: boolean
+  isSidebarLayout: boolean
 }) {
   const translateY = useSharedValue(0)
 
   useEffect(() => {
     const canHide = autoHideHeader || hideToolbarWhenScrolled || doubleTapToToggleHeader
-    const shouldHide = (!isHorizontal || doubleTapToToggleHeader) && canHide && !headerShown
+    // The toolbar only stops sliding away when it is the desktop vertical
+    // sidebar; a landscape phone still gets a horizontal bar that should hide.
+    const shouldHide = (!isSidebarLayout || doubleTapToToggleHeader) && canHide && !headerShown
     const hiddenOffset = headerPosition === 'bottom' ? headerHeight : -headerHeight
     const next = shouldHide ? hiddenOffset : 0
     translateY.value = withTiming(next)
@@ -33,7 +35,7 @@ export function useHeaderAnimation({
     doubleTapToToggleHeader,
     hideToolbarWhenScrolled,
     headerPosition,
-    isHorizontal,
+    isSidebarLayout,
     translateY,
   ])
 

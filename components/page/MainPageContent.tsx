@@ -8,7 +8,7 @@ import { bookmarks$, newBookmark } from '@/states/bookmarks'
 import { createLogger } from '@/lib/log'
 import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
 import NouTubeViewModule, { NouTubeView } from '@/modules/nou-tube-view'
-import { StyleSheet, View, useWindowDimensions } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { getVideoId, setPageUrl } from '@/lib/page'
 import { showToast } from '@/lib/toast'
 import { clsx, isAndroid, isWeb, nIf } from '@/lib/utils'
@@ -322,7 +322,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const activeTabIndex = useValue(tabs$.activeTabIndex)
   const activePageUrl = useValue(tabs$.activePageUrl)
   const nativeRef = useRef<typeof NouTubeViewModule>(null)
-  const { width, height: windowHeight } = useWindowDimensions()
   const hideShorts = useValue(settings$.hideShorts)
   const isYTMusic = useValue(settings$.isYTMusic)
   const autoHideHeader = useValue(settings$.autoHideHeader)
@@ -365,12 +364,10 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const { userId, me } = useMe()
   const userAgent = resolveUserAgent(isWeb ? window.electron.process.platform : 'android', customUserAgent, desktopMode)
   const getNoutube = useCallback(() => ui$.webview.get() || nativeRef.current, [])
-  const isHorizontal = width > windowHeight
   const nativeDoubleTapHeader = isAndroid && doubleTapToToggleHeader
-  const nativeHeaderOverlays =
-    !isWeb &&
-    (autoHideHeader || hideToolbarWhenScrolled || nativeDoubleTapHeader) &&
-    (!isHorizontal || nativeDoubleTapHeader)
+  // Native has no vertical sidebar layout, so the toolbar overlays the page in
+  // portrait and landscape alike.
+  const nativeHeaderOverlays = !isWeb && (autoHideHeader || hideToolbarWhenScrolled || nativeDoubleTapHeader)
   const nativeHeaderInset = nativeHeaderOverlays && headerShown ? headerHeight : 0
 
   useEffect(() => {

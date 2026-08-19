@@ -109,6 +109,9 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const [canGoBack, setCanGoBack] = useState(false)
   const [canGoForward, setCanGoForward] = useState(false)
   const isHorizontal = width > windowHeight
+  // The vertical sidebar layout is desktop-only; on native a landscape window
+  // keeps the horizontal toolbar, so it must keep hiding on scroll too.
+  const isSidebarLayout = isWeb && isHorizontal
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   const headerControlColor = isDark ? colors.icon : colors.iconLight
@@ -197,7 +200,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     headerPosition,
     headerShown,
     hideToolbarWhenScrolled,
-    isHorizontal,
+    isSidebarLayout,
   })
   const playbackRateLabel = formatPlaybackRate(playbackRate)
   const playbackQualityLabel = formatPlaybackQuality(playbackQuality)
@@ -249,7 +252,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           autoHideSidebar &&
           'lg:fixed lg:left-0 lg:top-0 lg:bottom-0 lg:z-20 lg:w-14 lg:-translate-x-12 lg:opacity-0 lg:shadow-xl lg:transition lg:duration-200 lg:ease-out lg:hover:translate-x-0 lg:hover:opacity-100 lg:focus-within:translate-x-0 lg:focus-within:opacity-100',
         hideableHeader &&
-          (!isHorizontal || (isAndroid && doubleTapToToggleHeader)) &&
+          (!isSidebarLayout || (isAndroid && doubleTapToToggleHeader)) &&
           clsx('absolute left-0 right-0 z-10', headerPosition === 'bottom' ? 'bottom-0' : 'top-0'),
       )}
     >
