@@ -28,6 +28,8 @@ import { t } from 'i18next'
 import { downloads$ } from '@/states/downloads'
 import { resolveUserAgent } from '@/lib/useragent'
 import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
+import { openPastedUrl } from '@/lib/paste-url'
+import { usePasteUrl } from '@/lib/hooks/usePasteUrl'
 import { history$ } from '@/states/history'
 import { getUserStylesSnapshot, userStyles$ } from '@/states/user-styles'
 import { blocklist$, getBlocklistSnapshot } from '@/states/blocklist'
@@ -206,7 +208,12 @@ const DesktopTabView: React.FC<{
       if (isActive) {
         ui$.webview.set(ObservableHint.opaque(webview))
       }
-      executeQuietly(webview, `window.isAndroid = false;\n${buildPrelude()}\n${contentJs}`)
+      // Bridged on the webview we just injected into, so background tabs get
+      // the keyboard and paste listeners too.
+      executeQuietly(
+        webview,
+        `window.isAndroid = false;\n${buildPrelude()}\n${contentJs}\n;window.NouTube?.bridgeShortcuts?.()`,
+      )
       toggleShorts(hideShorts)
       syncUserStylesToWebview()
       syncBlocklistToWebview()
@@ -320,6 +327,7 @@ const DesktopTabView: React.FC<{
 export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   const pageUrl = useValue(ui$.pageUrl)
   const embedVideoId = useValue(ui$.embedVideoId)
+  usePasteUrl()
   const tabs = useValue(tabs$.tabs)
   const activeTabIndex = useValue(tabs$.activeTabIndex)
   const activePageUrl = useValue(tabs$.activePageUrl)
@@ -528,9 +536,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
             syncBlocklistToWebview()
             syncSettingsToWebview()
           }
-          if (isWeb) {
-            webview?.executeJavaScript('window.NouTube.bridgeShortcuts()')
-          }
           break
         case 'add-queue':
           queue$.addBookmark(data)
@@ -584,6 +589,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           break
         case 'keyup':
           handleShortcuts(data)
+          break
+        case 'paste':
+          openPastedUrl(data)
           break
         case 'yt-music-desktop':
           if (settings$.desktopMode.get()) break

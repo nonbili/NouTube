@@ -26,6 +26,24 @@ function bridgeShortcuts() {
   window.addEventListener('keyup', (e) => {
     emit('keyup', { key: e.key, metaKey: e.metaKey, ctrlKey: e.ctrlKey })
   })
+  window.addEventListener('paste', (e) => {
+    /* Leave pastes into YouTube's search box, comment box etc. alone. */
+    if (isEditable(e.target) || isEditable(document.activeElement)) {
+      return
+    }
+    const text = e.clipboardData?.getData('text')
+    if (text) {
+      emit('paste', text)
+    }
+  })
+}
+
+function isEditable(target: any) {
+  if (!target) {
+    return false
+  }
+  const tag = target.tagName?.toUpperCase?.()
+  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable === true
 }
 
 function getSettings() {

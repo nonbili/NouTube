@@ -15,7 +15,9 @@ export const UrlModal = () => {
   const onClose = () => ui$.urlModalOpen.set(false)
 
   useEffect(() => {
-    setUrl('')
+    /* A pasted URL pre-fills the input, so the modal doubles as a confirmation. */
+    setUrl(urlModalOpen ? ui$.urlModalUrl.get() : '')
+    ui$.urlModalUrl.set('')
   }, [urlModalOpen])
 
   const onSubmit = () => {
