@@ -10,6 +10,8 @@ import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
 import NouTubeViewModule, { NouTubeView } from '@/modules/nou-tube-view'
 import { StyleSheet, View } from 'react-native'
 import { getVideoId, setPageUrl } from '@/lib/page'
+import { getLastPlaying } from '@/lib/last-playing'
+import { normalizeUrl } from '@/lib/url'
 import { showToast } from '@/lib/toast'
 import { clsx, isAndroid, isWeb, nIf } from '@/lib/utils'
 import type { WebviewTag } from 'electron'
@@ -449,9 +451,19 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   }, [nativeRef])
 
   useEffect(() => {
-    if (!isWeb && !ui$.url.get()) {
-      ui$.url.set(isYTMusic ? 'https://music.youtube.com' : isWeb ? 'https://www.youtube.com' : 'https://m.youtube.com')
+    if (isWeb || ui$.url.get()) {
+      return
     }
+    // Start straight on the last playing video with its position in the url:
+    // loading home first and letting the page restore itself loads twice, the
+    // first time from 0.
+    const lastPlaying = settings$.restoreOnStart.get() ? getLastPlaying() : undefined
+    if (lastPlaying) {
+      restored = true
+      ui$.url.set(normalizeUrl(lastPlaying.url))
+      return
+    }
+    ui$.url.set(isYTMusic ? 'https://music.youtube.com' : 'https://m.youtube.com')
   }, [])
 
   useEffect(() => {
@@ -506,8 +518,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           break
         case 'onload':
           const webview = ui$.webview.get() || nativeRef.current
-          restoreLastPlaying(webview)
           if (!isWeb) {
+            // Desktop restores the last playing video through the tab url, so
+            // this fallback is only for Android (and only fires when the
+            // startup url above could not resolve the position).
+            restoreLastPlaying(webview)
             toggleShorts(hideShorts)
             syncUserStylesToWebview()
             syncBlocklistToWebview()

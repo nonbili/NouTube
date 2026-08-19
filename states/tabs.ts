@@ -2,6 +2,8 @@ import { observable, syncState, type Observable, when } from '@legendapp/state'
 import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import { genId } from '@/lib/utils'
+import { getLastPlaying, getVideoIdFromUrl, withResumeTime } from '@/lib/last-playing'
+import { history$ } from './history'
 import { settings$ } from './settings'
 
 export interface Tab {
@@ -260,15 +262,48 @@ syncObservable(tabs$, {
   },
 })
 
+// A restored tab usually already points at the last playing video, so seed its
+// url with the saved position. Without it the page would load at 0 and the
+// in-page restore would navigate a second time to get the position back.
+export function resumeLastPlayingTab() {
+  const lastPlaying = getLastPlaying()
+  if (!lastPlaying) {
+    return
+  }
+  const tabs = tabs$.tabs.get()
+  const activeIndex = tabs$.activeTabIndex.get()
+  const holdsVideo = (tab?: Tab) => !!tab && getVideoIdFromUrl(tab.pageUrl || tab.url) == lastPlaying.videoId
+
+  // Exactly one tab resumes: the active one when it holds the video, otherwise
+  // the first tab that does. Duplicates of the same video are left alone.
+  const index = holdsVideo(tabs[activeIndex]) ? activeIndex : tabs.findIndex((tab) => holdsVideo(tab))
+  if (index < 0) {
+    // The tab that played it was closed or navigated away, so bring the video
+    // back into the active tab, the way the in-page restore used to.
+    tabs$.tabs[activeIndex]?.assign({ url: lastPlaying.url, pageUrl: lastPlaying.url })
+    return
+  }
+
+  const tab = tabs[index]
+  const resumed = withResumeTime(tab.pageUrl || tab.url, lastPlaying.current)
+  tabs$.tabs[index].assign({ url: resumed, pageUrl: resumed })
+}
+
 export async function initializeDesktopTabsForStartup() {
   if (startupTabsInitialized) {
     return
   }
   startupTabsInitialized = true
 
-  await when(() => syncState(settings$).isPersistLoaded.get() && syncState(tabs$).isPersistLoaded.get())
+  await when(
+    () =>
+      syncState(settings$).isPersistLoaded.get() &&
+      syncState(tabs$).isPersistLoaded.get() &&
+      syncState(history$).isPersistLoaded.get(),
+  )
 
   if (settings$.restoreOnStart.get()) {
+    resumeLastPlayingTab()
     return
   }
 

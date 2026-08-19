@@ -181,7 +181,7 @@ export function handleVideoPlayer(el: any) {
 
   const saveProgress = throttle((currentTime) => {
     const url = player.getVideoUrl()
-    localStorage.setItem(keys.playing, JSON.stringify({ url }))
+    localStorage.setItem(keys.playing, JSON.stringify({ url, current: currentTime }))
     emit('progress', { url, title, videoId: curVideoId, current: currentTime, duration })
   }, 5000)
   const notifyProgress = throttle(() => {
@@ -405,9 +405,69 @@ async function renderPlayOriginalAudioBtn() {
   badgeRenderer.append(container)
 }
 
+const MIN_RESUME_SECONDS = 5
+
+function getVideoIdOf(url: string) {
+  try {
+    return new URL(url, document.location.href).searchParams.get('v') || ''
+  } catch {
+    return ''
+  }
+}
+
+function hasTimeParam(url: string) {
+  try {
+    return new URL(url, document.location.href).searchParams.has('t')
+  } catch {
+    return false
+  }
+}
+
+async function seekToSavedPosition(current: number) {
+  try {
+    const el: any = await retry(
+      async () => {
+        const el = document.getElementById('movie_player') as any
+        if (!el?.seekTo) {
+          throw 'player not ready'
+        }
+        return el
+      },
+      { retries: 30, delay: 100 },
+    )
+    el?.seekTo(current)
+  } catch (e) {
+    log('failed to seek to the saved position', e)
+  }
+}
+
 export function restoreLastPlaying() {
-  const value = parseJson(localStorage.getItem(keys.playing), {})
-  if (value.url) {
-    document.location = value.url
+  const value = parseJson(localStorage.getItem(keys.playing), {}) as { url?: string; current?: number }
+  if (!value.url) {
+    return
+  }
+  const current = Number(value.current) || 0
+  const savedVideoId = getVideoIdOf(value.url)
+
+  // The app can already open on the saved video with the position in the url.
+  // Navigating again would reload the page and restart it from 0.
+  if (savedVideoId && savedVideoId == getVideoIdOf(document.location.href)) {
+    if (current >= MIN_RESUME_SECONDS && !hasTimeParam(document.location.href)) {
+      void seekToSavedPosition(current)
+    }
+    return
+  }
+
+  document.location.href =
+    current >= MIN_RESUME_SECONDS && !hasTimeParam(value.url) ? withTime(value.url, current) : value.url
+}
+
+function withTime(url: string, current: number) {
+  try {
+    const next = new URL(url, document.location.href)
+    next.searchParams.set('t', `${Math.floor(current)}s`)
+    return next.href
+  } catch {
+    return url
   }
 }
