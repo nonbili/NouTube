@@ -12,6 +12,7 @@ const chipClass = '_nou_fs_chip'
 const sliderClass = '_nou_fs_slider'
 const activeClass = 'active'
 const revealClass = 'reveal'
+const hiddenClass = 'hidden'
 const revealMs = 3000
 const brightnessKey = 'nou:brightness'
 const sideKey = 'nou:fsControlsSide'
@@ -71,6 +72,11 @@ const getFullscreenElement = () =>
   (document.fullscreenElement || (document as any).webkitFullscreenElement) as HTMLElement | null
 
 const getPlayer = (): any => document.getElementById('movie_player')
+
+// The desktop shell runs the very same content script in an Electron webview,
+// where window.electron is published by the preload and window.isAndroid is
+// false. It gets the panel too, minus the rows that need the native bridge.
+const isDesktop = () => Boolean(window.electron)
 
 // Only the main frame is given the token, so the device-level bridge calls
 // below are unreachable from ad iframes.
@@ -247,6 +253,39 @@ function getVolumeIndex() {
   return typeof index == 'number' && Number.isFinite(index) ? index : 0
 }
 
+// Desktop has no media-stream bridge, but the media element does obey volume
+// there, so drive the player's own 0..100 volume instead.
+const hasPlayerVolume = () => typeof getPlayer()?.setVolume == 'function'
+
+function getPlayerVolume() {
+  const player = getPlayer()
+  if (player?.isMuted?.()) {
+    return 0
+  }
+  const volume = player?.getVolume?.()
+  return typeof volume == 'number' && Number.isFinite(volume) ? Math.round(volume) : 100
+}
+
+function setPlayerVolume(value: number) {
+  const player = getPlayer()
+  player?.setVolume?.(value)
+  if (value > 0 && player?.isMuted?.()) {
+    player.unMute?.()
+  }
+}
+
+// Whichever volume control this platform can actually offer, or nothing.
+function getVolumeControl() {
+  if (hasNativeVolume()) {
+    const steps = getVolumeSteps()
+    return steps ? { native: true, max: steps, value: getVolumeIndex() } : undefined
+  }
+  if (isDesktop() && hasPlayerVolume()) {
+    return { native: false, max: 100, value: getPlayerVolume() }
+  }
+  return undefined
+}
+
 function getAvailableQualities() {
   const levels = getPlayer()?.getAvailableQualityLevels?.()
   const available = Array.isArray(levels) ? levels : []
@@ -289,7 +328,7 @@ function renderPanelContent(panel: HTMLElement) {
   const currentRate = typeof rate == 'number' && Number.isFinite(rate) ? rate : 1
   const currentQuality = getCurrentQuality()
   const brightness = getCurrentBrightness()
-  const volumeSteps = getVolumeSteps()
+  const volume = getVolumeControl()
 
   const speedChips = playbackRates
     .map((r) => chip('rate', String(r), formatPlaybackRate(r), r === currentRate))
@@ -300,7 +339,9 @@ function renderPanelContent(panel: HTMLElement) {
 
   panel.innerHTML = nouPolicy.createHTML(/* HTML */ `
     <div class="${rowClass}">
-      <button type="button" id="_nou_fs_lock">${iconLock}<span>Lock</span></button>
+      ${window.isAndroid
+        ? /* HTML */ `<button type="button" id="_nou_fs_lock">${iconLock}<span>Lock</span></button>`
+        : ''}
       <button type="button" id="_nou_fs_side" aria-label="Switch side">${iconSwap}</button>
     </div>
     <div class="${rowClass}">
@@ -311,7 +352,7 @@ function renderPanelContent(panel: HTMLElement) {
       <span class="_nou_fs_label">Quality</span>
       <div class="_nou_fs_chips">${qualityChips}</div>
     </div>
-    ${hasNativeVolume() && volumeSteps
+    ${volume
       ? /* HTML */ `<div class="${rowClass}">
           ${iconVolume}
           <input
@@ -319,9 +360,9 @@ function renderPanelContent(panel: HTMLElement) {
             id="_nou_fs_volume"
             type="range"
             min="0"
-            max="${volumeSteps}"
+            max="${volume.max}"
             step="1"
-            value="${getVolumeIndex()}"
+            value="${volume.value}"
           />
         </div>`
       : ''}
@@ -341,7 +382,7 @@ function renderPanelContent(panel: HTMLElement) {
       : ''}
   `)
 
-  panel.querySelector<HTMLButtonElement>('#_nou_fs_lock')!.addEventListener('click', () => {
+  panel.querySelector<HTMLButtonElement>('#_nou_fs_lock')?.addEventListener('click', () => {
     closePanel()
     lockScreen()
   })
@@ -377,7 +418,12 @@ function renderPanelContent(panel: HTMLElement) {
 
   const volumeInput = panel.querySelector<HTMLInputElement>('#_nou_fs_volume')
   volumeInput?.addEventListener('input', () => {
-    window.NouTubeI?.setVolumeIndex?.(bridgeToken(), Number(volumeInput.value))
+    const value = Number(volumeInput.value)
+    if (volume?.native) {
+      window.NouTubeI?.setVolumeIndex?.(bridgeToken(), value)
+    } else {
+      setPlayerVolume(value)
+    }
     paintSlider(volumeInput)
   })
   paintSlider(volumeInput)
@@ -398,6 +444,7 @@ function closePanel() {
   if (!document.getElementById(overlayId)) {
     setEventBlocking(false)
   }
+  syncButtonVisibility()
 }
 
 function openPanel() {
@@ -417,6 +464,27 @@ function openPanel() {
 
   host.append(scrim, panel)
   setEventBlocking(true)
+  syncButtonVisibility()
+}
+
+// On Android the button's visibility is pure CSS, keyed off the control
+// overlay's fadein class. The desktop player instead flags hidden controls with
+// ytp-autohide on #movie_player, and it hides them on an idle timer that our own
+// event isolation stops from resetting, so the button would fade out from under
+// a hovering pointer. Drive it from here instead, and never hide it while it is
+// hovered.
+function syncButtonVisibility() {
+  if (!isDesktop()) {
+    return
+  }
+  const btn = document.getElementById(btnId)
+  if (!btn) {
+    return
+  }
+  const hidden =
+    !btn.matches(':hover') &&
+    (Boolean(document.getElementById(panelId)) || Boolean(getPlayer()?.classList.contains('ytp-autohide')))
+  btn.classList.toggle(hiddenClass, hidden)
 }
 
 function renderControlsButton() {
@@ -436,24 +504,39 @@ function renderControlsButton() {
   applySide(btn)
   btn.onclick = () => openPanel()
   isolateEvents(btn)
+  if (isDesktop()) {
+    btn.addEventListener('mouseenter', () => syncButtonVisibility())
+    btn.addEventListener('mouseleave', () => syncButtonVisibility())
+  }
   host.append(btn)
+  syncButtonVisibility()
 }
 
 export function installFullscreenControls() {
-  if (!window.isAndroid) {
+  if (!window.isAndroid && !isDesktop()) {
     return
   }
 
   // YouTube rebuilds the control overlay during the fullscreen transition and
   // on video changes, so re-add the button whenever the player subtree changes.
-  const observer = new MutationObserver(() => renderControlsButton())
+  // The class attribute is watched too, for the desktop autohide flag.
+  const observer = new MutationObserver(() => {
+    renderControlsButton()
+    syncButtonVisibility()
+  })
 
   const onFullscreenChange = () => {
     const host = getFullscreenElement()
     if (host) {
       renderControlsButton()
       applySavedBrightness()
-      observer.observe(host, { childList: true, subtree: true })
+      // Only desktop needs the autohide class; on Android the CSS handles it,
+      // and passing attributeFilter alongside attributes:false is a TypeError.
+      observer.observe(host, {
+        childList: true,
+        subtree: true,
+        ...(isDesktop() ? { attributes: true, attributeFilter: ['class'] } : {}),
+      })
     } else {
       observer.disconnect()
       closePanel()

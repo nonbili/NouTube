@@ -165,6 +165,48 @@ const cssContentMobile = css`
     right: calc(16px + var(--_nou_cutout_right, 0px));
   }
 
+  #_nou_lock_overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  #_nou_lock_overlay ._nou_lock_unlock {
+    position: absolute;
+    top: 50%;
+    left: calc(16px + var(--_nou_cutout_left, 0px));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    transform: translateY(-50%);
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+
+  #_nou_lock_overlay.right ._nou_lock_unlock {
+    left: auto;
+    right: calc(16px + var(--_nou_cutout_right, 0px));
+  }
+
+  #_nou_lock_overlay.reveal ._nou_lock_unlock {
+    opacity: 1;
+    pointer-events: auto;
+  }
+`
+
+// Shared by the Android and desktop fullscreen control panels.
+const cssFullscreenPanel = css`
   /*
    * The scrim only exists to give taps outside the panel something to land on;
    * the panel's own event blocking still runs, this just keeps the hit area from
@@ -308,20 +350,25 @@ const cssContentMobile = css`
     -webkit-appearance: none;
     appearance: none;
   }
+`
 
-  #_nou_lock_overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 2147483647;
-    touch-action: none;
-    -webkit-user-select: none;
-    user-select: none;
+const cssContentDesktop = css`
+  /*
+   * Fullscreen controls button, desktop shell. The Android rule keys off
+   * #player-container-id and the mobile control overlay, neither of which the
+   * desktop site has; here the button is a direct child of whatever element
+   * YouTube put into fullscreen, and fullscreen-controls.ts toggles .hidden to
+   * follow the player's own autohide.
+   */
+  #_nou_fs_btn {
+    display: none;
   }
 
-  #_nou_lock_overlay ._nou_lock_unlock {
-    position: absolute;
+  :fullscreen > #_nou_fs_btn {
+    position: fixed;
     top: 50%;
-    left: calc(16px + var(--_nou_cutout_left, 0px));
+    left: 16px;
+    z-index: 2147483646;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -331,21 +378,38 @@ const cssContentMobile = css`
     transform: translateY(-50%);
     border: none;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.5);
     color: white;
-    opacity: 0;
-    transition: opacity 0.2s;
-    pointer-events: none;
-  }
-
-  #_nou_lock_overlay.right ._nou_lock_unlock {
-    left: auto;
-    right: calc(16px + var(--_nou_cutout_right, 0px));
-  }
-
-  #_nou_lock_overlay.reveal ._nou_lock_unlock {
+    cursor: pointer;
     opacity: 1;
-    pointer-events: auto;
+    transition: opacity 0.2s;
+  }
+
+  :fullscreen > #_nou_fs_btn:hover {
+    background: rgba(0, 0, 0, 0.75);
+  }
+
+  :fullscreen > #_nou_fs_btn.right {
+    left: auto;
+    right: 16px;
+  }
+
+  /* Faded rather than display:none so it can still be hovered back into view. */
+  :fullscreen > #_nou_fs_btn.hidden {
+    opacity: 0;
+  }
+
+  #_nou_fs_panel ._nou_fs_chip,
+  #_nou_fs_panel #_nou_fs_side {
+    cursor: pointer;
+  }
+
+  #_nou_fs_panel ._nou_fs_chip:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.24);
+  }
+
+  #_nou_fs_panel #_nou_fs_side:hover {
+    background: rgba(255, 255, 255, 0.24);
   }
 `
 
@@ -472,7 +536,15 @@ const cssContent = css`
   }
 `
 
-export const getCoreCss = () => cssContent + (window.NouTubeI ? cssContentMobile : '')
+export const getCoreCss = () => {
+  const isDesktop = Boolean(window.electron)
+  return (
+    cssContent +
+    (window.NouTubeI ? cssContentMobile : '') +
+    (isDesktop ? cssContentDesktop : '') +
+    (window.NouTubeI || isDesktop ? cssFullscreenPanel : '')
+  )
+}
 
 export const getInjectedCss = (userStyles?: any) => {
   return [getCoreCss(), getCaptionCss(), getEnabledUserStyleCss(document.location.host, userStyles)]
