@@ -36,6 +36,7 @@ mac:
 dmg:
   artifactName: ${productName}-${version}-${arch}.${ext}
 linux:
+  executableName: noutube
   executableArgs:
     - --ozone-platform=x11
   target:
@@ -46,7 +47,6 @@ linux:
 appImage:
   artifactName: ${productName}-${version}.${ext}
 snap:
-  name: noutube
   artifactName: noutube_${version}_${arch}.${ext}
 npmRebuild: false
 publish:
