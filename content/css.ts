@@ -45,6 +45,28 @@ const cssContentMobile = css`
     filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
   }
 
+  /*
+   * YouTube Music mobile: when minimized to the bottom player bar,
+   * YouTube Music's collapse selector typo leaves ytmusic-app-layout fixed and
+   * leaves full player page backgrounds and overlays active over browsing content.
+   */
+  ytmusic-app-layout[player-ui-state='PLAYER_BAR_ONLY'] {
+    position: static !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  ytmusic-player-page[player-ui-state='PLAYER_BAR_ONLY'] {
+    visibility: hidden !important;
+    background: transparent !important;
+    pointer-events: none !important;
+  }
+
+  ytmusic-player-page[player-ui-state='PLAYER_BAR_ONLY'] ytmusic-player {
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
   #_nou_fullscreen_title {
     display: none;
   }

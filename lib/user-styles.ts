@@ -9,16 +9,10 @@ export const builtinUserStyleIds = [
   'hide-related-videos',
   'hide-end-screens',
 ] as const
-export const builtinUserScriptIds = ['fix-encoded-author-names'] as const
 
 export type BuiltinUserStyleId = (typeof builtinUserStyleIds)[number]
-export type BuiltinUserScriptId = (typeof builtinUserScriptIds)[number]
 
 export interface BuiltinUserStyleState {
-  enabled: boolean
-}
-
-export interface BuiltinUserScriptState {
   enabled: boolean
 }
 
@@ -40,7 +34,6 @@ export interface CustomUserScript {
 export interface UserStylesSnapshot {
   schemaVersion: number
   builtins: Record<BuiltinUserStyleId, BuiltinUserStyleState>
-  builtinScripts: Record<BuiltinUserScriptId, BuiltinUserScriptState>
   customStyles: CustomUserStyle[]
   customScripts: CustomUserScript[]
 }
@@ -49,11 +42,6 @@ export interface BuiltinUserStyleDefinition {
   id: BuiltinUserStyleId
   labelKey: string
   css: string
-}
-
-export interface BuiltinUserScriptDefinition {
-  id: BuiltinUserScriptId
-  labelKey: string
 }
 
 const css = (raw: ArrayLike<string>, ...values: any[]) => String.raw({ raw }, ...values)
@@ -159,21 +147,6 @@ export const builtinUserStyleDefinitionById = builtinUserStyleDefinitions.reduce
   {} as Record<BuiltinUserStyleId, BuiltinUserStyleDefinition>,
 )
 
-export const builtinUserScriptDefinitions: BuiltinUserScriptDefinition[] = [
-  {
-    id: 'fix-encoded-author-names',
-    labelKey: 'settings.userStyles.builtinScripts.fixEncodedAuthorNames.label',
-  },
-]
-
-export const builtinUserScriptDefinitionById = builtinUserScriptDefinitions.reduce(
-  (acc, definition) => {
-    acc[definition.id] = definition
-    return acc
-  },
-  {} as Record<BuiltinUserScriptId, BuiltinUserScriptDefinition>,
-)
-
 export const createDefaultBuiltinUserStyles = (): Record<BuiltinUserStyleId, BuiltinUserStyleState> => ({
   'hide-mix-playlist': { enabled: false },
   'hide-shorts-navbar': { enabled: false },
@@ -184,14 +157,9 @@ export const createDefaultBuiltinUserStyles = (): Record<BuiltinUserStyleId, Bui
   'hide-end-screens': { enabled: false },
 })
 
-export const createDefaultBuiltinUserScripts = (): Record<BuiltinUserScriptId, BuiltinUserScriptState> => ({
-  'fix-encoded-author-names': { enabled: false },
-})
-
 export const createDefaultUserStylesSnapshot = (): UserStylesSnapshot => ({
   schemaVersion: USER_STYLES_SCHEMA_VERSION,
   builtins: createDefaultBuiltinUserStyles(),
-  builtinScripts: createDefaultBuiltinUserScripts(),
   customStyles: [],
   customScripts: [],
 })
@@ -210,14 +178,6 @@ export const getEnabledUserStyleCss = (host: string, snapshot?: UserStylesSnapsh
     .filter(Boolean)
 
   return [...builtinCss, ...customCss].join('\n\n')
-}
-
-export const getEnabledBuiltinUserScriptIds = (snapshot?: UserStylesSnapshot) => {
-  const userStyles = snapshot || createDefaultUserStylesSnapshot()
-
-  return builtinUserScriptDefinitions
-    .filter((definition) => userStyles.builtinScripts?.[definition.id]?.enabled === true)
-    .map((definition) => definition.id)
 }
 
 export const getEnabledUserScripts = (snapshot?: UserStylesSnapshot) => {
@@ -309,21 +269,11 @@ export const stripUserscriptMetadata = (source: string) => {
 export const normalizeUserStyles = (data?: Partial<UserStylesSnapshot>): UserStylesSnapshot => {
   const defaults = createDefaultUserStylesSnapshot()
   const builtins = createDefaultBuiltinUserStyles()
-  const builtinScripts = createDefaultBuiltinUserScripts()
 
   for (const id of builtinUserStyleIds) {
     builtins[id] = {
       enabled:
         typeof data?.builtins?.[id]?.enabled === 'boolean' ? data.builtins[id].enabled : defaults.builtins[id].enabled,
-    }
-  }
-
-  for (const id of builtinUserScriptIds) {
-    builtinScripts[id] = {
-      enabled:
-        typeof data?.builtinScripts?.[id]?.enabled === 'boolean'
-          ? data.builtinScripts[id].enabled
-          : defaults.builtinScripts[id].enabled,
     }
   }
 
@@ -338,7 +288,6 @@ export const normalizeUserStyles = (data?: Partial<UserStylesSnapshot>): UserSty
   return {
     schemaVersion: USER_STYLES_SCHEMA_VERSION,
     builtins,
-    builtinScripts,
     customStyles,
     customScripts,
   }

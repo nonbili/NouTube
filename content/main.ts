@@ -17,6 +17,7 @@ import { interceptClipboard } from './clipboard'
 import { installWatchNavigation } from './watch-nav'
 import { installScreenLock } from './lock'
 import { installSystemCaptionStyle } from './captions'
+import { installEncodedAuthorNameFix } from './author-names'
 
 try {
   if ((window as any).NouTubePreferH264) {
@@ -86,6 +87,7 @@ async function initObserver() {
   installDoubleTapGestures()
   installScreenLock()
   installCommentTranslateButtons()
+  installEncodedAuthorNameFix()
 
   pinchToZoom()
 }

@@ -32,9 +32,7 @@ import {
 } from '@/lib/i18n'
 import { getTranslationSupportedLanguages } from '@/lib/translation'
 import {
-  builtinUserScriptDefinitionById,
   builtinUserStyleDefinitionById,
-  type BuiltinUserScriptId,
   type BuiltinUserStyleId,
 } from '@/lib/user-styles'
 import { userStyles$ } from '@/states/user-styles'
@@ -136,18 +134,6 @@ const distractionFreeStyleRows: { id: BuiltinUserStyleId; icon: MaterialIconsIco
 const distractionFreeStyleDefinitions = distractionFreeStyleRows.map((row) => ({
   ...builtinUserStyleDefinitionById[row.id],
   icon: row.icon,
-}))
-
-// Built-in user scripts are fixes rather than distraction-free toggles, so they sit with the
-// other content preferences.
-const builtinScriptIcons: Record<BuiltinUserScriptId, MaterialIconsIconName> = {
-  'fix-encoded-author-names': 'text-fields',
-}
-
-const builtinScriptRows = (Object.keys(builtinScriptIcons) as BuiltinUserScriptId[]).map((id) => ({
-  id,
-  icon: builtinScriptIcons[id],
-  labelKey: builtinUserScriptDefinitionById[id].labelKey,
 }))
 
 const findSupportedTranslationLanguage = (language: string | undefined, available: string[]) => {
@@ -359,7 +345,6 @@ export const SettingsPreferencesContent = () => {
 export const SettingsYouTubeContent = () => {
   const settings = useValue(settings$)
   const builtinStyles = useValue(userStyles$.builtins)
-  const builtinScripts = useValue(userStyles$.builtinScripts)
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   const locales = useLocales()
@@ -433,15 +418,6 @@ export const SettingsYouTubeContent = () => {
               value={settings.sponsorBlock}
               onPress={() => settings$.sponsorBlock.set(!settings.sponsorBlock)}
             />
-            {builtinScriptRows.map(({ id, icon, labelKey }) => (
-              <SettingsToggleRow
-                key={id}
-                label={t(labelKey)}
-                icon={icon}
-                value={Boolean(builtinScripts[id]?.enabled)}
-                onPress={() => userStyles$.toggleBuiltinScript(id)}
-              />
-            ))}
             <View className="flex-row items-center gap-3 px-4 py-4">
               <View className={iconWrapCls}>
                 <MaterialIcons name="image" color={isDark ? '#d4d4d8' : '#475569'} size={18} />

@@ -277,11 +277,6 @@
           "label": "Hide end screens"
         }
       },
-      "builtinScripts": {
-        "fixEncodedAuthorNames": {
-          "label": "Fix special characters in author names"
-        }
-      },
       "custom": {
         "label": "Custom styles",
         "empty": "No custom styles yet."
