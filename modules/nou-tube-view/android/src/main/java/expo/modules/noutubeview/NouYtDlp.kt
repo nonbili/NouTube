@@ -110,7 +110,7 @@ internal class NouYtDlp(private val context: Context) {
     val formats = (0 until json.optJSONArray("formats")?.length().orZero())
       .mapNotNull { index -> json.optJSONArray("formats")?.optJSONObject(index) }
 
-    val options = mutableListOf<Map<String, String>>()
+    val options = mutableListOf<Map<String, Any>>()
     val videoFormats = formats.filter {
       it.optString("vcodec") != "none" && it.optInt("height", 0) > 0
     }
@@ -173,10 +173,117 @@ internal class NouYtDlp(private val context: Context) {
       )
     }
 
+    options.addAll(buildAdvancedOptions(videoFormats, audioFormats))
+
     return mapOf(
       "title" to json.optString("title"),
       "formats" to options,
     )
+  }
+
+  private fun codecLabel(codec: String): String = when {
+    codec.startsWith("avc1") || codec.startsWith("h264") -> "H.264"
+    codec.startsWith("vp9") || codec.startsWith("vp09") -> "VP9"
+    codec.startsWith("av01") -> "AV1"
+    codec.startsWith("vp8") || codec.startsWith("vp08") -> "VP8"
+    codec.startsWith("opus") -> "Opus"
+    codec.startsWith("mp4a") || codec.startsWith("aac") -> "AAC"
+    codec.startsWith("ac-3") || codec.startsWith("ec-3") -> "AC-3"
+    else -> codec.substringBefore('.')
+  }
+
+  private fun formatSize(format: JSONObject): String {
+    val bytes = format.optLong("filesize", 0L).takeIf { it > 0 }
+      ?: format.optLong("filesize_approx", 0L).takeIf { it > 0 }
+      ?: return ""
+    val mb = bytes / 1024.0 / 1024.0
+    return if (mb >= 1024) "~%.1f GB".format(mb / 1024) else "~%d MB".format(mb.toInt())
+  }
+
+  // Every distinct resolution/codec pair yt-dlp reports, so users are not limited to the
+  // handful of curated options above. Exact format ids are used instead of height/vcodec
+  // selectors, which yt-dlp cannot express reliably for codec families.
+  private fun buildAdvancedOptions(
+    videoFormats: List<JSONObject>,
+    audioFormats: List<JSONObject>,
+  ): List<Map<String, Any>> {
+    val options = mutableListOf<Map<String, Any>>()
+
+    val bestPerVariant = LinkedHashMap<String, JSONObject>()
+    for (format in videoFormats) {
+      val fps = format.optDouble("fps", 0.0).toInt()
+      val key = "${format.optInt("height", 0)}-$fps-${codecLabel(format.optString("vcodec"))}"
+      val current = bestPerVariant[key]
+      // Video-only wins over the muxed variant of the same resolution: it can be paired with
+      // the best audio stream instead of the low-bitrate audio baked into the muxed format.
+      val better = current == null ||
+        (format.isVideoOnly() && !current.isVideoOnly()) ||
+        (format.isVideoOnly() == current.isVideoOnly() &&
+          format.optDouble("tbr", 0.0) > current.optDouble("tbr", 0.0))
+      if (better) {
+        bestPerVariant[key] = format
+      }
+    }
+
+    val variants = bestPerVariant.values.sortedWith(
+      compareByDescending<JSONObject> { it.optInt("height", 0) }
+        .thenByDescending { it.optDouble("fps", 0.0) }
+        .thenByDescending { it.optDouble("tbr", 0.0) },
+    )
+
+    for (format in variants) {
+      val fps = format.optDouble("fps", 0.0).toInt()
+      val height = format.optInt("height", 0)
+      val description = listOf(format.optString("ext").uppercase(), formatSize(format))
+        .filter { it.isNotBlank() }
+        .joinToString(" · ")
+      options.add(
+        mapOf(
+          "formatId" to if (format.isVideoOnly()) {
+            "${format.optString("format_id")}+bestaudio/best"
+          } else {
+            format.optString("format_id")
+          },
+          "label" to "${height}p${if (fps > 30) fps.toString() else ""} ${codecLabel(format.optString("vcodec"))}",
+          "description" to description,
+          "advanced" to true,
+          "kind" to "video",
+          "height" to height,
+          "fps" to fps,
+          "codec" to codecLabel(format.optString("vcodec")),
+        ),
+      )
+    }
+
+    val bestPerAudioCodec = LinkedHashMap<String, JSONObject>()
+    for (format in audioFormats) {
+      val key = codecLabel(format.optString("acodec"))
+      val current = bestPerAudioCodec[key]
+      if (current == null || format.audioBitrate() > current.audioBitrate()) {
+        bestPerAudioCodec[key] = format
+      }
+    }
+
+    for (format in bestPerAudioCodec.values) {
+      val abr = format.audioBitrate().toInt()
+      val description = listOf(
+        format.optString("ext").uppercase(),
+        if (abr > 0) "$abr kbps" else "",
+        formatSize(format),
+      ).filter { it.isNotBlank() }.joinToString(" · ")
+      options.add(
+        mapOf(
+          "formatId" to format.optString("format_id"),
+          "label" to "Audio ${codecLabel(format.optString("acodec"))}",
+          "description" to description,
+          "advanced" to true,
+          "kind" to "audio",
+          "codec" to codecLabel(format.optString("acodec")),
+        ),
+      )
+    }
+
+    return options
   }
 
   fun downloadVideo(
@@ -193,16 +300,21 @@ internal class NouYtDlp(private val context: Context) {
     val request = YoutubeDLRequest(url)
     val isMp3 = formatId == "bestaudio-mp3"
     request.addOption("-f", if (isMp3) "bestaudio/best" else formatId)
-    request.addOption("-o", "${tempDir.absolutePath}/%(title)s.%(ext)s")
+    // The format id is part of the name so downloads of several formats of the same video stay
+    // tellable apart instead of landing as "title", "title (1)", "title (2)" in Downloads.
+    request.addOption("-o", "${tempDir.absolutePath}/%(title)s [%(format_id)s].%(ext)s")
     request.addOption("--no-playlist")
     cookiesFile?.let { request.addOption("--cookies", it.absolutePath) }
     NouProxy.ytDlpUrl()?.let { request.addOption("--proxy", it) }
+    // Exact-format-id picks (the full format list) can be VP9/AV1/Opus, which do not always
+    // fit in mp4 — let yt-dlp choose the container for those.
+    val isCuratedFormat = formatId.startsWith("bestvideo") || formatId.startsWith("bestaudio")
     if (isMp3) {
       request.addOption("--extract-audio")
       request.addOption("--audio-format", "mp3")
       request.addOption("--add-metadata")
       request.addOption("--embed-thumbnail")
-    } else {
+    } else if (isCuratedFormat) {
       request.addOption("--merge-output-format", "mp4")
     }
     var lastLine = ""
@@ -374,3 +486,7 @@ internal class NouYtDlp(private val context: Context) {
 }
 
 private fun Int?.orZero(): Int = this ?: 0
+
+private fun JSONObject.isVideoOnly(): Boolean = optString("acodec").let { it.isBlank() || it == "none" }
+
+private fun JSONObject.audioBitrate(): Double = optDouble("abr", optDouble("tbr", 0.0))

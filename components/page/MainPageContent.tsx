@@ -21,6 +21,8 @@ import { useMe } from '@/lib/hooks/useMe'
 import { ObservableHint } from '@legendapp/state'
 import { mainClient } from '@/lib/main-client'
 import { onDownloadProgress } from '@/lib/download-progress'
+import { describeDownloadError } from '@/lib/download-error'
+import { t } from 'i18next'
 import { downloads$ } from '@/states/downloads'
 import { resolveUserAgent } from '@/lib/useragent'
 import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
@@ -400,9 +402,10 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       if (payload.done) {
         if (payload.error) {
           console.error('download error', payload)
+          const { messageKey, detail } = describeDownloadError(payload.line || '')
           downloads$[payload.url].assign({
             phase: 'error',
-            errorMsg: payload.line || 'Download failed',
+            errorMsg: messageKey ? t(messageKey) : detail || t('modals.downloadFailed'),
           })
         } else {
           downloads$[payload.url].assign({

@@ -1,7 +1,19 @@
 import NouTubeViewModule from '@/modules/nou-tube-view'
 import type { UpdateCheckResult } from '../desktop/src/main/lib/auto-update'
 
-export type FormatOption = { formatId: string; label: string; description: string }
+export type FormatOption = {
+  formatId: string
+  label: string
+  description: string
+  advanced?: boolean
+  // Video-independent descriptor of what the option is, used to match a pinned format
+  // against the options of the next video. Absent on the curated options, which have
+  // stable format ids of their own.
+  kind?: 'video' | 'audio'
+  height?: number
+  fps?: number
+  codec?: string
+}
 
 export interface MainClient {
   clearData(): Promise<void> | void

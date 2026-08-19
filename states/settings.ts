@@ -3,6 +3,7 @@ import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import { isWeb } from '@/lib/utils'
 import { normalizeI18nLanguage, type SupportedI18nLanguage } from '@/lib/i18n'
+import type { DownloadPreset } from '@/lib/download-format'
 
 export interface SettingsSnapshot {
   language: SupportedI18nLanguage | null
@@ -53,6 +54,7 @@ export interface SettingsSnapshot {
 interface Store extends SettingsSnapshot {
   downloadPath: string
   downloadUseCookies: boolean
+  downloadPresets: DownloadPreset[]
   lastYtDlpUpdate: number
   setLanguage: (language: SupportedI18nLanguage | null) => void
   isYTMusic: () => boolean
@@ -233,6 +235,7 @@ export const settings$ = observable<Store>({
   proxyPort: '',
   downloadPath: '',
   downloadUseCookies: false,
+  downloadPresets: [],
   lastYtDlpUpdate: 0,
 })
 

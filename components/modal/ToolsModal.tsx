@@ -11,6 +11,7 @@ import { mainClient } from '@/lib/main-client'
 import { downloads$ } from '@/states/downloads'
 import { t } from 'i18next'
 import type { FormatOption } from '@/lib/main-client'
+import { findPinnedFormats, togglePinnedFormat } from '@/lib/download-format'
 import { isAndroid, nIf } from '@/lib/utils'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
 
@@ -22,14 +23,20 @@ export const ToolsModal = () => {
   const isOpen = toolsModalOpen || !!toolsModalUrl
   const downloadPath = useValue(settings$.downloadPath)
   const useCookies = useValue(settings$.downloadUseCookies)
+  const downloadPresets = useValue(settings$.downloadPresets)
   const [url, setUrl] = useState('')
   const [resolvedDownloadsPath, setResolvedDownloadsPath] = useState('')
   const [phase, setPhase] = useState<Phase>('idle')
   const [formats, setFormats] = useState<FormatOption[]>([])
   const [parsedTitle, setParsedTitle] = useState('')
+  const [loadedUrl, setLoadedUrl] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+  const [showAllFormats, setShowAllFormats] = useState(false)
   const activeDownloads = useValue(downloads$)
   const loadingUrlRef = useRef('')
+  const scrollRef = useRef<ScrollView>(null)
+  const downloadsSectionYRef = useRef(0)
+  const scrollToDownloadsRef = useRef(false)
   const isDark = useColorScheme() !== 'light'
   const effectiveDownloadPath = downloadPath || resolvedDownloadsPath
 
@@ -42,7 +49,9 @@ export const ToolsModal = () => {
     loadingUrlRef.current = targetUrl
     setPhase('loading')
     setFormats([])
+    setShowAllFormats(false)
     setParsedTitle('')
+    setLoadedUrl('')
     setErrorMsg('')
     mainClient
       .listFormats(targetUrl, settings$.downloadUseCookies.peek())
@@ -50,6 +59,7 @@ export const ToolsModal = () => {
         if (loadingUrlRef.current !== targetUrl) return
         setFormats(result.formats)
         setParsedTitle(result.title)
+        setLoadedUrl(targetUrl)
         setPhase('choosing')
       })
       .catch((err: any) => {
@@ -81,8 +91,10 @@ export const ToolsModal = () => {
     })
   }
 
+  // The format list stays up after a download starts, so another format of the same video can
+  // be grabbed without resolving the URL again.
   const handleDownload = (formatId: string) => {
-    const targetUrl = toolsModalUrl || url
+    const targetUrl = loadedUrl || toolsModalUrl || url
     downloads$[targetUrl].set({
       url: targetUrl,
       title: parsedTitle || targetUrl,
@@ -92,23 +104,58 @@ export const ToolsModal = () => {
       errorMsg: '',
       savedPath: '',
     })
-    setPhase('idle')
-    setUrl('')
-    ui$.toolsModalUrl.set('')
+
+    // The progress card sits above the format list, which can be long enough that the card is
+    // off screen when a format further down was picked — so scroll it into view. On the first
+    // download the section is not laid out yet, hence the flag picked up by its onLayout.
+    if (downloadsSectionYRef.current) {
+      scrollToDownloads()
+    } else {
+      scrollToDownloadsRef.current = true
+    }
 
     mainClient.downloadVideo(targetUrl, formatId, effectiveDownloadPath, useCookies).catch(() => {
       // handled via downloadProgress done+error
     })
   }
 
+  const scrollToDownloads = () => {
+    scrollRef.current?.scrollTo({ y: Math.max(0, downloadsSectionYRef.current - 12), animated: true })
+  }
+
   if (!isOpen) return null
+
+  const hasAdvancedFormats = formats.some((opt) => opt.advanced)
+  const presets = Array.isArray(downloadPresets) ? downloadPresets : []
+  const pinnedFormats = findPinnedFormats(formats, presets)
+  const pinnedByFormatId = new Map(pinnedFormats.map((pinned) => [pinned.format.formatId, pinned]))
+  const listedFormats = showAllFormats ? formats : formats.filter((opt) => !opt.advanced)
+  // Pinned formats lead the list even when they are extra formats, so pins remove the need to
+  // expand the list at all.
+  const visibleFormats = [
+    ...pinnedFormats.map((pinned) => pinned.format),
+    ...listedFormats.filter((opt) => !pinnedByFormatId.has(opt.formatId)),
+  ]
+
+  // Downloads are tracked per URL, so a second format of the same video would take over the
+  // progress of the running one — one at a time per video.
+  const isDownloadingCurrent = activeDownloads[loadedUrl]?.phase === 'downloading'
+
+  const togglePin = (opt: FormatOption) => {
+    settings$.downloadPresets.set(togglePinnedFormat(presets, opt, pinnedByFormatId.get(opt.formatId)))
+  }
 
   const activeDownloadUrls = Object.keys(activeDownloads).reverse()
   const getProgressValue = (value: number) => Math.min(100, Math.max(0, Number.isFinite(value) ? value : 0))
 
   return (
     <BaseModal onClose={onClose}>
-      <ScrollView className="flex-1" contentContainerClassName="p-5 gap-4" keyboardShouldPersistTaps="handled">
+      <ScrollView
+        ref={scrollRef}
+        className="flex-1"
+        contentContainerClassName="p-5 gap-4"
+        keyboardShouldPersistTaps="handled"
+      >
         <View className="flex-row items-center justify-between">
           <NouText className="text-lg font-semibold">{t('modals.downloadVideo', 'Download video')}</NouText>
         </View>
@@ -175,47 +222,17 @@ export const ToolsModal = () => {
           </View>,
         )}
 
-        {phase === 'loading' && <ActivityIndicator color={isDark ? 'white' : '#3f3f46'} />}
-
-        {phase === 'choosing' && (
-          <View className="gap-3">
-            {!!parsedTitle && (
-              <NouText className="text-sm font-medium text-zinc-600 dark:text-zinc-400 italic px-1">
-                {parsedTitle}
-              </NouText>
-            )}
-            {formats.map((opt) => (
-              <View
-                key={opt.formatId}
-                className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 p-4 gap-3"
-              >
-                <View className="flex-row items-center gap-3">
-                  <View className="flex-1 gap-1">
-                    <NouText className="font-semibold">{opt.label}</NouText>
-                    <NouText className="text-sm text-zinc-500 dark:text-zinc-400">{opt.description}</NouText>
-                  </View>
-                  <Pressable
-                    onPress={() => handleDownload(opt.formatId)}
-                    className="h-11 w-11 items-center justify-center rounded-full bg-indigo-600 dark:bg-indigo-500 active:bg-indigo-700 dark:active:bg-indigo-400"
-                  >
-                    <MaterialIcons name="download" size={20} color="#fff" />
-                  </Pressable>
-                </View>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {phase === 'error' && (
-          <View className="gap-3">
-            <NouText className="text-sm text-red-500 dark:text-red-400">
-              {errorMsg || t('modals.failedToLoadFormats')}
-            </NouText>
-          </View>
-        )}
-
         {activeDownloadUrls.length > 0 && (
-          <View className="mt-4 gap-4">
+          <View
+            className="gap-4"
+            onLayout={(e) => {
+              downloadsSectionYRef.current = e.nativeEvent.layout.y
+              if (scrollToDownloadsRef.current) {
+                scrollToDownloadsRef.current = false
+                scrollToDownloads()
+              }
+            }}
+          >
             <View className="flex-row items-center justify-between">
               <NouText className="text-sm font-bold uppercase tracking-widest text-zinc-500">
                 {t('modals.downloadHistory')}
@@ -340,6 +357,92 @@ export const ToolsModal = () => {
             })}
           </View>
         )}
+        {phase === 'loading' && <ActivityIndicator color={isDark ? 'white' : '#3f3f46'} />}
+
+        {phase === 'choosing' && (
+          <View className="gap-3">
+            {!!parsedTitle && (
+              <NouText className="text-sm font-medium text-zinc-600 dark:text-zinc-400 italic px-1">
+                {parsedTitle}
+              </NouText>
+            )}
+            {visibleFormats.map((opt) => {
+              const isPinned = pinnedByFormatId.has(opt.formatId)
+              return (
+                <View
+                  key={opt.formatId}
+                  className={
+                    isPinned
+                      ? 'rounded-xl border border-indigo-300 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-950/40 p-4 gap-3'
+                      : 'rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 p-4 gap-3'
+                  }
+                >
+                  <View className="flex-row items-center gap-3">
+                    <View className="flex-1 gap-1">
+                      <View className="flex-row items-center gap-2">
+                        <NouText className="font-semibold">{opt.label}</NouText>
+                        {nIf(
+                          isPinned,
+                          <NouText className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                            {t('modals.pinnedFormat')}
+                          </NouText>,
+                        )}
+                      </View>
+                      <NouText className="text-sm text-zinc-500 dark:text-zinc-400">{opt.description}</NouText>
+                    </View>
+                    <Pressable
+                      onPress={() => togglePin(opt)}
+                      accessibilityLabel={isPinned ? t('modals.unpinFormat') : t('modals.pinFormat')}
+                      className="h-11 w-11 items-center justify-center rounded-full active:bg-zinc-200 dark:active:bg-zinc-800"
+                    >
+                      <MaterialIcons
+                        name="push-pin"
+                        size={20}
+                        color={isPinned ? (isDark ? '#818cf8' : '#4f46e5') : isDark ? '#71717a' : '#a1a1aa'}
+                      />
+                    </Pressable>
+                    <Pressable
+                      disabled={isDownloadingCurrent}
+                      onPress={() => handleDownload(opt.formatId)}
+                      className={
+                        isDownloadingCurrent
+                          ? 'h-11 w-11 items-center justify-center rounded-full bg-zinc-300 dark:bg-zinc-700'
+                          : 'h-11 w-11 items-center justify-center rounded-full bg-indigo-600 dark:bg-indigo-500 active:bg-indigo-700 dark:active:bg-indigo-400'
+                      }
+                    >
+                      <MaterialIcons name="download" size={20} color="#fff" />
+                    </Pressable>
+                  </View>
+                </View>
+              )
+            })}
+            {nIf(
+              hasAdvancedFormats,
+              <Pressable
+                onPress={() => setShowAllFormats(!showAllFormats)}
+                className="flex-row items-center justify-center gap-1 rounded-lg py-2 active:bg-zinc-200 dark:active:bg-zinc-800"
+              >
+                <NouText className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                  {showAllFormats ? t('modals.showFewerFormats') : t('modals.showAllFormats')}
+                </NouText>
+                <MaterialIcons
+                  name={showAllFormats ? 'expand-less' : 'expand-more'}
+                  size={18}
+                  color={isDark ? '#818cf8' : '#4f46e5'}
+                />
+              </Pressable>,
+            )}
+          </View>
+        )}
+
+        {phase === 'error' && (
+          <View className="gap-3">
+            <NouText className="text-sm text-red-500 dark:text-red-400">
+              {errorMsg || t('modals.failedToLoadFormats')}
+            </NouText>
+          </View>
+        )}
+
       </ScrollView>
     </BaseModal>
   )

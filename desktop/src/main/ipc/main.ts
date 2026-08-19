@@ -82,8 +82,14 @@ const interfaces = {
   },
   downloadVideo: async (url: string, formatId: string, outputDir: string, useCookies = false): Promise<void> => {
     const binary = await ensureYtDlp()
-    const outputTemplate = `${outputDir}/%(title)s.%(ext)s`
+    // The format id is part of the name because the modal stays open for further formats of the
+    // same video: with a plain title, a second format that lands on the same extension makes
+    // yt-dlp skip the download as already-downloaded and nothing new is saved.
+    const outputTemplate = `${outputDir}/%(title)s [%(format_id)s].%(ext)s`
     const isMp3 = formatId === 'bestaudio-mp3'
+    // Exact-format-id picks (the full format list) can be VP9/AV1/Opus, which do not always
+    // fit in mp4 — let yt-dlp choose the container for those.
+    const isCuratedFormat = formatId.startsWith('bestvideo') || formatId.startsWith('bestaudio')
     return withCookiesArgs(useCookies, (cookiesArgs) => {
       const args = [
         ...ytDlpProxyArgs(),
@@ -96,14 +102,21 @@ const interfaces = {
         '--no-playlist',
         ...(isMp3
           ? ['--extract-audio', '--audio-format', 'mp3', '--add-metadata', '--embed-thumbnail']
-          : ['--merge-output-format', 'mp4']),
+          : isCuratedFormat
+            ? ['--merge-output-format', 'mp4']
+            : []),
       ]
       return new Promise<void>((resolve, reject) => {
         const proc = spawn(binary, args)
         let filePath = ''
         let buffer = ''
+        let lastLine = ''
         let lastUpdate = 0
         const THROTTLE_MS = 200
+        // Progress lines are throttled and the trailing buffer is usually empty by the time
+        // yt-dlp exits, so the lines explaining a failure are kept aside for the final update.
+        const errorLines: string[] = []
+        const MAX_ERROR_LINES = 5
 
         const onData = (d: Buffer) => {
           buffer += d.toString()
@@ -112,12 +125,20 @@ const interfaces = {
 
           for (const line of lines) {
             if (!line.trim()) continue
+            lastLine = line.trim()
+            if (/^(ERROR|WARNING):/.test(lastLine)) {
+              errorLines.push(lastLine)
+              if (errorLines.length > MAX_ERROR_LINES) errorLines.shift()
+            }
 
             // Parse final output path from yt-dlp progress lines
             const mergerMatch = line.match(/\[Merger\] Merging formats into "(.+)"/)
             const destMatch = line.match(/\[(?:download|ExtractAudio)\] Destination: (.+)/)
+            // Re-downloading a format already on disk produces neither of the above
+            const skippedMatch = line.match(/\[download\] (.+) has already been downloaded/)
             if (mergerMatch) filePath = mergerMatch[1].trim()
             else if (destMatch) filePath = destMatch[1].trim()
+            else if (skippedMatch) filePath = skippedMatch[1].trim()
 
             const now = Date.now()
             if (now - lastUpdate > THROTTLE_MS) {
@@ -129,10 +150,12 @@ const interfaces = {
         proc.stdout.on('data', onData)
         proc.stderr.on('data', onData)
         proc.on('close', (code) => {
-          // Final update with the last line if any, and done=true
+          const tail = buffer.trim()
+          // Final update with the last line if any, and done=true. A failure reports everything
+          // yt-dlp complained about, so the message shown to the user can be classified.
           uiClient.downloadProgress({
             url,
-            line: buffer.trim(),
+            line: code === 0 ? tail : [...errorLines, tail].filter(Boolean).join('\n') || lastLine,
             done: true,
             filePath,
             error: code !== 0,
@@ -235,7 +258,19 @@ async function withCookiesArgs<T>(useCookies: boolean, fn: (args: string[]) => P
   }
 }
 
-export type FormatOption = { formatId: string; label: string; description: string }
+export type FormatOption = {
+  formatId: string
+  label: string
+  description: string
+  advanced?: boolean
+  // Video-independent descriptor of what the option is, used to match a pinned format
+  // against the options of the next video. Absent on the curated options, which have
+  // stable format ids of their own.
+  kind?: 'video' | 'audio'
+  height?: number
+  fps?: number
+  codec?: string
+}
 
 function buildFormatOptions(info: any): FormatOption[] {
   const formats: any[] = info.formats ?? []
@@ -268,7 +303,9 @@ function buildFormatOptions(info: any): FormatOption[] {
     })
   }
 
-  if (formats.some((f) => f.vcodec === 'none' && f.acodec !== 'none')) {
+  const audioFormats = formats.filter((f) => f.vcodec === 'none' && f.acodec !== 'none')
+
+  if (audioFormats.length) {
     options.push({
       formatId: 'bestaudio/best',
       label: 'Audio only',
@@ -278,6 +315,93 @@ function buildFormatOptions(info: any): FormatOption[] {
       formatId: 'bestaudio-mp3',
       label: 'Audio (mp3)',
       description: 'MP3 audio with metadata and cover art',
+    })
+  }
+
+  options.push(...buildAdvancedOptions(formats, audioFormats))
+
+  return options
+}
+
+const CODEC_LABELS: [RegExp, string][] = [
+  [/^(avc1|h264)/, 'H.264'],
+  [/^(vp0?9)/, 'VP9'],
+  [/^av01/, 'AV1'],
+  [/^(vp0?8)/, 'VP8'],
+  [/^opus/, 'Opus'],
+  [/^(mp4a|aac)/, 'AAC'],
+  [/^ec-3|^ac-3/, 'AC-3'],
+]
+
+function codecLabel(codec: string): string {
+  const found = CODEC_LABELS.find(([re]) => re.test(codec))
+  return found ? found[1] : codec.split('.')[0]
+}
+
+function formatSize(f: any): string {
+  const bytes = f.filesize ?? f.filesize_approx
+  if (!bytes) return ''
+  const mb = bytes / 1024 / 1024
+  return mb >= 1024 ? `~${(mb / 1024).toFixed(1)} GB` : `~${Math.round(mb)} MB`
+}
+
+// Every distinct resolution/codec pair yt-dlp reports, so users are not limited to the
+// handful of curated options above. Exact format ids are used instead of height/vcodec
+// selectors, which yt-dlp cannot express reliably for codec families.
+function buildAdvancedOptions(formats: any[], audioFormats: any[]): FormatOption[] {
+  const options: FormatOption[] = []
+  const videoFormats = formats.filter((f) => f.vcodec && f.vcodec !== 'none' && f.height > 0)
+
+  const isVideoOnly = (f: any) => !f.acodec || f.acodec === 'none'
+
+  const bestPerVariant = new Map<string, any>()
+  for (const f of videoFormats) {
+    const key = `${f.height}-${Math.round(f.fps || 0)}-${codecLabel(f.vcodec)}`
+    const current = bestPerVariant.get(key)
+    // Video-only wins over the muxed variant of the same resolution: it can be paired with
+    // the best audio stream instead of the low-bitrate audio baked into the muxed format.
+    const better =
+      !current ||
+      (isVideoOnly(f) && !isVideoOnly(current)) ||
+      (isVideoOnly(f) === isVideoOnly(current) && (f.tbr || 0) > (current.tbr || 0))
+    if (better) bestPerVariant.set(key, f)
+  }
+
+  const variants = Array.from(bestPerVariant.values()).sort(
+    (a, b) => b.height - a.height || (b.fps || 0) - (a.fps || 0) || (b.tbr || 0) - (a.tbr || 0),
+  )
+
+  for (const f of variants) {
+    const fps = Math.round(f.fps || 0)
+    const size = formatSize(f)
+    options.push({
+      formatId: isVideoOnly(f) ? `${f.format_id}+bestaudio/best` : f.format_id,
+      label: `${f.height}p${fps > 30 ? fps : ''} ${codecLabel(f.vcodec)}`,
+      description: [f.ext?.toUpperCase(), size].filter(Boolean).join(' · ') || 'video + audio',
+      advanced: true,
+      kind: 'video',
+      height: f.height,
+      fps,
+      codec: codecLabel(f.vcodec),
+    })
+  }
+
+  const bestPerAudioCodec = new Map<string, any>()
+  for (const f of audioFormats) {
+    const key = codecLabel(f.acodec)
+    const current = bestPerAudioCodec.get(key)
+    if (!current || (f.abr || f.tbr || 0) > (current.abr || current.tbr || 0)) bestPerAudioCodec.set(key, f)
+  }
+
+  for (const f of bestPerAudioCodec.values()) {
+    const abr = Math.round(f.abr || f.tbr || 0)
+    options.push({
+      formatId: f.format_id,
+      label: `Audio ${codecLabel(f.acodec)}`,
+      description: [f.ext?.toUpperCase(), abr ? `${abr} kbps` : '', formatSize(f)].filter(Boolean).join(' · '),
+      advanced: true,
+      kind: 'audio',
+      codec: codecLabel(f.acodec),
     })
   }
 
