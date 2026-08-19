@@ -100,6 +100,19 @@ const cssContentMobile = css`
     #player-control-overlay.fadein
     .ytwPlayerFullscreenTopControlsFullscreenControlsVideoTitle {
     visibility: visible;
+    /*
+     * The title box spans the full width, under the top-right control cluster.
+     * YouTube gets away with that because the whole host is hidden; once we
+     * make the title visible it starts hit-testing and swallows taps on the
+     * captions and settings buttons, so it has to stay inert like ours.
+     */
+    pointer-events: none;
+    /*
+     * Its flex parent only reserves room for the close button (40px) next to
+     * the host's 12px padding, so the title still runs under the controls.
+     * Back both out of the 192px inset ours uses to land on the same edge.
+     */
+    margin-right: 140px;
   }
 
   #player-container-id:fullscreen
@@ -267,6 +280,9 @@ const cssContentMobile = css`
     height: 16px;
     margin: 0;
     padding: 0;
+    border: none;
+    outline: none;
+    box-shadow: none;
     background: transparent;
     -webkit-appearance: none;
     appearance: none;

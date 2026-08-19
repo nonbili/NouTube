@@ -196,12 +196,31 @@ function getCurrentBrightness() {
     return saved
   }
   const native = window.NouTubeI?.getBrightness?.(bridgeToken())
-  return typeof native == 'number' && native > 0 ? Math.round(native * 100) : 100
+  return typeof native == 'number' && native > 0 ? Math.round(linearToGamma(native) * 100) : 100
+}
+
+// Android's brightness slider is gamma-encoded (the HLG curve in the platform's
+// BrightnessUtils), but the window override takes the linear value, so 50% on
+// the system slider is only ~0.07 linear. Convert both ways so our slider
+// travels the same perceptual scale the system one does.
+const gammaA = 0.17883277
+const gammaB = 0.28466892
+const gammaC = 0.55991073
+
+function gammaToLinear(gamma: number) {
+  const value = gamma <= 0.5 ? (gamma / 0.5) ** 2 : Math.exp((gamma - gammaC) / gammaA) + gammaB
+  return Math.min(Math.max(value / 12, 0), 1)
+}
+
+function linearToGamma(linear: number) {
+  const value = Math.min(Math.max(linear, 0), 1) * 12
+  const gamma = value <= 1 ? 0.5 * Math.sqrt(value) : gammaA * Math.log(value - gammaB) + gammaC
+  return Math.min(Math.max(gamma, 0), 1)
 }
 
 function applyBrightness(percent: number) {
   // The native side takes 0..1, with -1 meaning "hand control back to Android".
-  window.NouTubeI?.setBrightness?.(bridgeToken(), percent >= 100 ? -1 : Math.max(percent, 5) / 100)
+  window.NouTubeI?.setBrightness?.(bridgeToken(), percent >= 100 ? -1 : gammaToLinear(percent / 100))
 }
 
 function applySavedBrightness() {
@@ -313,7 +332,7 @@ function renderPanelContent(panel: HTMLElement) {
             class="${sliderClass}"
             id="_nou_fs_brightness"
             type="range"
-            min="5"
+            min="1"
             max="100"
             step="1"
             value="${brightness}"
