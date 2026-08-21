@@ -52,7 +52,9 @@ class NouService : Service() {
   private val mainHandler = Handler(Looper.getMainLooper())
   private var sleepTimerDeadlineMs: Long? = null
   private var sleepTimerRunnable: Runnable? = null
-  private var lastForegroundAssertMs = 0L
+  private var lastForegroundAttemptMs = 0L
+  private var hasAttemptedForeground = false
+  private var noisyReceiver: NoisyAudioReceiver? = null
   private val NOTIFICATION_ID = 777
   private val CHANNEL_ID = "noutube"
   private val FOREGROUND_REASSERT_INTERVAL_MS = 60_000L
@@ -65,7 +67,21 @@ class NouService : Service() {
 
   // The intent is null when the service is restarted by the system.
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-    if (intent != null) {
+    // Only media buttons arrive through startForegroundService; the plain
+    // startService from NouTubeView.initService must fall through untouched or
+    // it would stop the service it just started.
+    if (intent?.action == Intent.ACTION_MEDIA_BUTTON) {
+      // startForegroundService arms a 5s startForeground deadline on O+, and
+      // the service may well be demoted at that point (that is the bug this
+      // whole file works around), so promote it here instead of waiting for
+      // the next progress tick, whose throttle could swallow the promotion.
+      if (mediaSession == null) {
+        // Already exited: nothing left to play, just satisfy the deadline.
+        settleForegroundDeadline()
+        stopSelf()
+        return START_NOT_STICKY
+      }
+      ensureForeground(force = true)
       MediaButtonReceiver.handleIntent(mediaSession, intent)
     }
     // Never restart a dead process just for this service: without the activity
@@ -74,17 +90,33 @@ class NouService : Service() {
     return START_NOT_STICKY
   }
 
+  // Called again whenever the activity rebinds (screen remount, service
+  // recreation), so every resource taken here has to replace the previous one.
   fun initialize(view: NouWebView, _activity: Activity) {
+    unregisterNoisyReceiver()
     activity = _activity
     webView = view
+    mediaSession?.setActive(false)
+    mediaSession?.release()
     mediaSession = MediaSessionCompat(this, "NouService")
     initCallback()
 
     val filter = IntentFilter()
     filter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
     filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
-    val noisyReceiver = NoisyAudioReceiver(view)
-    _activity.registerReceiver(noisyReceiver, filter)
+    val receiver = NoisyAudioReceiver(view)
+    _activity.registerReceiver(receiver, filter)
+    noisyReceiver = receiver
+  }
+
+  private fun unregisterNoisyReceiver() {
+    val receiver = noisyReceiver ?: return
+    noisyReceiver = null
+    try {
+      activity?.unregisterReceiver(receiver)
+    } catch (e: IllegalArgumentException) {
+      // Already unregistered with its activity.
+    }
   }
 
   fun setSleepTimerDeadline(deadlineMs: Long) {
@@ -253,28 +285,58 @@ class NouService : Service() {
   // ends up shooting the WebView renderer mid-playback (#309, #146, #206).
   // The demotion happens without any callback, so while playback is running,
   // re-assert the foreground state at least once a minute.
-  private fun ensureForeground() {
+  private fun ensureForeground(force: Boolean = false) {
     if (mediaSession == null) {
       return
     }
     val now = SystemClock.elapsedRealtime()
-    if (now - lastForegroundAssertMs < FOREGROUND_REASSERT_INTERVAL_MS) {
+    // Throttle attempts, not successes: a service the system keeps refusing to
+    // promote would otherwise rebuild a notification and log on every progress
+    // tick. The flag is what gates the first attempt, because elapsedRealtime
+    // is time since boot and would be under the interval right after one.
+    if (!force &&
+      hasAttemptedForeground &&
+      now - lastForegroundAttemptMs < FOREGROUND_REASSERT_INTERVAL_MS
+    ) {
       return
     }
-    lastForegroundAssertMs = now
+    hasAttemptedForeground = true
+    lastForegroundAttemptMs = now
     try {
       ensureNotificationManager()
-      val notification = buildNotification()
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
-      } else {
-        startForeground(NOTIFICATION_ID, notification)
-      }
+      startForegroundNow(buildNotification())
     } catch (e: Exception) {
       // ForegroundServiceStartNotAllowedException and friends: keep playing,
       // retry on the next tick after the interval or when the app is
       // foregrounded again.
       nouController.log("startForeground failed: ${e.message}")
+    }
+  }
+
+  private fun startForegroundNow(notification: Notification) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+    } else {
+      startForeground(NOTIFICATION_ID, notification)
+    }
+  }
+
+  // A startForegroundService that arrives after exit() still has to be
+  // answered with a startForeground call, or the system kills the process.
+  // There is no session to build a media notification from, so show nothing
+  // and drop it again right away.
+  private fun settleForegroundDeadline() {
+    try {
+      ensureNotificationManager()
+      startForegroundNow(
+        NotificationCompat.Builder(this, CHANNEL_ID)
+          .setSmallIcon(R.drawable.icon)
+          .setContentTitle("NouTube")
+          .build()
+      )
+      stopForeground(STOP_FOREGROUND_REMOVE)
+    } catch (e: Exception) {
+      nouController.log("settleForegroundDeadline failed: ${e.message}")
     }
   }
 
@@ -326,8 +388,10 @@ class NouService : Service() {
 
   fun exit() {
     clearSleepTimer(false)
+    unregisterNoisyReceiver()
     stopForeground(STOP_FOREGROUND_REMOVE)
-    lastForegroundAssertMs = 0L
+    lastForegroundAttemptMs = 0L
+    hasAttemptedForeground = false
     notificationManager?.cancel(NOTIFICATION_ID)
     notificationManager = null
     mediaSession?.setActive(false)

@@ -39,8 +39,9 @@ function confirmYouThereDialogs() {
     const buttons = dialog.querySelectorAll('button')
     if (buttons.length === 1) {
       ;(buttons[0] as HTMLElement).click()
+      return true
     }
-    return true
+    // A dialog left in the DOM but not clickable must not hide the next one.
   }
   return false
 }
@@ -61,6 +62,37 @@ export function installBackgroundGuard() {
       return originalPlay()
     }
     nouTube.__nouGuardedPause = true
+  }
+
+  // A pause from YouTube's own controls bypasses NouTube.pause(). Record it
+  // synchronously while the app is visible so immediately backgrounding the
+  // app cannot race the polling loop below and restart user-paused playback.
+  document.addEventListener(
+    'pause',
+    (event) => {
+      const player = document.getElementById('movie_player')
+      if (!isBackground() && event.target instanceof Node && player?.contains(event.target)) {
+        appPaused = true
+      }
+    },
+    true,
+  )
+
+  // Playback that starts right before the app is backgrounded would otherwise
+  // not be seen by the poll below at all, and a YouTube pause in that window
+  // would look like a video that was never playing.
+  for (const type of ['play', 'playing']) {
+    document.addEventListener(
+      type,
+      (event) => {
+        const player = document.getElementById('movie_player')
+        if (event.target instanceof Node && player?.contains(event.target)) {
+          appPaused = false
+          wasPlaying = true
+        }
+      },
+      true,
+    )
   }
 
   setInterval(() => {

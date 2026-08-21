@@ -151,6 +151,23 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   private val gestureDetector = GestureDetector(context, gestureListener)
 
   private var service: NouService? = null
+  private var serviceConnection: ServiceConnection? = null
+
+  companion object {
+    private const val REQUEST_POST_NOTIFICATIONS = 102
+
+    // The service is a singleton and the view has no destroy hook, so the
+    // live binding is tracked per process: a remount replaces it instead of
+    // stacking one more connection onto the service. It is bound through the
+    // application context, so unbinding still works after the activity that
+    // set it up has been recreated.
+    private var activeServiceConnection: ServiceConnection? = null
+
+    // requestPermissions is fire-and-forget from a view (there is no result
+    // callback to observe here), so ask at most once per process: a remount
+    // must not re-raise the system dialog after the user denied it.
+    private var notificationPermissionRequested = false
+  }
 
   internal val currentActivity: Activity?
     get() = appContext.activityProvider?.currentActivity
@@ -401,7 +418,17 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   // content/background-guard.ts).
   override fun onWindowVisibilityChanged(visibility: Int) {
     super.onWindowVisibilityChanged(visibility)
-    isWindowInBackground = visibility != View.VISIBLE
+    // The dispatched value is not the window state alone: ViewGroup also feeds
+    // this from dispatchAttachedToWindow with combineVisibility(window,
+    // ancestor visibility), so attaching under a GONE ancestor (an inactive
+    // react-native-screens screen) would look exactly like backgrounding, and
+    // the guard would then resume playback the user paused on purpose.
+    // windowVisibility is the raw window state.
+    val inBackground = windowVisibility != View.VISIBLE
+    if (inBackground == isWindowInBackground) {
+      return
+    }
+    isWindowInBackground = inBackground
     webView.evaluateJavascript("window.NouTubeBackground = $isWindowInBackground", null)
   }
 
@@ -443,10 +470,27 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     // The media notification is invisible without this on Android 13+, and the
     // app never surfaces in the system media controls ("not a music app", #309).
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU &&
+      !notificationPermissionRequested &&
       activity.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) !=
       android.content.pm.PackageManager.PERMISSION_GRANTED
     ) {
-      activity.requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 102)
+      notificationPermissionRequested = true
+      activity.requestPermissions(
+        arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+        REQUEST_POST_NOTIFICATIONS
+      )
+    }
+
+    // A remount runs this again; drop the previous binding instead of stacking
+    // one more onto the service.
+    val bindContext = activity.applicationContext
+    activeServiceConnection?.let { previous ->
+      activeServiceConnection = null
+      try {
+        bindContext.unbindService(previous)
+      } catch (e: IllegalArgumentException) {
+        // Not bound anymore.
+      }
     }
 
     val connection = object : ServiceConnection {
@@ -471,7 +515,9 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     } catch (e: Exception) {
       // Background start restrictions: binding below still works.
     }
-    activity.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    bindContext.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    serviceConnection = connection
+    activeServiceConnection = connection
 
     orientationListener = NouOrientationListener(activity, this)
   }
@@ -580,5 +626,24 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
   fun exit() {
     service?.exit()
+  }
+
+  // Bound through the application context, so nothing releases the binding on
+  // its own: without this the service — and the activity and WebView it holds
+  // — outlives the view, even after exit() called stopSelf(). Driven by
+  // OnViewDestroys in NouTubeViewModule.
+  fun destroyService() {
+    val connection = serviceConnection ?: return
+    serviceConnection = null
+    // A newer view may already own the live binding; only ever drop our own.
+    if (activeServiceConnection === connection) {
+      activeServiceConnection = null
+    }
+    try {
+      context.applicationContext.unbindService(connection)
+    } catch (e: IllegalArgumentException) {
+      // Not bound anymore.
+    }
+    service = null
   }
 }

@@ -258,6 +258,10 @@ class NouTubeViewModule : Module() {
     }
 
     View(NouTubeView::class) {
+      OnViewDestroys { view: NouTubeView ->
+        view.destroyService()
+      }
+
       Prop("scriptOnStart") { view: NouTubeView, script: String ->
         view.setScriptOnStart(script)
       }
