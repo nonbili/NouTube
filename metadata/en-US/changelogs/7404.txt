@@ -1,0 +1,4 @@
+- Keep background playback alive and reliable
+- Preserve intentional user pauses during background playback
+- Restore last playing video at saved position on startup
+- Update translations
