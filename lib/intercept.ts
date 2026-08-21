@@ -13,6 +13,24 @@ export const RE_INTERCEPT = new RegExp('^/youtubei/v1/(browse|get_watch|next|pla
 interface TransformOptions {
   hideShorts?: boolean
   showOriginalVideoTitle?: boolean
+  isYTMusic?: boolean
+}
+
+export function transformPlayerRequest(bodyText: string, isYTMusic = false): string {
+  if (!isYTMusic || !bodyText) return bodyText
+  try {
+    const data = JSON.parse(bodyText)
+    if (data && typeof data === 'object' && data.context && data.context.client) {
+      data.context.client.clientName = 'ANDROID_MUSIC'
+      data.context.client.clientVersion = '6.29.52'
+      data.context.client.androidSdkVersion = 31
+      data.context.client.userInterfaceTheme = 'USER_INTERFACE_THEME_DARK'
+      return JSON.stringify(data)
+    }
+  } catch {
+    // Fall back to original body text if parsing fails
+  }
+  return bodyText
 }
 
 export function transformGetWatchResponse(text: string, options: TransformOptions = {}) {
@@ -24,6 +42,7 @@ export function transformGetWatchResponse(text: string, options: TransformOption
 }
 
 function stripAdKeys(data: any) {
+  if (!data) return data
   keys.forEach((key) => delete data[key])
   return data
 }
@@ -33,6 +52,17 @@ export function transformPlayerResponse(text: string, _blocklist?: BlocklistSnap
   stripAdKeys(data)
   applyPlayerResponseOriginalTitle(data, options)
   rewriteOriginalTitles(data, options)
+
+  if (options.isYTMusic && data?.streamingData?.adaptiveFormats) {
+    data.streamingData.adaptiveFormats.sort((a: any, b: any) => {
+      const aIsAudio = Boolean(a.mimeType?.startsWith('audio/'))
+      const bIsAudio = Boolean(b.mimeType?.startsWith('audio/'))
+      if (aIsAudio && !bIsAudio) return -1
+      if (!aIsAudio && bIsAudio) return 1
+      return (b.bitrate || 0) - (a.bitrate || 0)
+    })
+  }
+
   return JSON.stringify(data)
 }
 

@@ -3,9 +3,11 @@ import {
   filterListResponse,
   transformBrowseResponse,
   transformGetWatchResponse,
+  transformPlayerRequest,
   transformPlayerResponse,
   transformSearchResponse,
 } from '@/lib/intercept'
+import { isYTMusic } from './utils'
 
 export function intercept() {
   // Intercept initial page data (server-rendered in script tags)
@@ -29,13 +31,34 @@ export function intercept() {
   const winFetch = fetch
   // @ts-expect-error xx
   window.fetch = async (...args) => {
-    const request = args[0]
+    let request = args[0]
     const url = request instanceof Request ? request.url : request.toString()
+    const match = new URL(url, location.origin).pathname.match(RE_INTERCEPT)
+    const isMusic = isYTMusic || location.host === 'music.youtube.com'
+
+    if (match && isMusic && (match[1] === 'player' || match[1] === 'next')) {
+      try {
+        let init = args[1] || {}
+        if (request instanceof Request) {
+          const bodyText = await request.clone().text()
+          const newBody = transformPlayerRequest(bodyText, true)
+          if (newBody !== bodyText) {
+            request = new Request(request, { body: newBody })
+            args[0] = request
+          }
+        } else if (init.body && typeof init.body === 'string') {
+          init = { ...init, body: transformPlayerRequest(init.body, true) }
+          args[1] = init
+        }
+      } catch (e) {
+        console.error('NouScript fetch request transform:', e)
+      }
+    }
+
     let res = await winFetch(...args)
-    const match = new URL(url).pathname.match(RE_INTERCEPT)
     const blocklist = window.NouTube?.getBlocklist?.()
     const settings = window.NouTube?.getSettings?.()
-    const options = { showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle) }
+    const options = { showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle), isYTMusic: isMusic }
     if (res.status > 200 || !match) {
       return res
     }
@@ -66,8 +89,10 @@ export function intercept() {
 
   // https://stackoverflow.com/a/78369686
   const xhrOpen = XMLHttpRequest.prototype.open
-  XMLHttpRequest.prototype.open = function (method, url) {
+  const xhrSend = XMLHttpRequest.prototype.send
+  XMLHttpRequest.prototype.open = function (method, url, ...rest) {
     url = url.toString()
+    ;(this as any)._nouUrl = url
     this.addEventListener('readystatechange', function () {
       if (this.readyState !== 4) {
         return
@@ -80,7 +105,8 @@ export function intercept() {
 
       const blocklist = window.NouTube?.getBlocklist?.()
       const settings = window.NouTube?.getSettings?.()
-      const options = { showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle) }
+      const isMusic = isYTMusic || location.host === 'music.youtube.com'
+      const options = { showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle), isYTMusic: isMusic }
       try {
         const fn =
           {
@@ -102,6 +128,18 @@ export function intercept() {
         console.error('NouScript:', error)
       }
     })
-    return xhrOpen.apply(this, [method, url])
+    return xhrOpen.apply(this, [method, url, ...rest] as any)
+  }
+
+  XMLHttpRequest.prototype.send = function (body) {
+    const url = (this as any)._nouUrl || ''
+    const isMusic = isYTMusic || location.host === 'music.youtube.com'
+    if (url && isMusic && typeof body === 'string') {
+      const match = new URL(url, location.origin).pathname.match(RE_INTERCEPT)
+      if (match && (match[1] === 'player' || match[1] === 'next')) {
+        body = transformPlayerRequest(body, true)
+      }
+    }
+    return xhrSend.apply(this, [body])
   }
 }
