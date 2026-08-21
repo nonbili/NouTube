@@ -35,7 +35,8 @@
     "browse": "Explorar",
     "updateYtDlp": "Actualizar yt-dlp",
     "updating": "Actualizando...",
-    "ytDlpUpdated": "yt-dlp está actualizado"
+    "ytDlpUpdated": "yt-dlp está actualizado",
+    "undo": "Deshacer"
   },
   "library": {
     "videos": "Vídeos",
@@ -57,7 +58,8 @@
     "pip": "Imagen en imagen",
     "openInNewTab": "Abrir en una nueva pestaña",
     "duplicateTab": "Duplicar pestaña",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "moveTo": "Mover a…"
   },
   "modals": {
     "editBookmark": "Editar marcador",
@@ -81,7 +83,18 @@
     "shareVideoUrl": "URL del video",
     "shareIncludePosition": "Incluir posición actual",
     "downloadUseCookies": "Usar mis cookies",
-    "downloadUseCookiesHint": "Necesario para videos privados, con restricción de edad o exclusivos para miembros. Puede cerrar tú sesión en YouTube, y usar una cuenta de esta forma conlleva el riesgo de que sea suspendida o marcada."
+    "downloadUseCookiesHint": "Necesario para videos privados, con restricción de edad o exclusivos para miembros. Puede cerrar tú sesión en YouTube, y usar una cuenta de esta forma conlleva el riesgo de que sea suspendida o marcada.",
+    "noFolder": "Sin carpeta",
+    "downloadErrorBlocked": "YouTube rechazó esta descarga. Requiere un token que yt-dlp aún no puede generar, por lo que este video no se puede descargar por ahora — la mayoría de los demás videos aún funcionan.",
+    "downloadErrorSignIn": "YouTube requiere una sesión iniciada para este vídeo. Activa «Usar mis cookies» e inténtalo de nuevo.",
+    "downloadErrorFormat": "Ese formato ya no está disponible. Vuelve a cargar los formatos y elige otro.",
+    "downloadErrorUnavailable": "Este video no está disponible.",
+    "downloadErrorNetwork": "No se pudo conectar con YouTube. Revisa tú conexión e inténtalo de nuevo.",
+    "showAllFormats": "Mostrar todos los formatos",
+    "showFewerFormats": "Mostrar menos formatos",
+    "pinnedFormat": "Fijado",
+    "pinFormat": "Fijar como formato predeterminado",
+    "unpinFormat": "Desfijar formato predeterminado"
   },
   "sleepTimer": {
     "label": "Temporizador de apagado",
@@ -145,7 +158,7 @@
     "preferences": "Preferencias",
     "preferencesHint": "Comportamiento de reproducción, feed e historial.",
     "appearance": "Apariencia",
-    "appearanceHint": "Controla cómo se ve YouTube dentro de la aplicación.",
+    "appearanceHint": "Barra de herramientas, idioma y tema.",
     "tools": "Herramientas",
     "toolsHint": "Administra el entorno de vista web y otras herramientas.",
     "transfer": "Importar y exportar",
@@ -168,7 +181,7 @@
     },
     "userStyles": {
       "label": "Estilos y scripts de usuario",
-      "hint": "Ajustes CSS integrados y tus propios estilos CSS específicos para el sitio.",
+      "hint": "Tus propios estilos CSS y scripts de usuario específicos del sitio.",
       "builtin": {
         "label": "Estilos integrados",
         "hideShortsInNavbar": {
@@ -182,6 +195,15 @@
         },
         "hideAskButton": {
           "label": "Ocultar el botón \"Preguntar a Gemini\""
+        },
+        "hideHomeFeed": {
+          "label": "Ocultar feed de inicio"
+        },
+        "hideRelatedVideos": {
+          "label": "Ocultar vídeos relacionados"
+        },
+        "hideEndScreens": {
+          "label": "Ocultar pantallas finales"
         }
       },
       "custom": {
@@ -232,11 +254,11 @@
     "channelsFeed": "Feed de canales",
     "watchHistory": "Historial de reproducciones",
     "theme": {
-      "label": "Tema de YouTube",
+      "label": "Tema",
       "system": "Sistema",
       "dark": "Oscuro",
       "light": "Claro",
-      "hint": "Reiniciar manualmente sí el cambio no se refleja en la vista web."
+      "hint": "Se aplica a la aplicación y a YouTube. Reinicia manualmente sí el cambio no se refleja en la vista web."
     },
     "language": {
       "label": "Lenguaje",
@@ -331,7 +353,19 @@
     "importSettingsWithScriptsConfirm": "Este archivo contiene {{count}} script(s) personalizado(s) activado(s), que pueden ejecutar código dentro de YouTube. Continúa solo si confías en el archivo. Se reemplazará tu configuración actual, lista de bloqueos, estilos de usuario y scripts personalizados.",
     "importSettingsDone": "Importado: {{sections}}",
     "exportSettings": "Exportar configuración",
-    "exportSettingsDescription": "Guardar configuración, lista de bloqueos, estilos de usuario y scripts personalizados como un archivo JSON"
+    "exportSettingsDescription": "Guardar configuración, lista de bloqueos, estilos de usuario y scripts personalizados como un archivo JSON",
+    "preferencesDistractionFree": "Sin distracciones",
+    "systemCaptionStyle": {
+      "label": "Usar el estilo de subtítulos del sistema",
+      "hint": "Aplica el color, fondo y tamaño de texto de los subtítulos de Android a los subtítulos de YouTube.",
+      "openSystemSettings": "Configuración de subtítulos del sistema"
+    },
+    "groupYouTube": "YouTube",
+    "groupNouTube": "NouTube",
+    "preferencesComments": "Comentarios",
+    "sidebar": "Barra lateral",
+    "preferencesYouTubeHint": "Preferencias de YouTube",
+    "preferencesNouTubeHint": "Preferencias de NouTube"
   },
   "native": {
     "format_bestQuality": "Mejor calidad",
@@ -359,5 +393,13 @@
     "error": "Error al buscar actualizaciones",
     "downloadedTitle": "Actualización lista",
     "downloadedHint": "Se ha descargado la versión {{version}}. ¿Reiniciar ahora para instalar?"
+  },
+  "bookmarks": {
+    "removed": "Marcador eliminado",
+    "moved": "Movido a {{folder}}",
+    "movedToRoot": "Movido fuera de la carpeta"
+  },
+  "folders": {
+    "removed": "Carpeta {{name}} eliminada"
   }
 }

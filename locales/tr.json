@@ -35,7 +35,8 @@
     "browse": "Göz at",
     "updateYtDlp": "yt-dlp'yi güncelle",
     "updating": "Güncelleniyor...",
-    "ytDlpUpdated": "yt-dlp güncel"
+    "ytDlpUpdated": "yt-dlp güncel",
+    "undo": "Geri al"
   },
   "library": {
     "videos": "Videolar",
@@ -57,7 +58,8 @@
     "tools": "Araçlar",
     "desktop": "Masaüstü sitesi",
     "on": "Açık",
-    "off": "Kapalı"
+    "off": "Kapalı",
+    "moveTo": "Şuraya taşı…"
   },
   "modals": {
     "editBookmark": "Yer işaretini düzenle",
@@ -81,7 +83,18 @@
     "shareVideoUrl": "Video URL'si",
     "shareIncludePosition": "Geçerli konumu dahil et",
     "downloadUseCookies": "Çerezlerimi kullan",
-    "downloadUseCookiesHint": "Yaş sınırlaması olan, yalnızca üyelere açık veya özel videolar için gereklidir. Bu işlem YouTube oturumunuzu kapatabilir ve hesabınızı bu şekilde kullanmak, hesabınızın işaretlenme riskini beraberinde getirir."
+    "downloadUseCookiesHint": "Yaş sınırlaması olan, yalnızca üyelere açık veya özel videolar için gereklidir. Bu işlem YouTube oturumunuzu kapatabilir ve hesabınızı bu şekilde kullanmak, hesabınızın işaretlenme riskini beraberinde getirir.",
+    "noFolder": "Klasör yok",
+    "downloadErrorBlocked": "YouTube bu indirmeyi reddetti. Bu işlem, yt-dlp'nin henüz oluşturamadığı bir belirteç gerektiriyor; bu nedenle bu video şimdilik indirilemiyor — diğer videoların çoğu hala çalışıyor.",
+    "downloadErrorSignIn": "YouTube, bu video için oturum açılmasını istiyor. \"Çerezlerimi kullan\" seçeneğini etkinleştirin ve tekrar deneyin.",
+    "downloadErrorFormat": "Bu biçim artık kullanılabilir değil. Biçimleri yeniden yükleyin ve başka bir biçim seçin.",
+    "downloadErrorUnavailable": "Bu video kullanılabilir değil.",
+    "downloadErrorNetwork": "YouTube'a bağlanılamadı. İnternet bağlantınızı gözden geçirin ve tekrar deneyin.",
+    "showAllFormats": "Tüm biçimleri göster",
+    "showFewerFormats": "Daha az biçim göster",
+    "pinnedFormat": "Sabitlendi",
+    "pinFormat": "Varsayılan biçim olarak sabitle",
+    "unpinFormat": "Varsayılan biçim sabitlemesini kaldır"
   },
   "update": {
     "check": "Güncellemeleri denetle",
@@ -155,7 +168,7 @@
     "preferences": "Tercihler",
     "preferencesHint": "Oynatma, akış ve geçmiş davranışları.",
     "appearance": "Görünüm",
-    "appearanceHint": "YouTube'un uygulama içindeki görünümünü kontrol edin.",
+    "appearanceHint": "Araç çubuğu, dil ve tema.",
     "tools": "Araçlar",
     "toolsHint": "Web görünümü (webview) ortamını ve diğer araçları yönetin.",
     "transfer": "İçe ve dışa aktar",
@@ -201,7 +214,7 @@
     },
     "userStyles": {
       "label": "Kullanıcı Stilleri ve Betikleri",
-      "hint": "Yerleşik CSS düzenlemeleri ve sitelere özel kendi CSS kodlarınız.",
+      "hint": "Kendi siteye özgü CSS ve kullanıcı betikleriniz.",
       "builtin": {
         "label": "Yerleşik stiller",
         "hideShortsInNavbar": {
@@ -215,6 +228,15 @@
         },
         "hideAskButton": {
           "label": "Gemini'ye Sor düğmesini gizle"
+        },
+        "hideHomeFeed": {
+          "label": "Ana sayfa akışını gizle"
+        },
+        "hideRelatedVideos": {
+          "label": "İlgili videoları gizle"
+        },
+        "hideEndScreens": {
+          "label": "Kapanış görüntülerini gizle"
         }
       },
       "custom": {
@@ -265,11 +287,11 @@
     "channelsFeed": "Kanallar akışı",
     "watchHistory": "İzleme geçmişi",
     "theme": {
-      "label": "YouTube Teması",
+      "label": "Tema",
       "system": "Sistem",
       "dark": "Karanlık",
       "light": "Aydınlık",
-      "hint": "Değişiklik web görünümüne yansımazsa manuel olarak yeniden başlatın."
+      "hint": "Bu, uygulama ve YouTube için geçerlidir. Değişiklik web görünümünde görünmüyorsa, uygulamayı elle yeniden başlatın."
     },
     "language": {
       "label": "Dil",
@@ -340,7 +362,19 @@
     "importSettingsWithScriptsConfirm": "Bu dosya, YouTube içinde kod çalıştırabilen {{count}} adet etkinleştirilen özel betik içerir. Yalnızca dosyaya güveniyorsanız devam edin. Geçerli ayarlarınız, engelleme listeniz, kullanıcı biçimleriniz ve özel betikleriniz değiştirilecektir.",
     "importSettingsDone": "İçe aktarıldı: {{sections}}",
     "exportSettings": "Ayarları dışa aktar",
-    "exportSettingsDescription": "Ayarları, engelleme listesini, kullanıcı biçimlerini ve özel betikleri JSON dosyası olarak kaydet"
+    "exportSettingsDescription": "Ayarları, engelleme listesini, kullanıcı biçimlerini ve özel betikleri JSON dosyası olarak kaydet",
+    "preferencesDistractionFree": "Dikkat dağıtmayan",
+    "groupYouTube": "YouTube",
+    "groupNouTube": "NouTube",
+    "preferencesComments": "Yorumlar",
+    "sidebar": "Kenar çubuğu",
+    "preferencesYouTubeHint": "YouTube tercihleri",
+    "preferencesNouTubeHint": "NouTube tercihleri",
+    "systemCaptionStyle": {
+      "label": "Sistem alt yazı biçimini kullan",
+      "hint": "Androidi alt yazı rengini, arka planını ve metin boyutunu YouTube alt yazılarında kullanır.",
+      "openSystemSettings": "Sistem alt yazı ayarları"
+    }
   },
   "native": {
     "format_bestQuality": "En iyi kalite",
@@ -359,5 +393,13 @@
     "hint": "Premium kullanıcı olarak yer işaretlerinizi telefonlarınız ve bilgisayarlarınız arasında senkronize edin.",
     "currentPlan": "Mevcut plan",
     "managePlan": "Planı yönet"
+  },
+  "bookmarks": {
+    "removed": "Yer imi kaldırıldı",
+    "moved": "{{folder}} klasörüne taşındı",
+    "movedToRoot": "Klasörden taşındı"
+  },
+  "folders": {
+    "removed": "{{name}} klasörü kaldırıldı"
   }
 }

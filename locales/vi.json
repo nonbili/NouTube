@@ -35,7 +35,8 @@
     "browse": "Duyệt",
     "updateYtDlp": "Cập nhật yt-dlp",
     "updating": "Đang cập nhật...",
-    "ytDlpUpdated": "yt-dlp đang ở phiên bản mới nhất"
+    "ytDlpUpdated": "yt-dlp đang ở phiên bản mới nhất",
+    "undo": "Hoàn tác"
   },
   "library": {
     "videos": "Đoạn phim",
@@ -57,7 +58,8 @@
     "openInNewTab": "Mở trong cửa sổ mới",
     "pip": "Hình-trong-hình",
     "duplicateTab": "Nhân bản cửa sổ",
-    "close": "Đóng"
+    "close": "Đóng",
+    "moveTo": "Di chuyển tới…"
   },
   "sleepTimer": {
     "setToast": "Đã đặt thời gian đi ngủ trong {{value}} phút",
@@ -170,5 +172,13 @@
     "error": "Kiểm tra cập nhật thất bại",
     "downloadedTitle": "Đã sẵn sàng cập nhật",
     "downloadedHint": "Phiên bản {{version}} đã được tải xuống. Khởi động lại để cài đặt?"
+  },
+  "bookmarks": {
+    "removed": "Đã gỡ dấu trang",
+    "moved": "Đã chuyển tới {{folder}}",
+    "movedToRoot": "Đã chuyển khỏi thư mục"
+  },
+  "folders": {
+    "removed": "Đã xoá thư mục {{name}}"
   }
 }

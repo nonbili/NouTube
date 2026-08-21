@@ -25,7 +25,8 @@
     "browse": "浏览",
     "updateYtDlp": "更新 yt-dlp",
     "updating": "正在更新…",
-    "ytDlpUpdated": "yt-dlp 已是最新版本"
+    "ytDlpUpdated": "yt-dlp 已是最新版本",
+    "undo": "撤销"
   },
   "library": {
     "videos": "视频",
@@ -47,7 +48,8 @@
     "pip": "画中画",
     "openInNewTab": "在新标签页中打开",
     "duplicateTab": "复制标签页",
-    "close": "关闭"
+    "close": "关闭",
+    "moveTo": "移动到…"
   },
   "modals": {
     "editBookmark": "编辑书签",
@@ -71,7 +73,18 @@
     "shareVideoUrl": "视频 URL",
     "shareIncludePosition": "包含当前位置",
     "downloadUseCookies": "使用我的 Cookie",
-    "downloadUseCookiesHint": "观看年龄限制、仅限会员或私密视频需要此功能。可能让您会退出登录 YouTube，并且以这种方式使用账号存在被标记的风险。"
+    "downloadUseCookiesHint": "观看年龄限制、仅限会员或私密视频需要此功能。可能让您会退出登录 YouTube，并且以这种方式使用账号存在被标记的风险。",
+    "noFolder": "无文件夹",
+    "downloadErrorBlocked": "YouTube 拒绝了此下载。它需要一个 yt-dlp 尚无法生成的令牌，因此暂时无法下载此视频 — 大多数其他视频仍可正常下载。",
+    "downloadErrorSignIn": "YouTube 要求对此视频保持登录状态。请开启“使用我的 Cookie”并重试。",
+    "downloadErrorFormat": "该格式已不再可用。请再次加载格式并选择其他格式。",
+    "downloadErrorUnavailable": "此视频不可用。",
+    "downloadErrorNetwork": "无法访问 YouTube。请检查您的连接并重试。",
+    "showAllFormats": "显示所有格式",
+    "showFewerFormats": "显示较少格式",
+    "pinnedFormat": "已固定",
+    "pinFormat": "固定为默认格式",
+    "unpinFormat": "取消固定默认格式"
   },
   "settings": {
     "label": "设置",
@@ -81,11 +94,11 @@
     "channelsFeed": "频道订阅源",
     "watchHistory": "观看记录",
     "theme": {
-      "label": "YouTube 主题",
+      "label": "主题",
       "system": "系统",
       "dark": "深色",
       "light": "浅色",
-      "hint": "如果更改未在 WebView 中生效，请手动重启。"
+      "hint": "应用于应用和 YouTube。如果更改未在 WebView 中生效，请手动重启。"
     },
     "login": {
       "button": "登录 YouTube",
@@ -110,7 +123,7 @@
     "preferences": "偏好设置",
     "preferencesHint": "播放、订阅源和历史记录的行为设置。",
     "appearance": "外观",
-    "appearanceHint": "控制应用内 YouTube 的外观显示。",
+    "appearanceHint": "工具栏、语言和主题。",
     "tools": "工具",
     "toolsHint": "管理 WebView 环境及其他工具。",
     "transfer": "导入和导出",
@@ -121,7 +134,7 @@
     "hideMixPlaylist": "隐藏合辑播放列表",
     "userStyles": {
       "label": "用户样式和脚本",
-      "hint": "内置 CSS 调整以及您专属站点自定义 CSS。",
+      "hint": "您自己的网站专用 CSS 和用户脚本。",
       "builtin": {
         "label": "内置样式",
         "hideShortsInNavbar": {
@@ -135,6 +148,15 @@
         },
         "hideAskButton": {
           "label": "隐藏询问 Gemini 按钮"
+        },
+        "hideHomeFeed": {
+          "label": "隐藏首页订阅源"
+        },
+        "hideRelatedVideos": {
+          "label": "隐藏相关视频"
+        },
+        "hideEndScreens": {
+          "label": "隐藏片尾画面"
         }
       },
       "custom": {
@@ -201,7 +223,7 @@
       "top": "顶部",
       "bottom": "底部"
     },
-    "showHomeButtonInHeader": "在工具栏中显示“主页”按钮",
+    "showHomeButtonInHeader": "在工具栏中显示“首页”按钮",
     "showBackButtonInHeader": "在工具栏中显示“后退”按钮",
     "showForwardButtonInHeader": "在工具栏中显示“前进”按钮",
     "blocklist": {
@@ -266,7 +288,19 @@
     "importSettingsWithScriptsConfirm": "此文件包含 {{count}} 个已启用的自定义脚本，这些脚本可以在 YouTube 内运行代码。请仅在您信任此文件时继续操作。您当前的设置、屏蔽列表、用户样式和自定义脚本将被替换。",
     "importSettingsDone": "已导入：{{sections}}",
     "exportSettings": "导出设置",
-    "exportSettingsDescription": "将设置、屏蔽列表、用户样式和自定义脚本保存为 JSON 文件"
+    "exportSettingsDescription": "将设置、屏蔽列表、用户样式和自定义脚本保存为 JSON 文件",
+    "preferencesDistractionFree": "无干扰模式",
+    "systemCaptionStyle": {
+      "label": "使用系统字幕样式",
+      "hint": "将 Android 的字幕颜色、背景和文本大小应用于 YouTube 字幕。",
+      "openSystemSettings": "系统字幕设置"
+    },
+    "groupYouTube": "YouTube",
+    "groupNouTube": "NouTube",
+    "preferencesComments": "评论",
+    "sidebar": "侧边栏",
+    "preferencesYouTubeHint": "YouTube 偏好设置",
+    "preferencesNouTubeHint": "NouTube 偏好设置"
   },
   "sync": {
     "label": "同步",
@@ -359,5 +393,13 @@
     "error": "无法检查更新",
     "downloadedTitle": "更新已准备就绪",
     "downloadedHint": "版本 {{version}} 已下载。立即重启以安装？"
+  },
+  "bookmarks": {
+    "removed": "书签已移除",
+    "moved": "已移动到 {{folder}}",
+    "movedToRoot": "已移出文件夹"
+  },
+  "folders": {
+    "removed": "文件夹 {{name}} 已移除"
   }
 }

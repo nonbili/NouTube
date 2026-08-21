@@ -25,7 +25,8 @@
     "browse": "Parcourir",
     "updateYtDlp": "Mise à jour yt-dlp",
     "updating": "Mise à jour en cours...",
-    "ytDlpUpdated": "yt-dlp est à jour"
+    "ytDlpUpdated": "yt-dlp est à jour",
+    "undo": "Défaire"
   },
   "library": {
     "videos": "Vidéos",
@@ -47,7 +48,8 @@
     "pip": "Picture-in-Picture",
     "openInNewTab": "Ouvrir dans un nouvel onglet",
     "duplicateTab": "Onglet « Dupliquer »",
-    "close": "Fermer"
+    "close": "Fermer",
+    "moveTo": "Aller à…"
   },
   "modals": {
     "editBookmark": "Modifier le signet",
@@ -71,7 +73,18 @@
     "shareVideoUrl": "URL de la vidéo",
     "shareIncludePosition": "Indiquer le poste actuel",
     "downloadUseCookies": "Utiliser mes cookies",
-    "downloadUseCookiesHint": "Nécessaire pour les vidéos soumises à une restriction d'âge, réservées aux membres ou privées. Cela peut entraîner votre déconnexion de YouTube, et l'utilisation d'un compte de cette manière comporte un risque de signalement."
+    "downloadUseCookiesHint": "Nécessaire pour les vidéos soumises à une restriction d'âge, réservées aux membres ou privées. Cela peut entraîner votre déconnexion de YouTube, et l'utilisation d'un compte de cette manière comporte un risque de signalement.",
+    "noFolder": "Aucun dossier",
+    "downloadErrorBlocked": "YouTube a refusé ce téléchargement. Il nécessite un jeton que yt-dlp n'est pas encore en mesure de générer ; cette vidéo ne peut donc pas être téléchargée pour le moment — la plupart des autres vidéos fonctionnent toujours.",
+    "downloadErrorSignIn": "YouTube exige que vous soyez connecté pour visionner cette vidéo. Activez l'option « Utiliser mes cookies » et réessayez.",
+    "downloadErrorFormat": "Ce format n'est plus disponible. Veuillez recharger la liste des formats et en choisir un autre.",
+    "downloadErrorUnavailable": "Cette vidéo n'est pas disponible.",
+    "downloadErrorNetwork": "Impossible d'accéder à YouTube. Vérifiez votre connexion et réessayez.",
+    "showAllFormats": "Afficher tous les formats",
+    "showFewerFormats": "Afficher moins de formats",
+    "pinnedFormat": "Épinglé",
+    "pinFormat": "Définir comme format par défaut",
+    "unpinFormat": "Désélectionner le format par défaut"
   },
   "settings": {
     "label": "Paramètres",
@@ -81,11 +94,11 @@
     "channelsFeed": "Flux des chaînes",
     "watchHistory": "Historique des visionnages",
     "theme": {
-      "label": "Thème YouTube",
+      "label": "Thème",
       "system": "Système",
       "dark": "Sombre",
       "light": "Clair",
-      "hint": "Redémarrez manuellement si la modification n'apparaît pas dans la vue Web."
+      "hint": "S'applique à l'application et à YouTube. Redémarrez manuellement si la modification n'apparaît pas dans la vue Web."
     },
     "login": {
       "label": "Essayez ceci si vous ne parvenez pas à vous connecter depuis Webview",
@@ -110,7 +123,7 @@
     "preferences": "Préférences",
     "preferencesHint": "Comportement de la lecture, du flux et de l'historique.",
     "appearance": "Apparence",
-    "appearanceHint": "Personnalisez l'apparence de YouTube dans l'application.",
+    "appearanceHint": "Barre d'outils, langue et thème.",
     "tools": "Outils",
     "toolsHint": "Gérer l'environnement WebView et les autres outils.",
     "transfer": "Import & export",
@@ -121,7 +134,7 @@
     "hideMixPlaylist": "Masquer la playlist mixée",
     "userStyles": {
       "label": "Styles & Scripts Personnalisés",
-      "hint": "Réglages CSS intégrés et votre propre feuille de style CSS spécifique au site.",
+      "hint": "Vos propres feuilles de style CSS et scripts utilisateur spécifiques au site.",
       "builtin": {
         "label": "Styles intégrés",
         "hideShortsInNavbar": {
@@ -135,6 +148,15 @@
         },
         "hideAskButton": {
           "label": "Masquer le bouton « Demander à Gemini »"
+        },
+        "hideHomeFeed": {
+          "label": "Masquer le fil d'actualité de la page d'accueil"
+        },
+        "hideRelatedVideos": {
+          "label": "Masquer les vidéos associées"
+        },
+        "hideEndScreens": {
+          "label": "Masquer les écrans de fin"
         }
       },
       "custom": {
@@ -266,7 +288,19 @@
     "importSettingsWithScriptsConfirm": "Ce fichier contient {{count}} script(s) personnalisé(s) activé(s), qui peuvent exécuter du code au sein de YouTube. Ne poursuivez l'opération que si vous faites confiance à ce fichier. Vos paramètres actuels, votre liste de blocage, vos styles utilisateur et vos scripts personnalisés seront remplacés.",
     "importSettingsDone": "Importé : {{sections}}",
     "exportSettings": "Paramètres d'exportation",
-    "exportSettingsDescription": "Enregistrer les paramètres, la liste noire, les styles utilisateur et les scripts personnalisés dans un fichier JSON"
+    "exportSettingsDescription": "Enregistrer les paramètres, la liste noire, les styles utilisateur et les scripts personnalisés dans un fichier JSON",
+    "preferencesDistractionFree": "Sans distraction",
+    "groupYouTube": "YouTube",
+    "groupNouTube": "NouTube",
+    "preferencesComments": "Commentaires",
+    "sidebar": "Encadré",
+    "preferencesYouTubeHint": "Paramètres YouTube",
+    "preferencesNouTubeHint": "Préférences NouTube",
+    "systemCaptionStyle": {
+      "label": "Utiliser le style de légende du système",
+      "hint": "Applique la couleur des sous-titres, l'arrière-plan et la taille du texte d'Android aux sous-titres de YouTube.",
+      "openSystemSettings": "Paramètres de légendes du système"
+    }
   },
   "sync": {
     "label": "Synchronisation",
@@ -359,5 +393,13 @@
     "error": "Échec de la vérification des mises à jour",
     "downloadedTitle": "Prêt pour la mise à jour",
     "downloadedHint": "La version {{version}} a été téléchargée. Voulez-vous redémarrer maintenant pour l'installer ?"
+  },
+  "bookmarks": {
+    "removed": "Signet supprimé",
+    "moved": "Déplacé vers {{folder}}",
+    "movedToRoot": "Déplacé hors du dossier"
+  },
+  "folders": {
+    "removed": "Le dossier {{name}} a été supprimé"
   }
 }
