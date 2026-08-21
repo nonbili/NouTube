@@ -11,9 +11,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ServiceInfo
 import android.graphics.BitmapFactory
 import android.media.AudioManager
 import android.os.Binder
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.Handler
@@ -50,8 +52,10 @@ class NouService : Service() {
   private val mainHandler = Handler(Looper.getMainLooper())
   private var sleepTimerDeadlineMs: Long? = null
   private var sleepTimerRunnable: Runnable? = null
+  private var lastForegroundAssertMs = 0L
   private val NOTIFICATION_ID = 777
   private val CHANNEL_ID = "noutube"
+  private val FOREGROUND_REASSERT_INTERVAL_MS = 60_000L
 
   inner class NouBinder : Binder() {
     fun getService(): NouService = this@NouService
@@ -59,11 +63,15 @@ class NouService : Service() {
 
   override fun onBind(intent: Intent): IBinder = binder
 
-  override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+  // The intent is null when the service is restarted by the system.
+  override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
     if (intent != null) {
       MediaButtonReceiver.handleIntent(mediaSession, intent)
     }
-    return super.onStartCommand(intent, flags, startId)
+    // Never restart a dead process just for this service: without the activity
+    // and its WebView there is nothing to play. While the activity lives, its
+    // BIND_AUTO_CREATE binding recreates the service on demand anyway.
+    return START_NOT_STICKY
   }
 
   fun initialize(view: NouWebView, _activity: Activity) {
@@ -155,10 +163,12 @@ class NouService : Service() {
 
   fun buildNotification(): Notification {
     val session = mediaSession!!
+    // Metadata is null when the service got restarted and no video change has
+    // happened yet; the notification must still build so ensureForeground works.
     val metadata = session.getController().getMetadata()
-    val title = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
-    val author = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
-    val largeIcon = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART)
+    val title = metadata?.getString(MediaMetadataCompat.METADATA_KEY_TITLE) ?: "NouTube"
+    val author = metadata?.getString(MediaMetadataCompat.METADATA_KEY_ARTIST) ?: ""
+    val largeIcon = metadata?.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART)
     val playActionIntent =
       MediaButtonReceiver.buildMediaButtonPendingIntent(
         this,
@@ -226,6 +236,48 @@ class NouService : Service() {
     mediaSession?.setPlaybackState(state)
   }
 
+  private fun ensureNotificationManager() {
+    if (notificationManager == null) {
+      val channel = NotificationChannel(CHANNEL_ID, "NouTube", NotificationManager.IMPORTANCE_LOW)
+      channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC)
+
+      notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+      notificationManager?.createNotificationChannel(channel)
+    }
+  }
+
+  // The system can silently drop the service's foreground state while the app
+  // is in the background (observed on Android 17: FOREGROUND_SERVICE_STOP
+  // ~18min after backgrounding, with the process and binding alive). A cached
+  // app playing audio is then fair game for the background-CPU killer, which
+  // ends up shooting the WebView renderer mid-playback (#309, #146, #206).
+  // The demotion happens without any callback, so while playback is running,
+  // re-assert the foreground state at least once a minute.
+  private fun ensureForeground() {
+    if (mediaSession == null) {
+      return
+    }
+    val now = SystemClock.elapsedRealtime()
+    if (now - lastForegroundAssertMs < FOREGROUND_REASSERT_INTERVAL_MS) {
+      return
+    }
+    lastForegroundAssertMs = now
+    try {
+      ensureNotificationManager()
+      val notification = buildNotification()
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+      } else {
+        startForeground(NOTIFICATION_ID, notification)
+      }
+    } catch (e: Exception) {
+      // ForegroundServiceStartNotAllowedException and friends: keep playing,
+      // retry on the next tick after the interval or when the app is
+      // foregrounded again.
+      nouController.log("startForeground failed: ${e.message}")
+    }
+  }
+
   fun notify(title: String, author: String, seconds: Long, thumbnail: String) {
     val metadataBuilder = MediaMetadataCompat.Builder()
       .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
@@ -247,32 +299,35 @@ class NouService : Service() {
       }
     }
     mediaSession?.setMetadata(metadataBuilder.build())
-    val notification = buildNotification()
-    if (notificationManager == null) {
-      val channel = NotificationChannel(CHANNEL_ID, "NouTube", NotificationManager.IMPORTANCE_LOW)
-      channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC)
-
-      notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-      notificationManager?.createNotificationChannel(channel)
-      startForeground(NOTIFICATION_ID, notification)
-    }
+    ensureForeground()
     notificationManager?.notify(
       NOTIFICATION_ID,
-      notification
+      buildNotification()
     )
   }
 
   fun notifyProgress(playing: Boolean, pos: Long) {
     val statePlaying = mediaSession?.getController()?.getPlaybackState()?.state == PlaybackStateCompat.STATE_PLAYING
     setPlaybackState(playing, pos)
+    if (playing) {
+      ensureForeground()
+    }
     if (statePlaying != playing) {
       notificationManager?.notify(NOTIFICATION_ID, buildNotification())
     }
   }
 
+  override fun onTaskRemoved(rootIntent: Intent?) {
+    // The service is started (not only bound), so swiping the app away no
+    // longer stops it implicitly. Mirror the old behavior: no app, no player.
+    exit()
+    super.onTaskRemoved(rootIntent)
+  }
+
   fun exit() {
     clearSleepTimer(false)
     stopForeground(STOP_FOREGROUND_REMOVE)
+    lastForegroundAssertMs = 0L
     notificationManager?.cancel(NOTIFICATION_ID)
     notificationManager = null
     mediaSession?.setActive(false)

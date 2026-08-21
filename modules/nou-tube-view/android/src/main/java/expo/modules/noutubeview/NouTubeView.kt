@@ -79,6 +79,13 @@ class NouWebView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
     CookieManager.getInstance().setAcceptCookie(true)
 
+    // The default policy waives the renderer priority when the WebView is not
+    // visible, leaving the renderer at cached importance in the background
+    // where the system may kill it for using CPU while playing audio (#309).
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+      setRendererPriorityPolicy(RENDERER_PRIORITY_IMPORTANT, false)
+    }
+
     // https://stackoverflow.com/a/64564676
     setFocusable(true)
     setFocusableInTouchMode(true)
@@ -114,6 +121,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   private val bridgeToken = UUID.randomUUID().toString()
 
   internal fun isBridgeTokenValid(token: String?) = token == bridgeToken
+  private var isWindowInBackground = false
   private var pageUrl = ""
   private var customView: View? = null
   private var pullToRefreshEnabled = true
@@ -205,7 +213,12 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
           }
 
           override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
-            evaluateJavascript("window.NouTubeToken = '$bridgeToken';$scriptOnStart", null)
+            // NouTubeBackground must survive navigations (the queue advances in
+            // the background), so seed every new document with the current value.
+            evaluateJavascript(
+              "window.NouTubeToken = '$bridgeToken';window.NouTubeBackground = $isWindowInBackground;$scriptOnStart",
+              null
+            )
           }
 
           override fun onPageFinished(view: WebView, url: String) {
@@ -381,6 +394,17 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     }
   }
 
+  // NouWebView fakes its own window visibility so the page never pauses, which
+  // also blinds the page to being backgrounded. This container sees the real
+  // value; hand it to the page so the background playback guard only fights
+  // YouTube's background pauses, never a user's own pause (see
+  // content/background-guard.ts).
+  override fun onWindowVisibilityChanged(visibility: Int) {
+    super.onWindowVisibilityChanged(visibility)
+    isWindowInBackground = visibility != View.VISIBLE
+    webView.evaluateJavascript("window.NouTubeBackground = $isWindowInBackground", null)
+  }
+
   // Consuming the insets above also zeroes env(safe-area-inset-*) in the page,
   // but fullscreen overlays still have to dodge the display cutout: fullscreen
   // draws under it (targetSdk 35+ defaults to LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS)
@@ -415,6 +439,16 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     if (activity == null) {
       return
     }
+
+    // The media notification is invisible without this on Android 13+, and the
+    // app never surfaces in the system media controls ("not a music app", #309).
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU &&
+      activity.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) !=
+      android.content.pm.PackageManager.PERMISSION_GRANTED
+    ) {
+      activity.requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 102)
+    }
+
     val connection = object : ServiceConnection {
       override fun onServiceConnected(name: ComponentName, binder: IBinder) {
         val nouBinder = binder as NouService.NouBinder
@@ -428,6 +462,15 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
       }
     }
     val intent = Intent(activity, NouService::class.java)
+    // Start the service in addition to binding it. A bound-only service loses
+    // its foreground state more easily; a started one keeps it until exit(),
+    // and if the system stops the service anyway, the binding recreates it and
+    // ensureForeground re-promotes it on the next playing progress tick.
+    try {
+      activity.startService(intent)
+    } catch (e: Exception) {
+      // Background start restrictions: binding below still works.
+    }
     activity.bindService(intent, connection, Context.BIND_AUTO_CREATE)
 
     orientationListener = NouOrientationListener(activity, this)
@@ -471,6 +514,15 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
   private val audioManager: AudioManager
     get() = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+  // A pause is only auto-resumable when it cannot be an audio interruption:
+  // no ongoing call/ring/VoIP and no other app playing on the music stream.
+  fun canAutoResume(): Boolean =
+    try {
+      audioManager.mode == AudioManager.MODE_NORMAL && !audioManager.isMusicActive
+    } catch (e: Exception) {
+      false
+    }
 
   fun getVolumeSteps(): Int =
     try {

@@ -38,6 +38,13 @@ class NouJsInterface(private val context: Context, private val view: NouTubeView
   @JavascriptInterface
   fun getBrightness(token: String?): Float = if (view.isBridgeTokenValid(token)) view.getBrightness() else -1f
 
+  // Whether the background playback guard may resume a pause it did not cause:
+  // false during calls or while another app holds the music stream, so the
+  // guard never fights a real audio interruption (content/background-guard.ts).
+  @JavascriptInterface
+  fun canAutoResume(token: String?): Boolean =
+    if (view.isBridgeTokenValid(token)) view.canAutoResume() else false
+
   // The media stream is stepped, not continuous, so the panel drives it by
   // index instead of by percent.
   @JavascriptInterface
