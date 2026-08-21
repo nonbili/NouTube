@@ -35,7 +35,8 @@
     "browse": "Przeglądaj",
     "updateYtDlp": "Aktualizacja yt-dlp",
     "updating": "Aktualizowanie...",
-    "ytDlpUpdated": "yt-dlp jest aktualny"
+    "ytDlpUpdated": "yt-dlp jest aktualny",
+    "undo": "Cofnij"
   },
   "library": {
     "videos": "Filmy",
@@ -57,7 +58,8 @@
     "tools": "Narzędzia",
     "desktop": "Wersja na komputer",
     "on": "Włączone",
-    "off": "Wyłączone"
+    "off": "Wyłączone",
+    "moveTo": "Przenieś do…"
   },
   "modals": {
     "editBookmark": "Edytuj zakładkę",
@@ -81,7 +83,18 @@
     "shareVideoUrl": "Adres URL filmu",
     "shareIncludePosition": "Uwzględnij aktualną pozycję",
     "downloadUseCookies": "Użyj moich plików cookie",
-    "downloadUseCookiesHint": "Wymagane w przypadku filmów z ograniczeniami wiekowymi, tylko dla członków lub prywatnych. Może spowodować wylogowanie z YouTube, a korzystanie z konta w ten sposób wiąże się z ryzykiem oznaczenia go."
+    "downloadUseCookiesHint": "Wymagane w przypadku filmów z ograniczeniami wiekowymi, tylko dla członków lub prywatnych. Może spowodować wylogowanie z YouTube, a korzystanie z konta w ten sposób wiąże się z ryzykiem oznaczenia go.",
+    "noFolder": "Brak folderu",
+    "downloadErrorBlocked": "YouTube odrzucił pobranie tego filmu. Wymaga to tokena, którego yt-dlp nie może jeszcze wygenerować, dlatego na razie nie można pobrać tego filmu — większość innych filmów nadal działa.",
+    "downloadErrorSignIn": "YouTube wymaga zalogowanej sesji dla tego filmu. Włącz opcję „Użyj moich plików cookie” i spróbuj ponownie.",
+    "downloadErrorFormat": "Ten format nie jest już dostępny. Załaduj formaty ponownie i wybierz inny.",
+    "downloadErrorUnavailable": "Ten film jest niedostępny.",
+    "downloadErrorNetwork": "Nie udało się połączyć z YouTube. Sprawdź połączenie i spróbuj ponownie.",
+    "showAllFormats": "Pokaż wszystkie formaty",
+    "showFewerFormats": "Pokaż mniej formatów",
+    "pinnedFormat": "Przypięte",
+    "pinFormat": "Przypnij jako format domyślny",
+    "unpinFormat": "Odepnij domyślny format"
   },
   "update": {
     "check": "Sprawdź aktualizacje",
@@ -163,7 +176,7 @@
       "defaultHint": "Dostosuj rozmiar tekstu stron internetowych YouTube."
     },
     "appearance": "Wygląd",
-    "appearanceHint": "Kontroluj wygląd YouTube'a w aplikacji.",
+    "appearanceHint": "Pasek narzędzi, język i motyw.",
     "tools": "Narzędzia",
     "toolsHint": "Zarządzaj środowiskiem webview i innymi narzędziami.",
     "transfer": "Import i eksport",
@@ -224,7 +237,7 @@
     },
     "userStyles": {
       "label": "Style i skrypty użytkownika",
-      "hint": "Wbudowane poprawki CSS i własny, specyficzny dla witryny kod CSS.",
+      "hint": "Własny, specyficzny dla witryny kod CSS i skrypty użytkownika.",
       "builtin": {
         "label": "Wbudowane style",
         "hideShortsInNavbar": {
@@ -238,6 +251,15 @@
         },
         "hideAskButton": {
           "label": "Ukryj przycisk Zapytaj Gemini"
+        },
+        "hideHomeFeed": {
+          "label": "Ukryj stronę główną"
+        },
+        "hideRelatedVideos": {
+          "label": "Ukryj powiązane filmy"
+        },
+        "hideEndScreens": {
+          "label": "Ukryj ekrany końcowe"
         }
       },
       "custom": {
@@ -288,11 +310,11 @@
     "channelsFeed": "Karty kanałów",
     "watchHistory": "Historia oglądania",
     "theme": {
-      "label": "Motyw YouTube",
+      "label": "Motyw",
       "system": "Systemowy",
       "dark": "Ciemny",
       "light": "Jasny",
-      "hint": "Zrestartuj ręcznie, jeśli zmiana nie jest widoczna w widoku webview."
+      "hint": "Dotyczy aplikacji i YouTube. Uruchom ponownie ręcznie, jeśli zmiany nie zostaną wifoczne w widoku webview."
     },
     "language": {
       "label": "Język",
@@ -340,7 +362,19 @@
     "importSettingsWithScriptsConfirm": "Ten plik zawiera {{count}} włączony(ch) skrypt(ów) użytkownika, które mogą uruchamiać kod w serwisie YouTube. Kontynuuj tylko wtedy, gdy ufasz temu plikowi. Twoje obecne ustawienia, lista blokowanych, style użytkownika i niestandardowe skrypty zostaną zastąpione.",
     "importSettingsDone": "Zaimportowano: {{sections}}",
     "exportSettings": "Ustawienia eksportu",
-    "exportSettingsDescription": "Zapisz ustawienia, listę blokowanych, style użytkownika i niestandardowe skrypty jako plik JSON"
+    "exportSettingsDescription": "Zapisz ustawienia, listę blokowanych, style użytkownika i niestandardowe skrypty jako plik JSON",
+    "preferencesDistractionFree": "Tryb skupienia",
+    "groupYouTube": "YouTube",
+    "groupNouTube": "NouTube",
+    "preferencesComments": "Komentarze",
+    "sidebar": "Pasek boczny",
+    "preferencesYouTubeHint": "Ustawienia YouTube",
+    "preferencesNouTubeHint": "Ustawienia NouTube",
+    "systemCaptionStyle": {
+      "label": "Użyj systemowego stylu napisów",
+      "hint": "Zastosuj kolor, tło i rozmiar tekstu napisów Androida do napisów w serwisie YouTube.",
+      "openSystemSettings": "Ustawienia napisów systemowych"
+    }
   },
   "native": {
     "format_bestQuality": "Najlepsza jakość",
@@ -359,5 +393,13 @@
     "hint": "Synchronizuj zakładki na telefonach i komputerach jako użytkownik premium.",
     "currentPlan": "Aktualny plan",
     "managePlan": "Zarządzaj planem"
+  },
+  "bookmarks": {
+    "removed": "Usunięto zakładkę",
+    "moved": "Przeniesiono do {{folder}}",
+    "movedToRoot": "Przeniesiono z folderu"
+  },
+  "folders": {
+    "removed": "Folder {{name}} został usunięty"
   }
 }
