@@ -18,6 +18,7 @@ import { installWatchNavigation } from './watch-nav'
 import { installFullscreenControls } from './fullscreen-controls'
 import { installSystemCaptionStyle } from './captions'
 import { installEncodedAuthorNameFix } from './author-names'
+import { installBackgroundGuard } from './background-guard'
 
 try {
   if ((window as any).NouTubePreferH264) {
@@ -60,7 +61,10 @@ try {
     })
   }
 
-  setInterval(() => (window._lact = Date.now()), 20 * 60 * 1000)
+  // YouTube pauses playback with a "Continue watching?" prompt once _lact goes
+  // stale for hours. Refreshing it every minute keeps the session active for
+  // the whole background playback, not just the first prompt interval.
+  setInterval(() => (window._lact = Date.now()), 60 * 1000)
 } catch (e) {
   console.error('NouScript: ', e)
 }
@@ -88,6 +92,9 @@ async function initObserver() {
   installFullscreenControls()
   installCommentTranslateButtons()
   installEncodedAuthorNameFix()
+  if (window.isAndroid) {
+    installBackgroundGuard()
+  }
 
   pinchToZoom()
 }

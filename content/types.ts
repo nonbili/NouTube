@@ -11,6 +11,7 @@ interface NouTubeI {
   getVolumeSteps?: (token: string) => number
   getVolumeIndex?: (token: string) => number
   setVolumeIndex?: (token: string, index: number) => void
+  canAutoResume?: (token: string) => boolean
 }
 
 declare global {
@@ -22,6 +23,9 @@ declare global {
     NouTubeUserStyles?: import('../lib/user-styles').UserStylesSnapshot
     NouTubeI: NouTubeI
     NouTubeToken?: string
+    // Real app visibility fed by NouTubeView.onWindowVisibilityChanged; the
+    // page itself always reports "visible" (see NouWebView).
+    NouTubeBackground?: boolean
     NouTube: any
     trustedTypes: any
     electron: ElectronAPI
