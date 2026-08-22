@@ -170,6 +170,8 @@ export function handleMutations(mutations: MutationRecord[]) {
 
 function enforceMusicAudioMode(player: any) {
   if (!player || !isYTMusic) return
+  const { ytMusicAudioOnly } = getSettings()
+  if (!ytMusicAudioOnly) return
   try {
     if (typeof player.setMusicVideoType === 'function') {
       player.setMusicVideoType('MUSIC_VIDEO_TYPE_ATV')
