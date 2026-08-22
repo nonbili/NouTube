@@ -93,6 +93,9 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   if (typeof data.showDislikes !== 'boolean') {
     data.showDislikes = false
   }
+  if (typeof data.ytMusicAudioOnly !== 'boolean') {
+    data.ytMusicAudioOnly = false
+  }
   if (typeof data.showOriginalVideoTitle !== 'boolean') {
     data.showOriginalVideoTitle = false
   }

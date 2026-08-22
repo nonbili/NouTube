@@ -236,6 +236,7 @@
     "miniPlayer": "YouTube mini player",
     "preferH264": "Prefer H.264 (block VP9/AV1)",
     "showDislikes": "Show dislikes",
+    "ytMusicAudioOnly": "Enforce audio-only for YouTube Music",
     "showOriginalVideoTitle": "Show original video title",
     "systemCaptionStyle": {
       "label": "Use system caption style",

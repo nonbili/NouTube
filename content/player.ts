@@ -168,32 +168,13 @@ export function handleMutations(mutations: MutationRecord[]) {
   }
 }
 
-function enforceMusicAudioMode(player: any) {
-  if (!player || !isYTMusic) return
-  const { ytMusicAudioOnly } = getSettings()
-  if (!ytMusicAudioOnly) return
-  try {
-    if (typeof player.setMusicVideoType === 'function') {
-      player.setMusicVideoType('MUSIC_VIDEO_TYPE_ATV')
-    } else if (typeof player.setAudioOnly === 'function') {
-      player.setAudioOnly(true)
-    }
-  } catch (e) {
-    log('failed to enforce music audio mode', e)
-  }
-}
-
 export function handleVideoPlayer(el: any) {
   player = el
   extendPlaybackRates(player)
   extendPlaybackQuality(player)
-  enforceMusicAudioMode(player)
   // onApiChange fires when the player's modules (captions included) load, which
   // is the earliest point setOption('captions', ...) is accepted.
-  el.addEventListener('onApiChange', () => {
-    applyCaptionFontScale(el)
-    enforceMusicAudioMode(el)
-  })
+  el.addEventListener('onApiChange', () => applyCaptionFontScale(el))
   applyCaptionFontScale(el)
   let title = ''
   let duration = 0
@@ -250,7 +231,6 @@ export function handleVideoPlayer(el: any) {
       hideLiveChat()
       return
     }
-    enforceMusicAudioMode(el)
     if (state == 0 && !isYTMusic) {
       localStorage.removeItem(keys.playing)
       emit('playback-end')

@@ -3,9 +3,53 @@ import { normalizeBlocklist } from './blocklist'
 import {
   transformBrowseResponse,
   transformGetWatchResponse,
+  transformPlayerRequest,
   transformPlayerResponse,
   transformSearchResponse,
 } from './intercept'
+
+describe('YouTube Music interception', () => {
+  it('rewrites player requests only when audio-only mode is enabled', () => {
+    const request = JSON.stringify({
+      context: {
+        client: {
+          clientName: 'MWEB',
+          clientVersion: '1.0',
+        },
+      },
+    })
+
+    expect(transformPlayerRequest(request)).toBe(request)
+    expect(JSON.parse(transformPlayerRequest(request, true)).context.client).toMatchObject({
+      clientName: 'ANDROID_MUSIC',
+      clientVersion: '6.29.52',
+      androidSdkVersion: 31,
+      userInterfaceTheme: 'USER_INTERFACE_THEME_DARK',
+    })
+  })
+
+  it('prioritizes audio formats only when audio-only mode is enabled', () => {
+    const response = JSON.stringify({
+      streamingData: {
+        adaptiveFormats: [
+          { itag: 137, mimeType: 'video/mp4', bitrate: 1_000_000 },
+          { itag: 160, mimeType: 'video/mp4', bitrate: 100_000 },
+          { itag: 140, mimeType: 'audio/mp4', bitrate: 128_000 },
+          { itag: 251, mimeType: 'audio/webm', bitrate: 160_000 },
+        ],
+      },
+    })
+
+    expect(JSON.parse(transformPlayerResponse(response)).streamingData.adaptiveFormats.map((x: any) => x.itag)).toEqual([
+      137, 160, 140, 251,
+    ])
+    expect(
+      JSON.parse(transformPlayerResponse(response, undefined, { isYTMusic: true })).streamingData.adaptiveFormats.map(
+        (x: any) => x.itag,
+      ),
+    ).toEqual([251, 140, 137, 160])
+  })
+})
 
 describe('intercept blocklist filtering', () => {
   const blocklist = normalizeBlocklist({

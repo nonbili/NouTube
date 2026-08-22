@@ -3,15 +3,29 @@ import {
   RE_INTERCEPT,
   transformBrowseResponse,
   transformGetWatchResponse,
+  transformPlayerRequest,
   transformPlayerResponse,
   transformSearchResponse,
 } from 'noutube/lib/intercept'
 import { createDefaultBlocklistSnapshot, normalizeBlocklist, type BlocklistSnapshot } from 'noutube/lib/blocklist'
 
 let currentBlocklist = createDefaultBlocklistSnapshot()
+let ytMusicAudioOnly = false
 
 export function setInterceptionBlocklist(blocklist?: BlocklistSnapshot) {
   currentBlocklist = normalizeBlocklist(blocklist)
+}
+
+export function setYTMusicAudioOnly(enabled: boolean) {
+  ytMusicAudioOnly = Boolean(enabled)
+}
+
+function shouldUseYTMusicAudioOnly(url: string) {
+  try {
+    return ytMusicAudioOnly && new URL(url).hostname === 'music.youtube.com'
+  } catch {
+    return false
+  }
 }
 
 function findJsonBounds(text: string, startIndex: number) {
@@ -164,9 +178,25 @@ export function interceptHttpRequest() {
       })
     }
 
+    let fetchRequest = req
+    const audioOnly = shouldUseYTMusicAudioOnly(req.url)
+    if (audioOnly && target?.match?.[1] === 'player') {
+      try {
+        const bodyText = await req.clone().text()
+        const body = transformPlayerRequest(bodyText, true)
+        if (body !== bodyText) {
+          const headers = new Headers(req.headers)
+          headers.delete('content-length')
+          fetchRequest = new Request(req.url, { method: req.method, headers, body })
+        }
+      } catch (e) {
+        console.error(`Failed to transform YouTube Music request for ${req.url}:`, e)
+      }
+    }
+
     let res: Response
     try {
-      res = await ses.fetch(req, {
+      res = await ses.fetch(fetchRequest, {
         bypassCustomProtocolHandlers: true,
       })
     } catch (e) {
@@ -195,17 +225,16 @@ export function interceptHttpRequest() {
       }
 
       if (match) {
-        const isYTMusic = req.url.includes('music.youtube.com')
         switch (match[1]) {
           case 'browse':
           case 'next':
-            return new Response(transformBrowseResponse(text, currentBlocklist, { isYTMusic }), responseInit)
+            return new Response(transformBrowseResponse(text, currentBlocklist), responseInit)
           case 'search':
-            return new Response(transformSearchResponse(text, currentBlocklist, { isYTMusic }), responseInit)
+            return new Response(transformSearchResponse(text, currentBlocklist), responseInit)
           case 'get_watch':
-            return new Response(transformGetWatchResponse(text, { isYTMusic }), responseInit)
+            return new Response(transformGetWatchResponse(text), responseInit)
           default:
-            return new Response(transformPlayerResponse(text, currentBlocklist, { isYTMusic }), responseInit)
+            return new Response(transformPlayerResponse(text, currentBlocklist, { isYTMusic: audioOnly }), responseInit)
         }
       }
     } catch (e) {

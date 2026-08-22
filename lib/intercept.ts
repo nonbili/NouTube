@@ -59,7 +59,7 @@ export function transformPlayerResponse(text: string, _blocklist?: BlocklistSnap
       const bIsAudio = Boolean(b.mimeType?.startsWith('audio/'))
       if (aIsAudio && !bIsAudio) return -1
       if (!aIsAudio && bIsAudio) return 1
-      return (b.bitrate || 0) - (a.bitrate || 0)
+      return aIsAudio && bIsAudio ? (b.bitrate || 0) - (a.bitrate || 0) : 0
     })
   }
 

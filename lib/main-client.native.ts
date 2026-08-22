@@ -28,6 +28,7 @@ export interface MainClient {
   fetchFeed(url: string): Promise<{ ok: boolean; status: number; statusText: string; body: string }>
   setCookie(cookie: string): Promise<void>
   setBlocklist(blocklist: unknown): Promise<void> | void
+  setYTMusicAudioOnly(enabled: boolean): Promise<void> | void
   isUpdateSupported(): Promise<boolean>
   checkForUpdate(): Promise<UpdateCheckResult>
   quitAndInstall(): Promise<void> | void
@@ -100,6 +101,7 @@ export const mainClient: MainClient = {
   },
   async setCookie() {},
   async setBlocklist() {},
+  async setYTMusicAudioOnly() {},
   async isUpdateSupported() {
     return false
   },

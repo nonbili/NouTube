@@ -37,7 +37,7 @@ export function intercept() {
     const settings = window.NouTube?.getSettings?.()
     const isMusic = (isYTMusic || location.host === 'music.youtube.com') && Boolean(settings?.ytMusicAudioOnly)
 
-    if (match && isMusic && (match[1] === 'player' || match[1] === 'next')) {
+    if (match && isMusic && match[1] === 'player') {
       try {
         let init = args[1] || {}
         if (request instanceof Request) {
@@ -90,7 +90,7 @@ export function intercept() {
   // https://stackoverflow.com/a/78369686
   const xhrOpen = XMLHttpRequest.prototype.open
   const xhrSend = XMLHttpRequest.prototype.send
-  XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+  const interceptOpen = function (this: XMLHttpRequest, method: string, url: string | URL, ...rest: any[]) {
     url = url.toString()
     ;(this as any)._nouUrl = url
     this.addEventListener('readystatechange', function () {
@@ -130,6 +130,7 @@ export function intercept() {
     })
     return xhrOpen.apply(this, [method, url, ...rest] as any)
   }
+  XMLHttpRequest.prototype.open = interceptOpen as typeof XMLHttpRequest.prototype.open
 
   XMLHttpRequest.prototype.send = function (body) {
     const url = (this as any)._nouUrl || ''
@@ -137,7 +138,7 @@ export function intercept() {
     const isMusic = (isYTMusic || location.host === 'music.youtube.com') && Boolean(settings?.ytMusicAudioOnly)
     if (url && isMusic && typeof body === 'string') {
       const match = new URL(url, location.origin).pathname.match(RE_INTERCEPT)
-      if (match && (match[1] === 'player' || match[1] === 'next')) {
+      if (match?.[1] === 'player') {
         body = transformPlayerRequest(body, true)
       }
     }

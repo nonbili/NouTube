@@ -12,6 +12,10 @@ describe('settings', () => {
     expect(getSettingsSnapshot({}).showDislikes).toBe(false)
   })
 
+  it('defaults YouTube Music audio-only mode off in snapshots', () => {
+    expect(getSettingsSnapshot({}).ytMusicAudioOnly).toBe(false)
+  })
+
   it('defaults desktop sidebar autohide setting off in snapshots', () => {
     expect(getSettingsSnapshot({}).autoHideSidebar).toBe(false)
   })
@@ -37,6 +41,11 @@ describe('settings', () => {
   it('normalizes missing show dislikes setting to false', () => {
     const settings = normalizePartialSettings()
     expect(settings?.showDislikes).toBe(false)
+  })
+
+  it('normalizes missing YouTube Music audio-only mode to false', () => {
+    const settings = normalizePartialSettings()
+    expect(settings?.ytMusicAudioOnly).toBe(false)
   })
 
   it('normalizes missing desktop sidebar autohide setting to false', () => {

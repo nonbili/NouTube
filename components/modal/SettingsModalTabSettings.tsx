@@ -475,7 +475,7 @@ export const SettingsYouTubeContent = () => {
               onPress={() => settings$.showDislikes.set(!settings.showDislikes)}
             />
             <SettingsToggleRow
-              label="Enforce Audio-Only for YT Music"
+              label={t('settings.ytMusicAudioOnly')}
               icon="music-note"
               value={settings.ytMusicAudioOnly}
               onPress={() => settings$.ytMusicAudioOnly.set(!settings.ytMusicAudioOnly)}

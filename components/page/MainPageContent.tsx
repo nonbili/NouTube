@@ -101,6 +101,7 @@ const getContentSettingsSnapshot = () => {
     translationTargetLanguage,
     replaceWatchNavigation,
     useSystemCaptionStyle,
+    ytMusicAudioOnly,
   } = settings$.get()
   return {
     sponsorBlock,
@@ -113,6 +114,7 @@ const getContentSettingsSnapshot = () => {
     translateComments: !isWeb && translateComments && Boolean(translationTargetLanguage),
     replaceWatchNavigation,
     captionStyle: useSystemCaptionStyle ? getSystemCaptionStyle() : null,
+    ytMusicAudioOnly,
   }
 }
 
@@ -296,6 +298,7 @@ const DesktopTabView: React.FC<{
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
   useObserveEffect(settings$.showDislikes, () => syncSettingsToWebview())
   useObserveEffect(settings$.showOriginalVideoTitle, () => syncSettingsToWebview())
+  useObserveEffect(settings$.ytMusicAudioOnly, () => syncSettingsToWebview())
   useObserveEffect(settings$.doubleTapToToggleHeader, () => syncSettingsToWebview())
   useObserveEffect(userStyles$, () => syncUserStylesToWebview())
   useObserveEffect(blocklist$, () => syncBlocklistToWebview())
@@ -382,10 +385,12 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   useEffect(() => {
     if (isWeb) {
-      // The main process filters the server-rendered ytInitialData, so it needs
-      // the blocklist before any webview starts navigating.
-      void mainClient
-        .setBlocklist(getBlocklistSnapshot())
+      // Seed interception state before any webview starts navigating. The main
+      // process handles both server-rendered filtering and YT Music requests.
+      void Promise.all([
+        mainClient.setBlocklist(getBlocklistSnapshot()),
+        mainClient.setYTMusicAudioOnly(settings$.ytMusicAudioOnly.get()),
+      ])
         .catch(() => undefined)
         .then(() => setBlocklistSynced(true))
     }
@@ -456,6 +461,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     ref?.executeJavaScript(
       `localStorage.setItem('nou:settings', '${value}'); window.NouTube?.setSettings?.(${value}); if (!${settings.miniPlayer}) window.NouTube?.exitMini?.()`,
     )
+    if (isWeb) {
+      void mainClient.setYTMusicAudioOnly(settings.ytMusicAudioOnly)
+    }
   }, [nativeRef])
 
   useEffect(() => {
@@ -677,6 +685,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
   useObserveEffect(settings$.showDislikes, () => syncSettingsToWebview())
   useObserveEffect(settings$.showOriginalVideoTitle, () => syncSettingsToWebview())
+  useObserveEffect(settings$.ytMusicAudioOnly, () => syncSettingsToWebview())
   useObserveEffect(settings$.doubleTapToToggleHeader, () => syncSettingsToWebview())
   useObserveEffect(settings$.translateComments, () => syncSettingsToWebview())
   useObserveEffect(settings$.translationTargetLanguage, () => syncSettingsToWebview())

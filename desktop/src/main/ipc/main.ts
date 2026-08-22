@@ -1,4 +1,4 @@
-import { setInterceptionBlocklist, toggleInterception } from 'main/lib/intercept.js'
+import { setInterceptionBlocklist, setYTMusicAudioOnly, toggleInterception } from 'main/lib/intercept.js'
 import { openLoginWindow } from 'main/lib/login-window.js'
 import { ensureYtDlp, updateYtDlp } from 'main/lib/ytdlp.js'
 import { checkForUpdate, isUpdateSupported, quitAndInstall } from 'main/lib/auto-update.js'
@@ -37,6 +37,7 @@ const interfaces = {
   },
   toggleInterception,
   setBlocklist: setInterceptionBlocklist,
+  setYTMusicAudioOnly,
   openLoginWindow,
   updateYtDlp,
   isUpdateSupported: () => isUpdateSupported,
