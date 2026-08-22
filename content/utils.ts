@@ -22,8 +22,11 @@ export function parseJson(v: string | null, fallback: any) {
   }
 }
 
-export const nouPolicy = window.trustedTypes.createPolicy('nouPolicy', {
-  createHTML: (x: string) => x,
-})
+export const nouPolicy =
+  typeof window !== 'undefined' && (window as any).trustedTypes
+    ? (window as any).trustedTypes.createPolicy('nouPolicy', {
+        createHTML: (x: string) => x,
+      })
+    : { createHTML: (x: string) => x }
 
-export const isYTMusic = document.location.host == 'music.youtube.com'
+export const isYTMusic = typeof document !== 'undefined' && document.location ? document.location.host == 'music.youtube.com' : false
