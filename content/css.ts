@@ -566,17 +566,19 @@ const cssContent = css`
 `
 
 export const getCoreCss = () => {
-  const isDesktop = Boolean(window.electron)
+  const isDesktop = typeof window !== 'undefined' && Boolean((window as any).electron)
+  const isMobile = typeof window !== 'undefined' && Boolean((window as any).NouTubeI)
   return (
     cssContent +
-    (window.NouTubeI ? cssContentMobile : '') +
+    (isMobile ? cssContentMobile : '') +
     (isDesktop ? cssContentDesktop : '') +
-    (window.NouTubeI || isDesktop ? cssFullscreenPanel : '')
+    (isMobile || isDesktop ? cssFullscreenPanel : '')
   )
 }
 
 export const getInjectedCss = (userStyles?: any) => {
-  return [getCoreCss(), getCaptionCss(), getEnabledUserStyleCss(document.location.host, userStyles)]
+  const host = typeof document !== 'undefined' && document.location ? document.location.host : ''
+  return [getCoreCss(), getCaptionCss(), getEnabledUserStyleCss(host, userStyles)]
     .filter(Boolean)
     .join('\n\n')
 }

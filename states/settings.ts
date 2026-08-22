@@ -40,6 +40,7 @@ export interface SettingsSnapshot {
   showReloadButtonInHeader: boolean
   showPlaybackSpeedControl: boolean
   showPlaybackQualityControl: boolean
+  ytMusicAudioOnly: boolean
   userAgent: string
   desktopMode: boolean
   desktopModeYT: boolean
@@ -174,6 +175,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   showReloadButtonInHeader: Boolean(value?.showReloadButtonInHeader),
   showPlaybackSpeedControl: Boolean(value?.showPlaybackSpeedControl),
   showPlaybackQualityControl: Boolean(value?.showPlaybackQualityControl),
+  ytMusicAudioOnly: Boolean(value?.ytMusicAudioOnly),
   userAgent: typeof value?.userAgent === 'string' ? value.userAgent : '',
   desktopMode: Boolean(value?.desktopMode),
   desktopModeYT: Boolean(value?.desktopModeYT),
@@ -224,6 +226,7 @@ export const settings$ = observable<Store>({
   showReloadButtonInHeader: false,
   showPlaybackSpeedControl: false,
   showPlaybackQualityControl: false,
+  ytMusicAudioOnly: false,
   userAgent: '',
   desktopMode: false,
   desktopModeYT: false,

@@ -2,7 +2,7 @@ import { Alert } from 'react-native'
 import { isWeb } from './utils'
 
 export function showConfirm(title: string, message: string, onOk: () => void) {
-  if (isWeb) {
+  if (isWeb && typeof window !== 'undefined') {
     if (window.confirm(`${title}\n\n${message}`)) {
       onOk()
     }

@@ -23,6 +23,10 @@ export type MainClient = Asyncify<MainInterface>
 
 export const mainClient = new Proxy({} as MainClient, {
   get(_target, name) {
-    return async (...args: any[]) => window.electron.ipcRenderer.invoke(MAIN_CHANNEL, name, ...args)
+    return async (...args: any[]) => {
+      if (typeof window !== 'undefined' && (window as any).electron) {
+        return (window as any).electron.ipcRenderer.invoke(MAIN_CHANNEL, name, ...args)
+      }
+    }
   },
 })
