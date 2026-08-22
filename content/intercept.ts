@@ -34,7 +34,8 @@ export function intercept() {
     let request = args[0]
     const url = request instanceof Request ? request.url : request.toString()
     const match = new URL(url, location.origin).pathname.match(RE_INTERCEPT)
-    const isMusic = isYTMusic || location.host === 'music.youtube.com'
+    const settings = window.NouTube?.getSettings?.()
+    const isMusic = (isYTMusic || location.host === 'music.youtube.com') && Boolean(settings?.ytMusicAudioOnly)
 
     if (match && isMusic && (match[1] === 'player' || match[1] === 'next')) {
       try {
@@ -57,7 +58,6 @@ export function intercept() {
 
     let res = await winFetch(...args)
     const blocklist = window.NouTube?.getBlocklist?.()
-    const settings = window.NouTube?.getSettings?.()
     const options = { showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle), isYTMusic: isMusic }
     if (res.status > 200 || !match) {
       return res
@@ -105,7 +105,7 @@ export function intercept() {
 
       const blocklist = window.NouTube?.getBlocklist?.()
       const settings = window.NouTube?.getSettings?.()
-      const isMusic = isYTMusic || location.host === 'music.youtube.com'
+      const isMusic = (isYTMusic || location.host === 'music.youtube.com') && Boolean(settings?.ytMusicAudioOnly)
       const options = { showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle), isYTMusic: isMusic }
       try {
         const fn =
@@ -133,7 +133,8 @@ export function intercept() {
 
   XMLHttpRequest.prototype.send = function (body) {
     const url = (this as any)._nouUrl || ''
-    const isMusic = isYTMusic || location.host === 'music.youtube.com'
+    const settings = window.NouTube?.getSettings?.()
+    const isMusic = (isYTMusic || location.host === 'music.youtube.com') && Boolean(settings?.ytMusicAudioOnly)
     if (url && isMusic && typeof body === 'string') {
       const match = new URL(url, location.origin).pathname.match(RE_INTERCEPT)
       if (match && (match[1] === 'player' || match[1] === 'next')) {
