@@ -1,0 +1,4 @@
+- Add video actions to long-press context menu
+- Read download formats directly from webview player
+- Fix running user scripts with Trusted Types policy
+- Fix opening tapped YouTube links when app is already running
