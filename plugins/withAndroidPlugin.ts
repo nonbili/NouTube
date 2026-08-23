@@ -59,6 +59,36 @@ ${DESKTOP_MODE_NOTIFY}
   }
 `
 
+// A deep link that arrives while the activity is being recreated -- the task is
+// alive but its activity was destroyed, which is what happens when a link is
+// tapped in another app while NouTube sits in the background on its media
+// service -- is delivered as onNewIntent before the React root has mounted, so
+// no JS listener exists yet to catch the `url` event. getIntent() is the only
+// carrier left, and Android keeps that pointing at the task's *original* launch
+// intent unless we update it here.
+const NEW_INTENT_FIX = `
+  override fun onNewIntent(intent: android.content.Intent) {
+    setIntent(intent)
+    super.onNewIntent(intent)
+  }
+`
+
+const withDeepLinkIntentFix: ConfigPlugin = (config) =>
+  withMainActivity(config, (config) => {
+    if (config.modResults.language !== 'kt') {
+      throw new Error('withDeepLinkIntentFix expects a Kotlin MainActivity')
+    }
+    if (config.modResults.contents.includes('override fun onNewIntent')) {
+      return config
+    }
+    const anchor = 'class MainActivity : ReactActivity() {'
+    if (!config.modResults.contents.includes(anchor)) {
+      throw new Error('withDeepLinkIntentFix could not find the MainActivity class declaration')
+    }
+    config.modResults.contents = config.modResults.contents.replace(anchor, `${anchor}\n${NEW_INTENT_FIX}`)
+    return config
+  })
+
 const withSecondaryDisplayMetricsFix: ConfigPlugin = (config) =>
   withMainActivity(config, (config) => {
     if (config.modResults.language !== 'kt') {
@@ -89,6 +119,7 @@ const withSecondaryDisplayMetricsFix: ConfigPlugin = (config) =>
 
 const withAndroidSigningConfig: ConfigPlugin = (config) => {
   config = withSecondaryDisplayMetricsFix(config)
+  config = withDeepLinkIntentFix(config)
 
   config = withAndroidManifest(config, (config: any) => {
     const app = config.modResults.manifest.application?.[0]

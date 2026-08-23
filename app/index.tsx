@@ -16,6 +16,19 @@ import { showToast } from '@/lib/toast'
 import { t } from 'i18next'
 import { addSleepTimerListener, getNativeSleepTimerRemainingMs, hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
 
+// The activity can be recreated while the process (and this JS runtime) stays
+// alive on the media service, so the launch intent has to be read on every
+// mount. Every read of it that follows the tap we already served returns that
+// same link again, so remember the last one and let a re-read pass. A `url`
+// event is always a fresh tap -- even of a link already watched -- and is never
+// filtered.
+let lastHandledDeepLink: string | null = null
+
+function openDeepLink(url: string) {
+  lastHandledDeepLink = url
+  openSharedUrl(url)
+}
+
 const syncNativeSettings = () => {
   const settings = settings$.get()
   NouTubeViewModule.setSettings({
@@ -111,8 +124,21 @@ export default function HomeScreen() {
   }, [])
 
   useEffect(() => {
+    // Neither source is enough on its own: a cold start (or a recreated
+    // activity) only exposes the link through getInitialURL(), while a link
+    // arriving at a live activity only fires the `url` event.
+    void Linking.getInitialURL()
+      .then((url) => {
+        if (url && url !== lastHandledDeepLink) {
+          openDeepLink(url)
+        }
+      })
+      .catch((error) => {
+        console.error('getInitialURL failed', error)
+      })
+
     const subscription = Linking.addEventListener('url', (e) => {
-      openSharedUrl(e.url)
+      openDeepLink(e.url)
     })
     return () => subscription.remove()
   }, [])
