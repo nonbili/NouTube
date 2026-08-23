@@ -3,6 +3,7 @@ import {
   showShorts,
 } from './css'
 import { playDefaultAudio, restoreLastPlaying } from './player'
+import { getPlayerFormats } from './player-formats'
 import { emit } from './utils'
 import { createDefaultUserStylesSnapshot, type UserStylesSnapshot } from '../lib/user-styles'
 import { createDefaultBlocklistSnapshot, type BlocklistSnapshot } from '../lib/blocklist'
@@ -128,5 +129,6 @@ export function initNouTube() {
     playDefaultAudio,
     restoreLastPlaying,
     bridgeShortcuts,
+    getPlayerFormats,
   }
 }

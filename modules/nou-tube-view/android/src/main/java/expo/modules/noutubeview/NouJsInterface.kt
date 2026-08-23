@@ -60,4 +60,14 @@ class NouJsInterface(private val context: Context, private val view: NouTubeView
     }
     view.setVolumeIndex(index)
   }
+
+  // Completes an awaited eval (see NouTubeView.evalAwait). Token-gated like the setters above:
+  // without it any frame could answer — or hijack — a pending eval.
+  @JavascriptInterface
+  fun resolveEval(token: String?, id: String, value: String?, error: String?) {
+    if (!view.isBridgeTokenValid(token)) {
+      return
+    }
+    view.resolveEval(id, value, error)
+  }
 }

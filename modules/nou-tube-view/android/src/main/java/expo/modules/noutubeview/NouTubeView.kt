@@ -44,8 +44,11 @@ import expo.modules.kotlin.viewevent.EventDispatcher
 import expo.modules.kotlin.views.ExpoView
 import java.io.ByteArrayInputStream
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 
 val BLOCK_HOSTS = arrayOf(
   "www.googletagmanager.com",
@@ -121,6 +124,56 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   private val bridgeToken = UUID.randomUUID().toString()
 
   internal fun isBridgeTokenValid(token: String?) = token == bridgeToken
+
+  private val pendingEvals = ConcurrentHashMap<String, CancellableContinuation<String?>>()
+
+  // Called back from the page (NouJsInterface.resolveEval) once an awaited expression settles.
+  internal fun resolveEval(id: String, value: String?, error: String?) {
+    val cont = pendingEvals.remove(id) ?: return
+    if (error != null) {
+      cont.resumeWithException(Exception(error))
+    } else {
+      cont.resume(value, null)
+    }
+  }
+
+  // evaluateJavascript hands back the JSON of whatever the expression evaluated to at once, and
+  // a promise serializes to {} — so an async expression gets a callback of its own instead and
+  // the coroutine waits for the page to call back through the bridge. `script` has to be an
+  // expression; the result is JSON, matching NouWebView.eval.
+  suspend fun evalAwait(script: String): String? {
+    val id = UUID.randomUUID().toString()
+    val result = withTimeoutOrNull(EVAL_TIMEOUT_MS) {
+      suspendCancellableCoroutine { cont: CancellableContinuation<String?> ->
+        pendingEvals[id] = cont
+        cont.invokeOnCancellation { pendingEvals.remove(id) }
+        // The token travels in the evaluated script, which only ever reaches the main frame, so
+        // a cross-origin frame cannot answer a pending eval of ours.
+        val wrapped = """
+          (function () {
+            var settle = function (value, error) {
+              window.NouTubeI.resolveEval(
+                "$bridgeToken",
+                "$id",
+                value === undefined || value === null ? null : JSON.stringify(value),
+                error
+              )
+            }
+            try {
+              Promise.resolve((function () { return ($script) })()).then(
+                function (value) { settle(value, null) },
+                function (error) { settle(null, String((error && error.message) || error)) }
+              )
+            } catch (error) {
+              settle(null, String((error && error.message) || error))
+            }
+          })()
+        """.trimIndent()
+        webView.post { webView.evaluateJavascript(wrapped, null) }
+      }
+    }
+    return result?.removeSurrounding("\"")
+  }
   private var isWindowInBackground = false
   private var pageUrl = ""
   private var customView: View? = null
@@ -155,6 +208,10 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
   companion object {
     private const val REQUEST_POST_NOTIFICATIONS = 102
+
+    // A page that never settles its promise would otherwise keep the continuation — and the
+    // caller — waiting forever.
+    private const val EVAL_TIMEOUT_MS = 15_000L
 
     // The service is a singleton and the view has no destroy hook, so the
     // live binding is tracked per process: a remount replaces it instead of

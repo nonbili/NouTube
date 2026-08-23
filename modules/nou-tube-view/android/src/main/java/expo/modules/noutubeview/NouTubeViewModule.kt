@@ -287,6 +287,13 @@ class NouTubeViewModule : Module() {
           return@Coroutine view.webView.eval(script)
         }
 
+      // Same as executeJavaScript, except an expression that evaluates to a promise is awaited
+      // instead of coming back as the JSON of a promise, which is "{}".
+      AsyncFunction("executeJavaScriptAsync") Coroutine
+        { view: NouTubeView, script: String ->
+          return@Coroutine view.evalAwait(script)
+        }
+
       AsyncFunction("goBack") { view: NouTubeView ->
         val webView = view.webView
         if (webView.canGoBack()) {

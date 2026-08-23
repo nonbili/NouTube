@@ -12,6 +12,7 @@ import { downloads$ } from '@/states/downloads'
 import { t } from 'i18next'
 import type { FormatOption } from '@/lib/main-client'
 import { findPinnedFormats, togglePinnedFormat } from '@/lib/download-format'
+import { listFormats } from '@/lib/list-formats'
 import { isAndroid, nIf } from '@/lib/utils'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
 
@@ -53,8 +54,7 @@ export const ToolsModal = () => {
     setParsedTitle('')
     setLoadedUrl('')
     setErrorMsg('')
-    mainClient
-      .listFormats(targetUrl, settings$.downloadUseCookies.peek())
+    listFormats(targetUrl, settings$.downloadUseCookies.peek())
       .then((result) => {
         if (loadingUrlRef.current !== targetUrl) return
         setFormats(result.formats)
