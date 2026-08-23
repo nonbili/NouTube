@@ -12,12 +12,15 @@ import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
+import android.os.Message
 import android.media.AudioManager
 import android.provider.Settings
 import android.util.AttributeSet
 import android.view.ContextMenu
-import android.view.MenuItem
+import android.view.Menu
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.OrientationEventListener
@@ -43,6 +46,7 @@ import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.viewevent.EventDispatcher
 import expo.modules.kotlin.views.ExpoView
 import java.io.ByteArrayInputStream
+import java.net.URI
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.resumeWithException
@@ -63,6 +67,31 @@ val VIEW_HOSTS = arrayOf(
 internal fun fullscreenOrientationFor(isPortrait: Boolean): Int =
   if (isPortrait) ActivityInfo.SCREEN_ORIENTATION_USER
   else ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+
+private val YOUTUBE_VIDEO_ID = Regex("^[A-Za-z0-9_-]{6,20}$")
+private val YOUTUBE_VIDEO_PATH = Regex("^/(?:shorts|embed|live|v)/([A-Za-z0-9_-]{6,20})(?:/.*)?$")
+
+internal fun isYouTubeVideoUrl(value: String): Boolean {
+  return try {
+    val url = URI(value)
+    val host = url.host?.lowercase() ?: return false
+    val path = url.path ?: ""
+    if (host == "youtu.be" || host.endsWith(".youtu.be")) {
+      return YOUTUBE_VIDEO_ID.matches(path.removePrefix("/"))
+    }
+    if (host != "youtube.com" && !host.endsWith(".youtube.com")) {
+      return false
+    }
+    if (YOUTUBE_VIDEO_PATH.matches(path)) {
+      return true
+    }
+    path == "/watch" && url.rawQuery.orEmpty().split('&').any { parameter ->
+      parameter.substringBefore('=') == "v" && YOUTUBE_VIDEO_ID.matches(parameter.substringAfter('=', ""))
+    }
+  } catch (_: Exception) {
+    false
+  }
+}
 
 class NouWebView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
   WebView(context, attrs, defStyleAttr) {
@@ -207,6 +236,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   private var serviceConnection: ServiceConnection? = null
 
   companion object {
+    private const val LINK_LOADING_GROUP_ID = 0x4e4f55
     private const val REQUEST_POST_NOTIFICATIONS = 102
 
     // A page that never settles its promise would otherwise keep the continuation — and the
@@ -233,39 +263,75 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     webView.settings.textZoom = zoom
   }
 
+  private fun emitLinkAction(type: String, url: String, title: String? = null) {
+    if (title != null) {
+      emit(type, mapOf("title" to title, "url" to url))
+      return
+    }
+
+    val message = Message.obtain(
+      Handler(Looper.getMainLooper()) { result ->
+        emit(
+          type,
+          mapOf(
+            "title" to result.data?.getString("title").orEmpty(),
+            "url" to url,
+          ),
+        )
+        true
+      },
+    )
+    webView.requestFocusNodeHref(message)
+  }
+
+  private fun addLinkContextMenuItems(menu: ContextMenu, activity: Activity, url: String, title: String? = null) {
+    if (isYouTubeVideoUrl(url)) {
+      menu.add("Download").setOnMenuItemClickListener {
+        emit("download", mapOf("url" to url))
+        true
+      }
+      menu.add("Star").setOnMenuItemClickListener {
+        emitLinkAction("star", url, title)
+        true
+      }
+      menu.add("Add to queue").setOnMenuItemClickListener {
+        emitLinkAction("add-queue", url, title)
+        true
+      }
+    }
+
+    menu.add("Copy link").setOnMenuItemClickListener {
+      val clipboardManager = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+      val clipData = ClipData.newPlainText("link", url)
+      clipboardManager.setPrimaryClip(clipData)
+      true
+    }
+  }
+
   override fun onCreateContextMenu(menu: ContextMenu) {
     super.onCreateContextMenu(menu)
 
     val result = webView.getHitTestResult()
-    val activity = currentActivity
-    var url: String? = null
+    val activity = currentActivity ?: return
 
     if (result.getType() == WebView.HitTestResult.SRC_ANCHOR_TYPE) {
-      url = result.getExtra()
+      result.getExtra()?.let { addLinkContextMenuItems(menu, activity, it) }
     } else if (result.getType() == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
       // https://stackoverflow.com/a/77852272
-      val href = webView.getHandler().obtainMessage()
-      webView.requestFocusNodeHref(href)
-      val data = href.getData()
-      if (data != null) {
-        url = data.getString("url")
-      }
-    }
-    if (
-      url != null && activity != null
-    ) {
-      val onCopyLink = object : MenuItem.OnMenuItemClickListener {
-        override fun onMenuItemClick(item: MenuItem): Boolean {
-          val clipboardManager = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-          val clipData = ClipData.newPlainText("link", url)
-          clipboardManager.setPrimaryClip(clipData)
-          return true
-        }
-      }
-
-      menu.add("Copy link").setOnMenuItemClickListener(onCopyLink)
+      menu.add(LINK_LOADING_GROUP_ID, Menu.NONE, Menu.NONE, "Loading link…").isEnabled = false
+      val message = Message.obtain(
+        Handler(Looper.getMainLooper()) { href ->
+          menu.removeGroup(LINK_LOADING_GROUP_ID)
+          href.data?.getString("url")?.let { url ->
+            addLinkContextMenuItems(menu, activity, url, href.data?.getString("title"))
+          }
+          true
+        },
+      )
+      webView.requestFocusNodeHref(message)
     }
   }
+
   internal val webView: NouWebView =
     NouWebView(context).apply {
       layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
