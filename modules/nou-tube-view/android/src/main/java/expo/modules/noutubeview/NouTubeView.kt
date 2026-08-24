@@ -31,6 +31,7 @@ import android.webkit.CookieManager
 import android.webkit.JsResult
 import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
@@ -206,6 +207,10 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   }
   private var isWindowInBackground = false
   private var pageUrl = ""
+  private val retryHandler = Handler(Looper.getMainLooper())
+  private var loadRetryCount = 0
+  private var hasLoadError = false
+  private var loadErrorShown = false
   private var customView: View? = null
   private var pullToRefreshEnabled = true
   private var cutoutLeft = 0
@@ -239,6 +244,20 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   companion object {
     private const val LINK_LOADING_GROUP_ID = 0x4e4f55
     private const val REQUEST_POST_NOTIFICATIONS = 102
+
+    // A flaky mobile connection resets the odd request; the stock WebView error page
+    // strands the user there, so retry the main frame a few times before giving up (#339).
+    private val LOAD_RETRY_DELAYS_MS = longArrayOf(1_000L, 2_000L, 4_000L)
+
+    private val RETRYABLE_LOAD_ERRORS = setOf(
+      WebViewClient.ERROR_CONNECT,
+      WebViewClient.ERROR_HOST_LOOKUP,
+      WebViewClient.ERROR_IO,
+      WebViewClient.ERROR_TIMEOUT,
+      // ERR_CONNECTION_RESET and friends do not map to a code of their own on
+      // every WebView version, so a transient reset can land here too.
+      WebViewClient.ERROR_UNKNOWN,
+    )
 
     // A page that never settles its promise would otherwise keep the continuation — and the
     // caller — waiting forever.
@@ -354,6 +373,9 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
           }
 
           override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
+            // A navigation of its own supersedes any retry we still have queued.
+            retryHandler.removeCallbacksAndMessages(null)
+            hasLoadError = false
             // NouTubeBackground must survive navigations (the queue advances in
             // the background), so seed every new document with the current value.
             evaluateJavascript(
@@ -367,8 +389,46 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
           override fun onPageFinished(view: WebView, url: String) {
             swipeRefreshLayout.isRefreshing = false
+            if (!hasLoadError) {
+              loadRetryCount = 0
+              if (loadErrorShown) {
+                loadErrorShown = false
+                emit("load-error-cleared", mapOf<String, Any>())
+              }
+            }
             // insets are usually dispatched once, long before this document exists
             applyCutoutInsets()
+          }
+
+          // Without this the WebView swaps in its own "Webpage not available" page, which
+          // has no way back — and pull to refresh is off on /watch and /shorts (#339).
+          override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
+            if (!request.isForMainFrame) {
+              return
+            }
+            hasLoadError = true
+            val url = request.url.toString()
+            // loadUrl can only re-issue a GET: replaying a form post as a bodyless GET
+            // would hit a login or subscribe endpoint with the wrong request entirely.
+            val isSafeMethod = request.method.equals("GET", ignoreCase = true)
+            if (isSafeMethod && error.errorCode in RETRYABLE_LOAD_ERRORS && loadRetryCount < LOAD_RETRY_DELAYS_MS.size) {
+              val delay = LOAD_RETRY_DELAYS_MS[loadRetryCount]
+              loadRetryCount++
+              retryHandler.postDelayed({ webView.loadUrl(url) }, delay)
+              return
+            }
+            loadRetryCount = 0
+            loadErrorShown = true
+            emit(
+              "load-error",
+              mapOf(
+                "url" to url,
+                "code" to error.errorCode,
+                "description" to error.description?.toString().orEmpty(),
+                // The retry button may only re-request this url when it was a GET.
+                "canReload" to isSafeMethod,
+              ),
+            )
           }
 
           override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
@@ -764,6 +824,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   // — outlives the view, even after exit() called stopSelf(). Driven by
   // OnViewDestroys in NouTubeViewModule.
   fun destroyService() {
+    retryHandler.removeCallbacksAndMessages(null)
     val connection = serviceConnection ?: return
     serviceConnection = null
     // A newer view may already own the live binding; only ever drop our own.

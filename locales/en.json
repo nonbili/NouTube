@@ -36,7 +36,8 @@
     "browse": "Browse",
     "updateYtDlp": "Update yt-dlp",
     "updating": "Updating...",
-    "ytDlpUpdated": "yt-dlp is up to date"
+    "ytDlpUpdated": "yt-dlp is up to date",
+    "retry": "Retry"
   },
   "library": {
     "videos": "Videos",
@@ -391,5 +392,9 @@
     "hint": "Sync bookmarks across your phones and computers as a premium user.",
     "currentPlan": "Current plan",
     "managePlan": "Manage plan"
+  },
+  "pageLoadError": {
+    "title": "Can't load this page",
+    "description": "Check your connection, then try again."
   }
 }

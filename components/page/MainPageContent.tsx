@@ -17,6 +17,7 @@ import { clsx, isAndroid, isWeb, nIf } from '@/lib/utils'
 import type { WebviewTag } from 'electron'
 import { NouHeader } from '../header/NouHeader'
 import { WebviewContainer } from './webview-container'
+import { PageLoadError } from './PageLoadError'
 import { syncSupabase } from '@/lib/supabase/sync'
 import { auth$ } from '@/states/auth'
 import { useMe } from '@/lib/hooks/useMe'
@@ -372,6 +373,10 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const clickbaitThumbnail = useValue(settings$.clickbaitThumbnail)
   const blocklistState = useValue(blocklist$)
   const [blocklistSynced, setBlocklistSynced] = useState(!isWeb)
+  // Set once the native view gives up retrying a failed navigation (#339).
+  const [loadError, setLoadError] = useState<{ url: string; description?: string; canReload: boolean } | null>(
+    null,
+  )
   const buildPrelude = () =>
     `window.NouTubeInitialSettings = ${JSON.stringify(getContentSettingsSnapshot())};` +
     `window.NouTubePreferH264 = ${settings$.preferH264.get() ? 'true' : 'false'};` +
@@ -615,6 +620,16 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         case 'paste':
           openPastedUrl(data)
           break
+        case 'load-error':
+          setLoadError({
+            url: data?.url || '',
+            description: data?.description,
+            canReload: data?.canReload !== false,
+          })
+          break
+        case 'load-error-cleared':
+          setLoadError(null)
+          break
         case 'yt-music-desktop':
           if (settings$.desktopMode.get()) break
           settings$.desktopMode.set(true)
@@ -847,6 +862,19 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
               onLoad={onLoad}
               onMessage={onNativeMessage}
             />
+            {nIf(
+              loadError,
+              <PageLoadError
+                description={loadError?.description}
+                onRetry={() => {
+                  // A failed post cannot be replayed through loadUrl, so fall back to the
+                  // page the app last navigated to instead of re-requesting it as a GET.
+                  const url = (loadError?.canReload && loadError.url) || ui$.url.get()
+                  setLoadError(null)
+                  nativeRef.current?.loadUrl(url)
+                }}
+              />,
+            )}
           </WebviewContainer>
         )}
         {nIf(
