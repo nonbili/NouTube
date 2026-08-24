@@ -126,6 +126,25 @@ describe('user scripts', () => {
     ].join('\n')
 
     expect(parseUserscriptMetadata(source).name).toBe('My Script')
+    expect(parseUserscriptMetadata(source).runAt).toBe('document-end')
     expect(stripUserscriptMetadata(source)).toBe("console.log('hi')")
+  })
+
+  it('reads @run-at and defaults scripts to document-end', () => {
+    const source = ['// ==UserScript==', '// @name   Early', '// @run-at document-start', '// ==/UserScript==', 'x()'].join(
+      '\n',
+    )
+
+    expect(parseUserscriptMetadata(source).runAt).toBe('document-start')
+
+    const snapshot = normalizeUserStyles({
+      customScripts: [
+        { id: 'a', name: 'early', enabled: true, runAt: 'document-start', js: 'x()' } as any,
+        { id: 'b', name: 'legacy', enabled: true, js: 'y()' } as any,
+      ],
+    })
+
+    expect(snapshot.customScripts[0].runAt).toBe('document-start')
+    expect(snapshot.customScripts[1].runAt).toBe('document-end')
   })
 })

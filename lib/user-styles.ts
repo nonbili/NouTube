@@ -1,4 +1,4 @@
-export const USER_STYLES_SCHEMA_VERSION = 4
+export const USER_STYLES_SCHEMA_VERSION = 5
 
 export const builtinUserStyleIds = [
   'hide-mix-playlist',
@@ -23,11 +23,17 @@ export interface CustomUserStyle {
   css: string
 }
 
+export type UserScriptRunAt = 'document-start' | 'document-end'
+
 export interface CustomUserScript {
   id: string
   name: string
   enabled: boolean
   pinToHeader: boolean
+  // `document-start` runs before the page builds its DOM, so a script can patch
+  // fetch/XHR or other globals before YouTube uses them; `document-end` is the
+  // default and waits for the DOM like a user script manager does.
+  runAt: UserScriptRunAt
   js: string
 }
 
@@ -239,27 +245,37 @@ const normalizeCustomUserScript = (
     name,
     enabled: typeof script.enabled === 'boolean' ? script.enabled : true,
     pinToHeader: typeof script.pinToHeader === 'boolean' ? script.pinToHeader : false,
+    runAt: script.runAt === 'document-start' ? 'document-start' : 'document-end',
     js,
   }
 }
 
 const metadataBlockPattern = /\/\/\s*==UserScript==([\s\S]*?)\/\/\s*==\/UserScript==/
 
-export const parseUserscriptMetadata = (source: string) => {
+export const parseUserscriptMetadata = (source: string): { name: string; runAt: UserScriptRunAt } => {
   const block = source.match(metadataBlockPattern)?.[1]
   if (!block) {
-    return { name: '' }
+    return { name: '', runAt: 'document-end' }
   }
 
   let name = ''
+  let runAt: UserScriptRunAt = 'document-end'
   for (const line of block.split('\n')) {
     const match = line.match(/^\s*\/\/\s*@(\S+)\s+(.+?)\s*$/)
-    if (match && match[1] === 'name' && !name) {
+    if (!match) {
+      continue
+    }
+    if (match[1] === 'name' && !name) {
       name = match[2].trim()
+    }
+    // Tampermonkey's document-body is still before the DOM YouTube renders into,
+    // so it maps to our start slot; document-idle behaves like document-end.
+    if (match[1] === 'run-at' && /^document-(start|body)$/.test(match[2].trim())) {
+      runAt = 'document-start'
     }
   }
 
-  return { name }
+  return { name, runAt }
 }
 
 export const stripUserscriptMetadata = (source: string) => {

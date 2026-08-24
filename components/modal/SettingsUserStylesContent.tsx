@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
-import { Alert, Keyboard, Platform, Pressable, ScrollView, Switch, TextInput, View, useWindowDimensions } from 'react-native'
+import { useState } from 'react'
+import { Alert, Platform, Pressable, ScrollView, Switch, TextInput, View } from 'react-native'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { getDocumentAsync } from 'expo-document-picker'
 import { useValue } from '@legendapp/state/react'
 import { t } from 'i18next'
-import { BaseCenterModal } from './BaseCenterModal'
+import { BaseFullScreenModal } from './BaseFullScreenModal'
 import { NouText } from '../NouText'
 import { clsx, isWeb, nIf } from '@/lib/utils'
 import {
@@ -13,7 +13,9 @@ import {
   stripUserscriptMetadata,
   type CustomUserScript,
   type CustomUserStyle,
+  type UserScriptRunAt,
 } from '@/lib/user-styles'
+import { useKeyboardHeight } from '@/lib/hooks/useKeyboardHeight'
 import { userStyles$ } from '@/states/user-styles'
 import { ui$ } from '@/states/ui'
 import { showToast } from '@/lib/toast'
@@ -27,6 +29,44 @@ const rowCls = 'px-4 py-4'
 const rowBorderCls = 'border-b border-zinc-300 dark:border-zinc-800'
 const textInputCls =
   'rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 px-4 py-4 text-zinc-900 dark:text-white'
+// The full screen editors trade the labelled, roomy fields of the sidebar for a
+// single compact name row, so the code area keeps the rest of the screen.
+const nameInputCls =
+  'rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 px-4 py-3 text-zinc-900 dark:text-white'
+const editorLabelCls = 'mb-2 mt-4 px-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-600 dark:text-zinc-500'
+
+const switchProps = Platform.select({
+  web: { activeThumbColor: '#818cf8' },
+  ios: { style: { transform: [{ scale: 0.8 }] } },
+})
+
+const runAtOf = (early: boolean): UserScriptRunAt => (early ? 'document-start' : 'document-end')
+
+const ToggleRow: React.FC<{
+  title: string
+  hint: string
+  value: boolean
+  onValueChange: (value: boolean) => void
+  disabled?: boolean
+  isLast?: boolean
+}> = ({ title, hint, value, onValueChange, disabled, isLast }) => (
+  <View
+    className={clsx('flex-row items-center justify-between px-4 py-3', !isLast && rowBorderCls, disabled && 'opacity-50')}
+  >
+    <View className="flex-1 pr-4">
+      <NouText className="font-medium">{title}</NouText>
+      <NouText className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-500">{hint}</NouText>
+    </View>
+    <Switch
+      value={value}
+      onValueChange={onValueChange}
+      disabled={disabled}
+      trackColor={{ false: '#27272a', true: '#3730a3' }}
+      thumbColor={value ? '#818cf8' : '#71717a'}
+      {...switchProps}
+    />
+  </View>
+)
 
 type DraftState = {
   id: string | null
@@ -72,6 +112,7 @@ type ScriptDraftState = {
   name: string
   enabled: boolean
   pinToHeader: boolean
+  runAt: UserScriptRunAt
   js: string
 }
 
@@ -82,6 +123,7 @@ const createScriptDraft = (script?: CustomUserScript | null): ScriptDraftState =
       name: '',
       enabled: true,
       pinToHeader: false,
+      runAt: 'document-end',
       js: '',
     }
   }
@@ -91,6 +133,7 @@ const createScriptDraft = (script?: CustomUserScript | null): ScriptDraftState =
     name: script.name,
     enabled: script.enabled,
     pinToHeader: script.pinToHeader,
+    runAt: script.runAt,
     js: script.js,
   }
 }
@@ -114,32 +157,22 @@ export const SettingsUserStylesContent = () => {
   const customScripts = useValue(userStyles$.customScripts).filter((script): script is CustomUserScript => Boolean(script))
   const [draft, setDraft] = useState<DraftState | null>(null)
   const [scriptDraft, setScriptDraft] = useState<ScriptDraftState | null>(null)
-  const [keyboardHeight, setKeyboardHeight] = useState(0)
-  const { height: windowHeight } = useWindowDimensions()
+  // While the code editor has focus the name and toggles are just chrome in the
+  // way, so they fold away and the editor rises to sit right under the header.
+  const [codeFocused, setCodeFocused] = useState(false)
+  const keyboardHeight = useKeyboardHeight()
+  const codeExpanded = codeFocused && keyboardHeight > 0
   const hasStyles = customStyles.length > 0
   const hasScripts = customScripts.length > 0
-  const scriptEditorHeight =
-    keyboardHeight > 0 && Platform.OS !== 'web'
-      ? Math.max(140, Math.min(300, windowHeight - keyboardHeight - 260))
-      : 300
-  const scriptKeyboardAvoidingClassName = keyboardHeight > 0 && Platform.OS !== 'web' ? 'w-full items-center' : undefined
 
-  useEffect(() => {
-    if (Platform.OS === 'web') {
-      return
-    }
-
-    const showSub = Keyboard.addListener('keyboardDidShow', (event) => setKeyboardHeight(event.endCoordinates.height))
-    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0))
-
-    return () => {
-      showSub.remove()
-      hideSub.remove()
-    }
-  }, [])
-
-  const closeDraft = () => setDraft(null)
-  const closeScriptDraft = () => setScriptDraft(null)
+  const closeDraft = () => {
+    setCodeFocused(false)
+    setDraft(null)
+  }
+  const closeScriptDraft = () => {
+    setCodeFocused(false)
+    setScriptDraft(null)
+  }
 
   const onImportScript = async () => {
     try {
@@ -150,7 +183,7 @@ export const SettingsUserStylesContent = () => {
       const metadata = parseUserscriptMetadata(source)
       const js = stripUserscriptMetadata(source) || source
       setScriptDraft((value) =>
-        value ? { ...value, name: value.name || metadata.name, js } : value,
+        value ? { ...value, name: value.name || metadata.name, runAt: metadata.runAt, js } : value,
       )
     } catch (error) {
       console.warn('[SettingsUserStylesContent] failed to import script', error)
@@ -190,6 +223,7 @@ export const SettingsUserStylesContent = () => {
       name: scriptDraft.name.trim(),
       enabled: scriptDraft.enabled,
       pinToHeader: scriptDraft.pinToHeader,
+      runAt: scriptDraft.runAt,
       js: scriptDraft.js,
     }
 
@@ -336,6 +370,12 @@ export const SettingsUserStylesContent = () => {
                     <NouText className={clsx('font-medium', !script.enabled && 'text-zinc-500')} numberOfLines={1}>
                       {script.name}
                     </NouText>
+                    {nIf(
+                      script.runAt === 'document-start',
+                      <NouText className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-500">
+                        {t('settings.userStyles.scripts.runAtStartBadge')}
+                      </NouText>,
+                    )}
                   </View>
                   {nIf(
                     script.pinToHeader,
@@ -427,7 +467,7 @@ export const SettingsUserStylesContent = () => {
                   <NouButton variant="outline" size="1" onPress={closeDraft}>
                     {t('buttons.cancel')}
                   </NouButton>
-                  <MaterialButton name="file-upload" size={20} onPress={onImportCss} />
+                  <MaterialButton name="folder-open" size={20} onPress={onImportCss} />
                   {draft.id ? (
                     <MaterialButton
                       name="delete-outline"
@@ -454,92 +494,81 @@ export const SettingsUserStylesContent = () => {
             </View>
           </View>
         ) : (
-          <BaseCenterModal onClose={closeDraft} containerClassName="lg:w-[50rem] xl:w-[60rem] max-w-[95vw]">
-            <ScrollView className="max-h-[80vh]">
-              <View className="p-6">
-                <View className="flex-row items-center gap-3">
-                  <View className="h-10 w-10 items-center justify-center rounded-xl bg-indigo-600/10">
-                    <MaterialIcons name="auto-fix-high" color="#818cf8" size={20} />
-                  </View>
-                  <NouText className="text-xl font-bold tracking-tight">
-                    {draft.id ? t('settings.userStyles.editTitle') : t('settings.userStyles.addTitle')}
-                  </NouText>
-                </View>
-
-                <View className="mt-8">
-                  <NouText className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-600 dark:text-zinc-500">
-                    {t('settings.userStyles.nameLabel')}
-                  </NouText>
-                  <TextInput
-                    className={textInputCls}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    onChangeText={(name) => setDraft((value) => (value ? { ...value, name } : value))}
-                    placeholder={t('settings.userStyles.namePlaceholder')}
-                    placeholderTextColor="#71717a"
-                    value={draft.name}
+          <BaseFullScreenModal
+            title={draft.id ? t('settings.userStyles.editTitle') : t('settings.userStyles.addTitle')}
+            icon="auto-fix-high"
+            onClose={closeDraft}
+            actions={
+              <>
+                <MaterialButton name="folder-open" size={20} onPress={onImportCss} />
+                {draft.id ? (
+                  <MaterialButton
+                    name="delete-outline"
+                    size={20}
+                    color="#ef4444"
+                    onPress={() => {
+                      Alert.alert(t('menus.remove'), t('settings.userStyles.deleteConfirm'), [
+                        { text: t('buttons.cancel'), style: 'cancel' },
+                        {
+                          text: t('buttons.remove'),
+                          style: 'destructive',
+                          onPress: () => {
+                            userStyles$.deleteCustomStyle(draft.id!)
+                            closeDraft()
+                          },
+                        },
+                      ])
+                    }}
                   />
-                </View>
+                ) : null}
+                <NouButton size="1" onPress={onSave}>
+                  {t('buttons.save')}
+                </NouButton>
+              </>
+            }
+          >
+            <View className="flex-1 px-4 pb-4 pt-4">
+              {nIf(
+                !codeExpanded,
+                <TextInput
+                  className={nameInputCls}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  onChangeText={(name) => setDraft((value) => (value ? { ...value, name } : value))}
+                  placeholder={t('settings.userStyles.namePlaceholder')}
+                  placeholderTextColor="#71717a"
+                  value={draft.name}
+                />,
+              )}
 
-                <View className="mt-6">
-                  <NouText className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-600 dark:text-zinc-500">
-                    CSS
-                  </NouText>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    className="rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950"
-                  >
-                    <TextInput
-                      className="min-h-[300px] p-4 text-xs text-zinc-900 dark:text-white"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      multiline
-                      onChangeText={(css) => setDraft((value) => (value ? { ...value, css } : value))}
-                      placeholder={`body {\n  font-size: 18px;\n}`}
-                      placeholderTextColor="#71717a"
-                      style={{
-                        textAlignVertical: 'top',
-                        fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-                        minWidth: 800,
-                      }}
-                      value={draft.css}
-                    />
-                  </ScrollView>
-                </View>
-
-                <View className="mt-10 flex-row items-center justify-between gap-4">
-                  <View className="flex-row items-center gap-2">
-                    <NouButton variant="outline" size="1" onPress={closeDraft}>
-                      {t('buttons.cancel')}
-                    </NouButton>
-                    <MaterialButton name="file-upload" size={20} onPress={onImportCss} />
-                    {draft.id ? (
-                      <MaterialButton
-                        name="delete-outline"
-                        size={20}
-                        color="#ef4444"
-                        onPress={() => {
-                          Alert.alert(t('menus.remove'), t('settings.userStyles.deleteConfirm'), [
-                            { text: t('buttons.cancel'), style: 'cancel' },
-                            {
-                              text: t('buttons.remove'),
-                              style: 'destructive',
-                              onPress: () => {
-                                userStyles$.deleteCustomStyle(draft.id!)
-                                closeDraft()
-                              },
-                            },
-                          ])
-                        }}
-                      />
-                    ) : null}
-                  </View>
-                  <NouButton onPress={onSave}>{t('buttons.save')}</NouButton>
-                </View>
-              </View>
-            </ScrollView>
-          </BaseCenterModal>
+              <NouText className={clsx(editorLabelCls, codeExpanded && 'mt-0')}>CSS</NouText>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                className="flex-1 rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950"
+                contentContainerStyle={{ flexGrow: 1 }}
+                keyboardShouldPersistTaps="handled"
+              >
+                <TextInput
+                  className="flex-1 p-4 text-xs text-zinc-900 dark:text-white"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  multiline
+                  onFocus={() => setCodeFocused(true)}
+                  onBlur={() => setCodeFocused(false)}
+                  onChangeText={(css) => setDraft((value) => (value ? { ...value, css } : value))}
+                  placeholder={`body {\n  font-size: 18px;\n}`}
+                  placeholderTextColor="#71717a"
+                  style={{
+                    textAlignVertical: 'top',
+                    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+                    minWidth: 800,
+                  }}
+                  value={draft.css}
+                />
+              </ScrollView>
+            </View>
+          </BaseFullScreenModal>
         )
       ) : null}
 
@@ -571,26 +600,22 @@ export const SettingsUserStylesContent = () => {
                 />
               </View>
 
-              <View className="mt-6 flex-row items-center justify-between rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 px-4 py-3">
-                <View className="flex-1 pr-4">
-                  <NouText className="font-medium">{t('settings.userStyles.scripts.pinToHeader')}</NouText>
-                  <NouText className="mt-1 text-xs text-zinc-600 dark:text-zinc-500">
-                    {t('settings.userStyles.scripts.pinToHeaderHint')}
-                  </NouText>
-                </View>
-                <Switch
+              <View className="mt-6 overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950">
+                <ToggleRow
+                  title={t('settings.userStyles.scripts.pinToHeader')}
+                  hint={t('settings.userStyles.scripts.pinToHeaderHint')}
                   value={scriptDraft.pinToHeader}
                   onValueChange={(pinToHeader) => setScriptDraft((value) => (value ? { ...value, pinToHeader } : value))}
-                  trackColor={{ false: '#27272a', true: '#3730a3' }}
-                  thumbColor={scriptDraft.pinToHeader ? '#818cf8' : '#71717a'}
-                  {...Platform.select({
-                    web: {
-                      activeThumbColor: '#818cf8',
-                    },
-                    ios: {
-                      style: { transform: [{ scale: 0.8 }] },
-                    },
-                  })}
+                />
+                <ToggleRow
+                  title={t('settings.userStyles.scripts.runAtStart')}
+                  // The desktop webview only gets the content script on dom-ready, so
+                  // there is no earlier slot to offer yet.
+                  hint={t('settings.userStyles.scripts.runAtStartDesktopHint')}
+                  value={scriptDraft.runAt === 'document-start'}
+                  onValueChange={(early) => setScriptDraft((value) => (value ? { ...value, runAt: runAtOf(early) } : value))}
+                  disabled
+                  isLast
                 />
               </View>
 
@@ -624,7 +649,7 @@ export const SettingsUserStylesContent = () => {
                     placeholder={`document.title = 'noutube'`}
                     placeholderTextColor="#71717a"
                     style={{
-                      height: scriptEditorHeight,
+                      height: 300,
                       textAlignVertical: 'top',
                       fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
                       minWidth: 800,
@@ -639,7 +664,7 @@ export const SettingsUserStylesContent = () => {
                   <NouButton variant="outline" size="1" onPress={closeScriptDraft}>
                     {t('buttons.cancel')}
                   </NouButton>
-                  <MaterialButton name="file-upload" size={20} onPress={onImportScript} />
+                  <MaterialButton name="folder-open" size={20} onPress={onImportScript} />
                   {scriptDraft.id ? (
                     <MaterialButton
                       name="delete-outline"
@@ -666,33 +691,45 @@ export const SettingsUserStylesContent = () => {
             </View>
           </View>
         ) : (
-          <BaseCenterModal
+          <BaseFullScreenModal
+            title={scriptDraft.id ? t('settings.userStyles.scripts.editTitle') : t('settings.userStyles.scripts.addTitle')}
+            icon="code"
             onClose={closeScriptDraft}
-            keyboardAvoidingClassName={scriptKeyboardAvoidingClassName}
-            containerClassName="lg:w-[50rem] xl:w-[60rem] max-w-[95vw]"
+            actions={
+              <>
+                <MaterialButton name="folder-open" size={20} onPress={onImportScript} />
+                {scriptDraft.id ? (
+                  <MaterialButton
+                    name="delete-outline"
+                    size={20}
+                    color="#ef4444"
+                    onPress={() => {
+                      Alert.alert(t('menus.remove'), t('settings.userStyles.scripts.deleteConfirm'), [
+                        { text: t('buttons.cancel'), style: 'cancel' },
+                        {
+                          text: t('buttons.remove'),
+                          style: 'destructive',
+                          onPress: () => {
+                            userStyles$.deleteCustomScript(scriptDraft.id!)
+                            closeScriptDraft()
+                          },
+                        },
+                      ])
+                    }}
+                  />
+                ) : null}
+                <NouButton size="1" onPress={onSaveScript}>
+                  {t('buttons.save')}
+                </NouButton>
+              </>
+            }
           >
-            <ScrollView
-              className="max-h-[80vh]"
-              keyboardDismissMode="interactive"
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingBottom: keyboardHeight > 0 ? 16 : 0 }}
-            >
-              <View className="p-6">
-                <View className="flex-row items-center gap-3">
-                  <View className="h-10 w-10 items-center justify-center rounded-xl bg-indigo-600/10">
-                    <MaterialIcons name="code" color="#818cf8" size={20} />
-                  </View>
-                  <NouText className="text-xl font-bold tracking-tight">
-                    {scriptDraft.id ? t('settings.userStyles.scripts.editTitle') : t('settings.userStyles.scripts.addTitle')}
-                  </NouText>
-                </View>
-
-                <View className="mt-8">
-                  <NouText className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-600 dark:text-zinc-500">
-                    {t('settings.userStyles.nameLabel')}
-                  </NouText>
+            <View className="flex-1 px-4 pb-4 pt-4">
+              {nIf(
+                !codeExpanded,
+                <>
                   <TextInput
-                    className={textInputCls}
+                    className={nameInputCls}
                     autoCapitalize="none"
                     autoCorrect={false}
                     onChangeText={(name) => setScriptDraft((value) => (value ? { ...value, name } : value))}
@@ -700,103 +737,71 @@ export const SettingsUserStylesContent = () => {
                     placeholderTextColor="#71717a"
                     value={scriptDraft.name}
                   />
-                </View>
 
-                <View className="mt-6 flex-row items-center justify-between rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 px-4 py-3">
-                  <View className="flex-1 pr-4">
-                    <NouText className="font-medium">{t('settings.userStyles.scripts.pinToHeader')}</NouText>
-                    <NouText className="mt-1 text-xs text-zinc-600 dark:text-zinc-500">
-                      {t('settings.userStyles.scripts.pinToHeaderHint')}
-                    </NouText>
-                  </View>
-                  <Switch
-                    value={scriptDraft.pinToHeader}
-                    onValueChange={(pinToHeader) => setScriptDraft((value) => (value ? { ...value, pinToHeader } : value))}
-                    trackColor={{ false: '#27272a', true: '#3730a3' }}
-                    thumbColor={scriptDraft.pinToHeader ? '#818cf8' : '#71717a'}
-                    {...Platform.select({
-                      web: {
-                        activeThumbColor: '#818cf8',
-                      },
-                      ios: {
-                        style: { transform: [{ scale: 0.8 }] },
-                      },
-                    })}
-                  />
-                </View>
-
-                <View className="mt-6">
-                  <View className="mb-2 flex-row items-center justify-between px-1">
-                    <NouText className="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-600 dark:text-zinc-500">
-                      JavaScript
-                    </NouText>
-                    <Pressable
-                      onPress={onRunScript}
-                      className="h-8 flex-row items-center gap-1.5 rounded-lg bg-indigo-600 px-3 active:bg-indigo-700"
-                    >
-                      <MaterialIcons name="play-arrow" color="white" size={16} />
-                      <NouText className="text-xs font-semibold" style={{ color: 'white' }}>
-                        {t('settings.userStyles.scripts.run')}
-                      </NouText>
-                    </Pressable>
-                  </View>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    className="rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950"
-                  >
-                    <TextInput
-                      className="p-4 text-xs text-zinc-900 dark:text-white"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      multiline
-                      scrollEnabled
-                      onChangeText={(js) => setScriptDraft((value) => (value ? { ...value, js } : value))}
-                      placeholder={`document.title = 'noutube'`}
-                      placeholderTextColor="#71717a"
-                      style={{
-                        height: scriptEditorHeight,
-                        textAlignVertical: 'top',
-                        fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-                        minWidth: 800,
-                      }}
-                      value={scriptDraft.js}
+                  <View className="mt-3 overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950">
+                    <ToggleRow
+                      title={t('settings.userStyles.scripts.pinToHeader')}
+                      hint={t('settings.userStyles.scripts.pinToHeaderHint')}
+                      value={scriptDraft.pinToHeader}
+                      onValueChange={(pinToHeader) =>
+                        setScriptDraft((value) => (value ? { ...value, pinToHeader } : value))
+                      }
                     />
-                  </ScrollView>
-                </View>
-
-                <View className="mt-10 flex-row items-center justify-between gap-4">
-                  <View className="flex-row items-center gap-2">
-                    <NouButton variant="outline" size="1" onPress={closeScriptDraft}>
-                      {t('buttons.cancel')}
-                    </NouButton>
-                    <MaterialButton name="file-upload" size={20} onPress={onImportScript} />
-                    {scriptDraft.id ? (
-                      <MaterialButton
-                        name="delete-outline"
-                        size={20}
-                        color="#ef4444"
-                        onPress={() => {
-                          Alert.alert(t('menus.remove'), t('settings.userStyles.scripts.deleteConfirm'), [
-                            { text: t('buttons.cancel'), style: 'cancel' },
-                            {
-                              text: t('buttons.remove'),
-                              style: 'destructive',
-                              onPress: () => {
-                                userStyles$.deleteCustomScript(scriptDraft.id!)
-                                closeScriptDraft()
-                              },
-                            },
-                          ])
-                        }}
-                      />
-                    ) : null}
+                    <ToggleRow
+                      title={t('settings.userStyles.scripts.runAtStart')}
+                      hint={t('settings.userStyles.scripts.runAtStartHint')}
+                      value={scriptDraft.runAt === 'document-start'}
+                      onValueChange={(early) =>
+                        setScriptDraft((value) => (value ? { ...value, runAt: runAtOf(early) } : value))
+                      }
+                      isLast
+                    />
                   </View>
-                  <NouButton onPress={onSaveScript}>{t('buttons.save')}</NouButton>
-                </View>
+                </>,
+              )}
+
+              <View className={clsx('mb-2 flex-row items-center justify-between px-1', !codeExpanded && 'mt-4')}>
+                <NouText className="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-600 dark:text-zinc-500">
+                  JavaScript
+                </NouText>
+                <Pressable
+                  onPress={onRunScript}
+                  className="h-8 flex-row items-center gap-1.5 rounded-lg bg-indigo-600 px-3 active:bg-indigo-700"
+                >
+                  <MaterialIcons name="play-arrow" color="white" size={16} />
+                  <NouText className="text-xs font-semibold" style={{ color: 'white' }}>
+                    {t('settings.userStyles.scripts.run')}
+                  </NouText>
+                </Pressable>
               </View>
-            </ScrollView>
-          </BaseCenterModal>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                className="flex-1 rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950"
+                contentContainerStyle={{ flexGrow: 1 }}
+                keyboardShouldPersistTaps="handled"
+              >
+                <TextInput
+                  className="flex-1 p-4 text-xs text-zinc-900 dark:text-white"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  multiline
+                  scrollEnabled
+                  onFocus={() => setCodeFocused(true)}
+                  onBlur={() => setCodeFocused(false)}
+                  onChangeText={(js) => setScriptDraft((value) => (value ? { ...value, js } : value))}
+                  placeholder={`document.title = 'noutube'`}
+                  placeholderTextColor="#71717a"
+                  style={{
+                    textAlignVertical: 'top',
+                    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+                    minWidth: 800,
+                  }}
+                  value={scriptDraft.js}
+                />
+              </ScrollView>
+            </View>
+          </BaseFullScreenModal>
         )
       ) : null}
     </View>

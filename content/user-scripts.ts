@@ -26,12 +26,15 @@ function toTrustedScript(js: string) {
   return compile ? compile(js) : js
 }
 
-function runUserScripts(snapshot?: UserStylesSnapshot) {
+function runUserScripts(snapshot?: UserStylesSnapshot, domReady = document.readyState !== 'loading') {
   const userStyles = snapshot || window.NouTube?.getUserStyles?.()
   if (!userStyles) {
     return
   }
   for (const script of getEnabledUserScripts(userStyles)) {
+    if (!domReady && script.runAt !== 'document-start') {
+      continue
+    }
     if (ranIds.has(script.id)) {
       continue
     }
@@ -45,6 +48,15 @@ function runUserScripts(snapshot?: UserStylesSnapshot) {
 }
 
 export function initUserScripts() {
-  runUserScripts()
   window.addEventListener(noutubeUserStylesEvent, (e) => runUserScripts((e as CustomEvent).detail))
+
+  // The content script runs at document start, where `document.body` is still
+  // null and anything appended to the bare `<html>` is thrown away once the
+  // parser builds the real tree. Only `document-start` scripts — the ones that
+  // patch globals before YouTube uses them — run this early; the rest wait for
+  // the DOM, like a user script manager's default `document-end`.
+  runUserScripts()
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => runUserScripts(undefined, true), { once: true })
+  }
 }

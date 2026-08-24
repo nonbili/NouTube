@@ -154,6 +154,7 @@ export const getUserStylesSnapshot = (value: Partial<Store> | undefined = userSt
       name: script.name,
       enabled: script.enabled,
       pinToHeader: Boolean(script.pinToHeader),
+      runAt: script.runAt === 'document-start' ? 'document-start' : 'document-end',
       js: script.js,
     })),
 })

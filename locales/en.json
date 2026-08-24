@@ -316,6 +316,10 @@
         "pinToHeader": "Pin to toolbar",
         "pinToHeaderHint": "Show this script as a toolbar action.",
         "pinnedToHeader": "Pinned to toolbar",
+        "runAtStart": "Run at document start",
+        "runAtStartHint": "Run before the DOM is built, instead of after DOMContentLoaded.",
+        "runAtStartDesktopHint": "Not available on desktop yet; scripts run once the DOM is ready.",
+        "runAtStartBadge": "Runs at document start",
         "deleteConfirm": "Remove this custom script?",
         "noActiveTab": "No active webview",
         "validation": {
