@@ -145,6 +145,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   internal val onMessage by EventDispatcher()
 
   private var scriptOnStart = ""
+  private var userScriptsOnStart: List<String> = emptyList()
 
   // addJavascriptInterface hands NouTubeI to every frame, ad iframes included,
   // and gives no way to tell them apart. This token is only ever evaluated into
@@ -359,6 +360,9 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
               "window.NouTubeToken = '$bridgeToken';window.NouTubeBackground = $isWindowInBackground;$scriptOnStart",
               null
             )
+            // Each user script is its own compilation unit: a syntax error in
+            // one must not take the others, or the content bundle, down with it.
+            userScriptsOnStart.forEach { evaluateJavascript(it, null) }
           }
 
           override fun onPageFinished(view: WebView, url: String) {
@@ -647,6 +651,10 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
   fun setScriptOnStart(script: String) {
     scriptOnStart = script
+  }
+
+  fun setUserScriptsOnStart(scripts: List<String>) {
+    userScriptsOnStart = scripts
   }
 
   fun clearData() {

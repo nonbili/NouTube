@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test'
 import {
   USER_STYLES_SCHEMA_VERSION,
+  buildUserScriptSources,
   getEnabledUserScripts,
   getEnabledUserStyleCss,
   normalizeUserStyles,
@@ -128,6 +129,30 @@ describe('user scripts', () => {
     expect(parseUserscriptMetadata(source).name).toBe('My Script')
     expect(parseUserscriptMetadata(source).runAt).toBe('document-end')
     expect(stripUserscriptMetadata(source)).toBe("console.log('hi')")
+  })
+
+  it('builds one injectable source per script and defers document-end ones', () => {
+    const snapshot = normalizeUserStyles({
+      customScripts: [
+        { id: 'a', name: 'early', enabled: true, runAt: 'document-start', js: 'patchFetch()' } as any,
+        { id: 'b', name: 'late', enabled: true, js: 'addBadge()' } as any,
+        { id: 'c', name: 'off', enabled: false, js: 'never()' } as any,
+      ],
+    })
+
+    const sources = buildUserScriptSources(snapshot)
+    expect(sources).toHaveLength(2)
+    // Separate units, so one malformed script cannot break the other.
+    expect(sources[0]).toContain('patchFetch()')
+    expect(sources[0]).toContain('false && document.readyState')
+    expect(sources[1]).toContain('addBadge()')
+    expect(sources[1]).toContain('true && document.readyState')
+    // A pending script stands down once a newer sync bumps the generation, and
+    // only marks itself as run when it actually runs.
+    expect(sources[1]).toContain('if (state.gen !== gen || state.ran[id]) return')
+    expect(sources[1].indexOf('state.ran[id] = true')).toBeGreaterThan(sources[1].indexOf('var run = function'))
+    expect(sources.join('')).not.toContain('never()')
+    expect(buildUserScriptSources(normalizeUserStyles({}))).toEqual([])
   })
 
   it('reads @run-at and defaults scripts to document-end', () => {

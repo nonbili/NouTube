@@ -31,6 +31,7 @@ import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
 import { openPastedUrl } from '@/lib/paste-url'
 import { usePasteUrl } from '@/lib/hooks/usePasteUrl'
 import { history$ } from '@/states/history'
+import { buildUserScriptSources, userScriptsInvalidationSource } from '@/lib/user-styles'
 import { getUserStylesSnapshot, userStyles$ } from '@/states/user-styles'
 import { blocklist$, getBlocklistSnapshot } from '@/states/blocklist'
 import { addSystemCaptionStyleListener, getSystemCaptionStyle } from '@/lib/system-captions'
@@ -135,8 +136,16 @@ const DesktopTabView: React.FC<{
 
   const syncUserStylesToWebview = useCallback(() => {
     if (!readyRef.current) return
-    const value = JSON.stringify(getUserStylesSnapshot())
+    const snapshot = getUserStylesSnapshot()
+    const value = JSON.stringify(snapshot)
     executeQuietly(webviewRef.current, `window.NouTube?.setUserStyles?.(${value})`)
+    // Scripts enabled since the page loaded still need their first run; the
+    // invalidation stands down anything still pending from the previous set,
+    // and the in-page guard keeps what already ran from running twice.
+    executeQuietly(webviewRef.current, userScriptsInvalidationSource)
+    for (const source of buildUserScriptSources(snapshot)) {
+      executeQuietly(webviewRef.current, source)
+    }
   }, [])
 
   const syncBlocklistToWebview = useCallback(() => {
@@ -214,6 +223,11 @@ const DesktopTabView: React.FC<{
         webview,
         `window.isAndroid = false;\n${buildPrelude()}\n${contentJs}\n;window.NouTube?.bridgeShortcuts?.()`,
       )
+      // One call per script: a malformed script must not take the others, or
+      // the content bundle above, down with it.
+      for (const source of buildUserScriptSources(getUserStylesSnapshot())) {
+        executeQuietly(webview, source)
+      }
       toggleShorts(hideShorts)
       syncUserStylesToWebview()
       syncBlocklistToWebview()
@@ -365,6 +379,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     `window.NouTubeUserStyles = ${JSON.stringify(getUserStylesSnapshot())};` +
     `window.NouTubeBlocklist = ${JSON.stringify(getBlocklistSnapshot())};`
   const contentSettings = getContentSettingsSnapshot()
+  // Subscribed so a saved or toggled script reaches the next document start.
+  const userStylesState = useValue(userStyles$)
+  const userScriptsOnStart = buildUserScriptSources(getUserStylesSnapshot(userStylesState))
   const preludeJs =
     `window.NouTubeInitialSettings = ${JSON.stringify(contentSettings)};` +
     `window.NouTubePreferH264 = ${preferH264 ? 'true' : 'false'};` +
@@ -435,8 +452,13 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   const syncUserStylesToWebview = useCallback(() => {
     const ref = nativeRef.current
-    const value = JSON.stringify(getUserStylesSnapshot())
+    const snapshot = getUserStylesSnapshot()
+    const value = JSON.stringify(snapshot)
     ref?.executeJavaScript(`window.NouTube.setUserStyles(${value})`)
+    ref?.executeJavaScript(userScriptsInvalidationSource)
+    for (const source of buildUserScriptSources(snapshot)) {
+      ref?.executeJavaScript(source)
+    }
   }, [nativeRef])
 
   const syncBlocklistToWebview = useCallback(() => {
@@ -821,6 +843,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
               pullToRefreshEnabled={pullToRefreshEnabled}
               textZoom={defaultZoom}
               scriptOnStart={`window.isAndroid = true;\n${preludeJs}\n${contentJs}`}
+              userScriptsOnStart={userScriptsOnStart}
               onLoad={onLoad}
               onMessage={onNativeMessage}
             />
@@ -831,6 +854,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           <EmbedVideoModal
             videoId={embedVideoId}
             scriptOnStart={`${isWeb ? 'window.isAndroid = false;' : 'window.isAndroid = true;'}\n${preludeJs}\n${contentJs}`}
+            // Only the native view injects these; on web the props land on a
+            // <webview> element as attributes.
+            userScriptsOnStart={isWeb ? undefined : userScriptsOnStart}
             onClose={() => ui$.embedVideoId.set('')}
           />,
         )}

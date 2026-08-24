@@ -266,6 +266,10 @@ class NouTubeViewModule : Module() {
         view.setScriptOnStart(script)
       }
 
+      Prop("userScriptsOnStart") { view: NouTubeView, scripts: List<String> ->
+        view.setUserScriptsOnStart(scripts)
+      }
+
       Prop("useragent") { view: NouTubeView, ua: String ->
         view.webView.settings.setUserAgentString(ua)
       }

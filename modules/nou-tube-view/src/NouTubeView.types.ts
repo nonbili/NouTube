@@ -18,6 +18,9 @@ export type NouTubeViewProps = {
   pullToRefreshEnabled?: boolean
   textZoom?: number
   scriptOnStart?: string
+  /* One entry per user script: each is injected on its own so a malformed
+   * script cannot break the others or the content bundle. */
+  userScriptsOnStart?: string[]
   onLoad?: (event: { nativeEvent: OnLoadEventPayload }) => void
   onMessage?: (event: { nativeEvent: OnMessageEventPayload }) => void
 }

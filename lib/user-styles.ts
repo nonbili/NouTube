@@ -198,6 +198,55 @@ export const getEnabledUserScripts = (snapshot?: UserStylesSnapshot) => {
     }))
 }
 
+/*
+ * User scripts cannot be compiled from inside the page: YouTube serves
+ * `require-trusted-types-for 'script'`, and this WebView rejects even a
+ * TrustedScript passed to the Function constructor. The embedder channels
+ * (Android evaluateJavascript on page start, Electron executeJavaScript) are
+ * not subject to the page CSP, so the sources are handed to that channel
+ * instead of being evaluated by the content script.
+ */
+const userScriptsState = `(window.__nouUserScripts || (window.__nouUserScripts = { ran: {}, gen: 0 }))`
+
+/*
+ * Bumped before a fresh set of sources is injected. A document-end script
+ * scheduled during page load holds the source it was injected with, so if the
+ * user disables or edits it before DOMContentLoaded fires, that stale callback
+ * has to stand down and let the replacement (if any) run instead.
+ */
+export const userScriptsInvalidationSource = `;${userScriptsState}.gen++;`
+
+/*
+ * One string per script, never a concatenation: a syntax error is raised while
+ * the whole injected unit is parsed, before any try/catch can run, so sharing a
+ * unit would let one malformed script take down its neighbours — and the
+ * content bundle with them.
+ */
+export const buildUserScriptSources = (snapshot?: UserStylesSnapshot) =>
+  getEnabledUserScripts(snapshot).map(
+    (script) => `;(function () {
+  var state = ${userScriptsState};
+  var id = ${JSON.stringify(script.id)};
+  var gen = state.gen;
+  if (state.ran[id]) return;
+  var run = function () {
+    // Superseded while the document was still loading, or already run.
+    if (state.gen !== gen || state.ran[id]) return;
+    state.ran[id] = true;
+    try {
+${script.js}
+    } catch (e) {
+      console.error(${JSON.stringify('[NouTube user script] ' + script.name)}, e)
+    }
+  };
+  if (${script.runAt === 'document-start' ? 'false' : 'true'} && document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run, { once: true });
+  } else {
+    run();
+  }
+})();`,
+  )
+
 export const buildUserScriptExecutionSource = (script: Pick<CustomUserScript, 'name' | 'js'>) => {
   return `(() => { try {\n${script.js}\n} catch (e) { console.error(${JSON.stringify('[NouTube user script run] ' + script.name)}, e) } })();`
 }

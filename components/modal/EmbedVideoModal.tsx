@@ -7,9 +7,15 @@ import { settings$ } from '@/states/settings'
 import { useValue } from '@legendapp/state/react'
 import { isWeb } from '@/lib/utils'
 
-export const EmbedVideoModal: React.FC<{ videoId: string; scriptOnStart: string; onClose: () => void }> = ({
+export const EmbedVideoModal: React.FC<{
+  videoId: string
+  scriptOnStart: string
+  userScriptsOnStart?: string[]
+  onClose: () => void
+}> = ({
   videoId,
   scriptOnStart,
+  userScriptsOnStart,
   onClose,
 }) => {
   const customUserAgent = useValue(settings$.userAgent)
@@ -33,6 +39,7 @@ export const EmbedVideoModal: React.FC<{ videoId: string; scriptOnStart: string;
           style={{ flex: 1 }}
           useragent={userAgent}
           scriptOnStart={scriptOnStart}
+          userScriptsOnStart={userScriptsOnStart}
           onLoad={onLoad}
           onMessage={onMessage}
         />
