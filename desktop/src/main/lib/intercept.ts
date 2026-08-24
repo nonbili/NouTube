@@ -195,16 +195,17 @@ export function interceptHttpRequest() {
       }
 
       if (match) {
+        const isYTMusic = req.url.includes('music.youtube.com')
         switch (match[1]) {
           case 'browse':
           case 'next':
-            return new Response(transformBrowseResponse(text, currentBlocklist), responseInit)
+            return new Response(transformBrowseResponse(text, currentBlocklist, { isYTMusic }), responseInit)
           case 'search':
-            return new Response(transformSearchResponse(text, currentBlocklist), responseInit)
+            return new Response(transformSearchResponse(text, currentBlocklist, { isYTMusic }), responseInit)
           case 'get_watch':
-            return new Response(transformGetWatchResponse(text), responseInit)
+            return new Response(transformGetWatchResponse(text, { isYTMusic }), responseInit)
           default:
-            return new Response(transformPlayerResponse(text), responseInit)
+            return new Response(transformPlayerResponse(text, currentBlocklist, { isYTMusic }), responseInit)
         }
       }
     } catch (e) {

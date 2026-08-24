@@ -473,6 +473,12 @@ export const SettingsYouTubeContent = () => {
               icon="thumb-down"
               value={settings.showDislikes}
               onPress={() => settings$.showDislikes.set(!settings.showDislikes)}
+            />
+            <SettingsToggleRow
+              label="Enforce Audio-Only for YT Music"
+              icon="music-note"
+              value={settings.ytMusicAudioOnly}
+              onPress={() => settings$.ytMusicAudioOnly.set(!settings.ytMusicAudioOnly)}
               isLast={!hasSystemCaptionStyleSupport()}
             />
             {nIf(
