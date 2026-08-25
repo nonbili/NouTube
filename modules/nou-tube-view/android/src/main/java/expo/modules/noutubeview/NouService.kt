@@ -177,6 +177,11 @@ class NouService : Service() {
           "Forward" -> webView?.evaluateJavascript("NouTube.seekBy(30)", null)
         }
       }
+
+      override fun onStop() {
+        webView.evaluateJavascript("NouTube.pause()", null)
+        exit()
+      }
     }
     mediaSession?.setCallback(callback)
     mediaSession?.setActive(true)
@@ -216,6 +221,11 @@ class NouService : Service() {
         this,
         PlaybackStateCompat.ACTION_SKIP_TO_NEXT
       )
+    val stopActionIntent =
+      MediaButtonReceiver.buildMediaButtonPendingIntent(
+        this,
+        PlaybackStateCompat.ACTION_STOP
+      )
 
     val statePlaying = mediaSession?.getController()?.getPlaybackState()?.state == PlaybackStateCompat.STATE_PLAYING
     val builder = NotificationCompat.Builder(this, CHANNEL_ID)
@@ -233,6 +243,7 @@ class NouService : Service() {
         playActionIntent
       )
       .addAction(android.R.drawable.ic_media_next, "Next", nextActionIntent)
+      .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Close", stopActionIntent)
       .setStyle(
         androidx.media.app.NotificationCompat.MediaStyle()
           .setMediaSession(mediaSession!!.getSessionToken())
@@ -257,6 +268,7 @@ class NouService : Service() {
             or PlaybackStateCompat.ACTION_SEEK_TO
             or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
             or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+            or PlaybackStateCompat.ACTION_STOP
         )
     }
     val state = stateBuilder!!.setState(
