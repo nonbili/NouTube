@@ -1,0 +1,43 @@
+@import 'tailwindcss/base';
+@import '@radix-ui/themes/styles.css';
+
+@tailwind components;
+@tailwind utilities;
+
+:focus-visible {
+  outline: none;
+}
+
+/*
+ * Vite emits font imports as URLs rather than react-native asset registry ids,
+ * so the icon fonts are declared here and dynamic loading is switched off, the
+ * same way the desktop renderer does it.
+ */
+@font-face {
+  font-family: 'MaterialIcons-Regular';
+  src: url('../../../node_modules/@react-native-vector-icons/material-icons/fonts/MaterialIcons.ttf') format('truetype');
+  font-style: normal;
+  font-weight: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'MaterialDesignIcons';
+  src: url('../../../node_modules/@react-native-vector-icons/material-design-icons/fonts/MaterialDesignIcons.ttf') format('truetype');
+  font-style: normal;
+  font-weight: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'AntDesign';
+  src: url('../../../node_modules/@react-native-vector-icons/ant-design/fonts/AntDesign.ttf') format('truetype');
+  font-style: normal;
+  font-weight: normal;
+  font-display: block;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}

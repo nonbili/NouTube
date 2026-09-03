@@ -1,0 +1,48 @@
+{
+  "name": "noutube-extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox --mv3",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox --mv3",
+    "build:all": "bun run build && bun run build:firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox --mv3",
+    "zip:all": "bun run zip && bun run zip:firefox",
+    "check": "tsc --noEmit && bun test",
+    "postinstall": "wxt prepare",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@legendapp/state": "^3.0.0-beta.43",
+    "@radix-ui/colors": "^3.0.0",
+    "@radix-ui/themes": "^3.2.1",
+    "@react-native-vector-icons/common": "^13.0.1",
+    "@supabase/supabase-js": "^2.54.0",
+    "dayjs": "^1.11.18",
+    "es-toolkit": "^1.39.3",
+    "i18next": "^25.7.3",
+    "nanoid": "^5.0.0",
+    "nativewind": "^4.1.23",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-hot-toast": "^2.5.2",
+    "react-i18next": "^16.5.1",
+    "react-native-web": "^0.21.2"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "~19.2.10",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.0.0",
+    "autoprefixer": "latest",
+    "postcss": "latest",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~6.0.3",
+    "vite-plugin-react-native-web": "^2.2.1",
+    "wxt": "latest"
+  }
+}
