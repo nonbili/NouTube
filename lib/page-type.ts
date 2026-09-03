@@ -1,5 +1,6 @@
 const starrableTypes = ['channel', 'playlist', 'podcast', 'shorts', 'watch']
 const nonChannelSingleSegmentTypes = ['results']
+const legacyChannelTypes = ['c', 'user']
 
 export function getPageType(url: string) {
   if (!url) {
@@ -22,6 +23,9 @@ export function getPageType(url: string) {
     return
   }
   let type = pathname.slice(1).split('/')[0]
+  if (legacyChannelTypes.includes(type)) {
+    type = 'channel'
+  }
   let canStar = starrableTypes.includes(type)
 
   if (

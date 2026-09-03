@@ -1,18 +1,16 @@
-import { useEffect, useMemo, useState } from 'react'
-import { ActivityIndicator, Pressable, ScrollView, useColorScheme, View } from 'react-native'
+import { useEffect, useState } from 'react'
+import { ActivityIndicator, Pressable, useColorScheme, View } from 'react-native'
 import { useTranslation } from 'react-i18next'
 import { useValue } from '@legendapp/state/react'
-import { orderBy } from 'es-toolkit'
 import { browser } from 'wxt/browser'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { BookmarkModal } from '@/components/modal/BookmarkModal'
-import { FeedModal } from '@/components/modal/FeedModal'
+import { FeedContent } from '@/components/modal/FeedModal'
 import { FolderModal } from '@/components/modal/FolderModal'
 import { LibraryModal } from '@/components/modal/LibraryModal'
 import { MoveBookmarkModal } from '@/components/modal/MoveBookmarkModal'
 import { PlaybackQualityModal } from '@/components/modal/PlaybackQualityModal'
 import { PlaybackSpeedModal } from '@/components/modal/PlaybackSpeedModal'
-import { FeedItem } from '@/components/feed/FeedItem'
 import { NouMenu } from '@/components/menu/NouMenu'
 import { NouText } from '@/components/NouText'
 import { toolbarPillLabelClass, toolbarPillPressableClass } from '@/components/header/toolbar-classes'
@@ -23,7 +21,6 @@ import { formatPlaybackRate } from '@/lib/playback-rate'
 import { fetchYouTubeChannelMetadata } from '@/lib/youtube-channel'
 import { normalizeUrl } from '@/lib/url'
 import { bookmarks$, newBookmark, type Bookmark } from '@/states/bookmarks'
-import { feeds$ } from '@/states/feeds'
 import { settings$ } from '@/states/settings'
 import { ui$ } from '@/states/ui'
 import { AppShell, useAppSnapshot } from './AppShell'
@@ -162,77 +159,6 @@ const ExtensionHeader: React.FC<{
   )
 }
 
-const FeedsScreen: React.FC<{ onManage: () => void }> = ({ onManage }) => {
-  const { t } = useTranslation()
-  const colorScheme = useColorScheme()
-  const bookmarks = useValue(bookmarks$.bookmarks)
-  const feedItems = useValue(feeds$.bookmarks)
-  const hideShorts = useValue(settings$.hideShorts)
-  const iconColor = colorScheme === 'light' ? colors.iconLightStrong : colors.icon
-
-  const channelsById = useMemo(() => {
-    const map = new Map<string, (typeof bookmarks)[number]>()
-    for (const bookmark of bookmarks) {
-      const pageType = getPageType(bookmark.url)
-      if (!bookmark.json.deleted && pageType?.home === 'yt' && pageType.type === 'channel' && bookmark.json.id) {
-        map.set(bookmark.json.id, bookmark)
-      }
-    }
-    return map
-  }, [bookmarks])
-
-  const feed = useMemo(
-    () =>
-      orderBy(
-        feedItems.filter((item) => {
-          if (!channelsById.has(item.json.id || '')) {
-            return false
-          }
-          return !hideShorts || getPageType(item.url)?.type !== 'shorts'
-        }),
-        [(item) => new Date(item.created_at).valueOf()],
-        ['desc'],
-      ).slice(0, 300),
-    [channelsById, feedItems, hideShorts],
-  )
-
-  const emptyTitle = channelsById.size ? t('feeds.emptyTitleWaiting') : t('feeds.emptyTitleNoChannels')
-  const emptyBody = channelsById.size ? t('feeds.emptyBodyWaiting') : t('feeds.emptyBodyNoChannels')
-
-  return (
-    <View className="flex-1">
-      <View className="flex-row items-center border-b border-zinc-200 px-4 py-2 dark:border-zinc-800">
-        <NouText className="flex-1 text-lg font-semibold">{t('modals.feeds')}</NouText>
-        <Pressable
-          accessibilityLabel={t('extension.manageFeeds')}
-          accessibilityRole="button"
-          onPress={onManage}
-          className="h-10 w-10 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-800"
-        >
-          <MaterialIcons name="tune" size={20} color={iconColor} />
-        </Pressable>
-      </View>
-      <ScrollView className="flex-1" contentContainerClassName="mx-auto w-full max-w-3xl py-3">
-        {nIf(
-          !feed.length,
-          <View className="mx-4 items-center rounded-3xl border border-zinc-300 px-5 py-10 dark:border-zinc-800 dark:bg-zinc-900/70">
-            <View className="mb-4 h-14 w-14 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-950">
-              <MaterialIcons name="rss-feed" size={25} color="#f97316" />
-            </View>
-            <NouText className="text-center text-base font-semibold">{emptyTitle}</NouText>
-            <NouText className="mt-2 text-center text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-              {emptyBody}
-            </NouText>
-          </View>,
-        )}
-        {feed.map((item, index) => (
-          <FeedItem key={item.url + index} bookmark={item} channel={channelsById.get(item.json.id || '')} />
-        ))}
-      </ScrollView>
-    </View>
-  )
-}
-
 const ExtensionContent: React.FC<{ showOpenExpanded: boolean }> = ({ showOpenExpanded }) => {
   const { error, setError } = useAppSnapshot()
   const [busy, setBusy] = useState(false)
@@ -306,10 +232,9 @@ const ExtensionContent: React.FC<{ showOpenExpanded: boolean }> = ({ showOpenExp
         error,
         <NouText className="bg-red-100 px-4 py-2 text-sm text-red-900 dark:bg-red-950 dark:text-red-200">{error}</NouText>,
       )}
-      <FeedsScreen onManage={() => ui$.feedModalOpen.set(true)} />
+      <FeedContent maxContentWidth={960} />
 
       <LibraryModal />
-      <FeedModal />
       <BookmarkModal />
       <MoveBookmarkModal />
       <FolderModal />

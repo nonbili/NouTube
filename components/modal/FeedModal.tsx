@@ -59,16 +59,17 @@ interface FeedEmptyStateAction {
   tone?: 'default' | 'accent'
 }
 
-export const FeedModal = () => {
-  const feedModalOpen = useValue(ui$.feedModalOpen)
+export const FeedContent: React.FC<{ showClose?: boolean; onClose?: () => void; maxContentWidth?: number }> = ({
+  showClose = false,
+  onClose = () => undefined,
+  maxContentWidth,
+}) => {
   const folders = useValue(folders$.folders)
   const bookmarks = useValue(bookmarks$.bookmarks)
   const feedState = useValue(feeds$.feeds)
   const feedItems = useValue(feeds$.bookmarks)
   const hideShorts = useValue(settings$.hideShorts)
   const bookmarkModalBookmark = useValue(ui$.bookmarkModalBookmark)
-  const { width } = useWindowDimensions()
-  const isNarrowNative = !isWeb && width < 768
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   const iconColor = isDark ? 'white' : '#111827'
@@ -81,23 +82,11 @@ export const FeedModal = () => {
   const [filterMenuQuery, setFilterMenuQuery] = useState('')
   const [isRefreshingCurrentChannel, setIsRefreshingCurrentChannel] = useState(false)
 
-  useEffect(() => {
-    if (!feedModalOpen) {
-      setModeIndex(0)
-      setFilterKey(ALL_FEED_FILTER_KEY)
-      setSortIndex(0)
-      setOrder('desc')
-      setActiveMenu(undefined)
-      setFilterMenuQuery('')
-      setIsRefreshingCurrentChannel(false)
-    }
-  }, [feedModalOpen])
-
   const mode = modeIndex === 0 ? 'updates' : 'manage'
   const sort: FeedManageSort = sortIndex === 0 ? 'lastVideo' : 'frequency'
 
   useEffect(() => {
-    if (!feedModalOpen || isWeb) {
+    if (isWeb) {
       return
     }
 
@@ -115,12 +104,12 @@ export const FeedModal = () => {
         setModeIndex(0)
         return true
       }
-      ui$.feedModalOpen.set(false)
+      onClose()
       return true
     })
 
     return () => subscription.remove()
-  }, [activeMenu, bookmarkModalBookmark, feedModalOpen, mode])
+  }, [activeMenu, bookmarkModalBookmark, mode, onClose])
 
   const savedChannelBookmarks = bookmarks.filter((bookmark) => {
     const pageType = getPageType(bookmark.url)
@@ -202,8 +191,6 @@ export const FeedModal = () => {
 
     return channel.id === parsedFilter.id
   })
-
-  const onClose = () => ui$.feedModalOpen.set(false)
 
   const currentFilter = filterOptions.find((option) => option.key === filterKey)
   const currentFilterLabel = currentFilter?.name || t('feeds.allFolders')
@@ -371,12 +358,15 @@ export const FeedModal = () => {
     <View className="flex-1 bg-zinc-100 dark:bg-zinc-950">
       <View className="border-b border-zinc-300 dark:border-zinc-800 px-3 py-3">
         <View className="flex-row items-center gap-2">
-          <Pressable
-            onPress={mode === 'manage' ? () => setModeIndex(0) : onClose}
-            className="h-11 w-11 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-900"
-          >
-            <MaterialIcons name={mode === 'manage' ? 'arrow-back' : 'close'} color={iconColor} size={22} />
-          </Pressable>
+          {nIf(
+            mode === 'manage' || showClose,
+            <Pressable
+              onPress={mode === 'manage' ? () => setModeIndex(0) : onClose}
+              className="h-11 w-11 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-900"
+            >
+              <MaterialIcons name={mode === 'manage' ? 'arrow-back' : 'close'} color={iconColor} size={22} />
+            </Pressable>,
+          )}
           <NouText className="flex-1 text-lg font-semibold">{t('modals.feeds')}</NouText>
           <Pressable
             onPress={() => setActiveMenu((value) => (value === 'folder' ? undefined : 'folder'))}
@@ -413,6 +403,7 @@ export const FeedModal = () => {
       {mode === 'updates' ? (
         <FlatList
           className="flex-1 pt-3"
+          contentContainerStyle={{ width: '100%', maxWidth: maxContentWidth, alignSelf: 'center' }}
           data={visibleFeedItems}
           keyExtractor={(item, index) => item.url + index}
           renderItem={({ item }) => (
@@ -476,6 +467,7 @@ export const FeedModal = () => {
       ) : (
         <FlatList
           className="flex-1 pt-3"
+          contentContainerStyle={{ width: '100%', maxWidth: maxContentWidth, alignSelf: 'center' }}
           data={visibleManagementItems}
           keyExtractor={(item) => item.channel.id}
           renderItem={({ item }) => (
@@ -568,17 +560,26 @@ export const FeedModal = () => {
     </View>
   )
 
+  return content
+}
+
+export const FeedModal = () => {
+  const feedModalOpen = useValue(ui$.feedModalOpen)
+  const { width } = useWindowDimensions()
+  const isNarrowNative = !isWeb && width < 768
+  const onClose = () => ui$.feedModalOpen.set(false)
+
   return nIf(
     feedModalOpen,
     isNarrowNative ? (
       <View className="absolute inset-0 z-10 bg-zinc-100 dark:bg-zinc-950">
         <SafeAreaView className="flex-1" edges={['top']}>
-          {content}
+          <FeedContent showClose onClose={onClose} />
         </SafeAreaView>
       </View>
     ) : (
       <BaseModal onClose={onClose} className="bg-transparent">
-        {content}
+        <FeedContent showClose onClose={onClose} />
       </BaseModal>
     ),
   )

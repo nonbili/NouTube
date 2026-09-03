@@ -6,8 +6,12 @@ import { bookmarks$ } from '@/states/bookmarks'
 import { feeds$ } from '@/states/feeds'
 import { folders$ } from '@/states/folders'
 import { settings$, getSettingsSnapshot } from '@/states/settings'
+import { newBookmark } from '@/states/bookmarks'
 import { getUserStylesSnapshot, userStyles$ } from '@/states/user-styles'
 import { feederLoop, refreshChannelFeed } from '@/lib/feeder'
+import { getPageType, getThumbnail } from '@/lib/page'
+import { normalizeUrl } from '@/lib/url'
+import { fetchYouTubeChannelMetadata } from '@/lib/youtube-channel'
 import { bookmarksSyncer } from '@/lib/supabase/sync/bookmarks'
 import { foldersSyncer } from '@/lib/supabase/sync/folders'
 import { settingsSyncer } from '@/lib/supabase/sync/settings'
@@ -17,6 +21,7 @@ import { hydrateAppState, persistAppStateOnChange, snapshotStoredState } from '.
 import { fetchFeedDirectly } from './main-client'
 import { saveStoredState } from './store'
 import { syncUserScripts, userScriptsAvailable } from '../user-scripts'
+import { isSaveableBookmarkUrl } from '../context-menu'
 import type { AppSnapshot, RequestMessage, ResponseMessage, StateChangedMessage } from '../messages'
 
 export const SYNC_ALARM = 'noutube-sync'
@@ -31,6 +36,36 @@ const canSync = () => {
 }
 
 const syncers = [bookmarksSyncer, foldersSyncer, settingsSyncer, userStylesSyncer]
+
+export type AddBookmarkResult = 'added' | 'restored' | 'already-saved'
+
+export async function addBookmarkFromUrl(url: string): Promise<AddBookmarkResult> {
+  const pageType = getPageType(url)
+  if (!pageType || !isSaveableBookmarkUrl(url)) {
+    throw new Error('The selected link cannot be saved')
+  }
+
+  const normalizedUrl = normalizeUrl(url)
+  const existing = bookmarks$.bookmarks.get().find((bookmark) => bookmark.url === normalizedUrl)
+  if (existing && !existing.json.deleted) {
+    return 'already-saved'
+  }
+
+  const metadata = await fetchYouTubeChannelMetadata(url, 1)
+  const bookmark = newBookmark({
+    ...existing,
+    url: normalizedUrl,
+    title: metadata.title || existing?.title || normalizedUrl,
+    json: {
+      ...existing?.json,
+      id: pageType.type === 'channel' ? metadata.id || existing?.json.id : existing?.json.id,
+      thumbnail: metadata.thumbnail || existing?.json.thumbnail || getThumbnail(normalizedUrl),
+      deleted: false,
+    },
+  })
+  bookmarks$.saveBookmark(bookmark)
+  return existing ? 'restored' : 'added'
+}
 
 export async function syncNow() {
   if (!canSync() || syncing) {
