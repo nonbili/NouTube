@@ -1,0 +1,38 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "jsx": "react-jsx",
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable"
+    ],
+    "paths": {
+      "@/*": [
+        "../*"
+      ],
+      "main/*": [
+        "../desktop/src/main/*"
+      ]
+    },
+    "noUncheckedIndexedAccess": false,
+    "verbatimModuleSyntax": false,
+    "skipLibCheck": true,
+    "types": [
+      "bun",
+      "nativewind/types"
+    ]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../content/types.ts",
+    ".wxt/wxt.d.ts",
+    ".wxt/types/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".output"
+  ]
+}

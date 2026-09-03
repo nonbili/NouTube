@@ -396,5 +396,24 @@
   "pageLoadError": {
     "title": "Can't load this page",
     "description": "Check your connection, then try again."
+  },
+  "extension": {
+    "openOptions": "Blocklist & user styles",
+    "reloadTabs": "Reload YouTube tabs",
+    "applyHint": "Some options only take effect on the next page load.",
+    "userScriptsUnavailable": "User scripts need the browser’s user scripts permission. In Chrome, open the extension details page and allow user scripts.",
+    "feeds": "Feeds",
+    "library": "Library",
+    "signIn": "Sign in",
+    "signedOut": "Not signed in",
+    "syncNow": "Sync now",
+    "refreshFeeds": "Refresh feeds",
+    "manageFeeds": "Manage feeds",
+    "account": "Account & sync",
+    "more": "More",
+    "openExpanded": "Open in new tab",
+    "openYouTube": "Open YouTube",
+    "openYouTubeMusic": "Open YouTube Music",
+    "saveCurrentPage": "Save current page"
   }
 }

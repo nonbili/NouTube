@@ -1,6 +1,7 @@
 {
   "workspaces": [
-    "desktop"
+    "desktop",
+    "extension"
   ],
   "name": "noutube",
   "private": true,

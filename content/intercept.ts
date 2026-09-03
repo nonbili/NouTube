@@ -27,7 +27,10 @@ export function intercept() {
   })
 
   const winFetch = fetch
-  // @ts-expect-error xx
+  // ts-ignore rather than ts-expect-error: react-native's global fetch typing
+  // makes this assignment an error in the app's program but not in the
+  // extension's, where an unused expect-error would itself fail the build.
+  // @ts-ignore
   window.fetch = async (...args) => {
     const request = args[0]
     const url = request instanceof Request ? request.url : request.toString()
