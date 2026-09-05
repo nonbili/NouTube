@@ -55,6 +55,7 @@ class NouService : Service() {
   private var lastForegroundAttemptMs = 0L
   private var hasAttemptedForeground = false
   private var noisyReceiver: NoisyAudioReceiver? = null
+  private var notificationDismissed = false
   private val NOTIFICATION_ID = 777
   private val CHANNEL_ID = "noutube"
   private val FOREGROUND_REASSERT_INTERVAL_MS = 60_000L
@@ -81,7 +82,14 @@ class NouService : Service() {
         stopSelf()
         return START_NOT_STICKY
       }
-      ensureForeground(force = true)
+      // A dismissed notification has nothing to promote, but the deadline was
+      // armed all the same, so it still has to be answered. Playing again
+      // clears the dismissal and re-promotes on the next progress tick.
+      if (notificationDismissed) {
+        settleForegroundDeadline()
+      } else {
+        ensureForeground(force = true)
+      }
       MediaButtonReceiver.handleIntent(mediaSession, intent)
     }
     // Never restart a dead process just for this service: without the activity
@@ -180,7 +188,7 @@ class NouService : Service() {
 
       override fun onStop() {
         webView.evaluateJavascript("NouTube.pause()", null)
-        exit()
+        dismissNotification()
       }
     }
     mediaSession?.setCallback(callback)
@@ -298,7 +306,7 @@ class NouService : Service() {
   // The demotion happens without any callback, so while playback is running,
   // re-assert the foreground state at least once a minute.
   private fun ensureForeground(force: Boolean = false) {
-    if (mediaSession == null) {
+    if (mediaSession == null || notificationDismissed) {
       return
     }
     val now = SystemClock.elapsedRealtime()
@@ -323,6 +331,27 @@ class NouService : Service() {
       // foregrounded again.
       nouController.log("startForeground failed: ${e.message}")
     }
+  }
+
+  private fun postNotification() {
+    if (mediaSession == null || notificationDismissed) {
+      return
+    }
+    notificationManager?.notify(NOTIFICATION_ID, buildNotification())
+  }
+
+  // The Close action only takes the player off the shade; the service and its
+  // session stay around so playback resumed from the app can bring the
+  // notification back. The pause it triggers arrives as a progress tick, which
+  // would re-post the notification straight away, so posting stays blocked
+  // until playback actually starts again.
+  private fun dismissNotification() {
+    notificationDismissed = true
+    mediaSession?.setActive(false)
+    stopForeground(STOP_FOREGROUND_REMOVE)
+    notificationManager?.cancel(NOTIFICATION_ID)
+    lastForegroundAttemptMs = 0L
+    hasAttemptedForeground = false
   }
 
   private fun startForegroundNow(notification: Notification) {
@@ -374,20 +403,22 @@ class NouService : Service() {
     }
     mediaSession?.setMetadata(metadataBuilder.build())
     ensureForeground()
-    notificationManager?.notify(
-      NOTIFICATION_ID,
-      buildNotification()
-    )
+    postNotification()
   }
 
   fun notifyProgress(playing: Boolean, pos: Long) {
     val statePlaying = mediaSession?.getController()?.getPlaybackState()?.state == PlaybackStateCompat.STATE_PLAYING
     setPlaybackState(playing, pos)
     if (playing) {
+      // Playing again after a Close: bring the session and the notification back.
+      if (notificationDismissed) {
+        notificationDismissed = false
+        mediaSession?.setActive(true)
+      }
       ensureForeground()
     }
     if (statePlaying != playing) {
-      notificationManager?.notify(NOTIFICATION_ID, buildNotification())
+      postNotification()
     }
   }
 
@@ -400,6 +431,7 @@ class NouService : Service() {
 
   fun exit() {
     clearSleepTimer(false)
+    notificationDismissed = false
     unregisterNoisyReceiver()
     stopForeground(STOP_FOREGROUND_REMOVE)
     lastForegroundAttemptMs = 0L
