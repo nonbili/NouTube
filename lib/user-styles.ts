@@ -77,6 +77,9 @@ export const builtinUserStyleDefinitions: BuiltinUserStyleDefinition[] = [
     id: 'hide-shorts-navbar',
     labelKey: 'settings.userStyles.builtin.hideShortsInNavbar.label',
     css: css`
+      yt-tab-shape[tab-title='Shorts'],
+      ytd-guide-entry-renderer:has(a[href^='/shorts']),
+      ytd-mini-guide-entry-renderer:has(a[href^='/shorts']),
       ytm-pivot-bar-item-renderer:has(.pivot-shorts) {
         display: none !important;
       }

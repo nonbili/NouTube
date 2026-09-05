@@ -209,6 +209,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   private var pageUrl = ""
   private val retryHandler = Handler(Looper.getMainLooper())
   private var loadRetryCount = 0
+  private var loadRetryUrl: String? = null
   private var hasLoadError = false
   private var loadErrorShown = false
   private var customView: View? = null
@@ -376,6 +377,12 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
             // A navigation of its own supersedes any retry we still have queued.
             retryHandler.removeCallbacksAndMessages(null)
             hasLoadError = false
+            // The retry budget belongs to the url that failed: a load of anything
+            // else starts over, while our own retry of that url keeps counting.
+            if (url != loadRetryUrl) {
+              loadRetryCount = 0
+              loadRetryUrl = null
+            }
             // NouTubeBackground must survive navigations (the queue advances in
             // the background), so seed every new document with the current value.
             evaluateJavascript(
@@ -391,6 +398,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
             swipeRefreshLayout.isRefreshing = false
             if (!hasLoadError) {
               loadRetryCount = 0
+              loadRetryUrl = null
               if (loadErrorShown) {
                 loadErrorShown = false
                 emit("load-error-cleared", mapOf<String, Any>())
@@ -414,10 +422,12 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
             if (isSafeMethod && error.errorCode in RETRYABLE_LOAD_ERRORS && loadRetryCount < LOAD_RETRY_DELAYS_MS.size) {
               val delay = LOAD_RETRY_DELAYS_MS[loadRetryCount]
               loadRetryCount++
+              loadRetryUrl = url
               retryHandler.postDelayed({ webView.loadUrl(url) }, delay)
               return
             }
             loadRetryCount = 0
+            loadRetryUrl = null
             loadErrorShown = true
             emit(
               "load-error",

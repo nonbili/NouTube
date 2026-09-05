@@ -610,11 +610,7 @@ ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-shorts]),
 ytm-shorts-lockup-view-model,
 yt-lockup-view-model:has(a[href^='/shorts']),
 ytd-video-renderer:has(a[href^='/shorts']),
-ytm-video-with-context-renderer:has(a[href^='/shorts']),
-ytd-guide-entry-renderer:has(a[href^='/shorts']),
-ytd-mini-guide-entry-renderer:has(a[href^='/shorts']),
-yt-tab-shape[tab-title='Shorts'],
-ytm-pivot-bar-item-renderer:has(.pivot-shorts) {
+ytm-video-with-context-renderer:has(a[href^='/shorts']) {
   display: none !important;
 }
 `
