@@ -25,6 +25,65 @@ class NouSettings : Record {
 
   @Field
   val proxyPort: String = ""
+
+  @Field
+  val showMediaNotificationPrevButton: Boolean = true
+
+  @Field
+  val showMediaNotificationNextButton: Boolean = true
+
+  @Field
+  val showMediaNotificationRewindButton: Boolean = true
+
+  @Field
+  val showMediaNotificationForwardButton: Boolean = true
+
+  @Field
+  val showMediaNotificationSpeedButton: Boolean = false
+
+  @Field
+  val showMediaNotificationCloseButton: Boolean = false
+
+  @Field
+  val playbackRate: Double = 1.0
+}
+
+// Which buttons the media notification and the system media controls carry.
+// The service reads this on every rebuild, so a settings change only has to
+// flip the flags and ask for a refresh. Every button is its own flag because
+// the shade only draws four of them, which is too tight a budget to spend on
+// pairs (see buildNotification).
+object NouMediaButtons {
+  var showPrev = true
+  var showNext = true
+  var showRewind = true
+  var showForward = true
+  var showSpeed = false
+  var showClose = false
+  // Kept in sync from JS so the speed button can pick the next rate without an
+  // eval round-trip; the page stays the source of truth.
+  var playbackRate = 1.0
+
+  // True when a button appeared or disappeared, which is what forces the
+  // notification and the playback state to be rebuilt. A rate change counts
+  // only while the speed button is on, because that button draws the rate.
+  fun update(settings: NouSettings): Boolean {
+    val changed = showPrev != settings.showMediaNotificationPrevButton ||
+      showNext != settings.showMediaNotificationNextButton ||
+      showRewind != settings.showMediaNotificationRewindButton ||
+      showForward != settings.showMediaNotificationForwardButton ||
+      showSpeed != settings.showMediaNotificationSpeedButton ||
+      showClose != settings.showMediaNotificationCloseButton ||
+      (settings.showMediaNotificationSpeedButton && playbackRate != settings.playbackRate)
+    showPrev = settings.showMediaNotificationPrevButton
+    showNext = settings.showMediaNotificationNextButton
+    showRewind = settings.showMediaNotificationRewindButton
+    showForward = settings.showMediaNotificationForwardButton
+    showSpeed = settings.showMediaNotificationSpeedButton
+    showClose = settings.showMediaNotificationCloseButton
+    playbackRate = settings.playbackRate
+    return changed
+  }
 }
 
 class NouController {
@@ -129,6 +188,10 @@ class NouController {
 
   fun exit() {
     service?.exit()
+  }
+
+  fun refreshMediaNotification() {
+    service?.refreshNotification()
   }
 }
 

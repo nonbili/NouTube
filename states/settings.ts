@@ -43,6 +43,12 @@ export interface SettingsSnapshot {
   showSleepTimerButtonInHeader: boolean
   showLibraryButtonInHeader: boolean
   showStarButtonInHeader: boolean
+  showMediaNotificationPrevButton: boolean
+  showMediaNotificationNextButton: boolean
+  showMediaNotificationRewindButton: boolean
+  showMediaNotificationForwardButton: boolean
+  showMediaNotificationSpeedButton: boolean
+  showMediaNotificationCloseButton: boolean
   userAgent: string
   desktopMode: boolean
   desktopModeYT: boolean
@@ -100,6 +106,24 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   }
   if (typeof data.showStarButtonInHeader !== 'boolean') {
     data.showStarButtonInHeader = true
+  }
+  if (typeof data.showMediaNotificationPrevButton !== 'boolean') {
+    data.showMediaNotificationPrevButton = true
+  }
+  if (typeof data.showMediaNotificationNextButton !== 'boolean') {
+    data.showMediaNotificationNextButton = true
+  }
+  if (typeof data.showMediaNotificationRewindButton !== 'boolean') {
+    data.showMediaNotificationRewindButton = true
+  }
+  if (typeof data.showMediaNotificationForwardButton !== 'boolean') {
+    data.showMediaNotificationForwardButton = true
+  }
+  if (typeof data.showMediaNotificationSpeedButton !== 'boolean') {
+    data.showMediaNotificationSpeedButton = false
+  }
+  if (typeof data.showMediaNotificationCloseButton !== 'boolean') {
+    data.showMediaNotificationCloseButton = false
   }
   if (typeof data.showDislikes !== 'boolean') {
     data.showDislikes = false
@@ -190,6 +214,16 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   showLibraryButtonInHeader:
     typeof value?.showLibraryButtonInHeader === 'boolean' ? value.showLibraryButtonInHeader : true,
   showStarButtonInHeader: typeof value?.showStarButtonInHeader === 'boolean' ? value.showStarButtonInHeader : true,
+  showMediaNotificationPrevButton:
+    typeof value?.showMediaNotificationPrevButton === 'boolean' ? value.showMediaNotificationPrevButton : true,
+  showMediaNotificationNextButton:
+    typeof value?.showMediaNotificationNextButton === 'boolean' ? value.showMediaNotificationNextButton : true,
+  showMediaNotificationRewindButton:
+    typeof value?.showMediaNotificationRewindButton === 'boolean' ? value.showMediaNotificationRewindButton : true,
+  showMediaNotificationForwardButton:
+    typeof value?.showMediaNotificationForwardButton === 'boolean' ? value.showMediaNotificationForwardButton : true,
+  showMediaNotificationSpeedButton: Boolean(value?.showMediaNotificationSpeedButton),
+  showMediaNotificationCloseButton: Boolean(value?.showMediaNotificationCloseButton),
   userAgent: typeof value?.userAgent === 'string' ? value.userAgent : '',
   desktopMode: Boolean(value?.desktopMode),
   desktopModeYT: Boolean(value?.desktopModeYT),
@@ -243,6 +277,12 @@ export const settings$ = observable<Store>({
   showSleepTimerButtonInHeader: false,
   showLibraryButtonInHeader: true,
   showStarButtonInHeader: true,
+  showMediaNotificationPrevButton: true,
+  showMediaNotificationNextButton: true,
+  showMediaNotificationRewindButton: true,
+  showMediaNotificationForwardButton: true,
+  showMediaNotificationSpeedButton: false,
+  showMediaNotificationCloseButton: false,
   userAgent: '',
   desktopMode: false,
   desktopModeYT: false,
