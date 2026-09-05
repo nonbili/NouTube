@@ -40,6 +40,9 @@ export interface SettingsSnapshot {
   showReloadButtonInHeader: boolean
   showPlaybackSpeedControl: boolean
   showPlaybackQualityControl: boolean
+  showSleepTimerButtonInHeader: boolean
+  showLibraryButtonInHeader: boolean
+  showStarButtonInHeader: boolean
   userAgent: string
   desktopMode: boolean
   desktopModeYT: boolean
@@ -88,6 +91,15 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   }
   if (typeof data.showPlaybackQualityControl !== 'boolean') {
     data.showPlaybackQualityControl = false
+  }
+  if (typeof data.showSleepTimerButtonInHeader !== 'boolean') {
+    data.showSleepTimerButtonInHeader = false
+  }
+  if (typeof data.showLibraryButtonInHeader !== 'boolean') {
+    data.showLibraryButtonInHeader = true
+  }
+  if (typeof data.showStarButtonInHeader !== 'boolean') {
+    data.showStarButtonInHeader = true
   }
   if (typeof data.showDislikes !== 'boolean') {
     data.showDislikes = false
@@ -174,6 +186,10 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   showReloadButtonInHeader: Boolean(value?.showReloadButtonInHeader),
   showPlaybackSpeedControl: Boolean(value?.showPlaybackSpeedControl),
   showPlaybackQualityControl: Boolean(value?.showPlaybackQualityControl),
+  showSleepTimerButtonInHeader: Boolean(value?.showSleepTimerButtonInHeader),
+  showLibraryButtonInHeader:
+    typeof value?.showLibraryButtonInHeader === 'boolean' ? value.showLibraryButtonInHeader : true,
+  showStarButtonInHeader: typeof value?.showStarButtonInHeader === 'boolean' ? value.showStarButtonInHeader : true,
   userAgent: typeof value?.userAgent === 'string' ? value.userAgent : '',
   desktopMode: Boolean(value?.desktopMode),
   desktopModeYT: Boolean(value?.desktopModeYT),
@@ -224,6 +240,9 @@ export const settings$ = observable<Store>({
   showReloadButtonInHeader: false,
   showPlaybackSpeedControl: false,
   showPlaybackQualityControl: false,
+  showSleepTimerButtonInHeader: false,
+  showLibraryButtonInHeader: true,
+  showStarButtonInHeader: true,
   userAgent: '',
   desktopMode: false,
   desktopModeYT: false,

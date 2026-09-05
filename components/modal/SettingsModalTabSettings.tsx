@@ -648,6 +648,18 @@ export const SettingsAppearanceContent = () => {
         <SettingsSection label={t('settings.toolbarButtons')}>
           <View className={surfaceCls}>
             <SettingsToggleRow
+              label={t('settings.showLibraryButtonInHeader')}
+              icon="video-library"
+              value={settings.showLibraryButtonInHeader}
+              onPress={() => settings$.showLibraryButtonInHeader.set(!settings.showLibraryButtonInHeader)}
+            />
+            <SettingsToggleRow
+              label={t('settings.showStarButtonInHeader')}
+              icon="star-outline"
+              value={settings.showStarButtonInHeader}
+              onPress={() => settings$.showStarButtonInHeader.set(!settings.showStarButtonInHeader)}
+            />
+            <SettingsToggleRow
               label={t('settings.showHomeButtonInHeader')}
               icon="home"
               value={settings.showHomeButtonInHeader}
@@ -693,8 +705,18 @@ export const SettingsAppearanceContent = () => {
               icon="high-quality"
               value={settings.showPlaybackQualityControl}
               onPress={() => settings$.showPlaybackQualityControl.set(!settings.showPlaybackQualityControl)}
-              isLast
+              isLast={!hasSleepTimerNativeSupport()}
             />
+            {nIf(
+              hasSleepTimerNativeSupport(),
+              <SettingsToggleRow
+                label={t('settings.showSleepTimerButtonInHeader')}
+                icon="bedtime"
+                value={settings.showSleepTimerButtonInHeader}
+                onPress={() => settings$.showSleepTimerButtonInHeader.set(!settings.showSleepTimerButtonInHeader)}
+                isLast
+              />,
+            )}
           </View>
         </SettingsSection>
       </View>

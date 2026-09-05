@@ -85,6 +85,9 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const showReloadButtonInHeader = useValue(settings$.showReloadButtonInHeader)
   const showPlaybackSpeedControl = useValue(settings$.showPlaybackSpeedControl)
   const showPlaybackQualityControl = useValue(settings$.showPlaybackQualityControl)
+  const showSleepTimerButtonInHeader = useValue(settings$.showSleepTimerButtonInHeader)
+  const showLibraryButtonInHeader = useValue(settings$.showLibraryButtonInHeader)
+  const showStarButtonInHeader = useValue(settings$.showStarButtonInHeader)
   const { width, height: windowHeight } = useWindowDimensions()
   const headerHeight = useValue(ui$.headerHeight)
   const headerShown = useValue(ui$.headerShown)
@@ -207,8 +210,10 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const pinnedScripts = customScripts
     .filter((script) => script?.enabled && script.pinToHeader && script.js.trim())
     .map((script) => ({ ...script, js: script.js.trim() }))
+  const showSleepTimerButton = sleepTimerSupported && (sleepTimerActive || showSleepTimerButtonInHeader)
+  const showStarButton = Boolean(pageType?.canStar) && showStarButtonInHeader
   const leadingToolbarItemCount =
-    1 +
+    Number(showLibraryButtonInHeader) +
     Number(!isYTMusic && feedsEnabled) +
     Number(showHomeButtonInHeader) +
     Number(!isWeb && showBackButtonInHeader) +
@@ -221,10 +226,10 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     Number(isWeb) +
     Number(showPlaybackSpeedControl) +
     Number(showPlaybackQualityControl) +
-    Number(sleepTimerSupported && sleepTimerActive) +
+    Number(showSleepTimerButton) +
     Number(!isYTMusic && queueSize > 0) +
     Number(pageType?.type === 'watch' || hasDownloads) +
-    Number(pageType?.canStar) +
+    Number(showStarButton) +
     Number(pinnedScripts.length > 0)
   const compactToolbar = leadingToolbarItemCount + trailingToolbarItemCount > 6
   const hideableHeader = autoHideHeader || hideToolbarWhenScrolled || (isAndroid && doubleTapToToggleHeader)
@@ -264,11 +269,14 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           className={clsx('min-w-0', isWeb && 'lg:w-full')}
           contentContainerClassName={clsx('flex-row', isWeb && 'lg:flex-col', compactToolbar ? 'gap-0' : 'gap-1')}
         >
-          <MaterialButton
-            color={headerControlColor}
-            name={isYTMusic ? 'library-music' : 'video-library'}
-            onPress={() => ui$.libraryModalOpen.set(true)}
-          />
+          {nIf(
+            showLibraryButtonInHeader,
+            <MaterialButton
+              color={headerControlColor}
+              name={isYTMusic ? 'library-music' : 'video-library'}
+              onPress={() => ui$.libraryModalOpen.set(true)}
+            />,
+          )}
           {nIf(
             !isYTMusic && feedsEnabled,
             <MaterialButton color={headerControlColor} name="rss-feed" onPress={() => ui$.feedModalOpen.set(true)} />,
@@ -399,8 +407,12 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           </Pressable>,
         )}
         {nIf(
-          sleepTimerSupported && sleepTimerActive,
-          <MaterialButton name="bedtime" color="#60a5fa" onPress={() => ui$.sleepTimerModalOpen.set(true)} />,
+          showSleepTimerButton,
+          <MaterialButton
+            name="bedtime"
+            color={sleepTimerActive ? '#60a5fa' : headerControlColor}
+            onPress={() => ui$.sleepTimerModalOpen.set(true)}
+          />,
         )}
         {nIf(
           !isYTMusic && queueSize > 0,
@@ -424,7 +436,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           />,
         )}
         {nIf(
-          pageType?.canStar,
+          showStarButton,
           <MaterialButton
             color={starred ? 'gold' : headerControlColor}
             name={starred ? 'star' : 'star-outline'}

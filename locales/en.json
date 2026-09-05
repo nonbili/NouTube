@@ -214,6 +214,9 @@
     "showForwardButtonInHeader": "Show Forward button in toolbar",
     "showReloadButtonInHeader": "Show Reload button in toolbar",
     "showHistoryButtonInHeader": "Show History button in toolbar",
+    "showSleepTimerButtonInHeader": "Show Sleep timer button in toolbar",
+    "showLibraryButtonInHeader": "Show Library button in toolbar",
+    "showStarButtonInHeader": "Show Star button in toolbar",
     "doubleTapToToggleHeader": "Double-tap page to hide or show toolbar",
     "translation": {
       "enable": "Translate comments",
