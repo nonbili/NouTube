@@ -14,6 +14,10 @@ interface Store {
   headerHeight: number
   headerShown: boolean
 
+  // Android Picture-in-Picture: the app chrome steps aside while the system
+  // pins the window to the video (see lib/picture-in-picture.ts).
+  pictureInPicture: boolean
+
   // desktop mode: whether Android runs us on a desktop-class screen, plus the
   // manual desktop-site choice made while it lasts. Both are session state --
   // leaving desktop mode clears the override and the persisted settings apply
@@ -63,6 +67,8 @@ export const ui$ = observable<Store>({
   // header
   headerHeight: 0,
   headerShown: true,
+
+  pictureInPicture: false,
 
   systemDesktopMode: false,
   desktopModeOverride: undefined,

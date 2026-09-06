@@ -76,3 +76,39 @@ export async function setPictureInPicture(active: boolean) {
   window.dispatchEvent(new Event('resize'))
   window.NouTube.play()
 }
+
+const bridgeToken = () => window.NouTubeToken || ''
+let reported = ''
+
+// The native side enters Picture-in-Picture from onUserLeaveHint, which cannot
+// wait for an answer from the page (the activity has paused by the time one
+// arrives), so hand it the video it would show ahead of time instead. A zero
+// size means there is nothing to show and PiP stays disarmed.
+function reportPictureInPictureVideo() {
+  const video = document.querySelector('video')
+  const onVideoPage = !!document.fullscreenElement || document.location.pathname == '/watch'
+  const showable = onVideoPage && video && !video.paused && !video.ended && video.videoWidth > 0
+  const size = showable ? [video.videoWidth, video.videoHeight] : [0, 0]
+  const key = size.join('x')
+  if (key == reported) {
+    return
+  }
+  reported = key
+  window.NouTubeI?.setPictureInPictureVideo?.(bridgeToken(), size[0], size[1])
+}
+
+export function watchPictureInPictureVideo() {
+  if (!window.isAndroid || !window.NouTubeI?.setPictureInPictureVideo) {
+    return
+  }
+
+  // Media events do not bubble, and YouTube swaps the video element around, so
+  // listen for them on the way down instead of binding to one element.
+  for (const type of ['play', 'playing', 'pause', 'ended', 'emptied', 'loadedmetadata', 'resize']) {
+    document.addEventListener(type, reportPictureInPictureVideo, true)
+  }
+  for (const type of ['yt-navigate-finish', 'fullscreenchange', 'popstate']) {
+    window.addEventListener(type, reportPictureInPictureVideo)
+  }
+  reportPictureInPictureVideo()
+}

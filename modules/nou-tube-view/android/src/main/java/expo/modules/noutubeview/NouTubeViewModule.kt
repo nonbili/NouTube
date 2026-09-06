@@ -109,12 +109,17 @@ class NouTubeViewModule : Module() {
     nouController.desktopModeEventFn = { desktopMode ->
       sendEvent("desktopMode", mapOf("desktopMode" to desktopMode))
     }
+    // The app chrome has to get out of the way of the video while Android pins
+    // the window (see NouPictureInPicture).
+    NouPictureInPicture.emitEvent = { active ->
+      sendEvent("pictureInPicture", mapOf("active" to active))
+    }
   }
 
   override fun definition() = ModuleDefinition {
     Name("NouTubeView")
 
-    Events("log", "sleepTimer", "downloadProgress", "captionStyle", "desktopMode")
+    Events("log", "sleepTimer", "downloadProgress", "captionStyle", "desktopMode", "pictureInPicture")
 
     OnCreate {
       val manager = captioning() ?: return@OnCreate

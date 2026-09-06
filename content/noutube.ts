@@ -1,4 +1,4 @@
-import { preparePictureInPicture, setPictureInPicture } from './picture-in-picture'
+import { preparePictureInPicture, setPictureInPicture, watchPictureInPictureVideo } from './picture-in-picture'
 import {
   hideShorts,
   showShorts,
@@ -90,6 +90,8 @@ export function initNouTube() {
   if (window.NouTubeUserStyles) {
     setUserStyles(window.NouTubeUserStyles)
   }
+
+  watchPictureInPictureVideo()
 
   return {
     getSettings,

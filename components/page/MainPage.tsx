@@ -2,6 +2,7 @@ import { auth$ } from '@/states/auth'
 import { MainPageContent } from './MainPageContent'
 import { supabase } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
+import { ui$ } from '@/states/ui'
 import { useValue } from '@legendapp/state/react'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from '@/lib/query/client'
@@ -33,6 +34,8 @@ import { UndoToast } from '../UndoToast'
 
 export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   const locales = useLocales()
+  // Nothing may cover the video while Android has the app pinned to it.
+  const pictureInPicture = useValue(ui$.pictureInPicture)
   const primaryLocale = locales[0]
   const selectedLanguage = useValue(settings$.language)
   const systemLanguage = resolveI18nLanguageFromExpoLocale(primaryLocale) || 'en'
@@ -82,24 +85,29 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <MainPageContent contentJs={contentJs} />
-      <LibraryModal />
-      <FeedModal />
-      <BookmarkModal />
-      <MoveBookmarkModal />
-      <FolderModal />
-      <HistoryModal />
-      <QueueModal />
-      {nIf(!isWeb, <SettingsModal />)}
-      <UrlModal />
-      <CookieModal />
-      <UserAgentModal />
-      <SleepTimerModal />
-      <PlaybackSpeedModal />
-      <PlaybackQualityModal />
-      <ToolsModal />
-      <ShareModal />
-      {nIf(!isWeb, <TranslationCard />)}
-      <UndoToast />
+      {nIf(
+        !pictureInPicture,
+        <>
+          <LibraryModal />
+          <FeedModal />
+          <BookmarkModal />
+          <MoveBookmarkModal />
+          <FolderModal />
+          <HistoryModal />
+          <QueueModal />
+          {nIf(!isWeb, <SettingsModal />)}
+          <UrlModal />
+          <CookieModal />
+          <UserAgentModal />
+          <SleepTimerModal />
+          <PlaybackSpeedModal />
+          <PlaybackQualityModal />
+          <ToolsModal />
+          <ShareModal />
+          {nIf(!isWeb, <TranslationCard />)}
+          <UndoToast />
+        </>,
+      )}
     </QueryClientProvider>
   )
 }

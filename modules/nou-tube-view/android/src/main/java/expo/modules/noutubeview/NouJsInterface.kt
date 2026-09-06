@@ -61,6 +61,17 @@ class NouJsInterface(private val context: Context, private val view: NouTubeView
     view.setVolumeIndex(index)
   }
 
+  // The video the page would show in Picture-in-Picture, or 0x0 when there is
+  // nothing to show. Kept on the native side so onUserLeaveHint can enter PiP
+  // without asking the page first (see NouPictureInPicture.setVideo).
+  @JavascriptInterface
+  fun setPictureInPictureVideo(token: String?, width: Int, height: Int) {
+    if (!view.isBridgeTokenValid(token)) {
+      return
+    }
+    view.setPictureInPictureVideo(width, height)
+  }
+
   // Completes an awaited eval (see NouTubeView.evalAwait). Token-gated like the setters above:
   // without it any frame could answer — or hijack — a pending eval.
   @JavascriptInterface

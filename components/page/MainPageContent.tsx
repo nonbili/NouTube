@@ -37,6 +37,7 @@ import { getUserStylesSnapshot, userStyles$ } from '@/states/user-styles'
 import { blocklist$, getBlocklistSnapshot } from '@/states/blocklist'
 import { addSystemCaptionStyleListener, getSystemCaptionStyle } from '@/lib/system-captions'
 import { addSystemDesktopModeListener, getSystemDesktopMode } from '@/lib/desktop-mode'
+import { addPictureInPictureListener } from '@/lib/picture-in-picture'
 import { useDesktopMode } from '@/lib/hooks/useDesktopMode'
 import { SettingsModal } from '../modal/SettingsModal'
 
@@ -357,6 +358,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const headerPosition = useValue(settings$.headerPosition)
   const headerHeight = useValue(ui$.headerHeight)
   const headerShown = useValue(ui$.headerShown)
+  const pictureInPicture = useValue(ui$.pictureInPicture)
   const pullToRefreshEnabled = useValue(settings$.pullToRefreshEnabled)
   const defaultZoom = useValue(settings$.defaultZoom)
   const customUserAgent = useValue(settings$.userAgent)
@@ -400,7 +402,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   // Native has no vertical sidebar layout, so the toolbar overlays the page in
   // portrait and landscape alike.
   const nativeHeaderOverlays = !isWeb && (autoHideHeader || hideToolbarWhenScrolled || nativeDoubleTapHeader)
-  const nativeHeaderInset = nativeHeaderOverlays && headerShown ? headerHeight : 0
+  const nativeHeaderInset = nativeHeaderOverlays && headerShown && !pictureInPicture ? headerHeight : 0
 
   useEffect(() => {
     if (isWeb) {
@@ -738,6 +740,13 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     return () => subscription?.remove?.()
   }, [])
 
+  // In Picture-in-Picture the window is barely wider than the video, so the
+  // toolbar and every overlay step aside and let the webview have all of it.
+  useEffect(() => {
+    const subscription = addPictureInPictureListener((active) => ui$.pictureInPicture.set(active))
+    return () => subscription?.remove?.()
+  }, [])
+
   // The webview applies a new user agent on the next load, so every change to
   // it -- desktop mode, the desktop-site toggle, a custom agent -- needs a
   // reload once the prop has been handed over.
@@ -830,7 +839,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           headerPosition === 'bottom' && 'flex-col-reverse',
         )}
       >
-        <NouHeader getNoutube={getNoutube} />
+        {nIf(!pictureInPicture, <NouHeader getNoutube={getNoutube} />)}
         {nIf(isWeb, <SettingsModal />)}
         {isWeb ? (
           <View className="relative flex-1 min-h-0">
@@ -863,7 +872,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
               onMessage={onNativeMessage}
             />
             {nIf(
-              loadError,
+              loadError && !pictureInPicture,
               <PageLoadError
                 description={loadError?.description}
                 onRetry={() => {

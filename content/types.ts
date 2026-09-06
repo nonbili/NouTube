@@ -12,6 +12,7 @@ interface NouTubeI {
   getVolumeIndex?: (token: string) => number
   setVolumeIndex?: (token: string, index: number) => void
   canAutoResume?: (token: string) => boolean
+  setPictureInPictureVideo?: (token: string, width: number, height: number) => void
 }
 
 declare global {

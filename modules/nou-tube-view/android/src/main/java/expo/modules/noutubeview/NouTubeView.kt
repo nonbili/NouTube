@@ -627,6 +627,9 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     }
     isWindowInBackground = inBackground
     webView.evaluateJavascript("window.NouTubeBackground = $isWindowInBackground", null)
+    if (!inBackground) {
+      NouPictureInPicture.onWindowVisible()
+    }
   }
 
   // Consuming the insets above also zeroes env(safe-area-inset-*) in the page,
@@ -761,6 +764,17 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
   private val audioManager: AudioManager
     get() = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+  // Picture-in-Picture is armed from the page: it hands over the video it is
+  // playing so the activity callbacks have it ready (see NouPictureInPicture).
+  fun setPictureInPictureVideo(width: Int, height: Int) {
+    post { NouPictureInPicture.setVideo(this, width, height) }
+  }
+
+  override fun onDetachedFromWindow() {
+    super.onDetachedFromWindow()
+    NouPictureInPicture.onViewDetached(this)
+  }
 
   // A pause is only auto-resumable when it cannot be an audio interruption:
   // no ongoing call/ring/VoIP and no other app playing on the music stream.
