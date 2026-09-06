@@ -1,0 +1,6 @@
+- Add playback speed and close buttons to media notification
+- Add toolbar toggles for sleep timer, library, and star buttons
+- Add retry screen and retry logic for failed page loads
+- Improve user script injection and execution timing
+- Fix shorts navigation button when hiding shorts in feed
+- Update translations
