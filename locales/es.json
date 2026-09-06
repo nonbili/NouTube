@@ -242,7 +242,11 @@
         },
         "pinToHeader": "Fijar en la barra de herramientas",
         "pinToHeaderHint": "­Mostrar este script como una acción de la barra de herramientas.",
-        "pinnedToHeader": "Fijado en la barra de herramientas"
+        "pinnedToHeader": "Fijado en la barra de herramientas",
+        "runAtStart": "Ejecutar al inicio del documento",
+        "runAtStartHint": "Ejecutar antes de que se construya el DOM, en lugar de después de DOMContentLoaded.",
+        "runAtStartDesktopHint": "Aún no está disponible en escritorio; los scripts se ejecutan una vez que el DOM está listo.",
+        "runAtStartBadge": "Se ejecuta al inicio del documento"
       },
       "builtinScripts": {
         "label": "Scripts integrados",

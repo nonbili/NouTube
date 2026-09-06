@@ -26,7 +26,8 @@
     "updateYtDlp": "Обновить yt-dlp",
     "updating": "Обновление...",
     "ytDlpUpdated": "yt-dlp уже обновлён",
-    "undo": "Отменить"
+    "undo": "Отменить",
+    "retry": "Повторить"
   },
   "library": {
     "videos": "Видео",
@@ -195,7 +196,11 @@
         "noActiveTab": "Нет активного webview",
         "validation": {
           "js": "JavaScript не может быть пустым"
-        }
+        },
+        "runAtStart": "Выполнять при старте документа",
+        "runAtStartHint": "Выполнять до построения DOM, а не после события DOMContentLoaded.",
+        "runAtStartDesktopHint": "Пока недоступно в десктопной версии; скрипты выполняются после готовности DOM.",
+        "runAtStartBadge": "Выполняется при старте документа"
       },
       "builtinScripts": {
         "label": "Встроенные скрипты",
@@ -300,7 +305,10 @@
       "label": "Использовать системный стиль субтитров",
       "hint": "Применяет цвет, фон и размер текста из настроек Android к субтитрам YouTube.",
       "openSystemSettings": "Системные настройки субтитров"
-    }
+    },
+    "showSleepTimerButtonInHeader": "Показывать кнопку таймера сна на панели инструментов",
+    "showLibraryButtonInHeader": "Показывать кнопку «Библиотека» на панели инструментов",
+    "showStarButtonInHeader": "Показывать кнопку «Звезда» на панели инструментов"
   },
   "sync": {
     "label": "Синхронизация",
@@ -401,5 +409,9 @@
   },
   "folders": {
     "removed": "Папка {{name}} удалена"
+  },
+  "pageLoadError": {
+    "title": "Не удается загрузить эту страницу",
+    "description": "Проверьте подключение и повторите попытку."
   }
 }

@@ -36,7 +36,8 @@
     "updateYtDlp": "Aktualizacja yt-dlp",
     "updating": "Aktualizowanie...",
     "ytDlpUpdated": "yt-dlp jest aktualny",
-    "undo": "Cofnij"
+    "undo": "Cofnij",
+    "retry": "Ponów"
   },
   "library": {
     "videos": "Filmy",
@@ -298,7 +299,11 @@
         "noActiveTab": "Brak aktywnego widoku webview",
         "validation": {
           "js": "JavaScript nie może być pusty"
-        }
+        },
+        "runAtStart": "Uruchom na początku dokumentu",
+        "runAtStartHint": "Uruchamiaj przed utworzeniem DOM, zamiast po zdarzeniu DOMContentLoaded.",
+        "runAtStartDesktopHint": "Funkcja ta nie jest jeszcze dostępna na komputerach stacjonarnych; skrypty zostaną uruchomione, gdy DOM będzie gotowy.",
+        "runAtStartBadge": "Uruchamia się na początku dokumentu"
       },
       "builtinScripts": {
         "label": "Wbudowane skrypty",
@@ -374,7 +379,10 @@
       "label": "Użyj systemowego stylu napisów",
       "hint": "Zastosuj kolor, tło i rozmiar tekstu napisów Androida do napisów w serwisie YouTube.",
       "openSystemSettings": "Ustawienia napisów systemowych"
-    }
+    },
+    "showSleepTimerButtonInHeader": "Pokaż przycisk wyłącznika czasowego na pasku narzędzi",
+    "showLibraryButtonInHeader": "Pokaż przycisk Biblioteki na pasku narzędzi",
+    "showStarButtonInHeader": "Pokaż przycisk z gwiazdką na pasku narzędzi"
   },
   "native": {
     "format_bestQuality": "Najlepsza jakość",
@@ -401,5 +409,9 @@
   },
   "folders": {
     "removed": "Folder {{name}} został usunięty"
+  },
+  "pageLoadError": {
+    "title": "Nie można załadować tej strony",
+    "description": "Sprawdź połączenie i spróbuj ponownie."
   }
 }

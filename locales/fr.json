@@ -26,7 +26,8 @@
     "updateYtDlp": "Mise à jour yt-dlp",
     "updating": "Mise à jour en cours...",
     "ytDlpUpdated": "yt-dlp est à jour",
-    "undo": "Défaire"
+    "undo": "Défaire",
+    "retry": "Réessayer"
   },
   "library": {
     "videos": "Vidéos",
@@ -195,7 +196,11 @@
         },
         "pinToHeader": "Épingler à la barre d'outils",
         "pinToHeaderHint": "Afficher ce script sous forme d'action de la barre d'outils.",
-        "pinnedToHeader": "Épinglé à la barre d'outils"
+        "pinnedToHeader": "Épinglé à la barre d'outils",
+        "runAtStart": "Exécuter au début du document",
+        "runAtStartHint": "À exécuter avant la construction du DOM, et non après l'événement DOMContentLoaded.",
+        "runAtStartDesktopHint": "Pas encore disponible sur ordinateur ; les scripts s'exécutent dès que le DOM est prêt.",
+        "runAtStartBadge": "S'exécute au début du document"
       },
       "builtinScripts": {
         "label": "Scripts intégrés",
@@ -300,7 +305,10 @@
       "label": "Utiliser le style de légende du système",
       "hint": "Applique la couleur des sous-titres, l'arrière-plan et la taille du texte d'Android aux sous-titres de YouTube.",
       "openSystemSettings": "Paramètres de légendes du système"
-    }
+    },
+    "showSleepTimerButtonInHeader": "Afficher le bouton « Minuterie » dans la barre d'outils",
+    "showLibraryButtonInHeader": "Afficher le bouton « Bibliothèque » dans la barre d'outils",
+    "showStarButtonInHeader": "Afficher le bouton « Star » dans la barre d'outils"
   },
   "sync": {
     "label": "Synchronisation",
@@ -401,5 +409,9 @@
   },
   "folders": {
     "removed": "Le dossier {{name}} a été supprimé"
+  },
+  "pageLoadError": {
+    "title": "Impossible de charger cette page",
+    "description": "Vérifiez votre connexion, puis réessayez."
   }
 }

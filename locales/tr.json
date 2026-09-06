@@ -36,7 +36,8 @@
     "updateYtDlp": "yt-dlp'yi güncelle",
     "updating": "Güncelleniyor...",
     "ytDlpUpdated": "yt-dlp güncel",
-    "undo": "Geri al"
+    "undo": "Geri al",
+    "retry": "Yeniden dene"
   },
   "library": {
     "videos": "Videolar",
@@ -275,7 +276,11 @@
         "noActiveTab": "Aktif web görünümü (webview) yok",
         "validation": {
           "js": "JavaScript alanı boş bırakılamaz"
-        }
+        },
+        "runAtStart": "Belge başlangıcında çalıştır",
+        "runAtStartHint": "DOMContentLoaded sonrasında değil, DOM oluşturulmadan önce çalıştır.",
+        "runAtStartDesktopHint": "Henüz masaüstünde kullanılabilir değil; betikler DOM hazır olduğunda çalıştırılır.",
+        "runAtStartBadge": "Belge başlangıcında çalışır"
       },
       "builtinScripts": {
         "label": "Yerleşik betikler",
@@ -374,7 +379,10 @@
       "label": "Sistem alt yazı biçimini kullan",
       "hint": "Androidi alt yazı rengini, arka planını ve metin boyutunu YouTube alt yazılarında kullanır.",
       "openSystemSettings": "Sistem alt yazı ayarları"
-    }
+    },
+    "showSleepTimerButtonInHeader": "Araç çubuğunda uyku zamanlayıcı düğmesini göster",
+    "showLibraryButtonInHeader": "Araç çubuğunda kütüphane düğmesini göster",
+    "showStarButtonInHeader": "Araç çubuğunda yıldız düğmesini göster"
   },
   "native": {
     "format_bestQuality": "En iyi kalite",
@@ -401,5 +409,9 @@
   },
   "folders": {
     "removed": "{{name}} klasörü kaldırıldı"
+  },
+  "pageLoadError": {
+    "title": "Bu sayfa yüklenemiyor",
+    "description": "Bağlantınızı gözden geçirin, ardından tekrar deneyin."
   }
 }
