@@ -23,7 +23,9 @@
     "updating": "Wird aktualisiert ...",
     "unsubscribe": "Deabonnieren",
     "updateYtDlp": "yt-dlp aktualisieren",
-    "ytDlpUpdated": "yt-dlp ist auf dem neuesten Stand"
+    "ytDlpUpdated": "yt-dlp ist auf dem neuesten Stand",
+    "clearAll": "Alles leeren",
+    "undo": "Rückgängig"
   },
   "library": {
     "videos": "Videos",
@@ -44,7 +46,8 @@
     "on": "Ein",
     "off": "Aus",
     "openInNewTab": "In neuem Tab öffnen",
-    "unsubscribe": "Deabonnieren"
+    "unsubscribe": "Deabonnieren",
+    "moveTo": "Verschieben nach …"
   },
   "modals": {
     "editBookmark": "Lesezeichen bearbeiten",
@@ -59,15 +62,23 @@
     "downloadFailed": "Herunterladen fehlgeschlagen",
     "starting": "Wird gestartet ...",
     "downloadComplete": "Herunterladen abgeschlossen",
-    "downloadVideo": "Video herunterladen"
+    "downloadVideo": "Video herunterladen",
+    "noFolder": "Kein Ordner",
+    "downloadErrorUnavailable": "Dieses Video ist nicht verfügbar.",
+    "showAllFormats": "Alle Formate anzeigen",
+    "showFewerFormats": "Weniger Formate anzeigen",
+    "pinnedFormat": "Angeheftet",
+    "sharePageUrl": "Seiten-URL",
+    "shareVideoUrl": "Video-URL",
+    "shareIncludePosition": "Aktuelle Position miteinbeziehen"
   },
   "settings": {
     "label": "Einstellungen",
     "general": "Allgemein",
-    "restoreOnStart": "Letzte Wiedergabe beim Start wiederherstellen",
+    "restoreOnStart": "Letzte Sitzung beim Start wiederherstellen",
     "watchHistory": "Verlauf ansehen",
     "theme": {
-      "label": "YouTube-Thema",
+      "label": "Thema",
       "system": "System",
       "dark": "Dunkel",
       "light": "Hell",
@@ -82,7 +93,7 @@
       "clearLabel": "Webansicht-Daten löschen"
     },
     "importList": "Liste mit Links importieren",
-    "exportLabel": "Lesezeichen als Liste exportieren",
+    "exportLabel": "Lesezeichen als CSV-Datei exportieren",
     "hideShorts": "Shorts verstecken",
     "channelsFeed": "Kanäle feed",
     "importTakeout": "Import von YouTube takeout",
@@ -105,8 +116,94 @@
       "host": "Proxy-Host",
       "port": "Proxy-Port",
       "hostPlaceholder": "z. B. 127.0.0.1 oder proxy.example.com",
-      "portPlaceholder": "z. B. 1080"
-    }
+      "portPlaceholder": "z. B. 1080",
+      "label": "Proxy"
+    },
+    "preferences": "Voreinstellungen",
+    "preferencesDistractionFree": "Ablenkungsfrei",
+    "appearanceHint": "Werkzeugleiste, Sprache und Thema.",
+    "transfer": "Import & Export",
+    "toolbar": "Werkzeugleiste",
+    "headerPosition": {
+      "label": "Werkzeugleistenposition",
+      "top": "Oben",
+      "bottom": "Unten"
+    },
+    "toolbarButtons": "Werkzeugleistenschaltflächen",
+    "translation": {
+      "enable": "Kommentare übersetzen",
+      "targetLanguage": "Übersetzen nach",
+      "appLanguage": "App",
+      "systemLanguage": "System",
+      "notSelected": "Sprache auswählen",
+      "chooseLanguage": "Zuerst eine Übersetzungssprache auswählen",
+      "loading": "Wird übersetzt …",
+      "copy": "Übersetzung kopieren",
+      "copySource": "Quelle kopieren",
+      "pin": "Übersetzung anheften",
+      "unpin": "Übersetzung loslösen",
+      "failed": "Dieser Text konnte nicht übersetzt werden",
+      "unsupported": "Das Sprachpaar ist auf diesem Gerät nicht verfügbar"
+    },
+    "preferH264": "H.264 bevorzugen (VP9/AV1 blockieren)",
+    "showOriginalVideoTitle": "Originaltitel des Videos anzeigen",
+    "clickbaitThumbnail": {
+      "optionDefault": "Standard",
+      "optionFrame": "Bild {{n}}"
+    },
+    "blocklist": {
+      "label": "Sperrliste",
+      "hint": "YouTube-Videos nach Kanal oder Schlüsselwort im Titel ausblenden.",
+      "channels": "Kanäle",
+      "keywords": "Schlüsselwörter",
+      "channelPlaceholder": "Kanalname, Handle oder URL",
+      "keywordPlaceholder": "Schlüsselwort im Titel",
+      "emptyChannels": "Noch keine gesperrten Kanäle.",
+      "emptyKeywords": "Noch keine gesperrten Schlüsselwörter.",
+      "add": "Hinzufügen"
+    },
+    "userStyles": {
+      "label": "Benutzerstile und -skripte",
+      "add": "Stil hinzufügen",
+      "addTitle": "Benutzerstil hinzufügen",
+      "editTitle": "Benutzerstil bearbeiten",
+      "nameLabel": "Name",
+      "namePlaceholder": "Mein Stil",
+      "validation": {
+        "css": "CSS darf nicht leer sein"
+      },
+      "scripts": {
+        "add": "Skript hinzufügen",
+        "addTitle": "Benutzerskript hinzufügen",
+        "editTitle": "Benutzerskript bearbeiten",
+        "namePlaceholder": "Mein Skript",
+        "run": "Ausführen",
+        "runComplete": "Skript ausgeführt",
+        "runFailed": "Skript fehlgeschlagen",
+        "import": "Importieren",
+        "pinToHeader": "An Werkzeugleiste anheften",
+        "pinToHeaderHint": "Dieses Skript als Werkzeugleistenaktion anzeigen.",
+        "pinnedToHeader": "An Werkzeugleiste angeheftet",
+        "validation": {
+          "js": "JavaScript darf nicht leer sein"
+        }
+      }
+    },
+    "language": {
+      "label": "Sprache",
+      "system": "System",
+      "hint": "Sprache auswählen oder Systemsprache folgen."
+    },
+    "importSettings": "Einstellungen importieren",
+    "importSettingsDescription": "Einstellungen aus einer NouTube-Einstellungsdatei wiederherstellen",
+    "importSettingsDone": "Importiert: {{sections}}",
+    "exportSettings": "Einstellungen exportieren",
+    "groupYouTube": "YouTube",
+    "groupNouTube": "NouTube",
+    "preferencesComments": "Kommentare",
+    "sidebar": "Seitenleiste",
+    "preferencesYouTubeHint": "YouTube-Voreinstellungen",
+    "preferencesNouTubeHint": "NouTube-Voreinstellungen"
   },
   "sync": {
     "label": "Synchronisieren",
@@ -156,5 +253,22 @@
     "fetchToastRunning": "Auffrischen läuft bereits",
     "emptyActionAllFolders": "Alles anzeigen",
     "removeTitle": "{{title}} entfernen?"
+  },
+  "bookmarks": {
+    "removed": "Lesezeichen entfernt",
+    "moved": "Nach {{folder}} verschoben"
+  },
+  "folders": {
+    "removed": "Ordner {{name}} entfernt"
+  },
+  "native": {
+    "format_bestQuality": "Beste Qualität",
+    "format_bestQualityDesc": "Bis zu {{height}}p Video + Audio",
+    "format_1080pDesc": "1080p Video + Audio",
+    "format_720pDesc": "720p Video + Audio",
+    "format_audioOnly": "Nur Audio",
+    "format_audio": "Audio ({{ext}})",
+    "download_complete": "Herunterladen abgeschlossen",
+    "download_failed": "Herunterladen fehlgeschlagen"
   }
 }

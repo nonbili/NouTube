@@ -25,7 +25,8 @@
     "browse": "Navegar",
     "updateYtDlp": "Atualizar yt-dlp",
     "updating": "Atualizando…",
-    "ytDlpUpdated": "yt-dlp atualizado"
+    "ytDlpUpdated": "yt-dlp atualizado",
+    "undo": "Desfazer"
   },
   "library": {
     "videos": "Vídeos",
@@ -44,7 +45,11 @@
     "desktop": "Site para computador",
     "on": "Ativado",
     "off": "Desativado",
-    "pip": "Picture-in-Picture"
+    "pip": "Picture-in-Picture",
+    "openInNewTab": "Abrir em uma nova guia",
+    "moveTo": "Mover para…",
+    "duplicateTab": "Duplicar aba",
+    "close": "Fechar"
   },
   "modals": {
     "editBookmark": "Editar favorito",

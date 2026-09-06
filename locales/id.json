@@ -25,7 +25,8 @@
     "browse": "Telusuri",
     "updateYtDlp": "Perbarui yt-dlp",
     "updating": "Memperbarui...",
-    "ytDlpUpdated": "yt-dlp sudah versi terbaru"
+    "ytDlpUpdated": "yt-dlp sudah versi terbaru",
+    "undo": "Batalkan"
   },
   "library": {
     "videos": "Video",
@@ -47,7 +48,8 @@
     "openInNewTab": "Buka di Tab Baru",
     "pip": "Gambar dalam Gambar",
     "duplicateTab": "Duplikasi Tab",
-    "close": "Tutup"
+    "close": "Tutup",
+    "moveTo": "Pindahkan ke…"
   },
   "modals": {
     "editBookmark": "Sunting markah",
@@ -66,7 +68,23 @@
     "downloadFailed": "Unduhan gagal",
     "failedToLoadFormats": "Gagal memuat format",
     "playbackSpeed": "Kecepatan pemutaran",
-    "playbackQuality": "Kualitas pemutaran"
+    "playbackQuality": "Kualitas pemutaran",
+    "noFolder": "Tidak ada folder",
+    "downloadUseCookies": "Gunakan cookie saya",
+    "downloadUseCookiesHint": "Diperlukan untuk video yang dibatasi usia, khusus anggota, atau privat. Dapat membuat Anda keluar dari YouTube, dan menggunakan akun dengan cara ini berisiko ditandai.",
+    "downloadErrorBlocked": "YouTube menolak unduhan ini. Diperlukan token yang belum dapat dihasilkan yt-dlp, sehingga video ini tidak dapat diunduh untuk saat ini — sebagian besar video lain masih berfungsi.",
+    "downloadErrorSignIn": "YouTube memerlukan sesi yang masuk untuk video ini. Aktifkan \"Gunakan cookie saya\" dan coba lagi.",
+    "downloadErrorFormat": "Format tersebut tidak lagi tersedia. Muat ulang format dan pilih yang lain.",
+    "downloadErrorUnavailable": "Video ini tidak tersedia.",
+    "downloadErrorNetwork": "Tidak dapat menjangkau YouTube. Periksa koneksi Anda dan coba lagi.",
+    "showAllFormats": "Tampilkan semua format",
+    "showFewerFormats": "Tampilkan lebih sedikit format",
+    "pinnedFormat": "Disematkan",
+    "pinFormat": "Sematkan sebagai format default",
+    "unpinFormat": "Lepaskan sematan format default",
+    "sharePageUrl": "URL Halaman",
+    "shareVideoUrl": "URL Video",
+    "shareIncludePosition": "Sertakan posisi saat ini"
   },
   "settings": {
     "label": "Pengaturan",
@@ -76,11 +94,11 @@
     "channelsFeed": "Feed channel",
     "watchHistory": "Riwayat tontonan",
     "theme": {
-      "label": "Tema YouTube",
+      "label": "Tema",
       "system": "Sistem",
       "dark": "Gelap",
       "light": "Terang",
-      "hint": "Mulai ulang secara manual jika perubahan tidak terlihat di webview."
+      "hint": "Berlaku untuk aplikasi dan YouTube. Mulai ulang secara manual jika perubahan tidak terlihat di webview."
     },
     "login": {
       "label": "Coba ini jika tidak bisa login dari webview",
@@ -92,7 +110,7 @@
     },
     "importList": "Impor daftar tautan",
     "importTakeout": "Impor dari YouTube Takeout",
-    "exportLabel": "Ekspor bookmark ke daftar",
+    "exportLabel": "Ekspor bookmark ke file CSV",
     "injectCookie": "Sisipkan cookie jika tidak bisa login dari webview",
     "injectCookieTitle": "Sisipkan cookie autentikasi ke dalam webview",
     "injectCookieHint": "Salin nilai header Cookie dari browser PC Anda. Ini adalah solusi sementara saat Anda tidak bisa login dengan email/kata sandi.",
@@ -105,7 +123,7 @@
     "preferences": "Preferensi",
     "preferencesHint": "Perilaku pemutaran, feed, dan riwayat.",
     "appearance": "Tampilan",
-    "appearanceHint": "Atur tampilan YouTube di dalam aplikasi.",
+    "appearanceHint": "Bilah alat, bahasa, dan tema.",
     "tools": "Alat",
     "toolsHint": "Kelola lingkungan webview dan alat lainnya.",
     "transfer": "Impor & ekspor",
@@ -125,7 +143,7 @@
     },
     "userStyles": {
       "label": "Gaya & Skrip Pengguna",
-      "hint": "Penyesuaian CSS bawaan dan CSS khusus situs milik Anda sendiri.",
+      "hint": "CSS dan skrip pengguna khusus Anda yang spesifik untuk situs.",
       "builtin": {
         "label": "Gaya bawaan",
         "hideShortsInNavbar": {
@@ -136,6 +154,18 @@
         },
         "hideCommunityPosts": {
           "label": "Sembunyikan postingan komunitas"
+        },
+        "hideAskButton": {
+          "label": "Sembunyikan tombol Ask Gemini"
+        },
+        "hideHomeFeed": {
+          "label": "Sembunyikan beranda umpan"
+        },
+        "hideRelatedVideos": {
+          "label": "Sembunyikan video terkait"
+        },
+        "hideEndScreens": {
+          "label": "Sembunyikan layar akhir"
         }
       },
       "custom": {
@@ -174,7 +204,11 @@
         "noActiveTab": "Tidak ada webview aktif",
         "validation": {
           "js": "JavaScript tidak boleh kosong"
-        }
+        },
+        "runAtStart": "Jalankan saat dokumen dimulai",
+        "runAtStartHint": "Jalankan sebelum DOM dibangun, bukan setelah DOMContentLoaded.",
+        "runAtStartDesktopHint": "Belum tersedia di desktop; skrip berjalan setelah DOM siap.",
+        "runAtStartBadge": "Berjalan saat dokumen dimulai"
       }
     },
     "language": {
@@ -224,7 +258,47 @@
       "port": "Port proksi",
       "hostPlaceholder": "mis. 127.0.0.1 atau proxy.example.com",
       "portPlaceholder": "mis. 1080"
-    }
+    },
+    "preferencesDistractionFree": "Bebas gangguan",
+    "toolbar": "Bilah alat",
+    "toolbarButtons": "Tombol bilah alat",
+    "showHistoryButtonInHeader": "Tampilkan tombol Riwayat di bilah alat",
+    "doubleTapToToggleHeader": "Ketuk dua kali halaman untuk menyembunyikan atau menampilkan bilah alat",
+    "translation": {
+      "enable": "Terjemahkan komentar",
+      "hint": "Tampilkan tombol terjemahkan pada komentar untuk menerjemahkannya di perangkat Anda.",
+      "targetLanguage": "Terjemahkan ke",
+      "appLanguage": "Aplikasi",
+      "systemLanguage": "Sistem",
+      "notSelected": "Pilih bahasa",
+      "chooseLanguage": "Pilih bahasa terjemahan terlebih dahulu",
+      "loading": "Menerjemahkan…",
+      "copy": "Salin terjemahan",
+      "copySource": "Salin sumber",
+      "pin": "Sematkan terjemahan",
+      "unpin": "Lepaskan sematan terjemahan",
+      "failed": "Tidak dapat menerjemahkan teks ini",
+      "unsupported": "Pasangan bahasa ini tidak tersedia di perangkat ini"
+    },
+    "systemCaptionStyle": {
+      "label": "Gunakan gaya takarir sistem",
+      "hint": "Menerapkan warna takarir, latar belakang, dan ukuran teks Android ke takarir YouTube.",
+      "openSystemSettings": "Pengaturan takarir sistem"
+    },
+    "replaceWatchNavigation": "Kembali melewati video yang sudah ditonton",
+    "importSettings": "Impor pengaturan",
+    "importSettingsDescription": "Pulihkan pengaturan dari file pengaturan NouTube",
+    "importSettingsConfirm": "Ini akan menggantikan pengaturan, daftar blokir, gaya pengguna, dan skrip kustom Anda saat ini. Lanjutkan?",
+    "importSettingsWithScriptsConfirm": "File ini berisi {{count}} skrip kustom yang diaktifkan, yang dapat menjalankan kode di dalam YouTube. Lanjutkan hanya jika Anda memercayai file ini. Pengaturan, daftar blokir, gaya pengguna, dan skrip kustom Anda saat ini akan diganti.",
+    "importSettingsDone": "Diimpor: {{sections}}",
+    "exportSettings": "Ekspor pengaturan",
+    "exportSettingsDescription": "Simpan pengaturan, daftar blokir, gaya pengguna, dan skrip kustom sebagai file JSON",
+    "groupYouTube": "YouTube",
+    "groupNouTube": "NouTube",
+    "preferencesComments": "Komentar",
+    "sidebar": "Bilah samping",
+    "preferencesYouTubeHint": "Preferensi YouTube",
+    "preferencesNouTubeHint": "Preferensi NouTube"
   },
   "sync": {
     "label": "Sinkronisasi",
@@ -317,5 +391,13 @@
     "error": "Gagal memeriksa pembaruan",
     "downloadedTitle": "Pembaruan siap",
     "downloadedHint": "Versi {{version}} telah diunduh. Mulai ulang sekarang untuk memasang?"
+  },
+  "bookmarks": {
+    "removed": "Bookmark dihapus",
+    "moved": "Dipindahkan ke {{folder}}",
+    "movedToRoot": "Dipindahkan keluar dari folder"
+  },
+  "folders": {
+    "removed": "Folder {{name}} dihapus"
   }
 }

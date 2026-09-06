@@ -195,7 +195,11 @@
         },
         "pinToHeader": "固定到工具栏",
         "pinToHeaderHint": "将此脚本显示为工具栏操作。",
-        "pinnedToHeader": "已固定到工具栏"
+        "pinnedToHeader": "已固定到工具栏",
+        "runAtStart": "文档启动时运行",
+        "runAtStartHint": "在 DOM 构建之前运行，而不是在 DOM 内容加载完成后运行。",
+        "runAtStartDesktopHint": "桌面版尚不可用；脚本会在 DOM 准备就绪后运行。",
+        "runAtStartBadge": "文档启动时运行"
       },
       "builtinScripts": {
         "label": "内置脚本",
