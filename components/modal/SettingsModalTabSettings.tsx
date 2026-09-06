@@ -576,6 +576,16 @@ export const SettingsYouTubeContent = () => {
 export const SettingsAppearanceContent = () => {
   const settings = useValue(settings$)
   const theme = settings.theme
+  // Only four of these ever fit next to the seek bar, so the hint says how many
+  // are on rather than letting the extras vanish without explanation.
+  const mediaNotificationButtonCount = [
+    settings.showMediaNotificationPrevButton,
+    settings.showMediaNotificationNextButton,
+    settings.showMediaNotificationRewindButton,
+    settings.showMediaNotificationForwardButton,
+    settings.showMediaNotificationSpeedButton,
+    settings.showMediaNotificationCloseButton,
+  ].filter(Boolean).length
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   const locales = useLocales()
@@ -720,6 +730,64 @@ export const SettingsAppearanceContent = () => {
           </View>
         </SettingsSection>
       </View>
+
+      {nIf(
+        isAndroid,
+        <View className="mt-8">
+          <SettingsSection label={t('settings.mediaNotificationButtons')}>
+            <View className={surfaceCls}>
+              <SettingsToggleRow
+                label={t('settings.showMediaNotificationPrevButton')}
+                icon="skip-previous"
+                value={settings.showMediaNotificationPrevButton}
+                onPress={() => settings$.showMediaNotificationPrevButton.set(!settings.showMediaNotificationPrevButton)}
+              />
+              <SettingsToggleRow
+                label={t('settings.showMediaNotificationNextButton')}
+                icon="skip-next"
+                value={settings.showMediaNotificationNextButton}
+                onPress={() => settings$.showMediaNotificationNextButton.set(!settings.showMediaNotificationNextButton)}
+              />
+              <SettingsToggleRow
+                label={t('settings.showMediaNotificationRewindButton')}
+                icon="replay-10"
+                value={settings.showMediaNotificationRewindButton}
+                onPress={() =>
+                  settings$.showMediaNotificationRewindButton.set(!settings.showMediaNotificationRewindButton)
+                }
+              />
+              <SettingsToggleRow
+                label={t('settings.showMediaNotificationForwardButton')}
+                icon="forward-30"
+                value={settings.showMediaNotificationForwardButton}
+                onPress={() =>
+                  settings$.showMediaNotificationForwardButton.set(!settings.showMediaNotificationForwardButton)
+                }
+              />
+              <SettingsToggleRow
+                label={t('settings.showMediaNotificationSpeedButton')}
+                icon="speed"
+                value={settings.showMediaNotificationSpeedButton}
+                onPress={() =>
+                  settings$.showMediaNotificationSpeedButton.set(!settings.showMediaNotificationSpeedButton)
+                }
+              />
+              <SettingsToggleRow
+                label={t('settings.showMediaNotificationCloseButton')}
+                icon="close"
+                value={settings.showMediaNotificationCloseButton}
+                onPress={() =>
+                  settings$.showMediaNotificationCloseButton.set(!settings.showMediaNotificationCloseButton)
+                }
+                isLast
+              />
+            </View>
+            <NouText className="mt-2 px-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
+              {t('settings.mediaNotificationButtonsHint', { selected: mediaNotificationButtonCount })}
+            </NouText>
+          </SettingsSection>
+        </View>,
+      )}
 
       {nIf(
         isWeb,

@@ -10,6 +10,13 @@ declare class NouTubeViewModule extends NativeModule {
     proxyType?: 'http' | 'socks'
     proxyHost?: string
     proxyPort?: string
+    showMediaNotificationPrevButton?: boolean
+    showMediaNotificationNextButton?: boolean
+    showMediaNotificationRewindButton?: boolean
+    showMediaNotificationForwardButton?: boolean
+    showMediaNotificationSpeedButton?: boolean
+    showMediaNotificationCloseButton?: boolean
+    playbackRate?: number
   }): void
   extractTakeoutCsvFiles(uri: string): Promise<Array<{ name: string; uri: string }>>
   setSleepTimer(durationMs: number): Promise<void>

@@ -159,6 +159,9 @@ class NouTubeViewModule : Module() {
     Function("setSettings") { settings: NouSettings ->
       NouProxy.update(settings)
       applyProxy(settings)
+      if (NouMediaButtons.update(settings)) {
+        nouController.refreshMediaNotification()
+      }
     }
 
     AsyncFunction("fetchFeed") Coroutine { url: String ->
