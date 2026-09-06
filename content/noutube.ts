@@ -1,3 +1,4 @@
+import { preparePictureInPicture, setPictureInPicture } from './picture-in-picture'
 import {
   hideShorts,
   showShorts,
@@ -97,6 +98,8 @@ export function initNouTube() {
     setUserStyles,
     getBlocklist,
     setBlocklist,
+    preparePictureInPicture,
+    setPictureInPicture,
     shortsHidden: true,
     play: () => getPlayer()?.playVideo(),
     pause: () => getPlayer()?.pauseVideo(),

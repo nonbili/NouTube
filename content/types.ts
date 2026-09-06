@@ -26,6 +26,7 @@ declare global {
     // Real app visibility fed by NouTubeView.onWindowVisibilityChanged; the
     // page itself always reports "visible" (see NouWebView).
     NouTubeBackground?: boolean
+    NouTubePip?: boolean
     NouTube: any
     trustedTypes: any
     electron: ElectronAPI

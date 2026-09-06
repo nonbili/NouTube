@@ -291,7 +291,7 @@ export function handleVideoPlayer(el: any) {
 }
 
 screen.orientation.addEventListener('change', (event) => {
-  if (document.location.pathname != '/watch' || document.visibilityState != 'visible') {
+  if (window.NouTubePip || document.location.pathname != '/watch' || document.visibilityState != 'visible') {
     return
   }
 

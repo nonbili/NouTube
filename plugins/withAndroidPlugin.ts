@@ -117,7 +117,101 @@ const withSecondaryDisplayMetricsFix: ConfigPlugin = (config) =>
     return config
   })
 
+// Android WebView does not implement the browser Picture-in-Picture API.
+// Show the playing video WebView on its own while Android pins the activity.
+const PICTURE_IN_PICTURE = `
+  private var pipWebView: android.webkit.WebView? = null
+  private var pipParent: android.view.ViewGroup? = null
+  private var pipIndex = 0
+  private var pipLayout: android.view.ViewGroup.LayoutParams? = null
+
+  override fun onPictureInPictureModeChanged(inPip: Boolean, newConfig: android.content.res.Configuration) {
+    super.onPictureInPictureModeChanged(inPip, newConfig)
+    if (inPip) {
+      val webView = findVideoWebView(window.decorView) ?: return
+      pipWebView = webView
+      pipParent = webView.parent as? android.view.ViewGroup
+      pipIndex = pipParent?.indexOfChild(webView) ?: 0
+      pipLayout = webView.layoutParams
+      pipParent?.removeView(webView)
+      (window.decorView as android.view.ViewGroup).addView(webView,
+        android.view.ViewGroup.LayoutParams(-1, -1))
+      webView.evaluateJavascript(
+        "window.NouTube.setPictureInPicture(true).catch(console.error)", null)
+    } else {
+      val webView = pipWebView ?: return
+      (webView.parent as? android.view.ViewGroup)?.removeView(webView)
+      pipParent?.addView(webView, pipIndex, pipLayout)
+      webView.evaluateJavascript("window.NouTube.setPictureInPicture(false).catch(console.error)", null)
+      pipWebView = null
+      pipParent = null
+      pipLayout = null
+    }
+  }
+
+  private fun findVideoWebView(view: android.view.View): android.webkit.WebView? {
+    if (view.visibility != android.view.View.VISIBLE) return null
+    if (view is android.webkit.WebView) return view
+    if (view is android.view.ViewGroup) {
+      for (index in 0 until view.childCount) {
+        findVideoWebView(view.getChildAt(index))?.let { return it }
+      }
+    }
+    return null
+  }
+
+  override fun onUserLeaveHint() {
+    super.onUserLeaveHint()
+    if (android.os.Build.VERSION.SDK_INT < 26 || isInPictureInPictureMode ||
+      !packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_PICTURE_IN_PICTURE)) return
+    val webView = findVideoWebView(window.decorView) ?: return
+    webView.evaluateJavascript(
+      "(() => { const v = document.querySelector('video'); if ((!document.fullscreenElement && location.pathname !== '/watch') || !v || v.paused || v.ended || !v.videoWidth) return null; window.NouTube.preparePictureInPicture(); return [v.videoWidth, v.videoHeight] })()"
+    ) { result ->
+      if (result == "null" || isFinishing || isDestroyed || isInPictureInPictureMode) return@evaluateJavascript
+      try {
+        val size = org.json.JSONArray(result)
+        val ratio = (size.getDouble(0) / size.getDouble(1)).coerceIn(1.0 / 2.39, 2.39)
+        val entered = enterPictureInPictureMode(android.app.PictureInPictureParams.Builder()
+          .setAspectRatio(android.util.Rational((ratio * 1000).toInt(), 1000))
+          .build())
+        if (!entered) webView.evaluateJavascript("window.NouTube.setPictureInPicture(false).catch(console.error)", null)
+      } catch (error: Exception) {
+        webView.evaluateJavascript("window.NouTube.setPictureInPicture(false).catch(console.error)", null)
+        android.util.Log.w("NouTubePiP", "Unable to enter picture-in-picture", error)
+      }
+    }
+  }
+`
+
+const withPictureInPicture: ConfigPlugin = (config) => {
+  config = withAndroidManifest(config, (config) => {
+    const activity = config.modResults.manifest.application?.[0]?.activity?.find(
+      (activity) => activity.$['android:name'] === '.MainActivity',
+    )
+    if (activity) {
+      activity.$['android:supportsPictureInPicture'] = 'true'
+      activity.$['android:resizeableActivity'] = 'true'
+    }
+    return config
+  })
+  return withMainActivity(config, (config) => {
+    const existing = /\n  \/\/ @generated begin noutube-pip[\s\S]*?\/\/ @generated end noutube-pip\n/
+    config.modResults.contents = config.modResults.contents.replace(existing, '')
+    const anchor = 'class MainActivity : ReactActivity() {'
+    if (config.modResults.language !== 'kt' || !config.modResults.contents.includes(anchor)) {
+      throw new Error('withPictureInPicture expects a Kotlin MainActivity')
+    }
+    config.modResults.contents = config.modResults.contents.replace(
+      anchor,
+      anchor + '\n  // @generated begin noutube-pip' + PICTURE_IN_PICTURE + '  // @generated end noutube-pip\n',
+    )
+    return config
+  })
+}
+
 const withAndroidSigningConfig: ConfigPlugin = (config) => {
+  config = withPictureInPicture(config)
   config = withSecondaryDisplayMetricsFix(config)
   config = withDeepLinkIntentFix(config)
 
