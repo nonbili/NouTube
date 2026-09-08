@@ -153,11 +153,12 @@ const SettingsSection: React.FC<React.PropsWithChildren<{ label?: string }>> = (
 
 const SettingsToggleRow: React.FC<{
   label: string
+  description?: string
   icon: MaterialIconsIconName
   value: boolean
   onPress: () => void
   isLast?: boolean
-}> = ({ label, icon, value, onPress, isLast = false }) => {
+}> = ({ label, description, icon, value, onPress, isLast = false }) => {
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   return (
@@ -171,7 +172,13 @@ const SettingsToggleRow: React.FC<{
       <View className={iconWrapCls}>
         <MaterialIcons name={icon} color={isDark ? '#d4d4d8' : '#475569'} size={18} />
       </View>
-      <NouText className="flex-1 font-medium">{label}</NouText>
+      <View className="flex-1">
+        <NouText className="font-medium">{label}</NouText>
+        {nIf(
+          !!description,
+          <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{description}</NouText>,
+        )}
+      </View>
       <View {...(isWeb ? { onClick: (e: any) => e.stopPropagation() } : {})}>
         <Switch
           value={value}
@@ -455,12 +462,21 @@ export const SettingsYouTubeContent = () => {
               onPress={() => settings$.preferH264.set(!settings.preferH264)}
             />
             {isAndroid ? (
-              <SettingsToggleRow
-                label={t('settings.miniPlayer')}
-                icon="picture-in-picture-alt"
-                value={settings.miniPlayer}
-                onPress={() => settings$.miniPlayer.set(!settings.miniPlayer)}
-              />
+              <>
+                <SettingsToggleRow
+                  label={t('settings.miniPlayer')}
+                  icon="picture-in-picture-alt"
+                  value={settings.miniPlayer}
+                  onPress={() => settings$.miniPlayer.set(!settings.miniPlayer)}
+                />
+                <SettingsToggleRow
+                  label={t('settings.pictureInPicture')}
+                  description={t('settings.pictureInPictureHint')}
+                  icon="picture-in-picture"
+                  value={settings.pictureInPicture}
+                  onPress={() => settings$.pictureInPicture.set(!settings.pictureInPicture)}
+                />
+              </>
             ) : null}
             <SettingsToggleRow
               label={t('settings.showOriginalVideoTitle')}

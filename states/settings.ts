@@ -23,6 +23,7 @@ export interface SettingsSnapshot {
   keepHistory: boolean
   replaceWatchNavigation: boolean
   miniPlayer: boolean
+  pictureInPicture: boolean
   preferH264: boolean
   clickbaitThumbnail: 'default' | 'hq1' | 'hq2' | 'hq3'
   playbackRate: number
@@ -152,6 +153,9 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   if (typeof data.replaceWatchNavigation !== 'boolean') {
     data.replaceWatchNavigation = false
   }
+  if (typeof data.pictureInPicture !== 'boolean') {
+    data.pictureInPicture = false
+  }
   if (typeof data.proxyEnabled !== 'boolean') {
     data.proxyEnabled = false
   }
@@ -191,6 +195,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   keepHistory: typeof value?.keepHistory === 'boolean' ? value.keepHistory : true,
   replaceWatchNavigation: Boolean(value?.replaceWatchNavigation),
   miniPlayer: typeof value?.miniPlayer === 'boolean' ? value.miniPlayer : false,
+  pictureInPicture: Boolean(value?.pictureInPicture),
   preferH264: Boolean(value?.preferH264),
   clickbaitThumbnail: ['hq1', 'hq2', 'hq3'].includes(value?.clickbaitThumbnail || '')
     ? (value?.clickbaitThumbnail as SettingsSnapshot['clickbaitThumbnail'])
@@ -257,6 +262,7 @@ export const settings$ = observable<Store>({
   keepHistory: true,
   replaceWatchNavigation: false,
   miniPlayer: false,
+  pictureInPicture: false,
   preferH264: false,
   clickbaitThumbnail: 'default',
   playbackRate: 1,

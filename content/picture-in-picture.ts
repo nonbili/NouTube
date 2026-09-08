@@ -78,7 +78,20 @@ export async function setPictureInPicture(active: boolean) {
 }
 
 const bridgeToken = () => window.NouTubeToken || ''
+const SETTINGS_KEY = 'nou:settings'
 let reported = ''
+
+// Picture-in-Picture is an opt-in setting; reporting no video is what keeps the
+// native side disarmed (see NouPictureInPicture.setVideo), so the switch lives
+// here.
+function isPictureInPictureEnabled(): boolean {
+  try {
+    const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')
+    return settings.pictureInPicture === true
+  } catch {
+    return false
+  }
+}
 
 // The native side enters Picture-in-Picture from onUserLeaveHint, which cannot
 // wait for an answer from the page (the activity has paused by the time one
@@ -87,7 +100,8 @@ let reported = ''
 function reportPictureInPictureVideo() {
   const video = document.querySelector('video')
   const onVideoPage = !!document.fullscreenElement || document.location.pathname == '/watch'
-  const showable = onVideoPage && video && !video.paused && !video.ended && video.videoWidth > 0
+  const showable =
+    isPictureInPictureEnabled() && onVideoPage && video && !video.paused && !video.ended && video.videoWidth > 0
   const size = showable ? [video.videoWidth, video.videoHeight] : [0, 0]
   const key = size.join('x')
   if (key == reported) {
@@ -107,7 +121,7 @@ export function watchPictureInPictureVideo() {
   for (const type of ['play', 'playing', 'pause', 'ended', 'emptied', 'loadedmetadata', 'resize']) {
     document.addEventListener(type, reportPictureInPictureVideo, true)
   }
-  for (const type of ['yt-navigate-finish', 'fullscreenchange', 'popstate']) {
+  for (const type of ['yt-navigate-finish', 'fullscreenchange', 'popstate', 'noutube:settings']) {
     window.addEventListener(type, reportPictureInPictureVideo)
   }
   reportPictureInPictureVideo()

@@ -97,6 +97,7 @@ const getContentSettingsSnapshot = () => {
     playbackRate,
     playbackQuality,
     miniPlayer,
+    pictureInPicture,
     showDislikes,
     showOriginalVideoTitle,
     doubleTapToToggleHeader,
@@ -110,6 +111,7 @@ const getContentSettingsSnapshot = () => {
     playbackRate,
     playbackQuality,
     miniPlayer,
+    pictureInPicture,
     showDislikes,
     showOriginalVideoTitle,
     doubleTapToToggleHeader,
@@ -310,6 +312,7 @@ const DesktopTabView: React.FC<{
   useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
   useObserveEffect(settings$.playbackQuality, () => syncSettingsToWebview())
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
+  useObserveEffect(settings$.pictureInPicture, () => syncSettingsToWebview())
   useObserveEffect(settings$.showDislikes, () => syncSettingsToWebview())
   useObserveEffect(settings$.showOriginalVideoTitle, () => syncSettingsToWebview())
   useObserveEffect(settings$.doubleTapToToggleHeader, () => syncSettingsToWebview())
@@ -714,6 +717,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
   useObserveEffect(settings$.playbackQuality, () => syncSettingsToWebview())
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
+  useObserveEffect(settings$.pictureInPicture, () => syncSettingsToWebview())
   useObserveEffect(settings$.showDislikes, () => syncSettingsToWebview())
   useObserveEffect(settings$.showOriginalVideoTitle, () => syncSettingsToWebview())
   useObserveEffect(settings$.doubleTapToToggleHeader, () => syncSettingsToWebview())
