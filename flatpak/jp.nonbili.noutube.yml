@@ -76,4 +76,4 @@ modules:
       - type: script
         dest-filename: run.sh
         commands:
-          - zypak-wrapper.sh /app/main/NouTube "$@"
+          - zypak-wrapper.sh /app/main/noutube "$@"

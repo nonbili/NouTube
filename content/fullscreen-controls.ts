@@ -73,10 +73,10 @@ const getFullscreenElement = () =>
 
 const getPlayer = (): any => document.getElementById('movie_player')
 
-// The desktop shell runs the very same content script in an Electron webview,
-// where window.electron is published by the preload and window.isAndroid is
-// false. It gets the panel too, minus the rows that need the native bridge.
-const isDesktop = () => Boolean(window.electron)
+// The very same content script runs in the Electron webview and in the browser
+// extension, where window.isAndroid is false and the page is a plain YouTube
+// player. Both get the panel too, minus the rows that need the native bridge.
+const isWebPlayer = () => !window.isAndroid
 
 // Only the main frame is given the token, so the device-level bridge calls
 // below are unreachable from ad iframes.
@@ -253,8 +253,8 @@ function getVolumeIndex() {
   return typeof index == 'number' && Number.isFinite(index) ? index : 0
 }
 
-// Desktop has no media-stream bridge, but the media element does obey volume
-// there, so drive the player's own 0..100 volume instead.
+// The web player has no media-stream bridge, but the media element does obey
+// volume there, so drive the player's own 0..100 volume instead.
 const hasPlayerVolume = () => typeof getPlayer()?.setVolume == 'function'
 
 function getPlayerVolume() {
@@ -333,7 +333,7 @@ function getVolumeControl() {
     const steps = getVolumeSteps()
     return steps ? { native: true, max: steps, value: getVolumeIndex() } : undefined
   }
-  if (isDesktop() && hasPlayerVolume()) {
+  if (isWebPlayer() && hasPlayerVolume()) {
     const volume = getPlayerVolume()
     return {
       native: false,
@@ -344,9 +344,9 @@ function getVolumeControl() {
   return undefined
 }
 
-// Desktop slider values run 0..200: the player's own volume up to 100, extra
-// gain beyond it.
-function setDesktopVolume(value: number) {
+// Web slider values run 0..200: the player's own volume up to 100, extra gain
+// beyond it.
+function setWebVolume(value: number) {
   setPlayerVolume(Math.min(value, 100))
   setBoost(value <= 100 ? 1 : value / 100)
 }
@@ -494,7 +494,7 @@ function renderPanelContent(panel: HTMLElement) {
     if (volume?.native) {
       window.NouTubeI?.setVolumeIndex?.(bridgeToken(), value)
     } else {
-      setDesktopVolume(value)
+      setWebVolume(value)
     }
     paintSlider(volumeInput)
     if (volumeValue) {
@@ -549,13 +549,13 @@ function openPanel() {
 }
 
 // On Android the button's visibility is pure CSS, keyed off the control
-// overlay's fadein class. The desktop player instead flags hidden controls with
+// overlay's fadein class. The web player instead flags hidden controls with
 // ytp-autohide on #movie_player, and it hides them on an idle timer that our own
 // event isolation stops from resetting, so the button would fade out from under
 // a hovering pointer. Drive it from here instead, and never hide it while it is
 // hovered.
 function syncButtonVisibility() {
-  if (!isDesktop()) {
+  if (!isWebPlayer()) {
     return
   }
   const btn = document.getElementById(btnId)
@@ -585,7 +585,7 @@ function renderControlsButton() {
   applySide(btn)
   btn.onclick = () => openPanel()
   isolateEvents(btn)
-  if (isDesktop()) {
+  if (isWebPlayer()) {
     btn.addEventListener('mouseenter', () => syncButtonVisibility())
     btn.addEventListener('mouseleave', () => syncButtonVisibility())
   }
@@ -594,10 +594,6 @@ function renderControlsButton() {
 }
 
 export function installFullscreenControls() {
-  if (!window.isAndroid && !isDesktop()) {
-    return
-  }
-
   // YouTube rebuilds the control overlay during the fullscreen transition and
   // on video changes, so re-add the button whenever the player subtree changes.
   // The class attribute is watched too, for the desktop autohide flag.
@@ -611,12 +607,12 @@ export function installFullscreenControls() {
     if (host) {
       renderControlsButton()
       applySavedBrightness()
-      // Only desktop needs the autohide class; on Android the CSS handles it,
+      // Only the web player needs the autohide class; on Android the CSS handles it,
       // and passing attributeFilter alongside attributes:false is a TypeError.
       observer.observe(host, {
         childList: true,
         subtree: true,
-        ...(isDesktop() ? { attributes: true, attributeFilter: ['class'] } : {}),
+        ...(isWebPlayer() ? { attributes: true, attributeFilter: ['class'] } : {}),
       })
     } else {
       observer.disconnect()

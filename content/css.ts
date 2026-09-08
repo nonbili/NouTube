@@ -362,7 +362,7 @@ const cssFullscreenPanel = css`
 
 const cssContentDesktop = css`
   /*
-   * Fullscreen controls button, desktop shell. The Android rule keys off
+   * Fullscreen controls button, web player. The Android rule keys off
    * #player-container-id and the mobile control overlay, neither of which the
    * desktop site has; here the button is a direct child of whatever element
    * YouTube put into fullscreen, and fullscreen-controls.ts toggles .hidden to
@@ -566,13 +566,11 @@ const cssContent = css`
 `
 
 export const getCoreCss = () => {
-  const isDesktop = Boolean(window.electron)
-  return (
-    cssContent +
-    (window.NouTubeI ? cssContentMobile : '') +
-    (isDesktop ? cssContentDesktop : '') +
-    (window.NouTubeI || isDesktop ? cssFullscreenPanel : '')
-  )
+  // The Android app is the only shell with the mobile control overlay; the
+  // Electron webview and the browser extension both render the plain web
+  // player, so they share the same fullscreen button and panel rules.
+  const isApp = Boolean(window.NouTubeI)
+  return cssContent + (isApp ? cssContentMobile : cssContentDesktop) + cssFullscreenPanel
 }
 
 export const getInjectedCss = (userStyles?: any) => {
