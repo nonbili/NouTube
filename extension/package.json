@@ -34,15 +34,15 @@
     "react-native-web": "^0.21.2"
   },
   "devDependencies": {
-    "@types/node": "latest",
+    "@types/node": "^26.5.0",
     "@types/react": "~19.2.10",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.0.0",
-    "autoprefixer": "latest",
-    "postcss": "latest",
+    "autoprefixer": "^10.5.5",
+    "postcss": "^8.5.28",
     "tailwindcss": "^3.4.17",
     "typescript": "~6.0.3",
     "vite-plugin-react-native-web": "^2.2.1",
-    "wxt": "latest"
+    "wxt": "^0.21.4"
   }
 }
