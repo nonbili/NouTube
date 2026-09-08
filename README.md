@@ -14,6 +14,16 @@ Install from F-Droid, or download APK from GitHub.
 
 Find Linux, macOS, Windows versions in [NouTube-Desktop](https://github.com/nonbili/NouTube-Desktop).
 
+Or use the browser extension on Firefox and Chrome.
+
+[<img src="https://img.shields.io/badge/Firefox%20Add--ons-FF7139?style=for-the-badge&logo=firefoxbrowser&logoColor=white"
+    alt="Get it on Firefox Add-ons"
+    height="50">](https://addons.mozilla.org/addon/noutube/)
+[<img src="https://img.shields.io/badge/Chrome%20Web%20Store-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white"
+      alt="Get it on Chrome Web Store"
+      hspace="16"
+      height="50">](https://chromewebstore.google.com/detail/noutube/cpmippodfdmialcoaegbbmhpdamodoif)
+
 ## Features
 
 - No ads

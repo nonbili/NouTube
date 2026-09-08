@@ -1,0 +1,47 @@
+name: Build extension
+
+on:
+  push:
+    tags:
+      - extension/v*
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: install
+        run: |
+          bun link
+          bun install --frozen-lockfile
+
+      - name: zip chrome & firefox
+        run: bun run zip:all
+        working-directory: extension
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+      - name: check
+        run: bun run check
+        working-directory: extension
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: extension
+          path: extension/.output/*.zip
+
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/extension/v')
+        with:
+          files: extension/.output/*.zip
+          make_latest: "false"
