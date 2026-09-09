@@ -136,6 +136,10 @@ public final class NouTubeViewModule: Module {
       AsyncFunction("claimMediaSession") { (view: NouTubeView) in
         NouNowPlaying.shared.claim(view)
       }
+
+      AsyncFunction("togglePictureInPicture") { (view: NouTubeView) async throws -> String in
+        try await view.togglePictureInPicture()
+      }
     }
   }
 

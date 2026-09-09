@@ -33,6 +33,7 @@ import { toolbarPillLabelClass, toolbarPillPressableClass } from './toolbar-clas
 import { useActivePageUrl } from '@/lib/hooks/useActivePageUrl'
 import { toggleDesktopMode, useDesktopMode } from '@/lib/hooks/useDesktopMode'
 import { handleSplitBack } from '@/lib/split-view'
+import { togglePictureInPicture } from '@/lib/picture-in-picture'
 
 const getTabLabel = (tab: { title?: string; pageUrl?: string; url?: string }) => {
   if (tab.title) {
@@ -134,6 +135,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   }, [activeTab?.canGoBack, activePageUrl, activeTabIndex, getNoutube])
 
   const pageType = getPageType(activePageUrl)
+  const showPictureInPictureButton = isIos && (pageType?.type === 'watch' || pageType?.type === 'shorts')
 
   const onToggleHome = () => {
     let newUrl = 'https://music.youtube.com'
@@ -233,6 +235,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     Number(showSleepTimerButton) +
     Number(!isYTMusic && queueSize > 0) +
     Number(pageType?.type === 'watch' || hasDownloads) +
+    Number(showPictureInPictureButton) +
     Number(showStarButton) +
     Number(pinnedScripts.length > 0)
   const compactToolbar = leadingToolbarItemCount + trailingToolbarItemCount > 6
@@ -437,6 +440,17 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
               }
               ui$.toolsModalOpen.set(true)
             }}
+          />,
+        )}
+        {nIf(
+          showPictureInPictureButton,
+          <MaterialButton
+            name="picture-in-picture-alt"
+            color={headerControlColor}
+            accessibilityRole="button"
+            accessibilityLabel={t('menus.pip')}
+            testID="header-pip"
+            onPress={() => void togglePictureInPicture(getNoutube())}
           />,
         )}
         {nIf(
