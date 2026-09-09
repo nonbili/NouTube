@@ -287,16 +287,6 @@ export const SettingsPreferencesContent = () => {
               icon="swap-horiz"
               value={settings.replaceWatchNavigation}
               onPress={() => settings$.replaceWatchNavigation.set(!settings.replaceWatchNavigation)}
-              isLast={!isAndroid}
-            />,
-          )}
-          {nIf(
-            isAndroid,
-            <SettingsToggleRow
-              label={t('settings.separateWatchView')}
-              icon="picture-in-picture-alt"
-              value={settings.separateWatchView}
-              onPress={() => settings$.separateWatchView.set(!settings.separateWatchView)}
               isLast
             />,
           )}
@@ -473,8 +463,13 @@ export const SettingsYouTubeContent = () => {
             />
             {isAndroid ? (
               <>
+                {/* The mini player is the split watch view: /watch gets a
+                    webview of its own, and leaving a video shrinks that same
+                    live page into the corner rather than reloading it into a
+                    box (see lib/split-view.ts). */}
                 <SettingsToggleRow
                   label={t('settings.miniPlayer')}
+                  description={t('settings.miniPlayerHint')}
                   icon="picture-in-picture-alt"
                   value={settings.miniPlayer}
                   onPress={() => settings$.miniPlayer.set(!settings.miniPlayer)}

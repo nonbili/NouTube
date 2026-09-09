@@ -374,7 +374,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const currentPageUrl = isWeb ? activePageUrl : pageUrl
   const nativeRef = useRef<typeof NouTubeViewModule>(null)
   const playerRef = useRef<typeof NouTubeViewModule>(null)
-  const splitWatchView = useValue(settings$.separateWatchView) && isAndroid
+  const splitWatchView = useValue(settings$.miniPlayer) && isAndroid
   const playerUrl = useValue(ui$.playerUrl)
   const playerMode = useValue(ui$.playerMode)
   const playerFull = playerMode === 'full'

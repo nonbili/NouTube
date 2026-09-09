@@ -16,10 +16,15 @@ import {
 
 const fakePlayer = () => {
   const loaded: string[] = []
+  const scripts: string[] = []
   return {
     loaded,
+    scripts,
     loadUrl: (url: string) => loaded.push(url),
-    executeJavaScript: () => Promise.resolve(''),
+    executeJavaScript: (script: string) => {
+      scripts.push(script)
+      return Promise.resolve('')
+    },
   }
 }
 
@@ -50,8 +55,7 @@ describe('isShortsUrl', () => {
 
 describe('handleSplitBack', () => {
   beforeEach(() => {
-    settings$.separateWatchView.set(true)
-    settings$.miniPlayer.set(false)
+    settings$.miniPlayer.set(true)
     closePlayer()
   })
 
@@ -60,16 +64,7 @@ describe('handleSplitBack', () => {
     expect(ui$.playerMode.get()).toBe('full')
 
     expect(handleSplitBack()).toBe(true)
-    expect(ui$.playerMode.get()).toBe('hidden')
-    // The player stays loaded so it keeps playing and can be reopened.
-    expect(ui$.playerUrl.get()).toBe('https://m.youtube.com/watch?v=abc123')
-  })
-
-  it('shrinks into the mini player when that is on', () => {
-    settings$.miniPlayer.set(true)
-    openInPlayer('https://m.youtube.com/watch?v=abc123')
-
-    expect(handleSplitBack()).toBe(true)
+    // Into the mini player, still loaded and still playing.
     expect(ui$.playerMode.get()).toBe('mini')
     expect(ui$.playerUrl.get()).toBe('https://m.youtube.com/watch?v=abc123')
   })
@@ -82,8 +77,31 @@ describe('handleSplitBack', () => {
 
   it('does nothing while the split is off', () => {
     openInPlayer('https://m.youtube.com/watch?v=abc123')
-    settings$.separateWatchView.set(false)
+    settings$.miniPlayer.set(false)
     expect(handleSplitBack()).toBe(false)
+  })
+})
+
+describe('hidePlayer', () => {
+  beforeEach(() => {
+    settings$.miniPlayer.set(true)
+    closePlayer()
+  })
+
+  // The split and the mini player are one setting, so a loaded video always
+  // has somewhere to go: it keeps playing in the corner rather than being
+  // parked out of sight with no way back to it.
+  it('keeps the video playing in the mini player', () => {
+    const player = fakePlayer()
+    setPlayerWebview(player)
+    openInPlayer('https://m.youtube.com/watch?v=abc123')
+    player.scripts.length = 0
+
+    hidePlayer()
+
+    expect(ui$.playerMode.get()).toBe('mini')
+    expect(player.scripts.some((script) => script.includes('pause'))).toBe(false)
+    expect(player.loaded).toEqual(['https://m.youtube.com/watch?v=abc123'])
   })
 })
 
@@ -117,7 +135,7 @@ describe('closePlayer', () => {
 
 describe('openInPlayer', () => {
   beforeEach(() => {
-    settings$.separateWatchView.set(true)
+    settings$.miniPlayer.set(true)
     settings$.miniPlayer.set(true)
     setPlayerWebview(null)
     closePlayer()
@@ -162,7 +180,7 @@ describe('openInPlayer', () => {
 describe('openInBrowse', () => {
   beforeEach(() => {
     closePlayer()
-    settings$.separateWatchView.set(true)
+    settings$.miniPlayer.set(true)
     settings$.miniPlayer.set(true)
     ui$.browsePageUrl.set('https://m.youtube.com/')
   })
@@ -195,7 +213,7 @@ describe('openInBrowse', () => {
 
 describe('loading into a player whose native view is not up yet', () => {
   beforeEach(() => {
-    settings$.separateWatchView.set(true)
+    settings$.miniPlayer.set(true)
     closePlayer()
     ui$.playerPageUrl.set('')
   })

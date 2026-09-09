@@ -245,7 +245,8 @@
     "hideShorts": "Hide shorts in timeline",
     "hideShortsInNavbar": "Hide shorts in navbar",
     "hideMixPlaylist": "Hide mix playlist",
-    "miniPlayer": "YouTube mini player",
+    "miniPlayer": "Mini player",
+    "miniPlayerHint": "Leaving a video keeps it playing in a corner of the page.",
     "pictureInPicture": "Picture-in-picture",
     "pictureInPictureHint": "Keep the video playing in a floating window when you leave the app.",
     "preferH264": "Prefer H.264 (block VP9/AV1)",
@@ -344,7 +345,6 @@
     "channelsFeed": "Channels feed",
     "watchHistory": "Watch history",
     "replaceWatchNavigation": "Back skips watched videos",
-    "separateWatchView": "Open videos in a separate view",
     "theme": {
       "label": "Theme",
       "system": "System",

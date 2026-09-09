@@ -32,7 +32,7 @@ import { useHeaderAnimation } from './header-animation'
 import { toolbarPillLabelClass, toolbarPillPressableClass } from './toolbar-classes'
 import { useActivePageUrl } from '@/lib/hooks/useActivePageUrl'
 import { toggleDesktopMode, useDesktopMode } from '@/lib/hooks/useDesktopMode'
-import { closePlayer, handleSplitBack, showPlayer } from '@/lib/split-view'
+import { handleSplitBack } from '@/lib/split-view'
 
 const getTabLabel = (tab: { title?: string; pageUrl?: string; url?: string }) => {
   if (tab.title) {
@@ -110,12 +110,6 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const isDownloading = Object.values(downloads).some((d) => d.phase === 'downloading')
   const sleepTimerSupported = hasSleepTimerNativeSupport()
   const { active: sleepTimerActive } = useSleepTimerStatus(sleepTimerSupported)
-  const splitWatchView = useValue(settings$.separateWatchView) && isAndroid
-  const playerUrl = useValue(ui$.playerUrl)
-  const playerMode = useValue(ui$.playerMode)
-  // The mini player is its own way back to the video, so the button is only
-  // needed when the player is waiting entirely out of sight.
-  const splitPlayerHidden = splitWatchView && Boolean(playerUrl) && playerMode === 'hidden'
   const [canGoBack, setCanGoBack] = useState(false)
   const [canGoForward, setCanGoForward] = useState(false)
   const isHorizontal = width > windowHeight
@@ -290,17 +284,6 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           {nIf(
             !isYTMusic && feedsEnabled,
             <MaterialButton color={headerControlColor} name="rss-feed" onPress={() => ui$.feedModalOpen.set(true)} />,
-          )}
-          {/* The player keeps playing behind the browsing page, so there has
-              to be a way back to it -- and a way to stop it. */}
-          {nIf(
-            splitPlayerHidden,
-            <MaterialButton
-              color={headerControlColor}
-              name="play-circle-outline"
-              onPress={showPlayer}
-              onLongPress={closePlayer}
-            />,
           )}
           {nIf(!isWeb && showBackButtonInHeader, <MaterialButton color={headerControlColor} name="arrow-back" onPress={goBack} />)}
           {nIf(!isWeb && showForwardButtonInHeader, <MaterialButton color={headerControlColor} name="arrow-forward" onPress={goForward} />)}

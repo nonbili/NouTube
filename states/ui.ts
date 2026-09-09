@@ -131,7 +131,7 @@ export function updateUrl(url: string) {
   const webview = ui$.webview.get()
   // In the split watch view the player is its own webview, so a page opened
   // here never replaces what is playing -- pausing it would be a surprise.
-  if (!(isAndroid && settings$.separateWatchView.get())) {
+  if (!(isAndroid && settings$.miniPlayer.get())) {
     // workaround for beforeunload https://github.com/electron/electron/issues/43314#issuecomment-2399072938
     webview?.executeJavaScript('NouTube.pause()')
   }

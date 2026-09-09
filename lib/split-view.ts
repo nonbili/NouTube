@@ -11,10 +11,11 @@ export { isWatchUrl } from './split-watch-url'
 // webview stacked on top of the browsing one.
 //
 // The browsing webview never leaves the feed, so coming back from a video is
-// instant and keeps its scroll position, and the video keeps playing while the
-// user browses. Back is deliberately flat: from the player it always returns to
-// the browsing webview rather than stepping through the videos visited inside
-// it, so the two history stacks never have to be merged into one order.
+// instant and keeps its scroll position, and the video plays on while the user
+// browses whenever the mini player is up to show it. Back is deliberately flat:
+// from the player it always returns to the browsing webview rather than
+// stepping through the videos visited inside it, so the two history stacks
+// never have to be merged into one order.
 //
 // Only /watch splits. /shorts is a feed of its own and stays with browsing.
 
@@ -30,7 +31,7 @@ let pendingPlayerUrl = ''
 let playerLoadToken = 0
 
 export function isSplitWatchEnabled() {
-  return isAndroid && settings$.separateWatchView.get()
+  return isAndroid && settings$.miniPlayer.get()
 }
 
 export function isShortsUrl(url: string) {
@@ -109,13 +110,15 @@ export function showPlayer() {
   applyPlayerMode('full')
 }
 
-/* Leaving the video: it shrinks into the mini player when that is on, and
- * otherwise waits offscreen, still playing either way. */
+/* Leaving the video shrinks it into the mini player, still playing. The split
+ * is the mini player on Android -- the same switch turns both on -- so there is
+ * no such thing as a loaded video with nowhere to show it: 'hidden' is only the
+ * empty player between videos. */
 export function hidePlayer() {
   if (!ui$.playerUrl.get()) {
     return
   }
-  applyPlayerMode(settings$.miniPlayer.get() ? 'mini' : 'hidden')
+  applyPlayerMode('mini')
 }
 
 /* Returning to the page already behind the player should only reveal it.
