@@ -12,6 +12,7 @@ const bool = (value: unknown, fallback = false) => (typeof value === 'boolean' ?
 
 export const getContentSettings = (settings: RawSettings): ContentSettings => ({
   sponsorBlock: bool(settings?.sponsorBlock, true),
+  blockAds: bool(settings?.blockAds, true),
   playbackRate: typeof settings?.playbackRate === 'number' ? settings.playbackRate : 1,
   playbackQuality: typeof settings?.playbackQuality === 'string' ? settings.playbackQuality : 'auto',
   // The mini player, the double-tap gesture, on-device translation and system

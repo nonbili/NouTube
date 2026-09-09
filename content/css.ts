@@ -442,15 +442,15 @@ const cssContentDesktop = css`
   }
 `
 
-const cssContent = css`
+// Only injected while ad blocking is on; with it off the ads YouTube serves are
+// left visible (see getCoreCss).
+const cssContentAds = css`
   ytd-page-top-ad-layout-renderer,
   ytd-in-feed-ad-layout-renderer,
   ad-slot-renderer,
   yt-mealbar-promo-renderer,
   ytm-promoted-sparkles-web-renderer,
-  .ytd-player-legacy-desktop-watch-ads-renderer,
-  a.app-install-link,
-  a.yt-spec-button-shape-next {
+  .ytd-player-legacy-desktop-watch-ads-renderer {
     display: none !important;
   }
 
@@ -465,6 +465,13 @@ const cssContent = css`
   ytm-item-section-renderer:has(ad-slot-renderer),
   ytd-rich-item-renderer:has(ad-slot-renderer),
   ytd-rich-item-renderer:has(.ytwFeedAdMetadataViewModelHostMetadata) {
+    display: none !important;
+  }
+`
+
+const cssContent = css`
+  a.app-install-link,
+  a.yt-spec-button-shape-next {
     display: none !important;
   }
 
@@ -570,7 +577,13 @@ export const getCoreCss = () => {
   // Electron webview and the browser extension both render the plain web
   // player, so they share the same fullscreen button and panel rules.
   const isApp = Boolean(window.NouTubeI)
-  return cssContent + (isApp ? cssContentMobile : cssContentDesktop) + cssFullscreenPanel
+  const blockAds = window.NouTube?.getSettings?.()?.blockAds !== false
+  return (
+    (blockAds ? cssContentAds : '') +
+    cssContent +
+    (isApp ? cssContentMobile : cssContentDesktop) +
+    cssFullscreenPanel
+  )
 }
 
 export const getInjectedCss = (userStyles?: any) => {

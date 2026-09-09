@@ -425,6 +425,13 @@ export const SettingsYouTubeContent = () => {
               value={settings.sponsorBlock}
               onPress={() => settings$.sponsorBlock.set(!settings.sponsorBlock)}
             />
+            <SettingsToggleRow
+              label={t('settings.blockAds.label')}
+              description={t('settings.blockAds.hint')}
+              icon="ad-units"
+              value={settings.blockAds}
+              onPress={() => settings$.blockAds.set(!settings.blockAds)}
+            />
             <View className="flex-row items-center gap-3 px-4 py-4">
               <View className={iconWrapCls}>
                 <MaterialIcons name="image" color={isDark ? '#d4d4d8' : '#475569'} size={18} />

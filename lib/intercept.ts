@@ -13,11 +13,18 @@ export const RE_INTERCEPT = new RegExp('^/youtubei/v1/(browse|get_watch|next|pla
 interface TransformOptions {
   hideShorts?: boolean
   showOriginalVideoTitle?: boolean
+  // Ad blocking is a separate choice from background playback: a user can keep
+  // the intercept running and still let ads through to support creators.
+  blockAds?: boolean
 }
+
+const blocksAds = (options: TransformOptions) => options.blockAds !== false
 
 export function transformGetWatchResponse(text: string, options: TransformOptions = {}) {
   const data = JSON.parse(text)
-  data[0].playerResponse = stripAdKeys(data[0].playerResponse)
+  if (blocksAds(options)) {
+    stripAdKeys(data[0].playerResponse)
+  }
   applyPlayerResponseOriginalTitle(data[0].playerResponse, options)
   rewriteOriginalTitles(data, options)
   return JSON.stringify(data)
@@ -30,7 +37,9 @@ function stripAdKeys(data: any) {
 
 export function transformPlayerResponse(text: string, _blocklist?: BlocklistSnapshot, options: TransformOptions = {}) {
   const data = JSON.parse(text)
-  stripAdKeys(data)
+  if (blocksAds(options)) {
+    stripAdKeys(data)
+  }
   applyPlayerResponseOriginalTitle(data, options)
   rewriteOriginalTitles(data, options)
   return JSON.stringify(data)
@@ -54,7 +63,7 @@ export function transformSearchResponse(text: string, blocklist?: BlocklistSnaps
       .map((x) => transformSectionListItem(x, blocklist, hideShorts))
       .filter(Boolean) as any
   }
-  filterListResponse(data, blocklist)
+  filterListResponse(data, blocklist, options)
   return JSON.stringify(data)
 }
 
@@ -65,7 +74,7 @@ export function transformBrowseResponse(
 ) {
   const data = JSON.parse(text)
   rewriteOriginalTitles(data, options)
-  filterListResponse(data, blocklist)
+  filterListResponse(data, blocklist, options)
   return JSON.stringify(data)
 }
 
@@ -84,18 +93,19 @@ function transformSectionListItem(item: SectionListItem, blocklist: BlocklistSna
   return item
 }
 
-export function filterListResponse(data: any, blocklist?: BlocklistSnapshot) {
+export function filterListResponse(data: any, blocklist?: BlocklistSnapshot, options: TransformOptions = {}) {
   if (!data || typeof data !== 'object') {
     return
   }
 
+  const dropAds = blocksAds(options)
   for (const key of Object.keys(data)) {
     const value = data[key]
     if (Array.isArray(value)) {
-      data[key] = value.filter((item) => !isAdItem(item) && !itemMatchesBlocklist(item, blocklist))
-      data[key].forEach((item: any) => filterListResponse(item, blocklist))
+      data[key] = value.filter((item) => !(dropAds && isAdItem(item)) && !itemMatchesBlocklist(item, blocklist))
+      data[key].forEach((item: any) => filterListResponse(item, blocklist, options))
     } else if (value && typeof value === 'object') {
-      filterListResponse(value, blocklist)
+      filterListResponse(value, blocklist, options)
     }
   }
 }

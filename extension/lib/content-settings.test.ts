@@ -5,6 +5,7 @@ describe('content settings', () => {
   it('falls back to the app defaults when nothing is stored', () => {
     const settings = getContentSettings(undefined)
     expect(settings.sponsorBlock).toBe(true)
+    expect(settings.blockAds).toBe(true)
     expect(settings.playbackRate).toBe(1)
     expect(settings.playbackQuality).toBe('auto')
     expect(getHideShorts(undefined)).toBe(true)
@@ -13,8 +14,14 @@ describe('content settings', () => {
   })
 
   it('passes the stored preferences through', () => {
-    const settings = getContentSettings({ sponsorBlock: false, playbackRate: 1.5, showDislikes: true } as never)
+    const settings = getContentSettings({
+      sponsorBlock: false,
+      blockAds: false,
+      playbackRate: 1.5,
+      showDislikes: true,
+    } as never)
     expect(settings.sponsorBlock).toBe(false)
+    expect(settings.blockAds).toBe(false)
     expect(settings.playbackRate).toBe(1.5)
     expect(settings.showDislikes).toBe(true)
   })

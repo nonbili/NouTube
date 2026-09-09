@@ -55,8 +55,14 @@ import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 
+// Tracking rather than advertising, so these stay blocked either way.
 val BLOCK_HOSTS = arrayOf(
-  "www.googletagmanager.com",
+  "www.googletagmanager.com"
+)
+
+// Only blocked while ad blocking is on; with it off the ads YouTube serves are
+// left alone (see NouAdBlock).
+val AD_BLOCK_HOSTS = arrayOf(
   "googleads.g.doubleclick.net"
 )
 
@@ -472,7 +478,8 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
           }
 
           override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
-            if (request.url.host in BLOCK_HOSTS) {
+            val host = request.url.host
+            if (host in BLOCK_HOSTS || (NouAdBlock.enabled && host in AD_BLOCK_HOSTS)) {
               return WebResourceResponse("text/plain", "utf-8", ByteArrayInputStream(ByteArray(0)))
             }
             return null

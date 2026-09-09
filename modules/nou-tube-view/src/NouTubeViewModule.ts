@@ -21,6 +21,7 @@ declare class NouTubeViewModule extends NativeModule {
     showMediaNotificationSpeedButton?: boolean
     showMediaNotificationCloseButton?: boolean
     playbackRate?: number
+    blockAds?: boolean
   }): void
   extractTakeoutCsvFiles(uri: string): Promise<Array<{ name: string; uri: string }>>
   setSleepTimer(durationMs: number): Promise<void>

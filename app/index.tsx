@@ -44,6 +44,7 @@ const syncNativeSettings = () => {
     showMediaNotificationSpeedButton: settings.showMediaNotificationSpeedButton,
     showMediaNotificationCloseButton: settings.showMediaNotificationCloseButton,
     playbackRate: settings.playbackRate,
+    blockAds: settings.blockAds,
   })
 }
 

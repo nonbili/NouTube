@@ -115,6 +115,7 @@ const splitRolePrelude = (enabled: boolean, role: 'browse' | 'player', mini = fa
 const getContentSettingsSnapshot = () => {
   const {
     sponsorBlock,
+    blockAds,
     playbackRate,
     playbackQuality,
     miniPlayer,
@@ -129,6 +130,7 @@ const getContentSettingsSnapshot = () => {
   } = settings$.get()
   return {
     sponsorBlock,
+    blockAds,
     playbackRate,
     playbackQuality,
     miniPlayer,
@@ -330,6 +332,7 @@ const DesktopTabView: React.FC<{
 
   useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
   useObserveEffect(settings$.sponsorBlock, () => syncSettingsToWebview())
+  useObserveEffect(settings$.blockAds, () => syncSettingsToWebview())
   useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
   useObserveEffect(settings$.playbackQuality, () => syncSettingsToWebview())
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())
@@ -429,7 +432,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     `window.NouTubeClickbaitThumbnail = ${JSON.stringify(settings$.clickbaitThumbnail.get())};` +
     `window.NouTubeUserStyles = ${JSON.stringify(getUserStylesSnapshot())};` +
     `window.NouTubeBlocklist = ${JSON.stringify(getBlocklistSnapshot())};`
-  const contentSettings = getContentSettingsSnapshot()
+  // Subscribed so the next document starts with the current preference: the
+  // prelude decides what the in-page interceptor strips before the page renders,
+  // and the post-load sync cannot bring back data stripped on the way in.
+  const blockAds = useValue(settings$.blockAds)
+  const contentSettings = { ...getContentSettingsSnapshot(), blockAds }
   // Subscribed so a saved or toggled script reaches the next document start.
   const userStylesState = useValue(userStyles$)
   const userScriptsOnStart = buildUserScriptSources(getUserStylesSnapshot(userStylesState))
@@ -451,9 +458,12 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useEffect(() => {
     if (isWeb) {
       // The main process filters the server-rendered ytInitialData, so it needs
-      // the blocklist before any webview starts navigating.
-      void mainClient
-        .setBlocklist(getBlocklistSnapshot())
+      // the blocklist and the ad blocking preference before any webview starts
+      // navigating.
+      void Promise.all([
+        mainClient.setBlocklist(getBlocklistSnapshot()),
+        mainClient.setBlockAds(settings$.blockAds.peek()),
+      ])
         .catch(() => undefined)
         .then(() => setBlocklistSynced(true))
     }
@@ -536,6 +546,12 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       ref.executeJavaScript(
         `localStorage.setItem('nou:settings', '${value}'); window.NouTube?.setSettings?.(${value})`,
       )
+    }
+    if (isWeb) {
+      // Electron strips ads in the main process rather than in the page (see
+      // content/main.ts), so the preference has to reach it as well; it applies
+      // from the next request on.
+      void mainClient.setBlockAds(settings.blockAds)
     }
   }, [nativeViews])
 
@@ -901,6 +917,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
   useObserveEffect(settings$.sponsorBlock, () => syncSettingsToWebview())
+  useObserveEffect(settings$.blockAds, () => syncSettingsToWebview())
   useObserveEffect(settings$.playbackRate, () => syncSettingsToWebview())
   useObserveEffect(settings$.playbackQuality, () => syncSettingsToWebview())
   useObserveEffect(settings$.miniPlayer, () => syncSettingsToWebview())

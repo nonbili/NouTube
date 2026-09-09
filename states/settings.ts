@@ -32,6 +32,7 @@ export interface SettingsSnapshot {
   restoreOnStart: boolean
   pullToRefreshEnabled: boolean
   sponsorBlock: boolean
+  blockAds: boolean
   showDislikes: boolean
   showOriginalVideoTitle: boolean
   useSystemCaptionStyle: boolean
@@ -129,6 +130,9 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   if (typeof data.showMediaNotificationCloseButton !== 'boolean') {
     data.showMediaNotificationCloseButton = false
   }
+  if (typeof data.blockAds !== 'boolean') {
+    data.blockAds = true
+  }
   if (typeof data.showDislikes !== 'boolean') {
     data.showDislikes = false
   }
@@ -219,6 +223,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   restoreOnStart: typeof value?.restoreOnStart === 'boolean' ? value.restoreOnStart : false,
   pullToRefreshEnabled: typeof value?.pullToRefreshEnabled === 'boolean' ? value.pullToRefreshEnabled : true,
   sponsorBlock: typeof value?.sponsorBlock === 'boolean' ? value.sponsorBlock : true,
+  blockAds: typeof value?.blockAds === 'boolean' ? value.blockAds : true,
   showDislikes: Boolean(value?.showDislikes),
   showOriginalVideoTitle: Boolean(value?.showOriginalVideoTitle),
   useSystemCaptionStyle: Boolean(value?.useSystemCaptionStyle),
@@ -285,6 +290,7 @@ export const settings$ = observable<Store>({
   restoreOnStart: false,
   pullToRefreshEnabled: true,
   sponsorBlock: true,
+  blockAds: true,
   showDislikes: false,
   showOriginalVideoTitle: false,
   useSystemCaptionStyle: false,

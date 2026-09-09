@@ -7,6 +7,8 @@ import {
   transformSearchResponse,
 } from '@/lib/intercept'
 
+const adsBlocked = () => window.NouTube?.getSettings?.()?.blockAds !== false
+
 export function intercept() {
   // Intercept initial page data (server-rendered in script tags)
   let initialData = (window as any).ytInitialData
@@ -17,7 +19,7 @@ export function intercept() {
     set(value) {
       try {
         const blocklist = window.NouTube?.getBlocklist?.()
-        filterListResponse(value, blocklist)
+        filterListResponse(value, blocklist, { blockAds: adsBlocked() })
       } catch (error) {
         console.error('NouScript initialData:', error)
       }
@@ -38,7 +40,10 @@ export function intercept() {
     const match = new URL(url).pathname.match(RE_INTERCEPT)
     const blocklist = window.NouTube?.getBlocklist?.()
     const settings = window.NouTube?.getSettings?.()
-    const options = { showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle) }
+    const options = {
+      showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle),
+      blockAds: settings?.blockAds !== false,
+    }
     if (res.status > 200 || !match) {
       return res
     }
@@ -83,7 +88,10 @@ export function intercept() {
 
       const blocklist = window.NouTube?.getBlocklist?.()
       const settings = window.NouTube?.getSettings?.()
-      const options = { showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle) }
+      const options = {
+        showOriginalVideoTitle: Boolean(settings?.showOriginalVideoTitle),
+        blockAds: settings?.blockAds !== false,
+      }
       try {
         const fn =
           {

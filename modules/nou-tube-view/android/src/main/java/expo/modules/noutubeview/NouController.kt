@@ -46,6 +46,19 @@ class NouSettings : Record {
 
   @Field
   val playbackRate: Double = 1.0
+
+  @Field
+  val blockAds: Boolean = true
+}
+
+// Ad blocking is opt-out (see states/settings.ts). The WebView client reads this
+// on every request, so a settings change only has to flip the flag.
+object NouAdBlock {
+  @Volatile var enabled: Boolean = true
+
+  fun update(settings: NouSettings) {
+    enabled = settings.blockAds
+  }
 }
 
 // Which buttons the media notification and the system media controls carry.

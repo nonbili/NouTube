@@ -411,3 +411,63 @@ describe('intercept original title rewriting', () => {
     expect(items[0].videoWithContextRenderer.title.runs[0].text).toBe('Original short')
   })
 })
+
+describe('intercept ad blocking', () => {
+  const feed = () => ({
+    contents: {
+      twoColumnBrowseResultsRenderer: {
+        tabs: [
+          {
+            tabRenderer: {
+              content: {
+                richGridRenderer: {
+                  contents: [
+                    { richItemRenderer: { content: { adSlotRenderer: { adLayoutMetadata: {} } } } },
+                    {
+                      richItemRenderer: {
+                        content: { videoRenderer: { title: { runs: [{ text: 'Keep me' }] } } },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
+  })
+
+  const feedItems = (text: string) =>
+    JSON.parse(text).contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.content.richGridRenderer.contents
+
+  it('drops ad items and player ad keys by default', () => {
+    expect(feedItems(transformBrowseResponse(JSON.stringify(feed())))).toHaveLength(1)
+
+    const player = { adPlacements: [{}], playerAds: [{}], videoDetails: { title: 'A' } }
+    const transformed = JSON.parse(transformPlayerResponse(JSON.stringify(player)))
+    expect(transformed.adPlacements).toBeUndefined()
+    expect(transformed.playerAds).toBeUndefined()
+  })
+
+  it('keeps ads when ad blocking is off', () => {
+    const items = feedItems(transformBrowseResponse(JSON.stringify(feed()), undefined, { blockAds: false }))
+    expect(items).toHaveLength(2)
+    expect(items[0].richItemRenderer.content.adSlotRenderer).toBeDefined()
+
+    const player = { adPlacements: [{}], playerAds: [{}], videoDetails: { title: 'A' } }
+    const transformed = JSON.parse(transformPlayerResponse(JSON.stringify(player), undefined, { blockAds: false }))
+    expect(transformed.adPlacements).toHaveLength(1)
+    expect(transformed.playerAds).toHaveLength(1)
+  })
+
+  it('still applies the blocklist when ad blocking is off', () => {
+    const blocked = normalizeBlocklist({
+      channels: [],
+      keywords: [{ id: 'keyword', value: 'keep me', enabled: true, createdAt: 1 }],
+    })
+    const items = feedItems(transformBrowseResponse(JSON.stringify(feed()), blocked, { blockAds: false }))
+    expect(items).toHaveLength(1)
+    expect(items[0].richItemRenderer.content.adSlotRenderer).toBeDefined()
+  })
+})

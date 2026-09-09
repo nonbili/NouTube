@@ -9,9 +9,16 @@ import {
 import { createDefaultBlocklistSnapshot, normalizeBlocklist, type BlocklistSnapshot } from 'noutube/lib/blocklist'
 
 let currentBlocklist = createDefaultBlocklistSnapshot()
+// Ad blocking is opt-out and separate from the interception itself, which the
+// blocklist and the title rewriting need either way (see states/settings.ts).
+let transformOptions = { blockAds: true }
 
 export function setInterceptionBlocklist(blocklist?: BlocklistSnapshot) {
   currentBlocklist = normalizeBlocklist(blocklist)
+}
+
+export function setInterceptionBlockAds(enabled: boolean) {
+  transformOptions = { blockAds: enabled !== false }
 }
 
 function findJsonBounds(text: string, startIndex: number) {
@@ -89,9 +96,11 @@ function transformHtml(html: string) {
   // sidebar), which is where feed ads and blocklisted items come from on first
   // paint; continuations go through /youtubei/v1/browse below.
   const withoutAds = transformEmbeddedJson(html, 'ytInitialData', (json) =>
-    transformBrowseResponse(json, currentBlocklist),
+    transformBrowseResponse(json, currentBlocklist, transformOptions),
   )
-  return transformEmbeddedJson(withoutAds, 'ytInitialPlayerResponse', (json) => transformPlayerResponse(json))
+  return transformEmbeddedJson(withoutAds, 'ytInitialPlayerResponse', (json) =>
+    transformPlayerResponse(json, undefined, transformOptions),
+  )
 }
 
 function isYouTubeHost(url: string) {
@@ -198,13 +207,13 @@ export function interceptHttpRequest() {
         switch (match[1]) {
           case 'browse':
           case 'next':
-            return new Response(transformBrowseResponse(text, currentBlocklist), responseInit)
+            return new Response(transformBrowseResponse(text, currentBlocklist, transformOptions), responseInit)
           case 'search':
-            return new Response(transformSearchResponse(text, currentBlocklist), responseInit)
+            return new Response(transformSearchResponse(text, currentBlocklist, transformOptions), responseInit)
           case 'get_watch':
-            return new Response(transformGetWatchResponse(text), responseInit)
+            return new Response(transformGetWatchResponse(text, transformOptions), responseInit)
           default:
-            return new Response(transformPlayerResponse(text), responseInit)
+            return new Response(transformPlayerResponse(text, undefined, transformOptions), responseInit)
         }
       }
     } catch (e) {

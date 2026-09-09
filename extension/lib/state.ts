@@ -5,6 +5,7 @@
  */
 export interface ContentSettings {
   sponsorBlock: boolean
+  blockAds: boolean
   playbackRate: number
   playbackQuality: string
   miniPlayer: boolean
