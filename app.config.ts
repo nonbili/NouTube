@@ -27,6 +27,12 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'jp.nonbili.noutube',
+      appleTeamId: 'NXW8RMPV8L',
+      infoPlist: {
+        // The player keeps going with the screen off and on the lock screen.
+        UIBackgroundModes: ['audio'],
+        NSMicrophoneUsageDescription: 'Voice search on YouTube uses the microphone.',
+      },
     },
     android: {
       versionCode,
@@ -74,6 +80,9 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
       [
         'expo-sharing',
         {
+          // No ios entry: the share extension needs the app group
+          // group.jp.nonbili.noutube registered with the Apple team before it
+          // can be signed. Until then lib/incoming-share.ios.ts stands in.
           android: {
             enabled: true,
             singleShareMimeTypes: ['text/*'],
