@@ -30,6 +30,7 @@ import { t } from 'i18next'
 import { downloads$ } from '@/states/downloads'
 import { resolveUserAgent } from '@/lib/useragent'
 import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
+import { retryNativeViewCall } from '@/lib/native-view-call'
 import { openPastedUrl } from '@/lib/paste-url'
 import { usePasteUrl } from '@/lib/hooks/usePasteUrl'
 import { history$ } from '@/states/history'
@@ -846,9 +847,16 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       return
     }
     const owner = playerUrl ? playerRef.current : nativeRef.current
-    try {
-      void owner?.claimMediaSession?.()?.catch?.(() => undefined)
-    } catch {}
+    if (owner) {
+      // Retried while the view comes up: turning the split on while a video is
+      // open mounts the player webview and claims for it in the same commit,
+      // and a claim that lands before the native view exists leaves the
+      // notification and the system media controls on the browsing webview.
+      retryNativeViewCall(
+        () => owner.claimMediaSession?.(),
+        () => (ui$.playerUrl.get() ? playerRef.current : nativeRef.current) !== owner,
+      )
+    }
     syncBrowseMute()
   }, [playerUrl])
 

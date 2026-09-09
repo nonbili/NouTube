@@ -3,6 +3,7 @@ import { ui$ } from '@/states/ui'
 import { settings$ } from '@/states/settings'
 import { isAndroid } from './utils'
 import { isWatchUrl } from './split-watch-url'
+import { retryNativeViewCall } from './native-view-call'
 
 export { isWatchUrl } from './split-watch-url'
 
@@ -127,6 +128,16 @@ export function openInBrowse(url: string) {
   browseWebview?.loadUrl?.(url)
 }
 
+/* A player load, retried while the webview it belongs to is still coming up
+ * (see retryNativeViewCall) and abandoned once a newer load, a teardown or a
+ * replaced webview has made it stale. */
+function loadPlayerUrl(webview: any, url: string, token: number) {
+  retryNativeViewCall(
+    () => webview.loadUrl?.(url),
+    () => token !== playerLoadToken || playerWebview !== webview,
+  )
+}
+
 /* Tear the video down for good. The webview itself stays for the next one --
  * it is kept warm on purpose -- so it has to be emptied rather than dropped,
  * or it would go on playing with nothing on screen to stop it. */
@@ -140,7 +151,11 @@ export function closePlayer() {
   applyPlayerMode('hidden')
   ui$.playerUrl.set('')
   ui$.playerPageUrl.set('')
-  playerWebview?.loadUrl?.('about:blank')
+  // Through the retrying load: emptying it is what stops the audio, so it has
+  // to survive a webview that has not come up yet just as a video does.
+  if (playerWebview) {
+    loadPlayerUrl(playerWebview, 'about:blank', playerLoadToken)
+  }
   syncForegroundWebview()
 }
 
@@ -177,7 +192,7 @@ function loadIntoPlayer(url: string) {
           if (token !== playerLoadToken || playerWebview !== webview) {
             return
           }
-          webview.loadUrl?.(url)
+          loadPlayerUrl(webview, url, token)
         }
         void navigating
           .then((result: unknown) => {
@@ -190,7 +205,7 @@ function loadIntoPlayer(url: string) {
       }
     } catch {}
   }
-  webview.loadUrl?.(url)
+  loadPlayerUrl(webview, url, token)
 }
 
 /**

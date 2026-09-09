@@ -192,3 +192,55 @@ describe('openInBrowse', () => {
     expect(ui$.playerUrl.get()).toBe('https://m.youtube.com/watch?v=abc123')
   })
 })
+
+describe('loading into a player whose native view is not up yet', () => {
+  beforeEach(() => {
+    settings$.separateWatchView.set(true)
+    closePlayer()
+    ui$.playerPageUrl.set('')
+  })
+
+  // Turning the split on while a video is open mounts the player webview and
+  // hands it the video in the same commit, so the first loads reach the module
+  // before the native view exists and come back rejected.
+  const flakyPlayer = (failures: number) => {
+    const loaded: string[] = []
+    let remaining = failures
+    return {
+      loaded,
+      loadUrl: (url: string) => {
+        if (remaining > 0) {
+          remaining--
+          return Promise.reject(new Error('Unable to find the view with tag 1'))
+        }
+        loaded.push(url)
+        return Promise.resolve()
+      },
+      executeJavaScript: () => Promise.resolve(''),
+    }
+  }
+
+  const settle = async () => {
+    for (let i = 0; i < 10; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 60))
+    }
+  }
+
+  it('retries until the view is there', async () => {
+    const player = flakyPlayer(3)
+    setPlayerWebview(player)
+    openInPlayer('https://m.youtube.com/watch?v=abc123')
+    expect(player.loaded).toEqual([])
+    await settle()
+    expect(player.loaded).toEqual(['https://m.youtube.com/watch?v=abc123'])
+  })
+
+  it('drops a retry for a video that has since been closed', async () => {
+    const player = flakyPlayer(3)
+    setPlayerWebview(player)
+    openInPlayer('https://m.youtube.com/watch?v=abc123')
+    closePlayer()
+    await settle()
+    expect(player.loaded).not.toContain('https://m.youtube.com/watch?v=abc123')
+  })
+})
