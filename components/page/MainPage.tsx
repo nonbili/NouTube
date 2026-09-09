@@ -31,6 +31,7 @@ import { settings$ } from '@/states/settings'
 import { TranslationCard } from '../translation/TranslationCard'
 import { MoveBookmarkModal } from '../modal/MoveBookmarkModal'
 import { UndoToast } from '../UndoToast'
+import { Toast } from '../Toast'
 
 export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
   const locales = useLocales()
@@ -106,6 +107,7 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
           <ShareModal />
           {nIf(!isWeb, <TranslationCard />)}
           <UndoToast />
+          <Toast />
         </>,
       )}
     </QueryClientProvider>
