@@ -187,7 +187,7 @@ const DesktopTabView: React.FC<{
     const value = JSON.stringify(settings)
     executeQuietly(
       webviewRef.current,
-      `localStorage.setItem('nou:settings', '${value}'); window.NouTube?.setSettings?.(${value}); if (!${settings.miniPlayer}) window.NouTube?.exitMini?.()`,
+      `localStorage.setItem('nou:settings', '${value}'); window.NouTube?.setSettings?.(${value})`,
     )
   }, [])
 
@@ -534,7 +534,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     const value = JSON.stringify(settings)
     for (const ref of nativeViews()) {
       ref.executeJavaScript(
-        `localStorage.setItem('nou:settings', '${value}'); window.NouTube?.setSettings?.(${value}); if (!${settings.miniPlayer}) window.NouTube?.exitMini?.()`,
+        `localStorage.setItem('nou:settings', '${value}'); window.NouTube?.setSettings?.(${value})`,
       )
     }
   }, [nativeViews])

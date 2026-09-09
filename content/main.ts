@@ -8,7 +8,6 @@ import { emit } from './utils'
 import { handleDialogs } from './dialogs'
 import { handleMenu } from './menu'
 import { pinchToZoom } from './pinch'
-import { enterMini, exitMini, getMiniCurrentTime, installMiniPlayerInterceptor } from './mini-player'
 import { installBlocklistFilter } from './blocklist'
 import { installDislikeCount } from './dislikes'
 import { installCommentTranslateButtons } from './translate'
@@ -40,16 +39,7 @@ try {
 
   if (!window.electron) {
     intercept()
-    // The split watch view has a mini player of its own -- the real page in a
-    // small box rather than an /embed iframe -- so the in-page one stands down.
-    if (window.isAndroid && location.host === 'm.youtube.com' && !(window as any).NouTubeRole) {
-      installMiniPlayerInterceptor()
-    }
   }
-
-  ;(window.NouTube as any).enterMini = enterMini
-  ;(window.NouTube as any).exitMini = exitMini
-  ;(window.NouTube as any).getMiniCurrentTime = getMiniCurrentTime
 
   if (document.documentElement) {
     injectCSS()
