@@ -28,6 +28,8 @@ declare global {
     // page itself always reports "visible" (see NouWebView).
     NouTubeBackground?: boolean
     NouTubePip?: boolean
+    // Timestamp of the last explicit fullscreen request; see content/player.ts.
+    NouTubeFsIntent?: number
     NouTube: any
     trustedTypes: any
     electron: ElectronAPI

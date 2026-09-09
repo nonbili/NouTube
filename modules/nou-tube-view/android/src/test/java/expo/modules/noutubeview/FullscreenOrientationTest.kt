@@ -9,15 +9,23 @@ class FullscreenOrientationTest {
   fun portraitVideoKeepsUserOrientation() {
     assertEquals(
       ActivityInfo.SCREEN_ORIENTATION_USER,
-      fullscreenOrientationFor(isPortrait = true)
+      fullscreenOrientationFor(FULLSCREEN_PORTRAIT_VIDEO)
     )
   }
 
   @Test
-  fun landscapeVideoUsesSensorLandscape() {
+  fun explicitLandscapeRequestUsesSensorLandscape() {
     assertEquals(
       ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE,
-      fullscreenOrientationFor(isPortrait = false)
+      fullscreenOrientationFor(FULLSCREEN_LANDSCAPE_EXPLICIT)
+    )
+  }
+
+  @Test
+  fun gestureFullscreenKeepsUserOrientation() {
+    assertEquals(
+      ActivityInfo.SCREEN_ORIENTATION_USER,
+      fullscreenOrientationFor(FULLSCREEN_LANDSCAPE_GESTURE)
     )
   }
 }

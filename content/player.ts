@@ -294,6 +294,24 @@ export function handleVideoPlayer(el: any) {
   })
 }
 
+// The native shell force-rotates fullscreen to landscape, but only when the
+// user asked for fullscreen explicitly: tapping the player's fullscreen button
+// or rotating the device. YouTube's own gestures (pulling the comment sheet
+// down on /watch) also enter fullscreen, and rotating the phone for those is a
+// surprise, so mark the explicit path and let onShowCustomView read the mark.
+document.addEventListener(
+  'click',
+  (event) => {
+    // .fullscreen-icon is the mobile player's button; .ytp-fullscreen-button
+    // the one the desktop and embed players use.
+    const target = event.target as Element | null
+    if (target?.closest?.('.fullscreen-icon, .ytp-fullscreen-button')) {
+      window.NouTubeFsIntent = Date.now()
+    }
+  },
+  true,
+)
+
 screen.orientation.addEventListener('change', (event) => {
   if (window.NouTubePip || document.location.pathname != '/watch' || document.visibilityState != 'visible') {
     return

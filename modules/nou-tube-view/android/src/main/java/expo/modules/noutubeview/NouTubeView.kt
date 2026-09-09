@@ -65,9 +65,32 @@ val VIEW_HOSTS = arrayOf(
   "youtu.be"
 )
 
-internal fun fullscreenOrientationFor(isPortrait: Boolean): Int =
-  if (isPortrait) ActivityInfo.SCREEN_ORIENTATION_USER
-  else ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+// How the page reports a fullscreen entry, see FULLSCREEN_MODE_JS.
+internal const val FULLSCREEN_PORTRAIT_VIDEO = 0
+internal const val FULLSCREEN_LANDSCAPE_EXPLICIT = 1
+internal const val FULLSCREEN_LANDSCAPE_GESTURE = 2
+
+// Only an explicit fullscreen request rotates the device. Portrait videos keep
+// the user orientation because forcing them back to portrait on rotation fights
+// the web player's orientation-driven fullscreen handling and makes it enter and
+// exit fullscreen repeatedly; YouTube's own gestures keep it because the user
+// never asked to leave portrait.
+internal fun fullscreenOrientationFor(mode: Int): Int =
+  if (mode == FULLSCREEN_LANDSCAPE_EXPLICIT) ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+  else ActivityInfo.SCREEN_ORIENTATION_USER
+
+// window.NouTubeFsIntent is stamped by the content script when the user taps the
+// player's fullscreen button; it is consumed here so it never leaks into the
+// next entry.
+private val FULLSCREEN_MODE_JS =
+  "(() => {" +
+    "const video = document.querySelector('#movie_player video') || document.querySelector('video');" +
+    "if (video && video.videoHeight > video.videoWidth) return $FULLSCREEN_PORTRAIT_VIDEO;" +
+    "const intent = window.NouTubeFsIntent;" +
+    "window.NouTubeFsIntent = 0;" +
+    "const explicit = typeof intent === 'number' && Date.now() - intent < 2000;" +
+    "return explicit ? $FULLSCREEN_LANDSCAPE_EXPLICIT : $FULLSCREEN_LANDSCAPE_GESTURE;" +
+  "})()"
 
 private val YOUTUBE_VIDEO_ID = Regex("^[A-Za-z0-9_-]{6,20}$")
 private val YOUTUBE_VIDEO_PATH = Regex("^/(?:shorts|embed|live|v)/([A-Za-z0-9_-]{6,20})(?:/.*)?$")
@@ -532,21 +555,15 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
             view,
             FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
           )
-          webView.evaluateJavascript(
-            "(() => { const video = document.querySelector('#movie_player video') || " +
-              "document.querySelector('video'); return !!video && video.videoHeight > video.videoWidth })()"
-          ) { isPortrait ->
+          webView.evaluateJavascript(FULLSCREEN_MODE_JS) { result ->
             if (customView !== view) {
               return@evaluateJavascript
             }
-            activity.setRequestedOrientation(
-              // Do not force portrait videos back to portrait when the user rotates the device.
-              // That conflicts with the web player's orientation-driven fullscreen handling and
-              // causes it to repeatedly enter and exit fullscreen.
-              fullscreenOrientationFor(isPortrait == "true")
-            )
+            val mode = result?.toIntOrNull() ?: FULLSCREEN_LANDSCAPE_GESTURE
+            val orientation = fullscreenOrientationFor(mode)
+            activity.setRequestedOrientation(orientation)
 
-            if (isPortrait != "true" &&
+            if (orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE &&
               Settings.System.getInt(activity.contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0) == 1
             ) {
               orientationListener.enable()
