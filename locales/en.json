@@ -344,6 +344,7 @@
     "channelsFeed": "Channels feed",
     "watchHistory": "Watch history",
     "replaceWatchNavigation": "Back skips watched videos",
+    "separateWatchView": "Open videos in a separate view",
     "theme": {
       "label": "Theme",
       "system": "System",

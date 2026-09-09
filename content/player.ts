@@ -226,6 +226,10 @@ export function handleVideoPlayer(el: any) {
 
   let progressBinded = false
   el.addEventListener('onStateChange', async (state: number) => {
+    // The native mini player draws its own play/pause button, so it needs the
+    // state transitions -- notifyProgress is throttled and too coarse for a
+    // button the user just tapped.
+    emit('play-state', { playing: state == 1 })
     const { playabilityStatus, videoDetails } = el.getPlayerResponse() || {}
     if (!videoDetails) {
       hideLiveChat()

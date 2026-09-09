@@ -275,6 +275,13 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     // callback to observe here), so ask at most once per process: a remount
     // must not re-raise the system dialog after the user denied it.
     private var notificationPermissionRequested = false
+
+    // Which view the media notification and the system media controls follow.
+    // The split watch view keeps two views alive and JS says which of them
+    // holds the video (claimMediaSession); without this the later of the two
+    // service bindings would take it simply by connecting last, and the
+    // notification would end up driving a WebView with nothing in it.
+    private var mediaSessionOwner: NouTubeView? = null
   }
 
   internal val currentActivity: Activity?
@@ -697,7 +704,14 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
       override fun onServiceConnected(name: ComponentName, binder: IBinder) {
         val nouBinder = binder as NouService.NouBinder
         service = nouBinder.getService()
-        service?.initialize(webView, activity)
+        val owner = mediaSessionOwner
+        // Binding is asynchronous, so this can land after JS has already handed
+        // the media session to the other view. Only take it when nobody else
+        // holds it.
+        if (owner == null || owner === this@NouTubeView) {
+          mediaSessionOwner = this@NouTubeView
+          service?.initialize(webView, activity)
+        }
         nouController.service = service
         nouController.applyPendingSleepTimer()
       }
@@ -843,12 +857,30 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     service?.exit()
   }
 
+  // The split watch view keeps two views alive against one service, so the one
+  // holding the video has to say so: initialize() replaces the media session
+  // and the noisy-audio receiver, pointing the notification and the system
+  // media controls at this WebView (see lib/split-view.ts).
+  fun claimMediaSession() {
+    mediaSessionOwner = this
+    val activity = currentActivity ?: return
+    // The binding may not have landed yet; onServiceConnected sees the claim
+    // above and initializes for this view when it does.
+    val current = service ?: nouController.service ?: return
+    service = current
+    current.initialize(webView, activity)
+    nouController.service = current
+  }
+
   // Bound through the application context, so nothing releases the binding on
   // its own: without this the service — and the activity and WebView it holds
   // — outlives the view, even after exit() called stopSelf(). Driven by
   // OnViewDestroys in NouTubeViewModule.
   fun destroyService() {
     retryHandler.removeCallbacksAndMessages(null)
+    if (mediaSessionOwner === this) {
+      mediaSessionOwner = null
+    }
     val connection = serviceConnection ?: return
     serviceConnection = null
     // A newer view may already own the live binding; only ever drop our own.

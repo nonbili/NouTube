@@ -287,6 +287,16 @@ export const SettingsPreferencesContent = () => {
               icon="swap-horiz"
               value={settings.replaceWatchNavigation}
               onPress={() => settings$.replaceWatchNavigation.set(!settings.replaceWatchNavigation)}
+              isLast={!isAndroid}
+            />,
+          )}
+          {nIf(
+            isAndroid,
+            <SettingsToggleRow
+              label={t('settings.separateWatchView')}
+              icon="picture-in-picture-alt"
+              value={settings.separateWatchView}
+              onPress={() => settings$.separateWatchView.set(!settings.separateWatchView)}
               isLast
             />,
           )}

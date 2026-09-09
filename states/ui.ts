@@ -2,13 +2,26 @@ import { event, observable } from '@legendapp/state'
 import type { Folder } from './folders'
 import type { Bookmark } from './bookmarks'
 import { unnormalizeUrl } from '@/lib/url'
-import { isWeb } from '@/lib/utils'
+import { isAndroid, isWeb } from '@/lib/utils'
+import { settings$ } from './settings'
 import { mainClient } from '@/lib/main-client'
 import { tabs$ } from './tabs'
 
 interface Store {
   url: string
   pageUrl: string
+
+  // Split watch view (Android, opt-in): /watch runs in a second webview that
+  // sits on top of the browsing one, so leaving a video keeps the feed exactly
+  // where it was and playback survives the trip (see lib/split-view.ts).
+  //
+  // playerMode is how that second webview is presented: covering the app,
+  // shrunk into the corner as the mini player, or out of the way entirely. It
+  // is the same live page in all three, so switching never reloads anything.
+  playerUrl: string
+  playerMode: 'full' | 'mini' | 'hidden'
+  browsePageUrl: string
+  playerPageUrl: string
 
   // header
   headerHeight: number
@@ -64,6 +77,11 @@ export const ui$ = observable<Store>({
   url: '',
   pageUrl: '',
 
+  playerUrl: '',
+  playerMode: 'hidden',
+  browsePageUrl: '',
+  playerPageUrl: '',
+
   // header
   headerHeight: 0,
   headerShown: true,
@@ -111,8 +129,12 @@ export function updateUrl(url: string) {
   }
 
   const webview = ui$.webview.get()
-  // workaround for beforeunload https://github.com/electron/electron/issues/43314#issuecomment-2399072938
-  webview?.executeJavaScript('NouTube.pause()')
+  // In the split watch view the player is its own webview, so a page opened
+  // here never replaces what is playing -- pausing it would be a surprise.
+  if (!(isAndroid && settings$.separateWatchView.get())) {
+    // workaround for beforeunload https://github.com/electron/electron/issues/43314#issuecomment-2399072938
+    webview?.executeJavaScript('NouTube.pause()')
+  }
   ui$.url.set('')
   ui$.url.set(unnormalizeUrl(url))
 }

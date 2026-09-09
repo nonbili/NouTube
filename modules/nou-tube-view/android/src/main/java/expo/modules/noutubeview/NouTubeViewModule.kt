@@ -318,6 +318,10 @@ class NouTubeViewModule : Module() {
       AsyncFunction("loadUrl") { view: NouTubeView, url: String ->
         view.webView.loadUrl(url)
       }
+
+      AsyncFunction("claimMediaSession") { view: NouTubeView ->
+        view.claimMediaSession()
+      }
     }
   }
 

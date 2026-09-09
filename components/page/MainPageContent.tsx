@@ -41,6 +41,20 @@ import { addSystemDesktopModeListener, getSystemDesktopMode } from '@/lib/deskto
 import { addPictureInPictureListener } from '@/lib/picture-in-picture'
 import { useDesktopMode } from '@/lib/hooks/useDesktopMode'
 import { SettingsModal } from '../modal/SettingsModal'
+import { PlayerFrame } from './PlayerFrame'
+import {
+  closePlayer,
+  isSplitWatchEnabled,
+  isWatchUrl,
+  openInPlayer,
+  openInBrowse,
+  reapplyPlayerMode,
+  setBrowseWebview,
+  setPlayerWebview,
+  setSplitPageUrl,
+  syncBrowseMute,
+  syncForegroundWebview,
+} from '@/lib/split-view'
 
 let restored = false
 const logger = createLogger('sync')
@@ -91,6 +105,11 @@ const executeQuietly = (webview: WebviewTag | null, script: string) => {
     void webview?.executeJavaScript(script).catch?.(() => undefined)
   } catch {}
 }
+
+/* Tells the page which half of the split watch view it is, so it can hand over
+ * the links the other half owns (see content/split-view.ts). */
+const splitRolePrelude = (enabled: boolean, role: 'browse' | 'player', mini = false) =>
+  enabled ? `window.NouTubeRole = ${JSON.stringify(role)};window.NouTubeNativeMini = ${mini};` : ''
 
 const getContentSettingsSnapshot = () => {
   const {
@@ -352,12 +371,15 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const activeTabIndex = useValue(tabs$.activeTabIndex)
   const activePageUrl = useValue(tabs$.activePageUrl)
   const currentPageUrl = isWeb ? activePageUrl : pageUrl
-  // Opening a queue video makes it the resume point, so finishing an unrelated
-  // video later continues the queue there instead of from its first entry.
-  useEffect(() => {
-    trackQueuePlaying(currentPageUrl)
-  }, [currentPageUrl])
   const nativeRef = useRef<typeof NouTubeViewModule>(null)
+  const playerRef = useRef<typeof NouTubeViewModule>(null)
+  const splitWatchView = useValue(settings$.separateWatchView) && isAndroid
+  const playerUrl = useValue(ui$.playerUrl)
+  const playerMode = useValue(ui$.playerMode)
+  const playerFull = playerMode === 'full'
+  const playerMini = playerMode === 'mini'
+  const [playerPlaying, setPlayerPlaying] = useState(false)
+  const playerPageUrl = useValue(ui$.playerPageUrl)
   const hideShorts = useValue(settings$.hideShorts)
   const isYTMusic = useValue(settings$.isYTMusic)
   const autoHideHeader = useValue(settings$.autoHideHeader)
@@ -459,43 +481,51 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     })
   }, [])
 
+  // Both native webviews are live at once in the split watch view, so every
+  // setting has to reach the player as well as the browsing page.
+  const nativeViews = useCallback(() => [nativeRef.current, playerRef.current].filter(Boolean) as any[], [])
+
   const toggleShorts = useCallback(
     (hide?: boolean) => {
-      const ref = nativeRef.current
-      ref?.executeJavaScript(hide ? 'NouTube.hideShorts()' : 'NouTube.showShorts()')
+      for (const ref of nativeViews()) {
+        ref.executeJavaScript(hide ? 'NouTube.hideShorts()' : 'NouTube.showShorts()')
+      }
     },
-    [nativeRef],
+    [nativeViews],
   )
 
   const syncUserStylesToWebview = useCallback(() => {
-    const ref = nativeRef.current
     const snapshot = getUserStylesSnapshot()
     const value = JSON.stringify(snapshot)
-    ref?.executeJavaScript(`window.NouTube.setUserStyles(${value})`)
-    ref?.executeJavaScript(userScriptsInvalidationSource)
-    for (const source of buildUserScriptSources(snapshot)) {
-      ref?.executeJavaScript(source)
+    for (const ref of nativeViews()) {
+      ref.executeJavaScript(`window.NouTube.setUserStyles(${value})`)
+      ref.executeJavaScript(userScriptsInvalidationSource)
+      for (const source of buildUserScriptSources(snapshot)) {
+        ref.executeJavaScript(source)
+      }
     }
-  }, [nativeRef])
+  }, [nativeViews])
 
   const syncBlocklistToWebview = useCallback(() => {
-    const ref = nativeRef.current
     const snapshot = getBlocklistSnapshot()
     const value = JSON.stringify(snapshot)
-    ref?.executeJavaScript(`window.NouTube?.setBlocklist?.(${value})`)
+    for (const ref of nativeViews()) {
+      ref.executeJavaScript(`window.NouTube?.setBlocklist?.(${value})`)
+    }
     if (isWeb) {
       void mainClient.setBlocklist(snapshot)
     }
-  }, [nativeRef])
+  }, [nativeViews])
 
   const syncSettingsToWebview = useCallback(() => {
-    const ref = nativeRef.current
     const settings = getContentSettingsSnapshot()
     const value = JSON.stringify(settings)
-    ref?.executeJavaScript(
-      `localStorage.setItem('nou:settings', '${value}'); window.NouTube?.setSettings?.(${value}); if (!${settings.miniPlayer}) window.NouTube?.exitMini?.()`,
-    )
-  }, [nativeRef])
+    for (const ref of nativeViews()) {
+      ref.executeJavaScript(
+        `localStorage.setItem('nou:settings', '${value}'); window.NouTube?.setSettings?.(${value}); if (!${settings.miniPlayer}) window.NouTube?.exitMini?.()`,
+      )
+    }
+  }, [nativeViews])
 
   useEffect(() => {
     if (isWeb || ui$.url.get()) {
@@ -505,12 +535,21 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     // loading home first and letting the page restore itself loads twice, the
     // first time from 0.
     const lastPlaying = settings$.restoreOnStart.get() ? getLastPlaying() : undefined
+    const home = isYTMusic ? 'https://music.youtube.com' : 'https://m.youtube.com'
     if (lastPlaying) {
       restored = true
-      ui$.url.set(normalizeUrl(lastPlaying.url))
+      const url = normalizeUrl(lastPlaying.url)
+      // In the split view the restored video belongs to the player, and the
+      // browsing webview still needs a page of its own to come back to.
+      if (isSplitWatchEnabled() && isWatchUrl(url)) {
+        ui$.url.set(home)
+        openInPlayer(url)
+        return
+      }
+      ui$.url.set(url)
       return
     }
-    ui$.url.set(isYTMusic ? 'https://music.youtube.com' : 'https://m.youtube.com')
+    ui$.url.set(home)
   }, [])
 
   useEffect(() => {
@@ -532,7 +571,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   }, [me?.plan, userId])
 
   const onMessage = useCallback(
-    async (type: string, data: any) => {
+    async (type: string, data: any, source: 'browse' | 'player' = 'browse') => {
+      // The hidden webview keeps running; its chrome events would fight the
+      // page the user is actually looking at.
+      const isForeground =
+        !splitWatchView || source === (ui$.playerMode.get() === 'full' ? 'player' : 'browse')
       switch (type) {
         case '[content]':
         case '[kotlin]':
@@ -545,9 +588,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           }
           break
         case 'scroll':
+          if (!isForeground) break
           onScroll({ dy: data.dy, y: data.y, autoHideHeader, hideToolbarWhenScrolled })
           break
         case 'header-double-tap':
+          if (!isForeground) break
           if (isAndroid && doubleTapToToggleHeader) {
             ui$.headerShown.set(!ui$.headerShown.get())
           }
@@ -563,8 +608,21 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
             })
           }
           break
+        case 'open-watch':
+          // A video link tapped in the browsing webview: the player takes it.
+          if (isSplitWatchEnabled() && typeof data?.url === 'string' && isWatchUrl(data.url)) {
+            openInPlayer(data.url)
+          }
+          break
+        case 'open-page':
+          // A link out of the video -- a channel, a playlist, search. The
+          // browsing webview takes over and the player keeps playing behind it.
+          if (typeof data?.url === 'string' && data.url) {
+            openInBrowse(data.url)
+          }
+          break
         case 'onload':
-          const webview = ui$.webview.get() || nativeRef.current
+          const webview = (source === 'player' ? playerRef.current : nativeRef.current) || ui$.webview.get()
           if (!isWeb) {
             // Desktop restores the last playing video through the tab url, so
             // this fallback is only for Android (and only fires when the
@@ -593,6 +651,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
             duration: data.duration,
           })
           break
+        case 'play-state':
+          if (source === 'player') {
+            setPlayerPlaying(Boolean(data?.playing))
+          }
+          break
         case 'playback-rate':
           if (typeof data?.playbackRate == 'number' && Number.isFinite(data.playbackRate)) {
             settings$.playbackRate.set(data.playbackRate)
@@ -604,13 +667,18 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           }
           break
         case 'playback-end':
-          const hasPlaylistParam = currentPageUrl.includes('list=')
+          const endedUrl = source === 'player' ? ui$.playerPageUrl.get() || currentPageUrl : currentPageUrl
+          const hasPlaylistParam = endedUrl.includes('list=')
           if (!hasPlaylistParam) {
-            trackQueueEnded(currentPageUrl)
-            const nextUrl = getNextQueueUrl(currentPageUrl)
+            trackQueueEnded(endedUrl)
+            const nextUrl = getNextQueueUrl(endedUrl)
             if (nextUrl) {
               if (isWeb) {
                 tabs$.updateTabUrl(nextUrl)
+              } else if (splitWatchView && isWatchUrl(nextUrl)) {
+                // Advancing on its own must not throw the video back at the
+                // user: whatever the player was, it stays.
+                openInPlayer(nextUrl, { keepMode: source === 'player' })
               } else {
                 ui$.url.set(nextUrl)
               }
@@ -631,6 +699,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           openPastedUrl(data)
           break
         case 'load-error':
+          if (!isForeground) break
           setLoadError({
             url: data?.url || '',
             description: data?.description,
@@ -663,13 +732,20 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       syncUserStylesToWebview,
       toggleShorts,
       currentPageUrl,
+      splitWatchView,
     ],
   )
 
   const onNativeMessage = async (e: { nativeEvent: { payload: string } }) => {
     const { payload } = e.nativeEvent
     const { type, data } = typeof payload == 'string' ? JSON.parse(payload) : payload
-    onMessage(type, data)
+    onMessage(type, data, 'browse')
+  }
+
+  const onPlayerMessage = async (e: { nativeEvent: { payload: string } }) => {
+    const { payload } = e.nativeEvent
+    const { type, data } = typeof payload == 'string' ? JSON.parse(payload) : payload
+    onMessage(type, data, 'player')
   }
 
   useEffect(() => {
@@ -684,7 +760,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useEffect(() => {
     const webview = nativeRef.current
     if (webview) {
-      ui$.webview.set(ObservableHint.opaque(webview))
+      setBrowseWebview(webview)
       const url = ui$.url.get()
       ;(async () => {
         try {
@@ -700,21 +776,81 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   }, [nativeRef])
 
   useObserveEffect(ui$.url, ({ value }) => {
-    const native = nativeRef.current
-    if (isWeb) {
+    if (isWeb || !value) {
       return
     }
     try {
-      if (value && new URL(value).pathname != '/' && !restored) {
+      if (new URL(value).pathname != '/' && !restored) {
         restored = true
       }
     } catch (e) {}
-    if (value) {
-      if (native) {
-        native.loadUrl(value)
-      }
+    if (isSplitWatchEnabled() && isWatchUrl(value)) {
+      openInPlayer(value)
+      return
     }
+    if (isSplitWatchEnabled()) {
+      // Anything that is not a video belongs to the browsing webview, so it
+      // comes back to the front -- the player keeps playing behind it.
+      openInBrowse(value)
+      return
+    }
+    nativeRef.current?.loadUrl(value)
   })
+
+  // The player webview is mounted for the whole session once the split is on,
+  // not created on the first video: building a WebView and its renderer is a
+  // visible chunk of how long that first video takes to appear. It sits at
+  // about:blank until there is something to play. Registering it hands over any
+  // video that was asked for before it attached.
+  useEffect(() => {
+    if (isWeb) {
+      return
+    }
+    setPlayerWebview(splitWatchView ? playerRef.current : null)
+  }, [splitWatchView])
+
+  // Two webviews, one media session: whichever view holds the video owns the
+  // notification and the system media controls (see NouService.initialize).
+  useEffect(() => {
+    if (isWeb) {
+      return
+    }
+    const owner = playerUrl ? playerRef.current : nativeRef.current
+    try {
+      void owner?.claimMediaSession?.()?.catch?.(() => undefined)
+    } catch {}
+    syncBrowseMute()
+  }, [playerUrl])
+
+  useEffect(() => {
+    syncForegroundWebview()
+  }, [playerMode])
+
+  // Turning the split on while a video is open moves it into the player and
+  // sends the browsing webview back to a page it owns.
+  const previousSplitWatchView = useRef(splitWatchView)
+  useEffect(() => {
+    if (previousSplitWatchView.current === splitWatchView) return
+    previousSplitWatchView.current = splitWatchView
+    if (isWeb || !isAndroid) {
+      return
+    }
+    if (!splitWatchView) {
+      const url = ui$.playerPageUrl.get() || ui$.playerUrl.get() || ui$.browsePageUrl.get() || ui$.pageUrl.get()
+      closePlayer()
+      // Reload even if no video was opened, removing the page's split handlers.
+      nativeRef.current?.loadUrl(url || 'https://m.youtube.com/')
+      return
+    }
+    const url = ui$.pageUrl.get() || ui$.browsePageUrl.get()
+    if (isWatchUrl(url)) {
+      openInPlayer(url)
+    }
+    // The role only reaches the page on its next load (see scriptOnStart).
+    nativeRef.current?.loadUrl(
+      settings$.isYTMusic.peek() ? 'https://music.youtube.com/' : 'https://m.youtube.com/',
+    )
+  }, [splitWatchView])
 
   useObserveEffect(settings$.hideShorts, ({ value }) => toggleShorts(value))
   useObserveEffect(settings$.sponsorBlock, () => syncSettingsToWebview())
@@ -833,10 +969,54 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     syncProxyToSession()
   })
 
+  // Opening a queue video makes it the resume point, so finishing an unrelated
+  // video later continues the queue there instead of from its first entry.
+  const playingPageUrl = splitWatchView && playerUrl ? playerPageUrl || playerUrl : currentPageUrl
+  useEffect(() => {
+    trackQueuePlaying(playingPageUrl)
+  }, [playingPageUrl])
+
   const onLoad = async (e: { nativeEvent: any }) => {
     ui$.translation.set(null)
+    if (splitWatchView) {
+      setSplitPageUrl('browse', e.nativeEvent.url)
+      return
+    }
     setPageUrl(e.nativeEvent.url)
   }
+
+  const onPlayerLoad = async (e: { nativeEvent: any }) => {
+    ui$.translation.set(null)
+    setSplitPageUrl('player', e.nativeEvent.url)
+    // The load started the page over, so the mini presentation is gone with it.
+    reapplyPlayerMode()
+  }
+
+  const togglePlayerPlaying = () => {
+    const playing = playerPlaying
+    setPlayerPlaying(!playing)
+    void playerRef.current
+      ?.executeJavaScript(playing ? 'window.NouTube?.pause?.()' : 'window.NouTube?.play?.()')
+      ?.catch?.(() => undefined)
+  }
+
+  // Built once and handed to whichever wrapper is showing, so React keeps the
+  // same native view across a mode change instead of remounting it.
+  const playerView = (
+    <NouTubeView
+      ref={playerRef}
+      style={{
+        flex: 1,
+      }}
+      useragent={userAgent}
+      pullToRefreshEnabled={false}
+      textZoom={defaultZoom}
+      scriptOnStart={`window.isAndroid = true;\n${splitRolePrelude(splitWatchView, 'player', playerMini)}\n${preludeJs}\n${contentJs}`}
+      userScriptsOnStart={userScriptsOnStart}
+      onLoad={onPlayerLoad}
+      onMessage={onPlayerMessage}
+    />
+  )
 
   return (
     <>
@@ -866,31 +1046,53 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           </View>
         ) : (
           <WebviewContainer headerPosition={headerPosition} nativeHeaderInset={nativeHeaderInset}>
-            <NouTubeView
-              ref={nativeRef}
-              style={{
-                flex: 1,
-              }}
-              useragent={userAgent}
-              pullToRefreshEnabled={pullToRefreshEnabled}
-              textZoom={defaultZoom}
-              scriptOnStart={`window.isAndroid = true;\n${preludeJs}\n${contentJs}`}
-              userScriptsOnStart={userScriptsOnStart}
-              onLoad={onLoad}
-              onMessage={onNativeMessage}
-            />
+            <View style={{ flex: 1 }} pointerEvents={playerFull ? 'none' : 'auto'}>
+              <NouTubeView
+                ref={nativeRef}
+                style={{
+                  flex: 1,
+                }}
+                useragent={userAgent}
+                pullToRefreshEnabled={pullToRefreshEnabled}
+                textZoom={defaultZoom}
+                scriptOnStart={`window.isAndroid = true;\n${splitRolePrelude(splitWatchView, 'browse')}\n${preludeJs}\n${contentJs}`}
+                userScriptsOnStart={userScriptsOnStart}
+                onLoad={onLoad}
+                onMessage={onNativeMessage}
+              />
+            </View>
+            {/* One player webview in three presentations -- covering the app,
+                shrunk into the mini player, or waiting offscreen. It is never
+                unmounted between them, which is what keeps the video playing
+                and makes going back to it free. Even offscreen it stays
+                mounted: a detached view would read as a backgrounded app to the
+                playback guard (see NouTubeView.onWindowVisibilityChanged). */}
+            {nIf(
+              splitWatchView,
+              <PlayerFrame
+                mode={playerUrl ? playerMode : 'hidden'}
+                playing={playerPlaying}
+                onTogglePlay={togglePlayerPlaying}
+              >
+                {playerView}
+              </PlayerFrame>,
+            )}
             {nIf(
               loadError && !pictureInPicture,
-              <PageLoadError
-                description={loadError?.description}
-                onRetry={() => {
-                  // A failed post cannot be replayed through loadUrl, so fall back to the
-                  // page the app last navigated to instead of re-requesting it as a GET.
-                  const url = (loadError?.canReload && loadError.url) || ui$.url.get()
-                  setLoadError(null)
-                  nativeRef.current?.loadUrl(url)
-                }}
-              />,
+              // Above the player, which covers everything below it while shown.
+              <View style={[StyleSheet.absoluteFill, { zIndex: 2 }]} pointerEvents="box-none">
+                <PageLoadError
+                  description={loadError?.description}
+                  onRetry={() => {
+                    // A failed post cannot be replayed through loadUrl, so fall back to the
+                    // page the app last navigated to instead of re-requesting it as a GET.
+                    const url = (loadError?.canReload && loadError.url) || ui$.url.get()
+                    setLoadError(null)
+                    const view = playerFull ? playerRef.current : nativeRef.current
+                    view?.loadUrl(url)
+                  }}
+                />
+              </View>,
             )}
           </WebviewContainer>
         )}

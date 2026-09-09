@@ -2,6 +2,7 @@ import { BackHandler } from 'react-native'
 import { useEffect, useRef, useState } from 'react'
 import { useObserveEffect } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
+import { handleSplitBack } from '@/lib/split-view'
 import { openSharedUrl } from '@/lib/page'
 import { Asset } from 'expo-asset'
 import { useIncomingShare } from 'expo-sharing'
@@ -119,6 +120,11 @@ export default function HomeScreen() {
     }
 
     const backSubscription = BackHandler.addEventListener('hardwareBackPress', function () {
+      // Back out of the split watch view first: it always returns to the
+      // browsing webview instead of stepping back through videos.
+      if (handleSplitBack()) {
+        return true
+      }
       const webview = ui$.webview.get()
       webview?.goBack()
       return true

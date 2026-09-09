@@ -18,6 +18,7 @@ import { installFullscreenControls } from './fullscreen-controls'
 import { installSystemCaptionStyle } from './captions'
 import { installEncodedAuthorNameFix } from './author-names'
 import { installBackgroundGuard } from './background-guard'
+import { installSplitView, navigateWatch, setMuted, setNativeMini } from './split-view'
 
 try {
   if ((window as any).NouTubePreferH264) {
@@ -30,12 +31,18 @@ try {
   }
 
   window.NouTube = initNouTube()
+  ;(window.NouTube as any).setMuted = setMuted
+  ;(window.NouTube as any).setNativeMini = setNativeMini
+  ;(window.NouTube as any).navigateWatch = navigateWatch
   interceptClipboard()
   installWatchNavigation()
+  installSplitView()
 
   if (!window.electron) {
     intercept()
-    if (window.isAndroid && location.host === 'm.youtube.com') {
+    // The split watch view has a mini player of its own -- the real page in a
+    // small box rather than an /embed iframe -- so the in-page one stands down.
+    if (window.isAndroid && location.host === 'm.youtube.com' && !(window as any).NouTubeRole) {
       installMiniPlayerInterceptor()
     }
   }

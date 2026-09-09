@@ -22,7 +22,9 @@ export interface SettingsSnapshot {
   hideMixPlaylist: boolean
   keepHistory: boolean
   replaceWatchNavigation: boolean
+  separateWatchView: boolean
   miniPlayer: boolean
+  miniPlayerCorner: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
   pictureInPicture: boolean
   preferH264: boolean
   clickbaitThumbnail: 'default' | 'hq1' | 'hq2' | 'hq3'
@@ -153,6 +155,9 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   if (typeof data.replaceWatchNavigation !== 'boolean') {
     data.replaceWatchNavigation = false
   }
+  if (typeof data.separateWatchView !== 'boolean') {
+    data.separateWatchView = false
+  }
   if (typeof data.pictureInPicture !== 'boolean') {
     data.pictureInPicture = false
   }
@@ -194,7 +199,11 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   hideMixPlaylist: Boolean(value?.hideMixPlaylist),
   keepHistory: typeof value?.keepHistory === 'boolean' ? value.keepHistory : true,
   replaceWatchNavigation: Boolean(value?.replaceWatchNavigation),
+  separateWatchView: Boolean(value?.separateWatchView),
   miniPlayer: typeof value?.miniPlayer === 'boolean' ? value.miniPlayer : false,
+  miniPlayerCorner: ['top-left', 'top-right', 'bottom-left'].includes(value?.miniPlayerCorner || '')
+    ? (value?.miniPlayerCorner as SettingsSnapshot['miniPlayerCorner'])
+    : 'bottom-right',
   pictureInPicture: Boolean(value?.pictureInPicture),
   preferH264: Boolean(value?.preferH264),
   clickbaitThumbnail: ['hq1', 'hq2', 'hq3'].includes(value?.clickbaitThumbnail || '')
@@ -261,7 +270,9 @@ export const settings$ = observable<Store>({
   hideMixPlaylist: false,
   keepHistory: true,
   replaceWatchNavigation: false,
+  separateWatchView: false,
   miniPlayer: false,
+  miniPlayerCorner: 'bottom-right',
   pictureInPicture: false,
   preferH264: false,
   clickbaitThumbnail: 'default',
