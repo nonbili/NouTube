@@ -1,5 +1,6 @@
 import NouTubeViewModule from '@/modules/nou-tube-view'
-import { isAndroid } from './utils'
+import { isAndroid, isIos } from './utils'
+import { showToast } from './toast'
 
 type PictureInPictureNativeModule = {
   addListener?: (eventName: string, listener: (payload: any) => void) => { remove?: () => void }
@@ -16,4 +17,26 @@ export function addPictureInPictureListener(listener: (active: boolean) => void)
     return undefined
   }
   return nativeModule.addListener('pictureInPicture', (payload) => listener(Boolean(payload?.active)))
+}
+
+type PictureInPictureView = {
+  togglePictureInPicture?: () => Promise<string>
+}
+
+/**
+ * iOS enters Picture-in-Picture through WebKit's own presentation API, driven
+ * from the header button: the request only comes back with a picture while the
+ * app is still frontmost, so the app cannot wait for the user to leave.
+ */
+export async function togglePictureInPicture(webview: PictureInPictureView | undefined | null) {
+  if (!isIos) return
+  try {
+    const status = await webview?.togglePictureInPicture?.()
+    if (status === 'no-video' || status === 'unsupported') {
+      showToast('Picture-in-Picture is not available for this video')
+    }
+  } catch (error) {
+    console.error(error)
+    showToast('Picture-in-Picture is not available for this video')
+  }
 }

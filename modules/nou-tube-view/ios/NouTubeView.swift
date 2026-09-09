@@ -445,19 +445,48 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
 
   // webkitSetPresentationMode is WebKit's own API; the standard
   // requestPictureInPicture() does not exist on iOS.
+  //
+  // The page holds several <video> elements at once (the watch player, the feed
+  // previews, the miniplayer), and only one of them has frames to show, so the
+  // decoded picture is what picks it rather than a selector.
+  private func pictureInPictureScript(toggle: Bool) -> String {
+    """
+    (function () {
+      var v = Array.prototype.slice
+        .call(document.querySelectorAll('video'))
+        .filter(function (el) { return el.readyState >= 2 && el.videoWidth > 0 })
+        .sort(function (a, b) { return b.videoWidth * b.videoHeight - a.videoWidth * a.videoHeight })[0]
+      if (!v) return 'no-video'
+      if (typeof v.webkitSetPresentationMode !== 'function') return 'unsupported'
+      if (v.webkitPresentationMode === 'picture-in-picture') {
+        if (!\(toggle)) return 'already'
+        v.webkitSetPresentationMode('inline')
+        return 'exited'
+      }
+      // Only the button may open Picture-in-Picture on a paused video; the
+      // automatic request is about keeping playback alive.
+      if (!\(toggle) && (v.paused || v.ended)) return 'no-video'
+      // YouTube marks its player as Picture-in-Picture-disabled, and WebKit
+      // reads that off the attribute, so the attribute is what has to go --
+      // including after YouTube replaces or reconfigures the video.
+      v.removeAttribute('disablepictureinpicture')
+      v.disablePictureInPicture = false
+      if (!v.webkitSupportsPresentationMode('picture-in-picture')) return 'unsupported'
+      v.webkitSetPresentationMode('picture-in-picture')
+      return 'entered'
+    })()
+    """
+  }
+
+  // The header button, unlike the automatic request below, runs while the app
+  // is still frontmost, which is the only time WebKit hands the video layer
+  // over with a picture in it.
+  func togglePictureInPicture() async throws -> String {
+    try await evaluateJavaScript(pictureInPictureScript(toggle: true)) ?? "no-video"
+  }
+
   private func enterPictureInPictureIfPlaying() {
-    webView.evaluateJavaScript(
-      """
-      (function () {
-        var v = document.querySelector('#movie_player video') || document.querySelector('video')
-        if (!v || v.paused || v.ended) return 'no-video'
-        if (typeof v.webkitSetPresentationMode !== 'function') return 'unsupported'
-        if (v.webkitPresentationMode === 'picture-in-picture') return 'already'
-        v.webkitSetPresentationMode('picture-in-picture')
-        return 'requested'
-      })()
-      """
-    )
+    webView.evaluateJavaScript(pictureInPictureScript(toggle: false))
   }
 
   func setBackground(_ background: Bool) {
