@@ -9,7 +9,8 @@ import { createLogger } from '@/lib/log'
 import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
 import NouTubeViewModule, { NouTubeView } from '@/modules/nou-tube-view'
 import { StyleSheet, View } from 'react-native'
-import { getVideoId, setPageUrl } from '@/lib/page'
+import { setPageUrl } from '@/lib/page'
+import { getNextQueueUrl, trackQueueEnded, trackQueuePlaying } from '@/lib/queue'
 import { getLastPlaying } from '@/lib/last-playing'
 import { normalizeUrl } from '@/lib/url'
 import { showToast } from '@/lib/toast'
@@ -350,6 +351,12 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const tabs = useValue(tabs$.tabs)
   const activeTabIndex = useValue(tabs$.activeTabIndex)
   const activePageUrl = useValue(tabs$.activePageUrl)
+  const currentPageUrl = isWeb ? activePageUrl : pageUrl
+  // Opening a queue video makes it the resume point, so finishing an unrelated
+  // video later continues the queue there instead of from its first entry.
+  useEffect(() => {
+    trackQueuePlaying(currentPageUrl)
+  }, [currentPageUrl])
   const nativeRef = useRef<typeof NouTubeViewModule>(null)
   const hideShorts = useValue(settings$.hideShorts)
   const isYTMusic = useValue(settings$.isYTMusic)
@@ -597,17 +604,15 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           }
           break
         case 'playback-end':
-          const currentPageUrl = isWeb ? activePageUrl : pageUrl
-          const videoId = getVideoId(currentPageUrl)
-          const bookmarks = queue$.bookmarks.get()
           const hasPlaylistParam = currentPageUrl.includes('list=')
-          if (videoId && bookmarks.length && !hasPlaylistParam) {
-            const queueIndex = bookmarks.findIndex((x) => getVideoId(x.url) == videoId)
-            if (queueIndex != bookmarks.length - 1) {
+          if (!hasPlaylistParam) {
+            trackQueueEnded(currentPageUrl)
+            const nextUrl = getNextQueueUrl(currentPageUrl)
+            if (nextUrl) {
               if (isWeb) {
-                tabs$.updateTabUrl(bookmarks[queueIndex + 1].url)
+                tabs$.updateTabUrl(nextUrl)
               } else {
-                ui$.url.set(bookmarks[queueIndex + 1].url)
+                ui$.url.set(nextUrl)
               }
             }
           }
@@ -657,8 +662,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       syncBlocklistToWebview,
       syncUserStylesToWebview,
       toggleShorts,
-      activePageUrl,
-      pageUrl,
+      currentPageUrl,
     ],
   )
 

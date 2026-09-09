@@ -5,16 +5,24 @@ import { Bookmark } from './bookmarks'
 
 interface Store {
   bookmarks: Bookmark[]
+  /** Url of the queue video that was played most recently. */
+  lastPlayedUrl: string
+  /** Whether that video played to the end, so the queue should resume after it. */
+  lastPlayedEnded: boolean
   urls: () => Set<string>
   size: () => number
   toggleBookmark: (bookmark: Bookmark) => void
   addBookmark: (bookmark: Bookmark) => void
   moveUp: (index: number) => void
   moveDown: (index: number) => void
+  markPlaying: (url: string) => void
+  markEnded: (url: string) => void
 }
 
 export const queue$ = observable<Store>({
   bookmarks: [],
+  lastPlayedUrl: '',
+  lastPlayedEnded: false,
   urls: (): Set<string> => {
     return new Set(queue$.bookmarks.get().map((x) => x.url))
   },
@@ -33,6 +41,16 @@ export const queue$ = observable<Store>({
     if (!queue$.urls.has(bookmark.url)) {
       queue$.bookmarks.push(bookmark)
     }
+  },
+  markPlaying: (url) => {
+    if (!url) return
+    queue$.lastPlayedUrl.set(url)
+    queue$.lastPlayedEnded.set(false)
+  },
+  markEnded: (url) => {
+    if (!url) return
+    queue$.lastPlayedUrl.set(url)
+    queue$.lastPlayedEnded.set(true)
   },
   moveUp: (index) => {
     const bookmarks = [...queue$.bookmarks.get()]
