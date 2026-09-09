@@ -881,6 +881,14 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     if (mediaSessionOwner === this) {
       mediaSessionOwner = null
     }
+    // React has dropped the view, but the webview would go on playing behind
+    // it: emptying it is the only thing left that stops the audio.
+    try {
+      webView.loadUrl("about:blank")
+      webView.onPause()
+    } catch (e: Exception) {
+      // The webview is already gone.
+    }
     val connection = serviceConnection ?: return
     serviceConnection = null
     // A newer view may already own the live binding; only ever drop our own.

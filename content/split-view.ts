@@ -140,7 +140,8 @@ function installNavigationGuard(current: Role) {
  * same-origin watch link is picked up by YouTube's own router, which is a great
  * deal cheaper than loading the watch page as a fresh document. An anchor
  * click navigates either way, so there is nothing to fall back to if the router
- * does not take it. */
+ * does not take it. Returns true so the native side can tell a navigation that
+ * happened from one that never reached the page at all (see loadIntoPlayer). */
 export function navigateWatch(url: string) {
   try {
     const target = new URL(url, location.href)
@@ -153,6 +154,7 @@ export function navigateWatch(url: string) {
   } catch {
     location.href = url
   }
+  return true
 }
 
 // The native mini player is the same live page in a small box, so the page has

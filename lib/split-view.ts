@@ -22,6 +22,11 @@ let playerWebview: any = null
 // Set while the player webview has not attached yet, so the first video opened
 // after enabling the split is not dropped on the floor.
 let pendingPlayerUrl = ''
+// Bumped by everything that makes an in-flight player load obsolete. The
+// navigation handshake below is asynchronous, and by the time it answers the
+// video may have been closed or replaced by a newer one -- its fallback has to
+// know it is stale rather than pulling a dead video back onto the screen.
+let playerLoadToken = 0
 
 export function isSplitWatchEnabled() {
   return isAndroid && settings$.separateWatchView.get()
@@ -60,6 +65,7 @@ export function setBrowseWebview(webview: any) {
 
 export function setPlayerWebview(webview: any) {
   playerWebview = webview
+  playerLoadToken++
   syncForegroundWebview()
   if (webview && pendingPlayerUrl) {
     const url = pendingPlayerUrl
@@ -127,7 +133,11 @@ export function openInBrowse(url: string) {
 export function closePlayer() {
   pausePlayer()
   pendingPlayerUrl = ''
-  ui$.playerMode.set('hidden')
+  playerLoadToken++
+  // Through applyPlayerMode rather than setting the mode directly: the page has
+  // to be told to drop the mini layout even when the about:blank load below
+  // never happens, or it is left stripped down to a fixed full-viewport player.
+  applyPlayerMode('hidden')
   ui$.playerUrl.set('')
   ui$.playerPageUrl.set('')
   playerWebview?.loadUrl?.('about:blank')
@@ -141,7 +151,9 @@ export function pausePlayer() {
 }
 
 function loadIntoPlayer(url: string) {
-  if (!playerWebview) {
+  const webview = playerWebview
+  const token = ++playerLoadToken
+  if (!webview) {
     pendingPlayerUrl = url
     return
   }
@@ -151,13 +163,34 @@ function loadIntoPlayer(url: string) {
   // you tap a video in the feed.
   if (isWatchUrl(ui$.playerPageUrl.get())) {
     try {
-      void playerWebview
-        .executeJavaScript?.(`window.NouTube?.navigateWatch?.(${JSON.stringify(url)})`)
-        ?.catch?.(() => playerWebview?.loadUrl?.(url))
-      return
+      // The page answers with a sentinel: without one, a player that has not
+      // installed window.NouTube yet -- still loading, a recovered renderer, an
+      // interstitial that kept the /watch path -- would resolve having done
+      // nothing at all and silently drop the video.
+      const navigating = webview.executeJavaScript?.(
+        `window.NouTube?.navigateWatch?.(${JSON.stringify(url)}) ? 'navigated' : 'no-bridge'`,
+      )
+      if (navigating?.then) {
+        // Onto the webview this started on, and only while this is still the
+        // load the app is waiting for.
+        const fallback = () => {
+          if (token !== playerLoadToken || playerWebview !== webview) {
+            return
+          }
+          webview.loadUrl?.(url)
+        }
+        void navigating
+          .then((result: unknown) => {
+            if (result !== 'navigated') {
+              fallback()
+            }
+          })
+          .catch(fallback)
+        return
+      }
     } catch {}
   }
-  playerWebview.loadUrl?.(url)
+  webview.loadUrl?.(url)
 }
 
 /**

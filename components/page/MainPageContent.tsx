@@ -408,9 +408,20 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const blocklistState = useValue(blocklist$)
   const [blocklistSynced, setBlocklistSynced] = useState(!isWeb)
   // Set once the native view gives up retrying a failed navigation (#339).
-  const [loadError, setLoadError] = useState<{ url: string; description?: string; canReload: boolean } | null>(
-    null,
+  // Kept per webview: an error belongs to the page that raised it, and showing
+  // the browsing one's over the player -- or the other way round -- would cover
+  // a page that loaded perfectly well.
+  type LoadError = { url: string; description?: string; canReload: boolean }
+  const [loadErrors, setLoadErrors] = useState<{ browse: LoadError | null; player: LoadError | null }>({
+    browse: null,
+    player: null,
+  })
+  const setLoadError = useCallback(
+    (view: 'browse' | 'player', error: LoadError | null) =>
+      setLoadErrors((current) => (current[view] === error ? current : { ...current, [view]: error })),
+    [],
   )
+  const loadError = (splitWatchView && playerFull ? loadErrors.player : loadErrors.browse) ?? null
   const buildPrelude = () =>
     `window.NouTubeInitialSettings = ${JSON.stringify(getContentSettingsSnapshot())};` +
     `window.NouTubePreferH264 = ${settings$.preferH264.get() ? 'true' : 'false'};` +
@@ -527,6 +538,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     }
   }, [nativeViews])
 
+  // The url observer below fires once as it mounts. When the restore above put
+  // the video straight into the player, that first fire is the browsing page's
+  // own url and would send it back to the front, hiding the restored video.
+  const skipFirstUrlObserve = useRef(false)
+
   useEffect(() => {
     if (isWeb || ui$.url.get()) {
       return
@@ -542,6 +558,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       // In the split view the restored video belongs to the player, and the
       // browsing webview still needs a page of its own to come back to.
       if (isSplitWatchEnabled() && isWatchUrl(url)) {
+        skipFirstUrlObserve.current = true
         ui$.url.set(home)
         openInPlayer(url)
         return
@@ -699,15 +716,17 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           openPastedUrl(data)
           break
         case 'load-error':
-          if (!isForeground) break
-          setLoadError({
+          // Recorded against the webview that raised it rather than dropped
+          // when it is out of sight, so it is there if the user comes back to
+          // that view -- only the foreground one is rendered.
+          setLoadError(source, {
             url: data?.url || '',
             description: data?.description,
             canReload: data?.canReload !== false,
           })
           break
         case 'load-error-cleared':
-          setLoadError(null)
+          setLoadError(source, null)
           break
         case 'yt-music-desktop':
           if (settings$.desktopMode.get()) break
@@ -779,6 +798,10 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     if (isWeb || !value) {
       return
     }
+    if (skipFirstUrlObserve.current) {
+      skipFirstUrlObserve.current = false
+      return
+    }
     try {
       if (new URL(value).pathname != '/' && !restored) {
         restored = true
@@ -806,7 +829,14 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     if (isWeb) {
       return
     }
-    setPlayerWebview(splitWatchView ? playerRef.current : null)
+    // Only registered here. Turning the split off has to tear the video down
+    // first, and that runs in the effect below -- clearing the reference now
+    // would leave it with nothing to pause or empty, and a video playing on
+    // with no way to reach it.
+    if (!splitWatchView) {
+      return
+    }
+    setPlayerWebview(playerRef.current)
   }, [splitWatchView])
 
   // Two webviews, one media session: whichever view holds the video owns the
@@ -826,6 +856,14 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     syncForegroundWebview()
   }, [playerMode])
 
+  // The player's error belongs to the video that failed. A new one starting --
+  // or the player being torn down, which destroys the webview that raised it --
+  // leaves nothing to clear it: the replacement view starts out with no error
+  // to report cleared, so a stale one would cover every video after it.
+  useEffect(() => {
+    setLoadError('player', null)
+  }, [playerUrl, splitWatchView, setLoadError])
+
   // Turning the split on while a video is open moves it into the player and
   // sends the browsing webview back to a page it owns.
   const previousSplitWatchView = useRef(splitWatchView)
@@ -838,6 +876,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     if (!splitWatchView) {
       const url = ui$.playerPageUrl.get() || ui$.playerUrl.get() || ui$.browsePageUrl.get() || ui$.pageUrl.get()
       closePlayer()
+      setPlayerWebview(null)
       // Reload even if no video was opened, removing the page's split handlers.
       nativeRef.current?.loadUrl(url || 'https://m.youtube.com/')
       return
@@ -1085,9 +1124,16 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
                   description={loadError?.description}
                   onRetry={() => {
                     // A failed post cannot be replayed through loadUrl, so fall back to the
-                    // page the app last navigated to instead of re-requesting it as a GET.
-                    const url = (loadError?.canReload && loadError.url) || ui$.url.get()
-                    setLoadError(null)
+                    // page the app last navigated to instead of re-requesting it as a GET --
+                    // the one belonging to the view that failed, not ui$.url, which in the
+                    // split tracks the browsing side.
+                    const errored = splitWatchView && playerFull ? 'player' : 'browse'
+                    const fallback = splitWatchView
+                      ? (errored === 'player' ? ui$.playerPageUrl.get() : ui$.browsePageUrl.get()) ||
+                        ui$.url.get()
+                      : ui$.url.get()
+                    const url = (loadError?.canReload && loadError.url) || fallback
+                    setLoadError(errored, null)
                     const view = playerFull ? playerRef.current : nativeRef.current
                     view?.loadUrl(url)
                   }}

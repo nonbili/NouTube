@@ -46,7 +46,7 @@ export const PlayerFrame: React.FC<{
   // Measured rather than taken from the window: the frame lives inside the
   // webview container, which the toolbar has already inset.
   const [area, setArea] = useState({ width: 0, height: 0 })
-  const corner = useValue(settings$.miniPlayerCorner) as Corner
+  const corner = (useValue(settings$.miniPlayerCorner) || 'bottom-right') as Corner
   const boxWidth = Math.min(area.width * WIDTH_RATIO, MAX_WIDTH)
   const boxHeight = Math.round((boxWidth * 9) / 16)
 
@@ -66,7 +66,10 @@ export const PlayerFrame: React.FC<{
   const panResponder = useMemo(
     () =>
       PanResponder.create({
-        onMoveShouldSetPanResponder: (_evt, gesture) =>
+        // Capture, not the bubbling variant: the expand Pressable below covers
+        // the whole box and claims the responder on touch down, and RN only
+        // asks ancestors on capture once a descendant holds it.
+        onMoveShouldSetPanResponderCapture: (_evt, gesture) =>
           isMini && (Math.abs(gesture.dx) > 6 || Math.abs(gesture.dy) > 6),
         onPanResponderMove: (_evt, gesture) => {
           frameRef.current?.setNativeProps({

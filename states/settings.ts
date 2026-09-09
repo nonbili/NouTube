@@ -72,6 +72,8 @@ interface Store extends SettingsSnapshot {
   isYTMusic: () => boolean
 }
 
+const MINI_PLAYER_CORNERS = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
+
 export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefined>(data: T) => {
   if (!data) {
     return data
@@ -158,6 +160,14 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   if (typeof data.separateWatchView !== 'boolean') {
     data.separateWatchView = false
   }
+  if (typeof data.miniPlayer !== 'boolean') {
+    data.miniPlayer = false
+  }
+  // PlayerFrame reads this one straight out of the store and calls string
+  // methods on it, so anything unexpected has to be replaced, not defaulted.
+  if (!MINI_PLAYER_CORNERS.includes(data.miniPlayerCorner as string)) {
+    data.miniPlayerCorner = 'bottom-right'
+  }
   if (typeof data.pictureInPicture !== 'boolean') {
     data.pictureInPicture = false
   }
@@ -201,7 +211,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   replaceWatchNavigation: Boolean(value?.replaceWatchNavigation),
   separateWatchView: Boolean(value?.separateWatchView),
   miniPlayer: typeof value?.miniPlayer === 'boolean' ? value.miniPlayer : false,
-  miniPlayerCorner: ['top-left', 'top-right', 'bottom-left'].includes(value?.miniPlayerCorner || '')
+  miniPlayerCorner: MINI_PLAYER_CORNERS.includes(value?.miniPlayerCorner as string)
     ? (value?.miniPlayerCorner as SettingsSnapshot['miniPlayerCorner'])
     : 'bottom-right',
   pictureInPicture: Boolean(value?.pictureInPicture),
