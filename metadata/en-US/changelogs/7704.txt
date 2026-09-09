@@ -1,0 +1,5 @@
+- Add picture-in-picture support
+- Add native mini player with split watch view
+- Add ad blocking toggle
+- Only force landscape for explicit fullscreen requests
+- Resume queue where it left off instead of restarting
