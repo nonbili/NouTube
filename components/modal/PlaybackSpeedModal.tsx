@@ -5,7 +5,7 @@ import { settings$ } from '@/states/settings'
 import { NouText } from '../NouText'
 import { useValue } from '@legendapp/state/react'
 import { clsx } from '@/lib/utils'
-import { formatPlaybackRate, playbackRates } from '@/lib/playback-rate'
+import { formatPlaybackRate, playbackRatesWith } from '@/lib/playback-rate'
 import { NouButton } from '../button/NouButton'
 
 import { t } from 'i18next'
@@ -29,7 +29,7 @@ export const PlaybackSpeedModal = () => {
       <View className="p-6">
         <NouText className="text-lg font-semibold text-center">{t('modals.playbackSpeed')}</NouText>
         <View className="mt-6 flex-row flex-wrap justify-center gap-x-3 gap-y-4">
-          {playbackRates.map((rate) => {
+          {playbackRatesWith(currentRate).map((rate) => {
             const active = currentRate === rate
             return (
               <NouButton

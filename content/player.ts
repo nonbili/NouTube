@@ -98,10 +98,9 @@ function extendPlaybackRates(player: any) {
 function applySavedPlaybackRate(player: any) {
   const playbackRate = getSavedPlaybackRate()
   try {
-    const availableRates = player.getAvailablePlaybackRates?.()
-    if (Array.isArray(availableRates) && !availableRates.includes(playbackRate)) {
-      return
-    }
+    // No check against getAvailablePlaybackRates(): YouTube's own speed slider
+    // hands out off-list rates like 1.15, and the override above already falls
+    // back to the video element for anything the player itself won't take.
     player.setPlaybackRate?.(playbackRate)
   } catch (e) {
     log('failed to apply playback rate', e)

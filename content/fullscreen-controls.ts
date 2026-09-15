@@ -1,5 +1,5 @@
 import { formatPlaybackQuality, playbackQualities } from '../lib/playback-quality'
-import { formatPlaybackRate, playbackRates } from '../lib/playback-rate'
+import { formatPlaybackRate, playbackRatesWith } from '../lib/playback-rate'
 import { nouPolicy, parseJson } from './utils'
 
 const btnId = '_nou_fs_btn'
@@ -392,13 +392,17 @@ const chip = (group: string, value: string, label: string, active: boolean) => /
 `
 
 function renderPanelContent(panel: HTMLElement) {
-  const rate = getPlayer()?.getPlaybackRate?.()
+  // The video element, not getPlaybackRate(): player.setPlaybackRate is
+  // overridden to write the element directly for rates the player itself will
+  // not take (anything above 2x), so only the element knows the real rate.
+  const video = getVideoElement()
+  const rate = video ? video.playbackRate : getPlayer()?.getPlaybackRate?.()
   const currentRate = typeof rate == 'number' && Number.isFinite(rate) ? rate : 1
   const currentQuality = getCurrentQuality()
   const brightness = getCurrentBrightness()
   const volume = getVolumeControl()
 
-  const speedChips = playbackRates
+  const speedChips = playbackRatesWith(currentRate)
     .map((r) => chip('rate', String(r), formatPlaybackRate(r), r === currentRate))
     .join('')
   const qualityChips = getAvailableQualities()
