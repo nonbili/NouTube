@@ -274,6 +274,179 @@ export function setMuted(next: boolean) {
   }
 }
 
+/* The desktop site brings its own corner player, and the browsing webview is
+ * where it turns up: a watch url that arrives without a link is handed to the
+ * player webview and this one is sent back (see installNavigationGuard), which
+ * is the gesture that collapses the desktop player into its miniplayer. It goes
+ * on playing there, next to the app's own mini player, so it is closed as soon
+ * as it opens.
+ *
+ * The browsing webview only: in the player webview that corner player holds the
+ * video the user is watching, and closing it would stop playback. */
+const mentionsMiniplayer = (element: Element) =>
+  element.tagName.indexOf('MINIPLAYER') !== -1 || (element.getAttribute('class') || '').indexOf('iniplayer') !== -1
+
+/* Nothing here names a single element: <ytd-miniplayer>, its `active` attribute
+ * and its .ytp-miniplayer-close-button are all gone from the builds served
+ * today. The video is what tells a miniplayer from the control-bar button,
+ * which is also called miniplayer and would open one if it were clicked. */
+function isOpenMiniplayer(node: Node | null): node is Element {
+  const element = node as Element | null
+  if (!element || element.nodeType !== 1 || !mentionsMiniplayer(element)) {
+    return false
+  }
+  if (!element.querySelector('video')) {
+    return false
+  }
+  const rect = element.getBoundingClientRect()
+  return rect.width > 0 && rect.height > 0
+}
+
+/* Hiding a container takes its size away, which is half of what counts as open
+ * above, so the ones this has hidden are noted: revived and playing behind
+ * display:none is the one state a duplicate could run in unreachable. */
+const suppressedMiniplayers = new WeakSet<Element>()
+
+function isRevivedMiniplayer(node: Node | null): node is Element {
+  const element = node as Element | null
+  if (!element || element.nodeType !== 1 || !suppressedMiniplayers.has(element)) {
+    return false
+  }
+  return Array.from(element.querySelectorAll('video')).some((video) => !video.paused)
+}
+
+/* The miniplayer wraps the video player, whose chrome brings dismissals of its
+ * own -- ad overlays, info cards -- and clicking one of those closes an ad
+ * while the miniplayer plays on. Labels are localised, so the class name is all
+ * there is to go on. */
+function findCloseControl(element: Element) {
+  const controls = Array.from(element.querySelectorAll<HTMLElement>('[class*="lose" i]')).filter(
+    (control) => !control.closest('#movie_player, .html5-video-player'),
+  )
+  return controls.find((control) => mentionsMiniplayer(control)) || controls[0]
+}
+
+function closeMiniplayer(element: Element) {
+  const miniplayer = element as Element & { setActive?: (active: boolean) => void; active?: boolean }
+  const open = () => isOpenMiniplayer(element) || isRevivedMiniplayer(element)
+
+  try {
+    miniplayer.setActive?.(false)
+  } catch {}
+  if (open() && element.hasAttribute('active')) {
+    try {
+      miniplayer.active = false
+    } catch {}
+  }
+  // No handler for this was found in the bundles served today; kept in case an
+  // older build still listens.
+  if (open()) {
+    try {
+      ;(element.closest('ytd-app') || document.documentElement).dispatchEvent(
+        new CustomEvent('yt-close-miniplayer', { bubbles: true, composed: true }),
+      )
+    } catch {}
+  }
+  if (open()) {
+    findCloseControl(element)?.click()
+  }
+  // A revived container is past every handle above, and a frozen frame in the
+  // corner is worth hiding rather than leaving beside the app's mini player.
+  if (open()) {
+    for (const video of Array.from(element.querySelectorAll('video'))) {
+      try {
+        video.pause()
+      } catch {}
+    }
+    try {
+      ;(element as HTMLElement).style?.setProperty('display', 'none', 'important')
+      suppressedMiniplayers.add(element)
+    } catch {}
+  }
+}
+
+function installMiniplayerGuard() {
+  const scheduled = new WeakSet<Element>()
+
+  /* The desktop site moves the existing player into the miniplayer, so the
+   * insertion that finishes one lands inside an element that was named all
+   * along and was not open moments earlier. Keeping every candidate, open or
+   * not, traces that insertion back with one contains() rather than a walk up
+   * from each of the hundreds of nodes a feed inserts. */
+  const containers = new Set<Element>()
+
+  const containerFor = (node: Node | null) => {
+    if (!node) {
+      return null
+    }
+    for (const container of containers) {
+      if (!container.isConnected) {
+        containers.delete(container)
+      } else if (container === node || container.contains(node)) {
+        return container
+      }
+    }
+    return null
+  }
+
+  const check = (node: Node | null) => {
+    if (node && (node as Element).nodeType === 1 && mentionsMiniplayer(node as Element)) {
+      containers.add(node as Element)
+    }
+    if ((!isOpenMiniplayer(node) && !isRevivedMiniplayer(node)) || scheduled.has(node)) {
+      return
+    }
+    // One frame's grace, which also coalesces the burst of mutations that
+    // opening one sets off.
+    scheduled.add(node)
+    requestAnimationFrame(() => {
+      scheduled.delete(node)
+      if (isOpenMiniplayer(node) || isRevivedMiniplayer(node)) {
+        closeMiniplayer(node)
+      }
+    })
+  }
+
+  const start = () => {
+    for (const element of Array.from(document.querySelectorAll('*'))) {
+      check(element)
+    }
+    new MutationObserver((records) => {
+      for (const record of records) {
+        if (record.type === 'childList') {
+          for (const node of Array.from(record.addedNodes)) {
+            check(node)
+          }
+          check(containerFor(record.target))
+        } else {
+          check(record.target)
+        }
+      }
+    }).observe(document.documentElement, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['class', 'active', 'hidden', 'style'],
+    })
+
+    // Playback starting inside a hidden container writes no attribute and
+    // inserts no node. Capture, because 'play' does not bubble.
+    document.addEventListener(
+      'play',
+      (event) => {
+        check(containerFor(event.target as Node))
+      },
+      true,
+    )
+  }
+
+  if (document.documentElement) {
+    start()
+  } else {
+    document.addEventListener('DOMContentLoaded', start, { once: true })
+  }
+}
+
 export function installSplitView() {
   const current = role()
   if (!current || location.host === 'music.youtube.com') {
@@ -287,6 +460,9 @@ export function installSplitView() {
 
   installClickHandoff(current)
   installNavigationGuard(current)
+  if (current === 'browse') {
+    installMiniplayerGuard()
+  }
   if (current === 'player') {
     installSplitPlayerWindow()
     installPlayerHistoryCollapse()
