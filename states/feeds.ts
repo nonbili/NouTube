@@ -59,7 +59,7 @@ export const feeds$ = observable<Store>({
     feeds$.bookmarks.set(feeds$.bookmarks.get().filter((x) => x.json.id !== channelId))
   },
   toggleBookmark: (bookmark) => {
-    if (feeds$.urls.has(bookmark.url)) {
+    if (feeds$.urls().has(bookmark.url)) {
       const filtered = feeds$.bookmarks.get().filter((x) => x.url !== bookmark.url)
       feeds$.bookmarks.set(filtered)
     } else {

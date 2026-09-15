@@ -27,10 +27,10 @@ export const queue$ = observable<Store>({
     return new Set(queue$.bookmarks.get().map((x) => x.url))
   },
   size: (): number => {
-    return queue$.urls.size
+    return queue$.urls().size
   },
   toggleBookmark: (bookmark) => {
-    if (queue$.urls.has(bookmark.url)) {
+    if (queue$.urls().has(bookmark.url)) {
       const filtered = queue$.bookmarks.get().filter((x) => x.url != bookmark.url)
       queue$.bookmarks.set(filtered)
     } else {
@@ -38,7 +38,7 @@ export const queue$ = observable<Store>({
     }
   },
   addBookmark: (bookmark) => {
-    if (!queue$.urls.has(bookmark.url)) {
+    if (!queue$.urls().has(bookmark.url)) {
       queue$.bookmarks.push(bookmark)
     }
   },

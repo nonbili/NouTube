@@ -69,9 +69,10 @@ async function initObserver() {
     handleVideoPlayer(player)
   }
   const observer = new MutationObserver((mutations) => {
-    if (!player) {
-      handleMutations(mutations)
-    }
+    // YouTube swaps #movie_player out on its own, so watching only until the
+    // first one is found would leave progress unrecorded for the rest of the
+    // session. handleVideoPlayer ignores an element it has already bound.
+    handleMutations(mutations)
     handleDialogs()
   })
   observer.observe(document.documentElement, {

@@ -25,6 +25,16 @@ export function withResumeTime(url: string, current: number) {
   }
 }
 
+export function withoutResumeTime(url: string) {
+  try {
+    const next = new URL(url)
+    next.searchParams.delete('t')
+    return next.href
+  } catch {
+    return url
+  }
+}
+
 /** The last played video with its position baked into the url, when resuming it makes sense. */
 export function getLastPlaying() {
   const last = history$.bookmarks[0].get()

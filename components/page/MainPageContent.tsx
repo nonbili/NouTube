@@ -676,15 +676,27 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           bookmarks$.addBookmark(newBookmark(data))
           showToast(`Saved to bookmarks`)
           break
-        case 'progress':
+        case 'progress': {
+          // Straight from the page, so nothing here is trusted: a missing
+          // duration would render the progress bar at NaN%, and an entry with
+          // no video id cannot be deduped or resumed at all.
+          const current = Number(data?.current)
+          const duration = Number(data?.duration)
+          if (!data?.videoId || !data?.url || !Number.isFinite(current) || current < 0) {
+            break
+          }
           history$.addHistory({
-            videoId: data.videoId,
-            url: data.url,
-            title: data.title,
-            current: data.current,
-            duration: data.duration,
+            videoId: String(data.videoId),
+            url: String(data.url),
+            // Kept off the payload when empty so a tick that could not read
+            // them leaves what the entry already had.
+            ...(data.title ? { title: String(data.title) } : {}),
+            ...(data.thumbnail ? { thumbnail: String(data.thumbnail) } : {}),
+            current,
+            duration: Number.isFinite(duration) && duration > 0 ? duration : 0,
           })
           break
+        }
         case 'play-state':
           if (source === 'player') {
             setPlayerPlaying(Boolean(data?.playing))

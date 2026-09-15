@@ -17,6 +17,7 @@ import { getPageType } from '@/lib/page'
 import { NouButton } from '../button/NouButton'
 import { t } from 'i18next'
 import { useActivePageUrl } from '@/lib/hooks/useActivePageUrl'
+import { showUndoToast } from '@/states/undo-toast'
 
 export const HistoryModal = () => {
   const historyModalOpen = useValue(ui$.historyModalOpen)
@@ -45,11 +46,16 @@ export const HistoryModal = () => {
             variant="outline"
             size="1"
             onPress={() => {
-              history$.bookmarks.set([])
+              // Only what the list actually shows: the other home's history is
+              // filtered out of view, and clearing it too would be a surprise.
+              const cleared = filteredBookmarks
+              const clearedIds = new Set(cleared.map((x) => x.id))
+              history$.bookmarks.set(history$.bookmarks.get().filter((x) => !clearedIds.has(x.id)))
               ui$.historyModalOpen.set(false)
+              showUndoToast(t('history.cleared'), () => history$.restoreHistory(cleared))
             }}
           >
-            Clear
+            {t('buttons.clear')}
           </NouButton>,
         )}
       </View>

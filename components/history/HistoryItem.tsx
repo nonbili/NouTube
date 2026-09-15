@@ -1,7 +1,7 @@
 import { View, Pressable } from 'react-native'
 import { updateUrl, ui$ } from '@/states/ui'
 import { NouText } from '../NouText'
-import { clsx, isWeb, isIos } from '@/lib/utils'
+import { clsx, isWeb, isIos, nIf } from '@/lib/utils'
 import { getThumbnail } from '@/lib/page'
 import { History, history$ } from '@/states/history'
 import { NouMenu } from '../menu/NouMenu'
@@ -9,40 +9,35 @@ import { t } from 'i18next'
 import { MaterialButton } from '../button/IconButtons'
 import { share } from '@/lib/share'
 import { RetryImage } from '../image/RetryImage'
+import { withResumeTime, withoutResumeTime } from '@/lib/last-playing'
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
 
-function getHistoryUrl(url: string, duration: number) {
-  try {
-    const nextUrl = new URL(url)
-    const value = nextUrl.searchParams.get('t')
-    if (!value) {
-      return url
-    }
+// Rewinding a little picks the video up where attention was lost rather than
+// where playback stopped; a video watched to the end starts over.
+const REWIND_SECONDS = 5
+const END_MARGIN_SECONDS = 15
 
-    const t = Number(value)
-    if (!Number.isFinite(t)) {
-      return url
-    }
-
-    const nextT = duration - t < 15 ? 0 : Math.max(t - 5, 0)
-    nextUrl.searchParams.set('t', `${nextT}`)
-    return nextUrl.toString()
-  } catch {
-    return url
-  }
+// The saved position, not the url: the url comes from player.getVideoUrl(),
+// which carries no t param of its own, and the one YouTube does write is
+// suffixed ('123s'), so reading it back as a number never worked.
+function getHistoryUrl({ url, current, duration }: History) {
+  const t = Number(current) || 0
+  const total = Number(duration) || 0
+  const nextT = total > 0 && total - t < END_MARGIN_SECONDS ? 0 : Math.max(t - REWIND_SECONDS, 0)
+  return nextT > 0 ? withResumeTime(url, nextT) : withoutResumeTime(url)
 }
 
 export const HistoryItem: React.FC<{ bookmark: History }> = ({ bookmark }) => {
-  const historyUrl = getHistoryUrl(bookmark.url, bookmark.duration)
+  const historyUrl = getHistoryUrl(bookmark)
 
   const onPress = () => {
     updateUrl(historyUrl)
     ui$.assign({ historyModalOpen: false })
   }
 
-  const progress = (bookmark.current / bookmark.duration) * 100
+  const progress = bookmark.duration > 0 ? Math.min(100, Math.max(0, (bookmark.current / bookmark.duration) * 100)) : 0
 
   return (
     <View className="flex-row my-2 overflow-hidden px-2">
@@ -54,10 +49,11 @@ export const HistoryItem: React.FC<{ bookmark: History }> = ({ bookmark }) => {
             placeholder={{ blurhash }}
             style={{ height: 67.5, borderRadius: 8 }}
           />
-          {bookmark.duration > 0 && (
+          {nIf(
+            bookmark.duration > 0,
             <View className="absolute bottom-0 left-0 right-0 h-1 bg-gray-800 rounded-b-lg overflow-hidden">
               <View className="h-full bg-red-600" style={{ width: `${progress}%` }} />
-            </View>
+            </View>,
           )}
         </Pressable>
       </View>

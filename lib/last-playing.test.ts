@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'bun:test'
 import { history$ } from '@/states/history'
-import { getLastPlaying, getVideoIdFromUrl, withResumeTime } from './last-playing'
+import { getLastPlaying, getVideoIdFromUrl, withResumeTime, withoutResumeTime } from './last-playing'
 
 const setLastPlaying = (entry: { current: number; duration: number; url?: string }) => {
   history$.bookmarks.set([
@@ -66,5 +66,17 @@ describe('getVideoIdFromUrl', () => {
   it('returns empty for non video urls', () => {
     expect(getVideoIdFromUrl('https://www.youtube.com/')).toBe('')
     expect(getVideoIdFromUrl('nope')).toBe('')
+  })
+})
+
+describe('withoutResumeTime', () => {
+  it('drops a stale position and keeps the rest', () => {
+    expect(withoutResumeTime('https://www.youtube.com/watch?v=abc123&t=90s&list=PL1')).toBe(
+      'https://www.youtube.com/watch?v=abc123&list=PL1',
+    )
+  })
+
+  it('returns invalid urls untouched', () => {
+    expect(withoutResumeTime('not a url')).toBe('not a url')
   })
 })

@@ -170,6 +170,15 @@ export function handleMutations(mutations: MutationRecord[]) {
 
 export function handleVideoPlayer(el: any) {
   player = el
+  // YouTube re-inserts #movie_player on its own, and the mutation observer
+  // hands every insertion back here. Binding twice would double the listeners
+  // and, worse, start over with an empty title and duration that the branch
+  // below only refills when the video id changes -- overwriting a good history
+  // entry with blanks.
+  if (el.__nouPlayerBound) {
+    return
+  }
+  el.__nouPlayerBound = true
   extendPlaybackRates(player)
   extendPlaybackQuality(player)
   // onApiChange fires when the player's modules (captions included) load, which
@@ -179,10 +188,29 @@ export function handleVideoPlayer(el: any) {
   let title = ''
   let duration = 0
 
-  const saveProgress = throttle((currentTime) => {
-    const url = player.getVideoUrl()
-    localStorage.setItem(keys.playing, JSON.stringify({ url, current: currentTime }))
-    emit('progress', { url, title, videoId: curVideoId, current: currentTime, duration })
+  // Everything the save needs is read in one go, so a throttled call can never
+  // pair one video's position with another's url: the trailing call replays the
+  // snapshot it was given instead of re-reading the player as it is by then.
+  const getProgress = (currentTime: number) => {
+    const { videoDetails } = el.getPlayerResponse?.() || {}
+    const videoId = videoDetails?.videoId
+    const url = player.getVideoUrl?.() || ''
+    if (!videoId || !url) {
+      return undefined
+    }
+    return {
+      url,
+      videoId,
+      title: videoDetails.title || '',
+      thumbnail: videoDetails.thumbnail?.thumbnails?.at(-1)?.url || '',
+      current: currentTime,
+      duration: Number(videoDetails.lengthSeconds) || 0,
+    }
+  }
+
+  const saveProgress = throttle((progress: NonNullable<ReturnType<typeof getProgress>>) => {
+    localStorage.setItem(keys.playing, JSON.stringify({ url: progress.url, current: progress.current }))
+    emit('progress', progress)
   }, 5000)
   const notifyProgress = throttle(() => {
     if (!el.getCurrentTime) {
@@ -191,7 +219,10 @@ export function handleVideoPlayer(el: any) {
     }
     const currentTime = el.getCurrentTime()
     window.NouTubeI?.notifyProgress(el.getPlayerState() == 1, currentTime)
-    saveProgress(currentTime)
+    const progress = getProgress(currentTime)
+    if (progress) {
+      saveProgress(progress)
+    }
     if (isSponsorBlockEnabled() && curVideoId == skipSegments.videoId && skipSegments.segments.length) {
       renderSkipSegments(curVideoId, skipSegments.segments, duration || el.getDuration?.() || 0)
       for (const segment of skipSegments.segments) {
@@ -259,6 +290,9 @@ export function handleVideoPlayer(el: any) {
     const { title: _title, author, thumbnail, lengthSeconds, videoId } = videoDetails
     renderFullscreenTitle(_title)
     if (curVideoId != videoId) {
+      // The previous video's trailing save is still pending; letting it land
+      // would put that video back at the top of the history, after this one.
+      saveProgress.cancel()
       player.unMute()
       const thumb = thumbnail.thumbnails.at(-1)
       duration = +lengthSeconds
