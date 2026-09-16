@@ -165,6 +165,19 @@ export function handleMutations(mutations: MutationRecord[]) {
       }
     }
   }
+  // YouTube Music mounts the player deep inside <ytmusic-player>, so the added
+  // node is an ancestor and the id check above never sees it -- the player goes
+  // unbound for the whole session and nothing ever reaches the media
+  // notification. A document lookup finds it wherever it lands, and stays cheap:
+  // at most one indexed id query per batch, and only while no live player is
+  // bound. A player YouTube has swapped out stops being connected, which is what
+  // lets its replacement be picked up.
+  if (!player?.__nouPlayerBound || !player.isConnected) {
+    const found = document.querySelector('#movie_player')
+    if (found) {
+      handleVideoPlayer(found)
+    }
+  }
 }
 
 export function handleVideoPlayer(el: any) {
@@ -255,7 +268,7 @@ export function handleVideoPlayer(el: any) {
   }
 
   let progressBinded = false
-  el.addEventListener('onStateChange', async (state: number) => {
+  const onStateChange = async (state: number) => {
     // The native mini player draws its own play/pause button, so it needs the
     // state transitions -- notifyProgress is throttled and too coarse for a
     // button the user just tapped.
@@ -324,7 +337,19 @@ export function handleVideoPlayer(el: any) {
       applySavedPlaybackRate(player)
       applySavedPlaybackQuality(player)
     }
-  })
+  }
+  el.addEventListener('onStateChange', onStateChange)
+
+  // Binding can land mid-playback: YouTube Music mounts its player long after
+  // the page, so the state change that would have set all this up has already
+  // fired and the next one is a track away. Replaying the live state gets the
+  // notification, the progress ticks and the saved position going now. Only the
+  // states that mean a video is loaded -- replaying 'ended' would clear the
+  // resume position and report a playback that is not happening.
+  const liveState = el.getPlayerState?.()
+  if (liveState === 1 || liveState === 2 || liveState === 3) {
+    void onStateChange(liveState)
+  }
 }
 
 // The native shell force-rotates fullscreen to landscape, but only when the

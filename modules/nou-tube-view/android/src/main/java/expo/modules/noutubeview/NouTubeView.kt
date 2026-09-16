@@ -311,6 +311,21 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     // service bindings would take it simply by connecting last, and the
     // notification would end up driving a WebView with nothing in it.
     private var mediaSessionOwner: NouTubeView? = null
+
+    // Point the service's media session at whichever view owns it. Runs both
+    // when the owner changes and when a binding lands, because either can come
+    // first: JS claims on mount, usually before the asynchronous bind, while
+    // the binding itself belongs to whichever view was constructed last. Doing
+    // it in one place is what stops the two from deadlocking each other -- a
+    // claim that arrives first used to leave the session unbuilt for good.
+    private fun syncMediaSession() {
+      val owner = mediaSessionOwner ?: return
+      val service = owner.service ?: nouController.service ?: return
+      val activity = owner.currentActivity ?: return
+      owner.service = service
+      nouController.service = service
+      service.initialize(owner.webView, activity)
+    }
   }
 
   internal val currentActivity: Activity?
@@ -728,15 +743,18 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
       override fun onServiceConnected(name: ComponentName, binder: IBinder) {
         val nouBinder = binder as NouService.NouBinder
         service = nouBinder.getService()
-        val owner = mediaSessionOwner
-        // Binding is asynchronous, so this can land after JS has already handed
-        // the media session to the other view. Only take it when nobody else
-        // holds it.
-        if (owner == null || owner === this@NouTubeView) {
-          mediaSessionOwner = this@NouTubeView
-          service?.initialize(webView, activity)
-        }
         nouController.service = service
+        // Binding is asynchronous, so this can land after JS has already handed
+        // the media session to the other view. Take ownership only when nobody
+        // else holds it, but hand the session over either way: a newer view's
+        // initService drops the previous view's connection, so the view holding
+        // the live binding is regularly not the owner, and bailing out here left
+        // the session unbuilt for the whole process -- no media notification at
+        // all whenever the split view was on.
+        if (mediaSessionOwner == null) {
+          mediaSessionOwner = this@NouTubeView
+        }
+        syncMediaSession()
         nouController.applyPendingSleepTimer()
       }
 
@@ -887,13 +905,9 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   // media controls at this WebView (see lib/split-view.ts).
   fun claimMediaSession() {
     mediaSessionOwner = this
-    val activity = currentActivity ?: return
-    // The binding may not have landed yet; onServiceConnected sees the claim
-    // above and initializes for this view when it does.
-    val current = service ?: nouController.service ?: return
-    service = current
-    current.initialize(webView, activity)
-    nouController.service = current
+    // The binding may not have landed yet, in which case this does nothing now
+    // and onServiceConnected runs the handover for this view when it does.
+    syncMediaSession()
   }
 
   // Bound through the application context, so nothing releases the binding on

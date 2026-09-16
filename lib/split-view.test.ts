@@ -11,6 +11,7 @@ import {
   openInBrowse,
   setBrowseWebview,
   setPlayerWebview,
+  setSplitPageUrl,
   showPlayer,
 } from './split-view'
 
@@ -260,5 +261,55 @@ describe('loading into a player whose native view is not up yet', () => {
     closePlayer()
     await settle()
     expect(player.loaded).not.toContain('https://m.youtube.com/watch?v=abc123')
+  })
+})
+
+describe('setSplitPageUrl', () => {
+  beforeEach(() => {
+    settings$.miniPlayer.set(true)
+    setPlayerWebview(null)
+    setBrowseWebview(null)
+    closePlayer()
+  })
+
+  it('closes the player when the browsing view lands on YouTube Music', () => {
+    const browse = fakePlayer()
+    const player = fakePlayer()
+    setBrowseWebview(browse)
+    setPlayerWebview(player)
+    openInPlayer('https://m.youtube.com/watch?v=abc123')
+    hidePlayer()
+
+    setSplitPageUrl('browse', 'https://music.youtube.com/watch?v=song12345')
+
+    expect(ui$.playerUrl.get()).toBe('')
+    expect(ui$.playerMode.get()).toBe('hidden')
+    expect(player.loaded.at(-1)).toBe('about:blank')
+    // No video left to own the audio, so the browsing side takes it back.
+    expect(browse.scripts.at(-1)).toContain('setMuted?.(false)')
+  })
+
+  it('keeps the player up while browsing the regular site', () => {
+    const player = fakePlayer()
+    setBrowseWebview(fakePlayer())
+    setPlayerWebview(player)
+    openInPlayer('https://m.youtube.com/watch?v=abc123')
+    hidePlayer()
+
+    setSplitPageUrl('browse', 'https://m.youtube.com/@channel')
+
+    expect(ui$.playerUrl.get()).toBe('https://m.youtube.com/watch?v=abc123')
+    expect(ui$.playerMode.get()).toBe('mini')
+    expect(player.loaded).not.toContain('about:blank')
+  })
+
+  it('has nothing to tear down on YouTube Music without a video', () => {
+    const player = fakePlayer()
+    setBrowseWebview(fakePlayer())
+    setPlayerWebview(player)
+
+    setSplitPageUrl('browse', 'https://music.youtube.com/')
+
+    expect(player.loaded).toEqual([])
   })
 })

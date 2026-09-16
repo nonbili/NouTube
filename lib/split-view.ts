@@ -234,9 +234,22 @@ export function setSplitPageUrl(view: 'browse' | 'player', url: string) {
   }
   if (view === 'browse') {
     ui$.browsePageUrl.set(url)
+    let ytMusic = false
     try {
-      settings$.home.set(new URL(url).host === 'music.youtube.com' ? 'yt-music' : 'yt')
+      ytMusic = new URL(url).host === 'music.youtube.com'
+      settings$.home.set(ytMusic ? 'yt-music' : 'yt')
     } catch {}
+    // YouTube Music is a player in its own right, and the split runs on one
+    // player and one media session. A video left loaded here would float over
+    // YTM's own controls, keep the browsing side muted (see syncBrowseMute)
+    // and leave the notification on the video rather than the track now
+    // playing. Only youtube.com /watch ever reaches the player (see
+    // isWatchUrl), so nothing closed here is the page the user asked for.
+    // Clearing playerUrl also hands the media session back to the browsing
+    // webview, through the claim effect in MainPageContent.
+    if (ytMusic && ui$.playerUrl.get()) {
+      closePlayer()
+    }
   } else {
     ui$.playerPageUrl.set(url)
   }
