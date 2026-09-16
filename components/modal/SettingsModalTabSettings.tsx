@@ -1,7 +1,7 @@
 import { ActivityIndicator, Platform, Pressable, Switch, TextInput, View, useColorScheme } from 'react-native'
 import { useState } from 'react'
 import { useLocales } from 'expo-localization'
-import { clsx, isAndroid, isWeb, nIf } from '@/lib/utils'
+import { clsx, isAndroid, isIos, isWeb, nIf } from '@/lib/utils'
 import { useValue } from '@legendapp/state/react'
 import { settings$, ZOOM_PRESETS } from '@/states/settings'
 import { Segmented } from '../picker/Segmented'
@@ -952,15 +952,19 @@ export const SettingsToolsContent = () => {
           description={t('settings.userAgent.default')}
           icon="devices"
           onPress={() => ui$.userAgentModalOpen.set(true)}
+          isLast={isIos}
         />
-        <SettingsActionRow
-          label={t('buttons.updateYtDlp')}
-          description="Download the latest version from GitHub"
-          icon="download-for-offline"
-          onPress={handleUpdateYtDlp}
-          loading={updatingYtDlp}
-          isLast
-        />
+        {nIf(
+          !isIos,
+          <SettingsActionRow
+            label={t('buttons.updateYtDlp')}
+            description="Download the latest version from GitHub"
+            icon="download-for-offline"
+            onPress={handleUpdateYtDlp}
+            loading={updatingYtDlp}
+            isLast
+          />,
+        )}
       </View>
     </SettingsSection>
   )

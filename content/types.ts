@@ -20,6 +20,8 @@ declare global {
     _lact: number
     isAndroid: boolean
     NouTubeInitialSettings?: Record<string, unknown>
+    // False on shells without yt-dlp (iOS); undefined means downloads are fine.
+    NouTubeDownloads?: boolean
     NouTubeBlocklist?: import('../lib/blocklist').BlocklistSnapshot
     NouTubeUserStyles?: import('../lib/user-styles').UserStylesSnapshot
     NouTubeI: NouTubeI

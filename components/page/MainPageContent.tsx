@@ -431,7 +431,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     `window.NouTubePreferH264 = ${settings$.preferH264.get() ? 'true' : 'false'};` +
     `window.NouTubeClickbaitThumbnail = ${JSON.stringify(settings$.clickbaitThumbnail.get())};` +
     `window.NouTubeUserStyles = ${JSON.stringify(getUserStylesSnapshot())};` +
-    `window.NouTubeBlocklist = ${JSON.stringify(getBlocklistSnapshot())};`
+    `window.NouTubeBlocklist = ${JSON.stringify(getBlocklistSnapshot())};` +
+    `window.NouTubeDownloads = ${isIos ? 'false' : 'true'};`
   // Subscribed so the next document starts with the current preference: the
   // prelude decides what the in-page interceptor strips before the page renders,
   // and the post-load sync cannot bring back data stripped on the way in.
@@ -445,7 +446,8 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     `window.NouTubePreferH264 = ${preferH264 ? 'true' : 'false'};` +
     `window.NouTubeClickbaitThumbnail = ${JSON.stringify(clickbaitThumbnail)};` +
     `window.NouTubeUserStyles = ${JSON.stringify(getUserStylesSnapshot())};` +
-    `window.NouTubeBlocklist = ${JSON.stringify(getBlocklistSnapshot(blocklistState))};`
+    `window.NouTubeBlocklist = ${JSON.stringify(getBlocklistSnapshot(blocklistState))};` +
+    `window.NouTubeDownloads = ${isIos ? 'false' : 'true'};`
   const { userId, me } = useMe()
   const userAgent = resolveUserAgent(
     isIos ? 'ios' : isWeb ? window.electron.process.platform : 'android',

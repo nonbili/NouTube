@@ -79,16 +79,20 @@ export const FeedItem: React.FC<{
                   }),
                 ),
             },
-            {
-              label: t('menus.download'),
-              icon: <MaterialIcons name="download" size={18} color="#475569" />,
-              systemImage: 'arrow.down.circle',
-              handler: () => {
-                ui$.toolsModalUrl.set(starUrl)
-                ui$.toolsModalOpen.set(true)
-                ui$.assign({ feedModalOpen: false })
-              },
-            },
+            ...(isIos
+              ? []
+              : [
+                  {
+                    label: t('menus.download'),
+                    icon: <MaterialIcons name="download" size={18} color="#475569" />,
+                    systemImage: 'arrow.down.circle',
+                    handler: () => {
+                      ui$.toolsModalUrl.set(starUrl)
+                      ui$.toolsModalOpen.set(true)
+                      ui$.assign({ feedModalOpen: false })
+                    },
+                  },
+                ]),
             {
               label: t('menus.share'),
               icon: <MaterialIcons name="share" size={18} color="#475569" />,

@@ -174,7 +174,7 @@ export function handleMenu() {
       }
       menu.prepend(menuItem)
 
-      {
+      if (window.NouTubeDownloads !== false) {
         const downloadCls = '_nou_download_'
         menu.querySelectorAll(`.${downloadCls}`).forEach((el) => el.remove())
         const downloadItemData = { icon: iconDownload, label: 'Download' }

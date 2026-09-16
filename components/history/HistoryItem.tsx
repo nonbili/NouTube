@@ -84,14 +84,18 @@ export const HistoryItem: React.FC<{ bookmark: History }> = ({ bookmark }) => {
                   }),
                 ),
             },
-            {
-              label: t('menus.download'),
-              handler: () => {
-                ui$.toolsModalUrl.set(starUrl)
-                ui$.toolsModalOpen.set(true)
-                ui$.assign({ historyModalOpen: false })
-              },
-            },
+            ...(isIos
+              ? []
+              : [
+                  {
+                    label: t('menus.download'),
+                    handler: () => {
+                      ui$.toolsModalUrl.set(starUrl)
+                      ui$.toolsModalOpen.set(true)
+                      ui$.assign({ historyModalOpen: false })
+                    },
+                  },
+                ]),
             { label: t('menus.share'), handler: () => share(historyUrl) },
             { label: t('menus.remove'), handler: () => history$.removeHistory(bookmark) },
           ]}

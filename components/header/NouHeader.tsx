@@ -430,7 +430,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           />,
         )}
         {nIf(
-          pageType?.type === 'watch' || hasDownloads,
+          !isIos && (pageType?.type === 'watch' || hasDownloads),
           <MaterialButton
             name="download"
             color={isDownloading ? '#60a5fa' : headerControlColor}
@@ -570,14 +570,18 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
               systemImage: 'square.and.arrow.up',
               handler: () => void onShare(),
             },
-            {
-              label: t('menus.tools', 'Tools'),
-              icon: <MaterialIcons name="download" size={18} color={headerControlColor} />,
-              systemImage: 'arrow.down.circle',
-              handler: () => {
-                ui$.toolsModalOpen.set(true)
-              },
-            },
+            ...(isIos
+              ? []
+              : [
+                  {
+                    label: t('menus.tools', 'Tools'),
+                    icon: <MaterialIcons name="download" size={18} color={headerControlColor} />,
+                    systemImage: 'arrow.down.circle',
+                    handler: () => {
+                      ui$.toolsModalOpen.set(true)
+                    },
+                  },
+                ]),
             {
               label: t('settings.label'),
               icon: <MaterialIcons name="settings" size={18} color={headerControlColor} />,
