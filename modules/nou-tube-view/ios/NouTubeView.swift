@@ -56,6 +56,8 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
   private var appStateObservers: [NSObjectProtocol] = []
   private var lastScrollY: CGFloat = 0
   private var loadErrorShown = false
+  private var lastBrightness = UIScreen.main.brightness
+  private var pipWakeFrames: Int?
   private let refreshControl = UIRefreshControl()
 
   public required init(appContext: AppContext? = nil) {
@@ -261,8 +263,26 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
           post('notify', { title: title, author: author, seconds: seconds, thumbnail: thumbnail })
         },
         notifyProgress: function (playing, pos) {
-          post('notifyProgress', { playing: playing, pos: pos })
+          post('notifyProgress', { playing: playing, pos: pos, frames: nouPipFrames() })
         }
+      }
+
+      // The page holds several <video> elements at once (the watch player, the
+      // feed previews, the miniplayer), and the pinned one is not necessarily
+      // the first, so the presentation mode is what finds it.
+      function nouPipVideo() {
+        return Array.prototype.slice.call(document.querySelectorAll('video')).filter(function (v) {
+          return v.webkitPresentationMode === 'picture-in-picture'
+        })[0]
+      }
+      // Frames decoded by the pinned video, or -1 when nothing is pinned. The
+      // native side watches this to tell a live Picture-in-Picture window from
+      // one whose decode WebKit parked while the display slept.
+      function nouPipFrames() {
+        var v = nouPipVideo()
+        if (!v) return -1
+        var q = v.getVideoPlaybackQuality ? v.getVideoPlaybackQuality() : null
+        return q ? q.totalVideoFrames : -1
       }
     })();
     """
@@ -337,6 +357,7 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
         position: body["pos"] as? Double ?? 0
       )
       UIApplication.shared.isIdleTimerDisabled = playing
+      recoverPictureInPictureIfNeeded(playing: playing, frames: body["frames"] as? Int ?? -1)
     default:
       break
     }
@@ -484,6 +505,48 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
     let types = WKWebsiteDataStore.allWebsiteDataTypes()
     let records = await store.dataRecords(ofTypes: types)
     await store.removeData(ofTypes: types, for: records)
+  }
+
+  // Turning the screen off parks the decode of a video that is already pinned:
+  // the frame counter stops for good while the audio plays on, so the window
+  // the user comes back to is black. The app is in the background the whole
+  // time, so WebKit never hears that the display woke up -- seeking to where
+  // the video already is rebuilds the decode path. (Reselecting the video
+  // track would be cheaper, but WebKit does not expose video.videoTracks.)
+  private static let pipNudgeScript = """
+    (function () {
+      var v = Array.prototype.slice.call(document.querySelectorAll('video')).filter(function (el) {
+        return el.webkitPresentationMode === 'picture-in-picture'
+      })[0]
+      if (!v) return
+      v.currentTime = v.currentTime
+    })()
+    """
+
+  // The seek costs a short rebuffer, so it waits for the tick after the wake
+  // to see whether the decode is running anyway -- a brief screen-off leaves
+  // it alone. Progress ticks arrive about once a second.
+  private func recoverPictureInPictureIfNeeded(playing: Bool, frames: Int) {
+    let brightness = UIScreen.main.brightness
+    let screenWokeUp = lastBrightness <= 0.01 && brightness > 0.01
+    lastBrightness = brightness
+
+    // Nothing pinned, or nothing playing: the window is not what the user is
+    // looking at, and the next wake starts over.
+    guard playing, frames >= 0 else {
+      pipWakeFrames = nil
+      return
+    }
+
+    if screenWokeUp {
+      pipWakeFrames = frames
+      return
+    }
+
+    guard let wakeFrames = pipWakeFrames else { return }
+    pipWakeFrames = nil
+    guard frames <= wakeFrames else { return }
+    webView.evaluateJavaScript(NouTubeView.pipNudgeScript, completionHandler: nil)
   }
 
   // webkitSetPresentationMode is WebKit's own API; the standard
