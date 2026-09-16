@@ -213,7 +213,7 @@
     "hideShorts": "Ukryj Shorts na osi czasu",
     "hideShortsInNavbar": "Ukryj Shorts na pasku nawigacji",
     "hideMixPlaylist": "Ukryj playlistę Miks",
-    "miniPlayer": "Mini odtwarzacz YouTube",
+    "miniPlayer": "Mini odtwarzacz",
     "preferH264": "Preferuj H.264 (blok VP9/AV1)",
     "showDislikes": "Pokaż łapki w dół",
     "showOriginalVideoTitle": "Pokaż oryginalny tytuł filmu",
@@ -382,7 +382,22 @@
     },
     "showSleepTimerButtonInHeader": "Pokaż przycisk wyłącznika czasowego na pasku narzędzi",
     "showLibraryButtonInHeader": "Pokaż przycisk Biblioteki na pasku narzędzi",
-    "showStarButtonInHeader": "Pokaż przycisk z gwiazdką na pasku narzędzi"
+    "showStarButtonInHeader": "Pokaż przycisk z gwiazdką na pasku narzędzi",
+    "mediaNotificationButtons": "Przyciski powiadomień multimedialnych",
+    "showMediaNotificationPrevButton": "Pokaż przycisk Poprzedni",
+    "showMediaNotificationNextButton": "Pokaż przycisk Następny",
+    "showMediaNotificationRewindButton": "Pokaż przycisk Przewiń do tyłu",
+    "showMediaNotificationForwardButton": "Pokaż przycisk Przewiń do przodu",
+    "showMediaNotificationSpeedButton": "Pokaż przycisk Prędkość odtwarzania",
+    "showMediaNotificationCloseButton": "Pokaż przycisk Zamknij",
+    "mediaNotificationButtonsHint": "System Android wyświetla obok przycisku odtwarzania maksymalnie cztery z tych przycisków w kolejności podanej poniżej. Liczba obecnie włączonych przez Ciebie przycisków: {{selected}}.",
+    "miniPlayerHint": "Opuszczenie strony z filmem sprawia, że jest on nadal odtwarzany w rogu strony.",
+    "pictureInPicture": "Obraz w obrazie",
+    "pictureInPictureHint": "Pozostaw odtwarzanie wideo w pływającym oknie po wyjściu z aplikacji.",
+    "blockAds": {
+      "label": "Blokuj reklamy",
+      "hint": "Wyłącz, aby zezwolić na reklamy w YouTube i wspierać twórców."
+    }
   },
   "native": {
     "format_bestQuality": "Najlepsza jakość",
@@ -413,5 +428,24 @@
   "pageLoadError": {
     "title": "Nie można załadować tej strony",
     "description": "Sprawdź połączenie i spróbuj ponownie."
+  },
+  "extension": {
+    "openOptions": "Lista blokowanych i style użytkownika",
+    "reloadTabs": "Przeładuj karty YouTube",
+    "applyHint": "Niektóre opcje zaczną działać dopiero po odświeżeniu strony.",
+    "userScriptsUnavailable": "Skrypty użytkownika wymagają uprawnień przeglądarki. W Chrome otwórz stronę szczegółów rozszerzenia i zezwól na skrypty użytkownika.",
+    "feeds": "Kanały",
+    "library": "Biblioteka",
+    "signIn": "Logowanie",
+    "signedOut": "Niezalogowany",
+    "syncNow": "Synchronizuj teraz",
+    "refreshFeeds": "Odśwież kanały",
+    "manageFeeds": "Zarządzaj kanałami",
+    "account": "Konto i synchronizacja",
+    "more": "Więcej",
+    "openExpanded": "Otwórz w nowej karcie",
+    "openYouTube": "Otwórz YouTube",
+    "openYouTubeMusic": "Otwórz YouTube Music",
+    "saveCurrentPage": "Zapisz bieżącą stronę"
   }
 }

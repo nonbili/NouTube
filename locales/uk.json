@@ -36,7 +36,8 @@
     "updating": "Оновлення...",
     "ytDlpUpdated": "yt-dlp оновлено",
     "move": "Перемістити",
-    "undo": "Відмінити"
+    "undo": "Відмінити",
+    "retry": "Ще раз"
   },
   "library": {
     "videos": "Відео",

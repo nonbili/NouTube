@@ -215,7 +215,7 @@
       "system": "Системный",
       "hint": "Выберите язык или используйте системный язык."
     },
-    "miniPlayer": "Мини-плеер YouTube",
+    "miniPlayer": "Мини-плеер",
     "preferH264": "Предпочитать H.264 (блокировать VP9/AV1)",
     "clickbaitThumbnail": {
       "label": "Избегать кликбейтных превью",
@@ -308,7 +308,22 @@
     },
     "showSleepTimerButtonInHeader": "Показывать кнопку таймера сна на панели инструментов",
     "showLibraryButtonInHeader": "Показывать кнопку «Библиотека» на панели инструментов",
-    "showStarButtonInHeader": "Показывать кнопку «Звезда» на панели инструментов"
+    "showStarButtonInHeader": "Показывать кнопку «Звезда» на панели инструментов",
+    "mediaNotificationButtons": "Кнопки медиауведомления",
+    "showMediaNotificationPrevButton": "Показывать кнопку «Предыдущий»",
+    "showMediaNotificationNextButton": "Показывать кнопку «Следующий»",
+    "showMediaNotificationRewindButton": "Показывать кнопку перемотки назад",
+    "showMediaNotificationForwardButton": "Показывать кнопку перемотки вперед",
+    "showMediaNotificationSpeedButton": "Показывать кнопку скорости воспроизведения",
+    "showMediaNotificationCloseButton": "Показывать кнопку «Закрыть»",
+    "mediaNotificationButtonsHint": "Android отображает не более четырех из этих кнопок рядом с кнопкой воспроизведения в указанном здесь порядке. Включено: {{selected}}.",
+    "miniPlayerHint": "При выходе из видео оно продолжит воспроизводиться в углу страницы.",
+    "pictureInPicture": "Картинка в картинке",
+    "pictureInPictureHint": "Видео продолжит воспроизводиться в плавающем окне при выходе из приложения.",
+    "blockAds": {
+      "label": "Блокировать рекламу",
+      "hint": "Отключите, чтобы разрешить показ рекламы на YouTube и поддержать авторов."
+    }
   },
   "sync": {
     "label": "Синхронизация",
@@ -413,5 +428,24 @@
   "pageLoadError": {
     "title": "Не удается загрузить эту страницу",
     "description": "Проверьте подключение и повторите попытку."
+  },
+  "extension": {
+    "openOptions": "Черный список и пользовательские стили",
+    "reloadTabs": "Перезагрузить вкладки YouTube",
+    "applyHint": "Некоторые настройки вступят в силу только при следующей загрузке страницы.",
+    "userScriptsUnavailable": "Пользовательским скриптам требуется разрешение браузера. В Chrome откройте страницу сведений о расширении и разрешите использование скриптов.",
+    "feeds": "Ленты",
+    "library": "Библиотека",
+    "signIn": "Войти",
+    "signedOut": "Не выполнен вход",
+    "syncNow": "Синхронизировать сейчас",
+    "refreshFeeds": "Обновить ленты",
+    "manageFeeds": "Управление лентами",
+    "account": "Аккаунт и синхронизация",
+    "more": "Ещё",
+    "openExpanded": "Открыть в новой вкладке",
+    "openYouTube": "Открыть YouTube",
+    "openYouTubeMusic": "Открыть YouTube Music",
+    "saveCurrentPage": "Сохранить текущую страницу"
   }
 }

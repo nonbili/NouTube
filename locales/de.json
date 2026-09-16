@@ -25,7 +25,8 @@
     "updateYtDlp": "yt-dlp aktualisieren",
     "ytDlpUpdated": "yt-dlp ist auf dem neuesten Stand",
     "clearAll": "Alles leeren",
-    "undo": "Rückgängig"
+    "undo": "Rückgängig",
+    "retry": "Erneut versuchen"
   },
   "library": {
     "videos": "Videos",
@@ -70,7 +71,14 @@
     "pinnedFormat": "Angeheftet",
     "sharePageUrl": "Seiten-URL",
     "shareVideoUrl": "Video-URL",
-    "shareIncludePosition": "Aktuelle Position miteinbeziehen"
+    "shareIncludePosition": "Aktuelle Position miteinbeziehen",
+    "downloadUseCookies": "Meine Cookies verwenden",
+    "downloadUseCookiesHint": "Erforderlich für altersbeschränkte, nur für Mitglieder zugängliche oder private Videos. Möglicherweise wirst du dadurch bei YouTube abgemeldet, und die Nutzung eines Kontos auf diese Weise birgt das Risiko, dass es als verdächtig markiert wird.",
+    "downloadErrorBlocked": "YouTube hat diesen Download abgelehnt. Es wird ein Token benötigt, das yt-dlp derzeit noch nicht generieren kann, daher kann dieses Video vorerst nicht heruntergeladen werden – die meisten anderen Videos funktionieren weiterhin.",
+    "downloadErrorSignIn": "YouTube verlangt für dieses Video, dass du angemeldet bist. Aktiviere die Option „Meine Cookies verwenden“ und versuche es erneut.",
+    "downloadErrorFormat": "Dieses Format ist nicht mehr verfügbar. Lade die Formate erneut und wähle ein anderes aus.",
+    "downloadErrorNetwork": "YouTube konnte nicht erreicht werden. Überprüfe deine Verbindung und versuche es erneut.",
+    "failedToLoadFormats": "Das Laden der Formate ist fehlgeschlagen"
   },
   "settings": {
     "label": "Einstellungen",
@@ -224,12 +232,17 @@
     "loading": "Versionshinweise werden geladen ...",
     "retry": "Erneut versuchen",
     "empty": "Keine Versionshinweise gefunden.",
-    "noNotes": "Für diese Version wurden keine Versionshinweise bereitgestellt."
+    "noNotes": "Für diese Version wurden keine Versionshinweise bereitgestellt.",
+    "hint": "Kürzliche Veröffentlichungen und Fehlerbehebungen von GitHub."
   },
   "update": {
     "check": "Auf Aktualisierungen prüfen",
     "downloading": "Aktualisierung v{{version}} wird heruntergeladen …",
-    "downloadedTitle": "Aktualisierung bereit"
+    "downloadedTitle": "Aktualisierung bereit",
+    "checkHint": "Nachsehen, ob eine neuere Version verfügbar ist",
+    "upToDate": "Du bist auf der neuesten Version",
+    "error": "Die Überprüfung auf Aktualisierungen ist fehlgeschlagen",
+    "downloadedHint": "Version {{version}} wurde heruntergeladen. Möchtest du jetzt neu starten, um die Installation durchzuführen?"
   },
   "feeds": {
     "updates": "Aktualisierungen",
@@ -256,7 +269,8 @@
   },
   "bookmarks": {
     "removed": "Lesezeichen entfernt",
-    "moved": "Nach {{folder}} verschoben"
+    "moved": "Nach {{folder}} verschoben",
+    "movedToRoot": "Aus dem Ordner heraus verschoben"
   },
   "folders": {
     "removed": "Ordner {{name}} entfernt"

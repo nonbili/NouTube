@@ -36,7 +36,8 @@
     "updateYtDlp": "Actualizar yt-dlp",
     "updating": "Actualizando...",
     "ytDlpUpdated": "yt-dlp está actualizado",
-    "undo": "Deshacer"
+    "undo": "Deshacer",
+    "retry": "Reintentar"
   },
   "library": {
     "videos": "Vídeos",
@@ -171,7 +172,7 @@
     "hideShorts": "Ocultar shorts en la línea de tiempo",
     "hideShortsInNavbar": "Ocultar shorts en la barra de navegación",
     "hideMixPlaylist": "Ocultar listas de reproducción Mix",
-    "miniPlayer": "Minirreproductor de YouTube",
+    "miniPlayer": "Minirreproductor",
     "preferH264": "Preferir H.264 (bloquear VP9/AV1)",
     "clickbaitThumbnail": {
       "label": "Evitar miniaturas clickbait",
@@ -369,7 +370,25 @@
     "preferencesComments": "Comentarios",
     "sidebar": "Barra lateral",
     "preferencesYouTubeHint": "Preferencias de YouTube",
-    "preferencesNouTubeHint": "Preferencias de NouTube"
+    "preferencesNouTubeHint": "Preferencias de NouTube",
+    "showSleepTimerButtonInHeader": "Mostrar botón del temporizador de suspensión en la barra de herramientas",
+    "showLibraryButtonInHeader": "Mostrar botón de la biblioteca en la barra de herramientas",
+    "showStarButtonInHeader": "Mostrar botón de estrella en la barra de herramientas",
+    "mediaNotificationButtons": "Botones de notificación multimedia",
+    "showMediaNotificationPrevButton": "Mostrar botón Anterior",
+    "showMediaNotificationNextButton": "Mostrar botón Siguiente",
+    "showMediaNotificationRewindButton": "Mostrar botón Rebobinar",
+    "showMediaNotificationForwardButton": "Mostrar botón Adelantar",
+    "showMediaNotificationSpeedButton": "Mostrar botón de velocidad de reproducción",
+    "showMediaNotificationCloseButton": "Mostrar botón Cerrar",
+    "mediaNotificationButtonsHint": "Android dibuja como máximo cuatro de estos botones junto al botón de reproducción, en el orden listado aquí. Tienes {{selected}} activados.",
+    "miniPlayerHint": "Al salir de un video, continúa reproduciéndose en una esquina de la página.",
+    "pictureInPicture": "Pantalla en pantalla",
+    "pictureInPictureHint": "Mantén la reproducción del video en una ventana flotante al salir de la aplicación.",
+    "blockAds": {
+      "label": "Bloquear anuncios",
+      "hint": "Desactívalo para permitir los anuncios de YouTube y apoyar a los creadores."
+    }
   },
   "native": {
     "format_bestQuality": "Mejor calidad",
@@ -405,5 +424,28 @@
   },
   "folders": {
     "removed": "Carpeta {{name}} eliminada"
+  },
+  "pageLoadError": {
+    "title": "No se puede cargar esta página",
+    "description": "Comprueba tú conexión e inténtalo de nuevo."
+  },
+  "extension": {
+    "openOptions": "Lista de bloqueos y estilos de usuario",
+    "reloadTabs": "Recargar pestañas de YouTube",
+    "applyHint": "Algunas opciones solo surten efecto en la siguiente carga de la página.",
+    "userScriptsUnavailable": "Los scripts de usuario necesitan el permiso de scripts de usuario del navegador. En Chrome, abre la página de detalles de la extensión y permite los scripts de usuario.",
+    "feeds": "Feeds",
+    "library": "Biblioteca",
+    "signIn": "Iniciar sesión",
+    "signedOut": "Sin iniciar sesión",
+    "syncNow": "Sincronizar ahora",
+    "refreshFeeds": "Actualizar fuentes",
+    "manageFeeds": "Gestionar fuentes",
+    "account": "Cuenta y sincronización",
+    "more": "Más",
+    "openExpanded": "Abrir en otra pestaña",
+    "openYouTube": "Abrir YouTube",
+    "openYouTubeMusic": "Abrir YouTube Music",
+    "saveCurrentPage": "Guardar página actual"
   }
 }
