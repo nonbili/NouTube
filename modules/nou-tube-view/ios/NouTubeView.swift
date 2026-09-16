@@ -55,6 +55,7 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
   private var urlObservation: NSKeyValueObservation?
   private var appStateObservers: [NSObjectProtocol] = []
   private var lastScrollY: CGFloat = 0
+  private var loadErrorShown = false
   private let refreshControl = UIRefreshControl()
 
   public required init(appContext: AppContext? = nil) {
@@ -99,20 +100,6 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
     // believes it is hidden), so the real app visibility is mirrored in here
     // instead -- content/background-guard.ts reads it to tell a YouTube pause
     // apart from one the user asked for.
-    // WebKit suspends media decoding when the web process leaves the
-    // foreground, so background audio only survives in Picture-in-Picture. The
-    // request has to go out while the app is still active: once it has
-    // backgrounded WebKit turns it down.
-    appStateObservers.append(
-      NotificationCenter.default.addObserver(
-        forName: UIApplication.willResignActiveNotification,
-        object: nil,
-        queue: .main
-      ) { [weak self] _ in
-        self?.enterPictureInPictureIfPlaying()
-      }
-    )
-
     for (name, background) in [
       (UIApplication.didEnterBackgroundNotification, true),
       (UIApplication.willEnterForegroundNotification, false),
@@ -223,6 +210,44 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
       // navigations, which YouTube needs for its own teardown.
       ;['visibilitychange', 'webkitvisibilitychange'].forEach(function (type) {
         document.addEventListener(type, function (e) { e.stopImmediatePropagation() }, true)
+      })
+
+      // Picture-in-Picture can only be armed while the app is still
+      // foreground-active. AVKit refuses startPictureInPicture once the scene
+      // has gone ForegroundInactive -- which it already has by
+      // willResignActive -- and the player behind the video is not built until
+      // something asks for it, so asking that late hands AVKit a controller
+      // reporting no dimensions and no playback, which is prohibited twice
+      // over. Marking the video as soon as it plays builds that player up
+      // front instead, while the window can still be opened from the header
+      // button. (autopictureinpicture asks WebKit to open the window on its
+      // own when the app leaves; iOS 17 does not honour it, so leaving the app
+      // without pressing the button still drops out of video.)
+      var armPictureInPicture = function (video) {
+        if (!(video instanceof HTMLVideoElement)) return
+        // Only the player, never the feed previews: those are muted
+        // decoration with nothing worth pinning. YouTube Music is armed too,
+        // unlike Android (content/picture-in-picture.ts leaves it out there):
+        // WebKit pauses a backgrounded <video> unless it is in
+        // Picture-in-Picture, so the pinned window is what keeps a song
+        // playing once the app leaves, artwork or not -- Android carries that
+        // on the media notification instead. Its player bar also survives
+        // navigation, so there is no watch path to gate on.
+        var isMusic = location.hostname === 'music.youtube.com'
+        if (!isMusic && location.pathname !== '/watch' && !document.fullscreenElement) return
+        // YouTube marks its player as Picture-in-Picture-disabled, and WebKit
+        // reads that off the attribute, so the attribute is what has to go --
+        // including after YouTube replaces or reconfigures the video.
+        video.removeAttribute('disablepictureinpicture')
+        video.disablePictureInPicture = false
+        video.autoPictureInPicture = true
+        video.setAttribute('autopictureinpicture', '')
+      }
+      // Media events do not bubble, and YouTube swaps the video element
+      // around, so listen for them on the way down instead of binding to one
+      // element.
+      ;['play', 'playing', 'loadedmetadata'].forEach(function (type) {
+        document.addEventListener(type, function (e) { armPictureInPicture(e.target) }, true)
       })
 
       var post = function (name, body) {
@@ -340,6 +365,17 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
       return
     }
 
+    // Only the main frame is handed to the system browser: an ad or embed
+    // iframe navigating itself must not be able to throw the user into Safari
+    // (Android's shouldOverrideUrlLoading is main-frame only for the same
+    // reason). targetFrame is nil for target="_blank", which createWebViewWith
+    // takes from here.
+    let isSubframe = navigationAction.targetFrame.map { !$0.isMainFrame } ?? false
+    if isSubframe {
+      decisionHandler(.allow)
+      return
+    }
+
     let scheme = url.scheme?.lowercased()
     if scheme == "http" || scheme == "https" {
       if navigationAction.targetFrame == nil || isInAppHost(url.host) {
@@ -367,6 +403,12 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
   public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
     refreshControl.endRefreshing()
     emitUrlIfChanged()
+    // The overlay outlives the failed load, so a page that does come up has to
+    // take it down (Android clears it from onPageFinished).
+    if loadErrorShown {
+      loadErrorShown = false
+      emit("load-error-cleared", [:])
+    }
   }
 
   public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -387,6 +429,7 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
     // A cancelled navigation is what every in-page link looks like once the
     // next one supersedes it; it is not something to show the user.
     guard nsError.code != NSURLErrorCancelled else { return }
+    loadErrorShown = true
     emit("load-error", [
       "url": (nsError.userInfo[NSURLErrorFailingURLStringErrorKey] as? String) ?? pageUrl,
       "code": nsError.code,
@@ -449,7 +492,7 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
   // The page holds several <video> elements at once (the watch player, the feed
   // previews, the miniplayer), and only one of them has frames to show, so the
   // decoded picture is what picks it rather than a selector.
-  private func pictureInPictureScript(toggle: Bool) -> String {
+  private var pictureInPictureScript: String {
     """
     (function () {
       var v = Array.prototype.slice
@@ -459,13 +502,9 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
       if (!v) return 'no-video'
       if (typeof v.webkitSetPresentationMode !== 'function') return 'unsupported'
       if (v.webkitPresentationMode === 'picture-in-picture') {
-        if (!\(toggle)) return 'already'
         v.webkitSetPresentationMode('inline')
         return 'exited'
       }
-      // Only the button may open Picture-in-Picture on a paused video; the
-      // automatic request is about keeping playback alive.
-      if (!\(toggle) && (v.paused || v.ended)) return 'no-video'
       // YouTube marks its player as Picture-in-Picture-disabled, and WebKit
       // reads that off the attribute, so the attribute is what has to go --
       // including after YouTube replaces or reconfigures the video.
@@ -478,15 +517,12 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
     """
   }
 
-  // The header button, unlike the automatic request below, runs while the app
-  // is still frontmost, which is the only time WebKit hands the video layer
-  // over with a picture in it.
+  // The header button is the only way in. Leaving the app used to ask for
+  // Picture-in-Picture from willResignActive, which AVKit rejects every time
+  // (the scene is already ForegroundInactive by then), so nothing asks for it
+  // there any more -- see bridgeScript for what is armed while the video plays.
   func togglePictureInPicture() async throws -> String {
-    try await evaluateJavaScript(pictureInPictureScript(toggle: true)) ?? "no-video"
-  }
-
-  private func enterPictureInPictureIfPlaying() {
-    webView.evaluateJavaScript(pictureInPictureScript(toggle: false))
+    try await evaluateJavaScript(pictureInPictureScript) ?? "no-video"
   }
 
   func setBackground(_ background: Bool) {

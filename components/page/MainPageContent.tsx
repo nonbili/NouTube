@@ -14,7 +14,7 @@ import { getNextQueueUrl, trackQueueEnded, trackQueuePlaying } from '@/lib/queue
 import { getLastPlaying } from '@/lib/last-playing'
 import { normalizeUrl } from '@/lib/url'
 import { showToast } from '@/lib/toast'
-import { clsx, isAndroid, isWeb, nIf } from '@/lib/utils'
+import { clsx, isAndroid, isIos, isWeb, nIf } from '@/lib/utils'
 import type { WebviewTag } from 'electron'
 import { NouHeader } from '../header/NouHeader'
 import { WebviewContainer } from './webview-container'
@@ -447,7 +447,11 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     `window.NouTubeUserStyles = ${JSON.stringify(getUserStylesSnapshot())};` +
     `window.NouTubeBlocklist = ${JSON.stringify(getBlocklistSnapshot(blocklistState))};`
   const { userId, me } = useMe()
-  const userAgent = resolveUserAgent(isWeb ? window.electron.process.platform : 'android', customUserAgent, desktopMode)
+  const userAgent = resolveUserAgent(
+    isIos ? 'ios' : isWeb ? window.electron.process.platform : 'android',
+    customUserAgent,
+    desktopMode,
+  )
   const getNoutube = useCallback(() => ui$.webview.get() || nativeRef.current, [])
   const nativeDoubleTapHeader = isAndroid && doubleTapToToggleHeader
   // Native has no vertical sidebar layout, so the toolbar overlays the page in

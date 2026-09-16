@@ -16,10 +16,15 @@ final class NouNowPlaying {
   private var author = ""
   private var duration: Double = 0
   private var thumbnailUrl = ""
+  // notifyProgress lands about once a second, so this is what the toggle
+  // command reads: the page has no getter to ask.
+  private var playing = false
   private var artworkTask: URLSessionDataTask?
 
   func claim(_ view: NouTubeView) {
+    guard owner !== view else { return }
     owner = view
+    playing = false
   }
 
   func pause() {
@@ -81,6 +86,7 @@ final class NouNowPlaying {
     guard owner === view else { return }
 
     installCommands()
+    self.playing = playing
     var info = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
     info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = position
     info[MPNowPlayingInfoPropertyPlaybackRate] = playing ? 1.0 : 0.0
@@ -120,7 +126,8 @@ final class NouNowPlaying {
     center.playCommand.addTarget { [weak self] _ in self?.run("NouTube.play()") ?? .noSuchContent }
     center.pauseCommand.addTarget { [weak self] _ in self?.run("NouTube.pause()") ?? .noSuchContent }
     center.togglePlayPauseCommand.addTarget { [weak self] _ in
-      self?.run("NouTube.getPlaying?.() ? NouTube.pause() : NouTube.play()") ?? .noSuchContent
+      guard let self else { return .noSuchContent }
+      return self.run(self.playing ? "NouTube.pause()" : "NouTube.play()")
     }
     center.nextTrackCommand.addTarget { [weak self] _ in self?.run("NouTube.next()") ?? .noSuchContent }
     center.previousTrackCommand.addTarget { [weak self] _ in self?.run("NouTube.prev()") ?? .noSuchContent }
