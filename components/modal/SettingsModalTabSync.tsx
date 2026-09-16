@@ -40,12 +40,10 @@ export const SettingsModalTabSync = () => {
               <NouText className="text-lg font-semibold">{t('sync.label')}</NouText>
               <NouText className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">{t('sync.hint')}</NouText>
               <View className="mt-5">
-                <NouLink
-                  className="rounded-full bg-zinc-900 px-5 py-2.5 text-center text-sm text-zinc-100 dark:bg-zinc-100 dark:text-zinc-950"
-                  href="https://noutube.inks.page/auth/app"
-                  target="_blank"
-                >
-                  Login NouTube
+                <NouLink href="https://noutube.inks.page/auth/app" target="_blank">
+                  <View className="items-center rounded-full bg-indigo-600 px-6 py-2 dark:bg-indigo-500">
+                    <NouText className="text-white dark:text-white">Login NouTube</NouText>
+                  </View>
                 </NouLink>
               </View>
             </View>
@@ -89,11 +87,10 @@ export const SettingsModalTabSync = () => {
             </View>
             <NouText className="mt-4 text-sm leading-6 text-zinc-600 dark:text-zinc-400">{t('sync.hint')}</NouText>
             <View className="mt-5">
-              <NouLink
-                className="rounded-full border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-950 px-5 py-2.5 text-center text-sm text-zinc-900 dark:text-zinc-100"
-                href="https://noutube.inks.page/app"
-              >
-                {t('sync.managePlan')}
+              <NouLink href="https://noutube.inks.page/app">
+                <View className="items-center rounded-full border border-zinc-300 bg-zinc-100 px-5 py-2.5 dark:border-zinc-700 dark:bg-zinc-950">
+                  <NouText className="text-sm text-zinc-900 dark:text-zinc-100">{t('sync.managePlan')}</NouText>
+                </View>
               </NouLink>
             </View>
           </View>

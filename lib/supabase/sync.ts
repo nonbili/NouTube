@@ -1,3 +1,4 @@
+import { syncState, type Observable } from '@legendapp/state'
 import { auth$ } from '@/states/auth'
 import { bookmarks$ } from '@/states/bookmarks'
 import { folders$ } from '@/states/folders'
@@ -11,6 +12,10 @@ import { settingsSyncer } from './sync/settings'
 import { userStylesSyncer } from './sync/user-styles'
 
 const logger = createLogger('sync', { devOnly: true })
+
+// Persisted stores emit an onChange when MMKV/IndexedDB hydration replaces the
+// defaults. That is not a local edit, so ignore changes until hydration lands.
+const isHydrated = (observable$: Observable<any>) => syncState(observable$).isPersistLoaded.get()
 
 const canSync = () => {
   const { userId, plan } = auth$.get()
@@ -34,7 +39,7 @@ export async function syncSupabase() {
 }
 
 settings$.onChange(({ value, getPrevious }) => {
-  if (settingsSyncer.isApplyingRemote()) {
+  if (settingsSyncer.isApplyingRemote() || !isHydrated(settings$)) {
     return
   }
 
@@ -53,7 +58,7 @@ settings$.onChange(({ value, getPrevious }) => {
 })
 
 userStyles$.onChange(({ value, getPrevious }) => {
-  if (userStylesSyncer.isApplyingRemote()) {
+  if (userStylesSyncer.isApplyingRemote() || !isHydrated(userStyles$)) {
     return
   }
 
@@ -72,7 +77,7 @@ userStyles$.onChange(({ value, getPrevious }) => {
 })
 
 bookmarks$.bookmarks.onChange(() => {
-  if (!bookmarksSyncer.isApplyingRemote()) {
+  if (!bookmarksSyncer.isApplyingRemote() && isHydrated(bookmarks$)) {
     logger.log('detected local bookmarks change')
     bookmarksSyncer.markDirty()
     if (canSync()) {
@@ -84,7 +89,7 @@ bookmarks$.bookmarks.onChange(() => {
 })
 
 folders$.folders.onChange(() => {
-  if (foldersSyncer.isApplyingRemote()) {
+  if (foldersSyncer.isApplyingRemote() || !isHydrated(folders$)) {
     return
   }
 
