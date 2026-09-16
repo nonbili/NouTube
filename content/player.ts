@@ -224,13 +224,21 @@ export function handleVideoPlayer(el: any) {
     localStorage.setItem(keys.playing, JSON.stringify({ url: progress.url, current: progress.current }))
     emit('progress', progress)
   }, 5000)
+  // One source for the play state in both notify paths below. YouTube reports
+  // state 3 while it buffers, which the element still calls playing, so the two
+  // disagree across a transition -- and a progress tick landing on the other
+  // answer would undo the state a button press had just sent.
+  const isPlaying = () => {
+    const video = getVideoElement(player)
+    return video ? !video.paused : el.getPlayerState() == 1
+  }
   const notifyProgress = throttle(() => {
     if (!el.getCurrentTime) {
       hideLiveChat()
       return
     }
     const currentTime = el.getCurrentTime()
-    window.NouTubeI?.notifyProgress(el.getPlayerState() == 1, currentTime)
+    window.NouTubeI?.notifyProgress(isPlaying(), currentTime)
     const progress = getProgress(currentTime)
     if (progress) {
       saveProgress(progress)
@@ -248,6 +256,15 @@ export function handleVideoPlayer(el: any) {
       clearSkipSegments()
     }
   }, 1000)
+  // The throttle above keeps the per-second progress work in check, but the
+  // media controls read the play state off the same call: a button press that
+  // lands while the last tick is still inside the throttle window would be
+  // answered from a state up to a second old, and the lock screen and the
+  // media notification then show what the video is not doing. The state itself
+  // is cheap, so play and pause send it straight out.
+  const notifyPlayState = () => {
+    window.NouTubeI?.notifyProgress(isPlaying(), el.getCurrentTime?.() ?? 0)
+  }
 
   // Entering fullscreen or rotating resizes the progress bar, and the redraw
   // above only rides on playback ticks, so a paused video would keep segments
@@ -289,8 +306,12 @@ export function handleVideoPlayer(el: any) {
     if (!progressBinded) {
       const video = getVideoElement(player)
       if (video) {
-        ;['play', 'pause', 'timeupdate'].forEach((evt) => {
-          video.addEventListener(evt, notifyProgress)
+        video.addEventListener('timeupdate', notifyProgress)
+        ;['play', 'pause'].forEach((evt) => {
+          video.addEventListener(evt, () => {
+            notifyPlayState()
+            notifyProgress()
+          })
         })
         video.addEventListener('ratechange', () => {
           emit('playback-rate', { playbackRate: video.playbackRate })

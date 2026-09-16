@@ -9,10 +9,11 @@ import { log } from './utils'
 // (NouTubeView.onWindowVisibilityChanged).
 //
 // While the app is in the background the user cannot reach the page, so a
-// pause that was not commanded through NouTube.pause() (media notification,
-// bluetooth, sleep timer) and is not an audio interruption (call, another
-// app playing — NouTubeI.canAutoResume) can only come from YouTube itself:
-// dismiss the prompt if one is shown and resume.
+// pause that the user did not ask for -- through NouTube.pause() (media
+// notification, bluetooth, sleep timer) or the page's own Media Session
+// handlers (see guardMediaSessionHandlers) -- and that is not an audio
+// interruption (call, another app playing — NouTubeI.canAutoResume) can only
+// come from YouTube itself: dismiss the prompt if one is shown and resume.
 
 const PLAYING = 1
 const PAUSED = 2
@@ -46,7 +47,48 @@ function confirmYouThereDialogs() {
   return false
 }
 
+// The transport controls -- headphone button, lock screen, Control Center --
+// do not all arrive through NouTube.pause(). WebKit hands the press to the
+// page's own Media Session handlers, and YouTube registers a full set of them,
+// so on iOS that pause never touches the app's own play/pause at all. It also
+// never reaches the capture listener below, which only records a pause while
+// the app is in the foreground. Left unattributed it looks exactly like the
+// YouTube background pause this guard exists to undo, and the poll plays the
+// video again a tick later: one press, paused and then resumed on its own.
+//
+// Wrapping the registration is what tells the two apart, and it has to be in
+// place before YouTube registers: it does that while its own early scripts
+// run, which is before DOMContentLoaded and so before the rest of this guard
+// is installed. main.ts calls this at document start for that reason.
+export function guardMediaSessionHandlers() {
+  const session = navigator.mediaSession as any
+  if (!session?.setActionHandler || session.__nouGuardedHandlers) {
+    return
+  }
+  // WebKit can collect the JS wrapper for navigator.mediaSession whenever
+  // nothing holds it, and the patch below goes with it -- the handler it
+  // installs is an own property of that wrapper, so a collected one comes back
+  // bare and every press lands unmarked again. Keeping the reference is what
+  // makes the patch outlive it.
+  ;(window as any).__nouMediaSession = session
+  const original = session.setActionHandler.bind(session)
+  session.setActionHandler = (action: string, handler: ((details: unknown) => void) | null) => {
+    if (!handler || (action !== 'play' && action !== 'pause')) {
+      return original(action, handler)
+    }
+    return original(action, (details: unknown) => {
+      // The user asked for this through the system controls, so the episode is
+      // theirs however long it lasts -- the same standing NouTube.pause() has.
+      appPaused = action === 'pause'
+      return handler(details)
+    })
+  }
+  session.__nouGuardedHandlers = true
+}
+
 export function installBackgroundGuard() {
+  guardMediaSessionHandlers()
+
   // Track pauses the app itself asked for (media notification, bluetooth,
   // sleep timer): those episodes are never fought, however long they last.
   const nouTube = window.NouTube as any

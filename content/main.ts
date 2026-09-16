@@ -16,7 +16,7 @@ import { installWatchNavigation } from './watch-nav'
 import { installFullscreenControls } from './fullscreen-controls'
 import { installSystemCaptionStyle } from './captions'
 import { installEncodedAuthorNameFix } from './author-names'
-import { installBackgroundGuard } from './background-guard'
+import { guardMediaSessionHandlers, installBackgroundGuard } from './background-guard'
 import { installSplitView, navigateWatch, setMuted, setNativeMini } from './split-view'
 
 try {
@@ -27,6 +27,13 @@ try {
   const clickbaitTarget = (window as any).NouTubeClickbaitThumbnail
   if (clickbaitTarget && clickbaitTarget !== 'default') {
     installClickbaitThumbnails(clickbaitTarget)
+  }
+
+  // Before anything of YouTube's runs: it registers the Media Session handlers
+  // that carry a headphone or lock screen press while its early scripts run,
+  // and the guard has to have wrapped them by then.
+  if (window.isAndroid) {
+    guardMediaSessionHandlers()
   }
 
   window.NouTube = initNouTube()
