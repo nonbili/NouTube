@@ -3,7 +3,7 @@ import { syncObservable } from '@legendapp/state/sync'
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import { genId, isWeb } from '@/lib/utils'
 import { getIndexedDBPlugin } from './indexeddb'
-import { normalizeUrl } from '@/lib/url'
+import { getBookmarkKey, normalizeUrl } from '@/lib/url'
 import { showUndoToast } from './undo-toast'
 import { t } from 'i18next'
 
@@ -39,24 +39,44 @@ interface Store {
 
 const getBookmarkIndex = (bookmark: Bookmark) => bookmarks$.bookmarks.findIndex((x) => x.id.get() == bookmark.id)
 
+// By key, not by url: the page the user is on rarely spells its url the way the
+// bookmark was saved. A library can hold several entries for one page -- urls
+// that only the key tells apart, saved before it existed -- so this is a list.
+const getBookmarksByKey = (url: string): Observable<Bookmark>[] => {
+  const key = getBookmarkKey(url)
+  if (!key) {
+    return []
+  }
+  return bookmarks$.bookmarks.filter((x) => getBookmarkKey(x.url.get()) == key)
+}
+
+const setDeleted = (bookmark: Observable<Bookmark>, deleted: boolean) => {
+  bookmark.assign({
+    updated_at: new Date(),
+    json: {
+      ...bookmark.json.get(),
+      deleted,
+    },
+  })
+}
+
 export const bookmarks$ = observable<Store>({
   bookmarks: [],
   updatedAt: new Date(1970),
   getBookmarkByUrl: (url): Observable<Bookmark> | undefined => {
-    const x = bookmarks$.bookmarks.find((x) => x.url.get() == url)
-    return x
+    const matches = getBookmarksByKey(url)
+    // The live entry is the one callers mean; a deleted one is only a fallback.
+    return matches.find((x) => !x.json.deleted.get()) ?? matches[0]
   },
   toggleBookmark: (bookmark) => {
-    const existing = bookmarks$.getBookmarkByUrl(bookmark.url)
-    if (existing) {
-      const json = existing.json.get()
-      existing.assign({
-        updated_at: new Date(),
-        json: {
-          ...json,
-          deleted: !json.deleted,
-        },
-      })
+    const matches = getBookmarksByKey(bookmark.url)
+    const active = matches.filter((x) => !x.json.deleted.get())
+    if (active.length) {
+      // Every live entry for the page, or the star would come straight back on
+      // the duplicate that unstarring left behind.
+      batch(() => active.forEach((x) => setDeleted(x, true)))
+    } else if (matches.length) {
+      setDeleted(matches[0], false)
     } else {
       bookmark.url = normalizeUrl(bookmark.url)
       bookmarks$.bookmarks.unshift(bookmark)
@@ -65,8 +85,13 @@ export const bookmarks$ = observable<Store>({
   },
   addBookmark: (bookmark) => {
     bookmark.url = normalizeUrl(bookmark.url)
-    if (!bookmarks$.getBookmarkByUrl(bookmark.url)) {
+    const existing = bookmarks$.getBookmarkByUrl(bookmark.url)
+    if (!existing) {
       bookmarks$.bookmarks.unshift(bookmark)
+      bookmarks$.setUpdatedTime()
+    } else if (existing.json.deleted.get()) {
+      // Starring a page that was unstarred before brings its entry back.
+      setDeleted(existing, false)
       bookmarks$.setUpdatedTime()
     }
   },
@@ -90,7 +115,7 @@ export const bookmarks$ = observable<Store>({
         x.url = normalizeUrl(x.url)
         return x
       })
-      .filter((x) => !bookmarkUrls.has(x.url))
+      .filter((x) => !bookmarkUrls.has(getBookmarkKey(x.url)))
     bookmarks$.bookmarks.unshift(...xs)
     bookmarks$.setUpdatedTime()
     return xs.length
@@ -155,7 +180,8 @@ export function removeBookmark(bookmark: Bookmark) {
     } catch {
       return
     }
-    existing = bookmarks$.bookmarks.find((item) => item.url.get() === normalizedUrl && !item.json.deleted.get())
+    const key = getBookmarkKey(normalizedUrl)
+    existing = bookmarks$.bookmarks.find((item) => getBookmarkKey(item.url.get()) === key && !item.json.deleted.get())
   }
   const bookmarkId = existing?.id.get()
   if (!bookmarkId || !bookmarks$.removeById(bookmarkId)) {
@@ -203,6 +229,6 @@ export function getBookmarkUrls() {
     bookmarks$.bookmarks
       .get()
       .filter((x) => !x.json.deleted)
-      .map((x) => x.url),
+      .map((x) => getBookmarkKey(x.url)),
   )
 }

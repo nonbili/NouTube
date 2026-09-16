@@ -13,7 +13,7 @@ import { queue$ } from '@/states/queue'
 import { share } from '@/lib/share'
 import { MaterialButton, MaterialCommunityButton } from '../button/IconButtons'
 import { library$ } from '@/states/library'
-import { normalizeUrl } from '@/lib/url'
+import { getBookmarkKey, normalizeUrl } from '@/lib/url'
 import { useEffect, useState } from 'react'
 import { t } from 'i18next'
 import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
@@ -101,7 +101,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const normalizedActivePageUrl = activePageUrl ? normalizeUrl(activePageUrl) : ''
   const feedsEnabled = useValue(settings$.feedsEnabled)
   const allStarred = useValue(library$.urls)
-  const starred = normalizedActivePageUrl ? allStarred.has(normalizedActivePageUrl) : false
+  const starred = activePageUrl ? allStarred.has(getBookmarkKey(activePageUrl)) : false
   const bookmark = useValue(bookmarks$.getBookmarkByUrl(normalizedActivePageUrl))
   const queueSize = useValue(queue$.size)
   const downloads = useValue(downloads$)

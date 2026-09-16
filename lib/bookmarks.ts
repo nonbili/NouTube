@@ -3,20 +3,23 @@ import { ui$ } from '@/states/ui'
 import { bookmarks$, newBookmark } from '@/states/bookmarks'
 import { fixPageTitle, getPageType } from './page'
 import { getWatchPageBookmark } from './webview'
+import { withoutResumeTime } from './last-playing'
 import { fetchYouTubeChannelMetadata } from './youtube-channel'
 
 export async function toggleStar(noutube: any, starred: boolean) {
   const isYTMusic = settings$.isYTMusic.get()
   const uiState = ui$.get()
   const pageType = getPageType(uiState.pageUrl)
-  let bookmark = newBookmark({ url: uiState.pageUrl })
+  // A resume time belongs to playback, not to the library entry.
+  const pageUrl = withoutResumeTime(uiState.pageUrl)
+  let bookmark = newBookmark({ url: pageUrl })
 
   if (!starred) {
     bookmark.title = fixPageTitle((await noutube?.executeJavaScript('document.title')) || '')
     if (isYTMusic) {
       switch (pageType?.type) {
         case 'watch': {
-          bookmark = await getWatchPageBookmark(uiState.pageUrl)
+          bookmark = await getWatchPageBookmark(pageUrl)
           break
         }
         case 'channel': {

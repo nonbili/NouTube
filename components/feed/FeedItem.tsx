@@ -1,6 +1,9 @@
 import { View, Pressable } from 'react-native'
 import { memo } from 'react'
-import { Bookmark } from '@/states/bookmarks'
+import { Bookmark, bookmarks$, newBookmark } from '@/states/bookmarks'
+import { library$ } from '@/states/library'
+import { useValue } from '@legendapp/state/react'
+import { getBookmarkKey, normalizeUrl } from '@/lib/url'
 import { Image } from 'expo-image'
 import { updateUrl, ui$ } from '@/states/ui'
 import { NouText } from '../NouText'
@@ -25,6 +28,9 @@ export const FeedItem: React.FC<{
   channel?: Bookmark
   onPressChannel?: (channel: Bookmark) => void
 }> = memo(({ bookmark, channel, onPressChannel: onSelectChannel }) => {
+  const starUrl = normalizeUrl(bookmark.url)
+  const starred = useValue(library$.urls).has(getBookmarkKey(starUrl))
+
   const onPress = () => {
     updateUrl(bookmark.url)
     ui$.assign({ feedModalOpen: false })
@@ -60,6 +66,29 @@ export const FeedItem: React.FC<{
         <NouMenu
           trigger={isWeb ? <MaterialButton name="more-vert" size={20} /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
           items={[
+            {
+              label: starred ? t('menus.unstar') : t('menus.star'),
+              icon: <MaterialIcons name={starred ? 'star' : 'star-outline'} size={18} color="#475569" />,
+              systemImage: starred ? 'star.slash' : 'star',
+              handler: () =>
+                bookmarks$.toggleBookmark(
+                  newBookmark({
+                    url: starUrl,
+                    title: bookmark.title,
+                    json: { thumbnail: bookmark.json?.thumbnail },
+                  }),
+                ),
+            },
+            {
+              label: t('menus.download'),
+              icon: <MaterialIcons name="download" size={18} color="#475569" />,
+              systemImage: 'arrow.down.circle',
+              handler: () => {
+                ui$.toolsModalUrl.set(starUrl)
+                ui$.toolsModalOpen.set(true)
+                ui$.assign({ feedModalOpen: false })
+              },
+            },
             {
               label: t('menus.share'),
               icon: <MaterialIcons name="share" size={18} color="#475569" />,

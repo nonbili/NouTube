@@ -5,6 +5,10 @@ import { clsx, isWeb, isIos, nIf } from '@/lib/utils'
 import { getThumbnail } from '@/lib/page'
 import { History, history$ } from '@/states/history'
 import { NouMenu } from '../menu/NouMenu'
+import { bookmarks$, newBookmark } from '@/states/bookmarks'
+import { library$ } from '@/states/library'
+import { useValue } from '@legendapp/state/react'
+import { getBookmarkKey, normalizeUrl } from '@/lib/url'
 import { t } from 'i18next'
 import { MaterialButton } from '../button/IconButtons'
 import { share } from '@/lib/share'
@@ -31,6 +35,9 @@ function getHistoryUrl({ url, current, duration }: History) {
 
 export const HistoryItem: React.FC<{ bookmark: History }> = ({ bookmark }) => {
   const historyUrl = getHistoryUrl(bookmark)
+  // The saved url carries a resume time, which the library must not keep.
+  const starUrl = normalizeUrl(withoutResumeTime(bookmark.url))
+  const starred = useValue(library$.urls).has(getBookmarkKey(starUrl))
 
   const onPress = () => {
     updateUrl(historyUrl)
@@ -66,6 +73,25 @@ export const HistoryItem: React.FC<{ bookmark: History }> = ({ bookmark }) => {
         <NouMenu
           trigger={isWeb ? <MaterialButton name="more-vert" size={20} /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
           items={[
+            {
+              label: starred ? t('menus.unstar') : t('menus.star'),
+              handler: () =>
+                bookmarks$.toggleBookmark(
+                  newBookmark({
+                    url: starUrl,
+                    title: bookmark.title,
+                    json: { thumbnail: bookmark.thumbnail },
+                  }),
+                ),
+            },
+            {
+              label: t('menus.download'),
+              handler: () => {
+                ui$.toolsModalUrl.set(starUrl)
+                ui$.toolsModalOpen.set(true)
+                ui$.assign({ historyModalOpen: false })
+              },
+            },
             { label: t('menus.share'), handler: () => share(historyUrl) },
             { label: t('menus.remove'), handler: () => history$.removeHistory(bookmark) },
           ]}
