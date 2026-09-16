@@ -1,3 +1,5 @@
+import { isYTMusic } from './utils'
+
 const styleId = '_nou_pip'
 const ancestorClass = '_nou_pip_ancestor'
 let transition = 0
@@ -93,6 +95,12 @@ function isPictureInPictureEnabled(): boolean {
   }
 }
 
+// YouTube Music is left out: its songs are audio with artwork drawn in the page,
+// so the pinned window has no video frame to show -- only the player chrome
+// that survives the shrinking stylesheet above. Leaving it disarmed lets the
+// home gesture background the app the way it already does, with playback
+// carried by the media notification (NouService).
+//
 // The native side enters Picture-in-Picture from onUserLeaveHint, which cannot
 // wait for an answer from the page (the activity has paused by the time one
 // arrives), so hand it the video it would show ahead of time instead. A zero
@@ -101,7 +109,13 @@ function reportPictureInPictureVideo() {
   const video = document.querySelector('video')
   const onVideoPage = !!document.fullscreenElement || document.location.pathname == '/watch'
   const showable =
-    isPictureInPictureEnabled() && onVideoPage && video && !video.paused && !video.ended && video.videoWidth > 0
+    isPictureInPictureEnabled() &&
+    !isYTMusic &&
+    onVideoPage &&
+    video &&
+    !video.paused &&
+    !video.ended &&
+    video.videoWidth > 0
   const size = showable ? [video.videoWidth, video.videoHeight] : [0, 0]
   const key = size.join('x')
   if (key == reported) {
