@@ -1,0 +1,8 @@
+- Add star and download options to history and feed menus
+- Fix missing media notification in split view and YouTube Music
+- Close YouTube's built-in mini player in split view
+- Disable picture-in-picture for YouTube Music
+- Persist custom playback rates
+- Fix watch history saving
+- Fix false sync dirty flags and sync settings button styles
+- Update translations

@@ -268,12 +268,6 @@ export const SettingsPreferencesContent = () => {
             />,
           )}
           <SettingsToggleRow
-            label={t('settings.channelsFeed')}
-            icon="rss-feed"
-            value={settings.feedsEnabled}
-            onPress={() => settings$.feedsEnabled.set(!settings.feedsEnabled)}
-          />
-          <SettingsToggleRow
             label={t('settings.watchHistory')}
             icon="history"
             value={settings.keepHistory}
@@ -702,6 +696,12 @@ export const SettingsAppearanceContent = () => {
               icon="home"
               value={settings.showHomeButtonInHeader}
               onPress={() => settings$.showHomeButtonInHeader.set(!settings.showHomeButtonInHeader)}
+            />
+            <SettingsToggleRow
+              label={t('settings.channelsFeed')}
+              icon="rss-feed"
+              value={settings.feedsEnabled}
+              onPress={() => settings$.feedsEnabled.set(!settings.feedsEnabled)}
             />
             {nIf(
               !isWeb,
