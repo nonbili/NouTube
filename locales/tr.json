@@ -163,7 +163,7 @@
   },
   "settings": {
     "label": "Ayarlar",
-    "hubHint": "Oynatma, senkronizasyon, içe aktarmalar ve web görünümü (webview) araçları tek bir yerde.",
+    "hubHint": "Oynatma, eşzamanlama, içe aktarmalar ve web görünümü (webview) araçları tek bir yerde.",
     "general": "Genel",
     "generalHint": "Varsayılan oynatma ayarları, görünüm, araçlar ve veri aktarımı.",
     "preferences": "Tercihler",
@@ -174,7 +174,7 @@
     "toolsHint": "Web görünümü (webview) ortamını ve diğer araçları yönetin.",
     "transfer": "İçe ve dışa aktar",
     "transferHint": "Yer işaretlerini içeri aktarın veya yanınızda götürün.",
-    "syncHintShort": "Hesap, plan ve cihaz senkronizasyonu.",
+    "syncHintShort": "Hesap, plan ve aygıt eşzamanlaması.",
     "restoreOnStart": "Başlangıçta son oturumu geri yükle",
     "autoHideHeader": "Kaydırma yönüne göre araç çubuğunu gizle ve göster",
     "autoHideSidebar": "Kenar çubuğunu otomatik gizle ve üzerine gelindiğinde göster",
@@ -190,7 +190,7 @@
     "hideShorts": "Zaman tünelinde Shorts videolarını gizle",
     "hideShortsInNavbar": "Gezinti çubuğunda Shorts'u gizle",
     "hideMixPlaylist": "Karma (Mix) oynatma listelerini gizle",
-    "miniPlayer": "YouTube mini oynatıcı",
+    "miniPlayer": "Küçük oynatıcı",
     "preferH264": "H.264 tercih et (VP9/AV1'i engelle)",
     "showDislikes": "Beğenmeme sayılarını göster",
     "showOriginalVideoTitle": "Orijinal video başlığını göster",
@@ -382,7 +382,22 @@
     },
     "showSleepTimerButtonInHeader": "Araç çubuğunda uyku zamanlayıcı düğmesini göster",
     "showLibraryButtonInHeader": "Araç çubuğunda kütüphane düğmesini göster",
-    "showStarButtonInHeader": "Araç çubuğunda yıldız düğmesini göster"
+    "showStarButtonInHeader": "Araç çubuğunda yıldız düğmesini göster",
+    "mediaNotificationButtons": "Medya bildirim düğmeleri",
+    "showMediaNotificationPrevButton": "Önceki düğmesini göster",
+    "showMediaNotificationNextButton": "Sonraki düğmesini göster",
+    "showMediaNotificationRewindButton": "Geri sar düğmesini göster",
+    "showMediaNotificationForwardButton": "İleri düğmesini göster",
+    "showMediaNotificationSpeedButton": "Oynatma hızı düğmesini göster",
+    "showMediaNotificationCloseButton": "Kapat düğmesini göster",
+    "mediaNotificationButtonsHint": "Android, oynat düğmesinin yanına bu düğmelerden en fazla dördünü, burada belirtilen sırayla görüntüler. {{selected}} tane seçtiniz.",
+    "miniPlayerHint": "Videodan ayrıldığınızda, sayfanın bir köşesinde oynatılmaya devam eder.",
+    "pictureInPicture": "Resim içinde resim",
+    "pictureInPictureHint": "Uygulamadan çıktığınızda video yüzen bir pencerede oynatılmaya devam eder.",
+    "blockAds": {
+      "label": "Reklamları engelle",
+      "hint": "YouTube reklamlarının gösterilmesini sağlamak ve içerik oluşturucuları desteklemek için bu özelliği kapatın."
+    }
   },
   "native": {
     "format_bestQuality": "En iyi kalite",
@@ -397,8 +412,8 @@
     "download_failed": "İndirme başarısız oldu"
   },
   "sync": {
-    "label": "Senkronizasyon",
-    "hint": "Premium kullanıcı olarak yer işaretlerinizi telefonlarınız ve bilgisayarlarınız arasında senkronize edin.",
+    "label": "Eşzamanla",
+    "hint": "Premium kullanıcı olarak yer işaretlerinizi telefonlarınız ve bilgisayarlarınız arasında eşzamanlayın.",
     "currentPlan": "Mevcut plan",
     "managePlan": "Planı yönet"
   },
@@ -413,5 +428,24 @@
   "pageLoadError": {
     "title": "Bu sayfa yüklenemiyor",
     "description": "Bağlantınızı gözden geçirin, ardından tekrar deneyin."
+  },
+  "extension": {
+    "openOptions": "Engelleme listesi ve kullanıcı biçimleri",
+    "reloadTabs": "YouTube sekmelerini yeniden yükle",
+    "applyHint": "Bazı seçenekler ancak sayfa yeniden yüklendiğinde geçerli olur.",
+    "userScriptsUnavailable": "Kullanıcı betikleri, tarayıcının kullanıcı betikleri iznine ihtiyaç duyar. Chrome'da, uzantı ayrıntıları sayfasını açın ve kullanıcı betiklerine izin verin.",
+    "feeds": "Akışlar",
+    "library": "Kütüphane",
+    "signIn": "Oturum aç",
+    "signedOut": "Oturum açılmadı",
+    "syncNow": "Şimdi eşzamanla",
+    "refreshFeeds": "Akışları yenile",
+    "manageFeeds": "Akışları yönet",
+    "account": "Hesap ve eşzamanlama",
+    "more": "Daha fazla",
+    "openExpanded": "Yeni sekmede aç",
+    "openYouTube": "YouTube'u aç",
+    "openYouTubeMusic": "YouTube Müzik'i aç",
+    "saveCurrentPage": "Geçerli sayfayı kaydet"
   }
 }

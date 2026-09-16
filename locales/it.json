@@ -1,0 +1,437 @@
+{
+  "about": {
+    "label": "Informazioni su",
+    "code": "Codice sorgente",
+    "donate": "Dona",
+    "updates": "Aggiornamenti",
+    "hint": "Informazioni sulla versione, aggiornamenti, codice sorgente e link di supporto."
+  },
+  "changelog": {
+    "label": "Registro modifiche",
+    "hint": "Versioni e correzioni recenti da GitHub.",
+    "loading": "Caricamento delle note di rilascio...",
+    "error": "Impossibile caricare le note di rilascio.",
+    "retry": "Riprova",
+    "empty": "Nessuna nota di rilascio trovata.",
+    "current": "Attuale",
+    "noNotes": "Non sono state fornite note di rilascio per questa versione."
+  },
+  "buttons": {
+    "clear": "Pulisci",
+    "clearAll": "Pulisci tutto",
+    "import": "Importa",
+    "export": "Esporta",
+    "open": "Apri",
+    "cancel": "Annulla",
+    "openUrl": "Apri URL",
+    "move": "Sposta",
+    "undo": "Undo",
+    "save": "Salva",
+    "remove": "Rimuovi",
+    "unsubscribe": "Annulla iscrizione",
+    "signOut": "Esci",
+    "next": "Successivo",
+    "show": "Mostra",
+    "download": "Download",
+    "browse": "Sfoglia",
+    "updateYtDlp": "Aggiorna yt-dlp",
+    "updating": "Aggiornamento in corso...",
+    "ytDlpUpdated": "yt-dlp è aggiornato",
+    "retry": "Riprova"
+  },
+  "library": {
+    "videos": "Video",
+    "channels": "Canali",
+    "playlists": "Playlist",
+    "songs": "Brani",
+    "artists": "Artisti"
+  },
+  "menus": {
+    "openInNewTab": "Apri in una nuova scheda",
+    "edit": "Modifica",
+    "moveTo": "Sposta in…",
+    "remove": "Rimuovi",
+    "unsubscribe": "Annulla iscrizione",
+    "reload": "Ricarica",
+    "share": "Condividi",
+    "pip": "Picture in picture",
+    "duplicateTab": "Duplica scheda",
+    "close": "Chiudi",
+    "tools": "Strumenti",
+    "desktop": "Sito desktop",
+    "on": "On",
+    "off": "Off"
+  },
+  "bookmarks": {
+    "removed": "Preferito rimosso",
+    "moved": "Spostato in {{folder}}",
+    "movedToRoot": "Spostato fuori dalla cartella"
+  },
+  "folders": {
+    "removed": "Cartella {{name}} rimossa"
+  },
+  "modals": {
+    "editBookmark": "Modifica preferito",
+    "title": "Titolo",
+    "folder": "Cartella",
+    "noFolder": "Nessuna cartella",
+    "feeds": "Feed",
+    "history": "Cronologia",
+    "queue": "Coda",
+    "downloadVideo": "Download video",
+    "downloadsFolder": "Cartella dei download",
+    "downloadUseCookies": "Usa i miei cookie",
+    "downloadUseCookiesHint": "Necessario per i video con limiti di età, riservati agli iscritti o privati. Potrebbe disconnetterti da YouTube e usare un account in questo modo comporta il rischio che venga segnalato.",
+    "activeDownloads": "Download attivi",
+    "downloadHistory": "Cronologia download",
+    "starting": "Avvio in corso...",
+    "downloadComplete": "Download completato",
+    "downloadFailed": "Download non riuscito",
+    "downloadErrorBlocked": "YouTube ha rifiutato questo download. Richiede un token che yt-dlp non è ancora in grado di generare, quindi al momento questo video non può essere scaricato: la maggior parte degli altri video funziona comunque.",
+    "downloadErrorSignIn": "YouTube richiede una sessione autenticata per questo video. Attiva \"Usa i miei cookie\" e riprova.",
+    "downloadErrorFormat": "Quel formato non è più disponibile. Ricarica i formati e scegline un altro.",
+    "downloadErrorUnavailable": "Questo video non è disponibile.",
+    "downloadErrorNetwork": "Impossibile raggiungere YouTube. Controlla la connessione e riprova.",
+    "failedToLoadFormats": "Impossibile caricare i formati",
+    "showAllFormats": "Mostra tutti i formati",
+    "showFewerFormats": "Mostra meno formati",
+    "pinnedFormat": "Fissato",
+    "pinFormat": "Fissa come formato predefinito",
+    "unpinFormat": "Rimuovi formato predefinito fissato",
+    "playbackSpeed": "Velocità di riproduzione",
+    "playbackQuality": "Qualità di riproduzione",
+    "sharePageUrl": "URL della pagina",
+    "shareVideoUrl": "URL del video",
+    "shareIncludePosition": "Includi la posizione attuale"
+  },
+  "update": {
+    "check": "Controlla aggiornamenti",
+    "checkHint": "Verifica se è disponibile una versione più recente",
+    "upToDate": "Hai già l’ultima versione",
+    "downloading": "Download dell’aggiornamento v{{version}} in corso…",
+    "error": "Impossibile controllare gli aggiornamenti",
+    "downloadedTitle": "Aggiornamento pronto",
+    "downloadedHint": "La versione {{version}} è stata scaricata. Riavviare ora per installarla?"
+  },
+  "sleepTimer": {
+    "label": "Timer di spegnimento",
+    "hint": "Metti in pausa la riproduzione dopo una durata preimpostata o un valore personalizzato in minuti.",
+    "activeHint": "La riproduzione si metterà in pausa al termine di questo conto alla rovescia.",
+    "off": "Off",
+    "endsIn": "Termina tra {{value}}",
+    "preset": "{{value}} min",
+    "customPlaceholder": "Minuti personalizzati",
+    "set": "Imposta timer",
+    "cancel": "Annulla timer",
+    "replace": "Sostituisci",
+    "validation": {
+      "minutes": "Inserisci un numero intero di minuti da 1 a 1440"
+    },
+    "setToast": "Timer di spegnimento impostato tra {{value}} minuti",
+    "cancelToast": "Timer di spegnimento annullato",
+    "expiredToast": "Timer di spegnimento scaduto"
+  },
+  "feeds": {
+    "updates": "Aggiornamenti",
+    "manage": "Gestisci",
+    "sortLastVideo": "Ultimo video",
+    "sortFrequency": "Frequenza",
+    "lastVideoNewest": "Ultimo video: prima i più recenti",
+    "lastVideoOldest": "Ultimo video: prima i più vecchi",
+    "frequencyHighest": "Frequenza: prima la più alta",
+    "frequencyLowest": "Frequenza: prima la più bassa",
+    "frequencyLabel": "Frequenza",
+    "lastVideoLabel": "Ultimo video",
+    "videosPerDay": "{{value}} video/giorno",
+    "never": "Mai",
+    "allFolders": "Tutte",
+    "newFolder": "+ Nuova cartella",
+    "editFeed": "Modifica feed",
+    "manageEmpty": "Nessun feed salvato al momento.",
+    "manageNoResults": "Nessun feed corrisponde ai filtri attuali.",
+    "updatesEmpty": "Nessun video del feed corrisponde al filtro cartella attuale.",
+    "filterDropdownPlaceholder": "Filtra cartelle e canali",
+    "filterDropdownEmpty": "Nessuna cartella o canale corrispondente.",
+    "emptyTitleNoChannels": "Nessun canale preferito",
+    "emptyBodyNoChannels": "Gli aggiornamenti dei canali YouTube preferiti compariranno qui.",
+    "emptyTitleFolder": "Nessun aggiornamento in {{folder}}",
+    "emptyTitleChannel": "Nessun aggiornamento da {{channel}}",
+    "emptyBodyFiltered": "Al momento non ci sono video recenti qui. Controlla più tardi oppure passa a Tutte.",
+    "emptyActionFetchNow": "Aggiorna ora",
+    "fetchToastSuccess": "Feed aggiornato",
+    "fetchToastRunning": "Aggiornamento già in corso",
+    "fetchToastNotFound": "Impossibile aggiornare questo canale. Il feed ha restituito 404.",
+    "fetchToastError": "Impossibile aggiornare questo canale",
+    "emptyActionAllFolders": "Mostra tutto",
+    "emptyTitleWaiting": "In attesa di aggiornamenti dei feed",
+    "emptyBodyWaiting": "I tuoi canali salvati sono pronti. Tieni l’app aperta per un po’ o riaprila più tardi, e i caricamenti recenti compariranno qui.",
+    "removeTitle": "Rimuovere {{title}}?",
+    "removeMessage": "Questo rimuove il canale dalla Raccolta e cancella i video del suo feed."
+  },
+  "settings": {
+    "label": "Impostazioni",
+    "hubHint": "Riproduzione, sincronizzazione, importazioni e strumenti webview in un unico posto.",
+    "preferences": "Preferenze",
+    "preferencesContent": "Contenuti",
+    "preferencesDistractionFree": "Senza distrazioni",
+    "preferencesPlayback": "Riproduzione e visualizzazione",
+    "preferencesGeneral": "Generali",
+    "zoom": {
+      "label": "Zoom del testo",
+      "defaultLabel": "Zoom del testo",
+      "defaultHint": "Regola la dimensione del testo delle pagine web di YouTube."
+    },
+    "appearance": "Aspetto",
+    "appearanceHint": "Barra degli strumenti, lingua e tema.",
+    "tools": "Strumenti",
+    "toolsHint": "Gestisci l’ambiente webview e altri strumenti.",
+    "transfer": "Importa ed esporta",
+    "transferHint": "Importa i preferiti o portali con te.",
+    "syncHintShort": "Account, piano e sincronizzazione tra dispositivi.",
+    "restoreOnStart": "Ripristina l’ultima sessione all’avvio",
+    "pullToRefresh": "Trascina per aggiornare",
+    "proxy": {
+      "label": "Proxy",
+      "enabled": "Abilita proxy",
+      "type": "Tipo di proxy",
+      "host": "Host proxy",
+      "port": "Porta proxy",
+      "hostPlaceholder": "es. 127.0.0.1 o proxy.esempio.com",
+      "portPlaceholder": "es. 1080"
+    },
+    "autoHideHeader": "Nascondi e mostra la barra degli strumenti in base allo scorrimento",
+    "autoHideSidebar": "Nascondi automaticamente la barra laterale e mostrala al passaggio del mouse",
+    "hideToolbarWhenScrolled": "Nascondi la barra degli strumenti quando la pagina non è in cima",
+    "toolbar": "Barra degli strumenti",
+    "headerPosition": {
+      "label": "Posizione della barra degli strumenti",
+      "top": "In alto",
+      "bottom": "In basso"
+    },
+    "toolbarButtons": "Pulsanti della barra degli strumenti",
+    "showHomeButtonInHeader": "Mostra il pulsante Home nella barra degli strumenti",
+    "showBackButtonInHeader": "Mostra il pulsante Indietro nella barra degli strumenti",
+    "showForwardButtonInHeader": "Mostra il pulsante Avanti nella barra degli strumenti",
+    "showReloadButtonInHeader": "Mostra il pulsante Ricarica nella barra degli strumenti",
+    "showHistoryButtonInHeader": "Mostra il pulsante Cronologia nella barra degli strumenti",
+    "showSleepTimerButtonInHeader": "Mostra il pulsante Timer di spegnimento nella barra degli strumenti",
+    "showLibraryButtonInHeader": "Mostra il pulsante Raccolta nella barra degli strumenti",
+    "showStarButtonInHeader": "Mostra il pulsante Preferiti nella barra degli strumenti",
+    "mediaNotificationButtons": "Pulsanti della notifica multimediale",
+    "showMediaNotificationPrevButton": "Mostra il pulsante Precedente",
+    "showMediaNotificationNextButton": "Mostra il pulsante Successivo",
+    "showMediaNotificationRewindButton": "Mostra il pulsante Indietro veloce",
+    "showMediaNotificationForwardButton": "Mostra il pulsante Avanti veloce",
+    "showMediaNotificationSpeedButton": "Mostra il pulsante Velocità di riproduzione",
+    "showMediaNotificationCloseButton": "Mostra il pulsante Chiudi",
+    "mediaNotificationButtonsHint": "Android mostra al massimo quattro di questi pulsanti accanto al pulsante di riproduzione, nell’ordine qui elencato. Ne hai attivati {{selected}}.",
+    "doubleTapToToggleHeader": "Tocca due volte la pagina per nascondere o mostrare la barra degli strumenti",
+    "translation": {
+      "enable": "Traduci i commenti",
+      "hint": "Mostra un pulsante di traduzione sui commenti per tradurli sul tuo dispositivo.",
+      "targetLanguage": "Traduci in",
+      "appLanguage": "App",
+      "systemLanguage": "Sistema",
+      "notSelected": "Scegli una lingua",
+      "chooseLanguage": "Scegli prima una lingua di traduzione",
+      "loading": "Traduzione in corso…",
+      "copy": "Copia traduzione",
+      "copySource": "Copia testo originale",
+      "pin": "Fissa traduzione",
+      "unpin": "Rimuovi traduzione fissata",
+      "failed": "Impossibile tradurre questo testo",
+      "unsupported": "Questa coppia di lingue non è disponibile su questo dispositivo"
+    },
+    "hideShorts": "Nascondi gli Short nella sequenza",
+    "hideShortsInNavbar": "Nascondi gli Short nella barra di navigazione",
+    "hideMixPlaylist": "Nascondi playlist mix",
+    "miniPlayer": "Mini player",
+    "miniPlayerHint": "Uscendo da un video, continua a riprodurlo in un angolo della pagina.",
+    "pictureInPicture": "Picture in picture",
+    "pictureInPictureHint": "Mantieni il video in riproduzione in una finestra flottante quando esci dall’app.",
+    "preferH264": "Preferisci H.264 (blocca VP9/AV1)",
+    "showDislikes": "Mostra i \"Non mi piace\"",
+    "showOriginalVideoTitle": "Mostra il titolo originale del video",
+    "systemCaptionStyle": {
+      "label": "Usa lo stile sottotitoli di sistema",
+      "hint": "Applica il colore, lo sfondo e la dimensione del testo dei sottotitoli di Android ai sottotitoli di YouTube.",
+      "openSystemSettings": "Impostazioni di sistema per i sottotitoli"
+    },
+    "blockAds": {
+      "label": "Blocca le pubblicità",
+      "hint": "Disattiva per lasciare passare le pubblicità di YouTube e sostenere i creator."
+    },
+    "clickbaitThumbnail": {
+      "label": "Evita le miniature clickbait",
+      "hint": "Sostituisce le miniature dei creator con fotogrammi del video generati automaticamente",
+      "optionDefault": "Predefinita",
+      "optionFrame": "Fotogramma {{n}}"
+    },
+    "blocklist": {
+      "label": "Elenco di blocco",
+      "hint": "Nascondi i video di YouTube per canale o parola chiave nel titolo.",
+      "channels": "Canali",
+      "keywords": "Parole chiave",
+      "channelPlaceholder": "Nome, handle o URL del canale",
+      "keywordPlaceholder": "Parola chiave del titolo",
+      "emptyChannels": "Nessun canale bloccato al momento.",
+      "emptyKeywords": "Nessuna parola chiave bloccata al momento.",
+      "add": "Aggiungi",
+      "channelsNote": "I canali corrispondono esattamente per nome, handle o ID canale.",
+      "keywordsNote": "Le parole chiave corrispondono per inclusione (ricerca di sottostringa nei titoli)."
+    },
+    "userStyles": {
+      "label": "Stili e script utente",
+      "hint": "I tuoi CSS e userscript personalizzati specifici per sito.",
+      "builtin": {
+        "hideShortsInNavbar": {
+          "label": "Nascondi gli Short nella barra di navigazione"
+        },
+        "hideMixPlaylist": {
+          "label": "Nascondi playlist mix"
+        },
+        "hideCommunityPosts": {
+          "label": "Nascondi i post della community"
+        },
+        "hideAskButton": {
+          "label": "Nascondi il pulsante Chiedi a Gemini"
+        },
+        "hideHomeFeed": {
+          "label": "Nascondi il feed della home"
+        },
+        "hideRelatedVideos": {
+          "label": "Nascondi i video correlati"
+        },
+        "hideEndScreens": {
+          "label": "Nascondi le schermate finali"
+        }
+      },
+      "custom": {
+        "label": "Stili personalizzati",
+        "empty": "Nessuno stile personalizzato al momento."
+      },
+      "add": "Aggiungi stile",
+      "addTitle": "Aggiungi stile utente",
+      "editTitle": "Modifica stile utente",
+      "nameLabel": "Nome",
+      "namePlaceholder": "Il mio stile",
+      "validation": {
+        "css": "Il CSS non può essere vuoto"
+      },
+      "deleteConfirm": "Rimuovere questo stile personalizzato?",
+      "importFailed": "Impossibile importare il CSS",
+      "scripts": {
+        "label": "Script personalizzati",
+        "empty": "Nessuno script personalizzato al momento.",
+        "add": "Aggiungi script",
+        "addTitle": "Aggiungi script utente",
+        "editTitle": "Modifica script utente",
+        "namePlaceholder": "Il mio script",
+        "run": "Esegui",
+        "runComplete": "Script eseguito",
+        "runFailed": "Esecuzione script non riuscita",
+        "import": "Importa",
+        "importFailed": "Impossibile importare lo script",
+        "pinToHeader": "Fissa alla barra degli strumenti",
+        "pinToHeaderHint": "Mostra questo script come azione nella barra degli strumenti.",
+        "pinnedToHeader": "Fissato alla barra degli strumenti",
+        "runAtStart": "Esegui all’avvio del documento",
+        "runAtStartHint": "Esegui prima che il DOM sia costruito, invece che dopo DOMContentLoaded.",
+        "runAtStartDesktopHint": "Non ancora disponibile su desktop; gli script vengono eseguiti quando il DOM è pronto.",
+        "runAtStartBadge": "Eseguito all’avvio del documento",
+        "deleteConfirm": "Rimuovere questo script personalizzato?",
+        "noActiveTab": "Nessuna webview attiva",
+        "validation": {
+          "js": "Il JavaScript non può essere vuoto"
+        }
+      }
+    },
+    "channelsFeed": "Feed dei canali",
+    "watchHistory": "Cronologia visualizzazioni",
+    "replaceWatchNavigation": "Indietro salta i video già visti",
+    "theme": {
+      "label": "Tema",
+      "system": "Sistema",
+      "dark": "Scuro",
+      "light": "Chiaro",
+      "hint": "Si applica all’app e a YouTube. Riavvia manualmente se la modifica non si riflette nella webview."
+    },
+    "language": {
+      "label": "Lingua",
+      "system": "Sistema",
+      "hint": "Scegli una lingua o segui la lingua di sistema."
+    },
+    "login": {
+      "label": "Prova questo se non riesci ad accedere dalla webview",
+      "button": "Accedi a YouTube"
+    },
+    "openUrlLabel": "Apri direttamente un URL supportato",
+    "webview": {
+      "clearLabel": "Cancella i dati della webview"
+    },
+    "userAgent": {
+      "title": "User agent personalizzato",
+      "default": "User agent predefinito"
+    },
+    "importList": "Importa un elenco di link",
+    "importTakeout": "Importa da YouTube Takeout",
+    "exportLabel": "Esporta i preferiti in un file CSV",
+    "importSettings": "Importa impostazioni",
+    "importSettingsDescription": "Ripristina le impostazioni da un file di impostazioni NouTube",
+    "importSettingsConfirm": "Questo sostituisce le tue impostazioni attuali, l’elenco di blocco, gli stili utente e gli script personalizzati. Continuare?",
+    "importSettingsWithScriptsConfirm": "Questo file contiene {{count}} script personalizzati attivi, che possono eseguire codice all’interno di YouTube. Continua solo se ti fidi del file. Le tue impostazioni attuali, l’elenco di blocco, gli stili utente e gli script personalizzati verranno sostituiti.",
+    "importSettingsDone": "Importato: {{sections}}",
+    "exportSettings": "Esporta impostazioni",
+    "exportSettingsDescription": "Salva impostazioni, elenco di blocco, stili utente e script personalizzati come file JSON",
+    "injectCookie": "Inietta cookie se non riesci ad accedere dalla webview",
+    "injectCookieTitle": "Inietta il cookie di autenticazione nella webview",
+    "injectCookieHint": "Copia il valore dell’header Cookie dal browser del tuo PC. È un metodo alternativo per quando non riesci ad accedere con email e password.",
+    "groupYouTube": "YouTube",
+    "groupNouTube": "NouTube",
+    "preferencesComments": "Commenti",
+    "sidebar": "Barra laterale",
+    "preferencesYouTubeHint": "Preferenze di YouTube",
+    "preferencesNouTubeHint": "Preferenze di NouTube"
+  },
+  "native": {
+    "format_bestQuality": "Migliore qualità",
+    "format_bestQualityDesc": "Video + audio fino a {{height}}p",
+    "format_1080pDesc": "Video + audio 1080p",
+    "format_720pDesc": "Video + audio 720p",
+    "format_audioOnly": "Solo audio",
+    "format_audio": "Audio ({{ext}})",
+    "format_audioStreamDesc": "Migliore flusso audio",
+    "format_audioMp3Desc": "Migliore audio transcodificato in MP3",
+    "download_complete": "Download completato",
+    "download_failed": "Download non riuscito"
+  },
+  "sync": {
+    "label": "Sincronizzazione",
+    "hint": "Sincronizza i preferiti tra i tuoi telefoni e computer come utente premium.",
+    "currentPlan": "Piano attuale",
+    "managePlan": "Gestisci piano"
+  },
+  "pageLoadError": {
+    "title": "Impossibile caricare questa pagina",
+    "description": "Controlla la connessione, poi riprova."
+  },
+  "extension": {
+    "openOptions": "Elenco di blocco e stili utente",
+    "reloadTabs": "Ricarica le schede di YouTube",
+    "applyHint": "Alcune opzioni hanno effetto solo al prossimo caricamento della pagina.",
+    "userScriptsUnavailable": "Gli script utente richiedono l’autorizzazione del browser per gli script utente. Su Chrome, apri la pagina dei dettagli dell’estensione e consenti gli script utente.",
+    "feeds": "Feed",
+    "library": "Raccolta",
+    "signIn": "Accedi",
+    "signedOut": "Non connesso",
+    "syncNow": "Sincronizza ora",
+    "refreshFeeds": "Aggiorna feed",
+    "manageFeeds": "Gestisci feed",
+    "account": "Account e sincronizzazione",
+    "more": "Altro",
+    "openExpanded": "Apri in una nuova scheda",
+    "openYouTube": "Apri YouTube",
+    "openYouTubeMusic": "Apri YouTube Music",
+    "saveCurrentPage": "Salva pagina attuale"
+  }
+}

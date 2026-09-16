@@ -215,7 +215,7 @@
       "system": "Système",
       "hint": "Choisissez une langue ou utilisez la langue du système."
     },
-    "miniPlayer": "Mini-lecteur YouTube",
+    "miniPlayer": "Mini-lecteur",
     "preferH264": "Privilégier le format H.264 (bloquer VP9/AV1)",
     "clickbaitThumbnail": {
       "label": "Évitez les miniatures « clickbait »",
@@ -308,7 +308,22 @@
     },
     "showSleepTimerButtonInHeader": "Afficher le bouton « Minuterie » dans la barre d'outils",
     "showLibraryButtonInHeader": "Afficher le bouton « Bibliothèque » dans la barre d'outils",
-    "showStarButtonInHeader": "Afficher le bouton « Star » dans la barre d'outils"
+    "showStarButtonInHeader": "Afficher le bouton « Star » dans la barre d'outils",
+    "mediaNotificationButtons": "Boutons de notification multimédia",
+    "showMediaNotificationPrevButton": "Afficher le bouton « Précédent »",
+    "showMediaNotificationNextButton": "Afficher le bouton « Suivant »",
+    "showMediaNotificationRewindButton": "Afficher le bouton « Retour en arrière »",
+    "showMediaNotificationForwardButton": "Afficher le bouton « Suivant »",
+    "showMediaNotificationSpeedButton": "Afficher le bouton « Vitesse de Lecture »",
+    "showMediaNotificationCloseButton": "Afficher le bouton « Fermer »",
+    "mediaNotificationButtonsHint": "Android affiche au maximum quatre de ces boutons à côté du bouton de lecture, dans l'ordre indiqué ici. La fonction {{selected}} est activée.",
+    "miniPlayerHint": "Lorsque vous laissez une vidéo en lecture, celle-ci continue de s'afficher dans un coin de la page.",
+    "pictureInPicture": "Picture-in-picture",
+    "pictureInPictureHint": "La vidéo continue de s'afficher dans une fenêtre flottante lorsque vous quittez l'application.",
+    "blockAds": {
+      "label": "Bloquer les publicités",
+      "hint": "Désactivez cette option pour autoriser les publicités YouTube et soutenir les créateurs."
+    }
   },
   "sync": {
     "label": "Synchronisation",
@@ -413,5 +428,24 @@
   "pageLoadError": {
     "title": "Impossible de charger cette page",
     "description": "Vérifiez votre connexion, puis réessayez."
+  },
+  "extension": {
+    "openOptions": "Liste noire et styles personnalisés",
+    "reloadTabs": "Actualiser les onglets YouTube",
+    "applyHint": "Certaines options ne prennent effet qu'au prochain chargement de la page.",
+    "userScriptsUnavailable": "Les scripts utilisateur nécessitent l'autorisation correspondante dans le navigateur. Dans Chrome, ouvrez la page de détails de l'extension et autorisez les scripts utilisateur.",
+    "feeds": "Flux",
+    "library": "Bibliothèque",
+    "signIn": "Se connecter",
+    "signedOut": "Non connecté",
+    "syncNow": "Synchroniser maintenant",
+    "refreshFeeds": "Actualiser les flux",
+    "manageFeeds": "Gérer les flux",
+    "account": "Compte et synchronisation",
+    "more": "Plus",
+    "openExpanded": "Ouvrir dans un nouvel onglet",
+    "openYouTube": "Ouvrir YouTube",
+    "openYouTubeMusic": "Ouvrir YouTube Music",
+    "saveCurrentPage": "Enregistrer la page actuelle"
   }
 }
