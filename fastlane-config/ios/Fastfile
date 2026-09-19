@@ -1,0 +1,125 @@
+require "shellwords"
+
+default_platform(:ios)
+
+platform :ios do
+  private_lane :asc_api_key do
+    key_id = ENV["APP_STORE_KEY_ID"]
+    issuer_id = ENV["APP_STORE_ISSUER_ID"]
+    key_filepath = ENV["APP_STORE_KEY_FILEPATH"]
+    key_content = ENV["APP_STORE_KEY"] || ENV["APP_STORE_KEY_CONTENT"]
+
+    UI.user_error!("Set APP_STORE_KEY_ID") if key_id.to_s.empty?
+    UI.user_error!("Set APP_STORE_ISSUER_ID") if issuer_id.to_s.empty?
+    UI.user_error!("Set APP_STORE_KEY_FILEPATH or APP_STORE_KEY") if key_filepath.to_s.empty? && key_content.to_s.empty?
+
+    app_store_connect_api_key(
+      key_id: key_id,
+      issuer_id: issuer_id,
+      key_filepath: key_filepath,
+      key_content: key_content,
+      is_key_content_base64: ENV["APP_STORE_IS_BASE64"] == "1"
+    )
+  end
+
+  desc "Build and upload an IPA to App Store Connect"
+  lane :upload_ipa do |options|
+    api_key = asc_api_key
+    app_identifier = options[:app_identifier] || ENV["IOS_APP_IDENTIFIER"] || "jp.nonbili.noutube"
+    ipa_path = options[:ipa] || ENV["IPA_PATH"] || File.expand_path("../../ios/build/NouTube.ipa", __dir__)
+    build_before_upload = ENV["IOS_BUILD_BEFORE_UPLOAD"] == "1"
+    skip_binary_upload = ENV["IOS_SKIP_BINARY_UPLOAD"] == "1"
+    submit_for_review = ENV["IOS_SUBMIT_FOR_REVIEW"] == "1"
+    app_version = ENV["IOS_APP_VERSION"]
+    build_number = ENV["IOS_BUILD_NUMBER"]
+    release_notes_path = ENV["IOS_RELEASE_NOTES_PATH"] || File.expand_path("../../fastlane/metadata/ios/en-US/release_notes.txt", __dir__)
+    release_notes = File.exist?(release_notes_path) ? File.read(release_notes_path).strip : nil
+
+    if build_before_upload
+      provisioning_args = ["-allowProvisioningUpdates"]
+      key_filepath = ENV["APP_STORE_KEY_FILEPATH"]
+
+      unless key_filepath.to_s.empty?
+        provisioning_args.concat([
+          "-authenticationKeyPath #{Shellwords.escape(File.expand_path(key_filepath))}",
+          "-authenticationKeyID #{Shellwords.escape(ENV['APP_STORE_KEY_ID'])}",
+          "-authenticationKeyIssuerID #{Shellwords.escape(ENV['APP_STORE_ISSUER_ID'])}"
+        ])
+      end
+
+      development_team = ENV["APP_STORE_DEVELOPMENT_TEAM"]
+      project_path = File.expand_path("../../ios/NouTube.xcodeproj", __dir__)
+
+      begin
+        unless development_team.to_s.empty?
+          update_project_team(
+            path: project_path,
+            teamid: development_team
+          )
+        end
+
+        build_app(
+          workspace: File.expand_path("../../ios/NouTube.xcworkspace", __dir__),
+          scheme: ENV["IOS_SCHEME"] || "NouTube",
+          configuration: ENV["IOS_CONFIGURATION"] || "Release",
+          export_method: ENV["IOS_EXPORT_METHOD"] || "app-store",
+          output_directory: File.dirname(ipa_path),
+          output_name: File.basename(ipa_path),
+          clean: true,
+          # gym appends both xcargs and export_xcargs to the exportArchive
+          # command, so setting both would duplicate flags and fail with
+          # "option '-authenticationKeyPath' may only be provided once"
+          xcargs: provisioning_args.join(" ")
+        )
+      ensure
+        # ios/ may be gitignored (expo prebuild output), in which case there
+        # is nothing to revert and git checkout would fail with a pathspec
+        # error that masks the real build error
+        sh("git ls-files --error-unmatch ios/NouTube.xcodeproj > /dev/null 2>&1 && git checkout -- ios/NouTube.xcodeproj || true")
+      end
+    end
+
+    UI.user_error!("IPA not found: #{ipa_path}") if !skip_binary_upload && !File.exist?(ipa_path)
+
+    upload_options = {
+      force: true,
+      api_key: api_key,
+      app_identifier: app_identifier,
+      app_version: app_version,
+      metadata_path: File.expand_path("../../fastlane/metadata/ios", __dir__),
+      screenshots_path: File.expand_path("../../fastlane/metadata/ios", __dir__),
+      release_notes: release_notes.to_s.empty? ? nil : { "en-US" => release_notes },
+      skip_metadata: release_notes.to_s.empty?,
+      skip_binary_upload: skip_binary_upload,
+      skip_screenshots: true,
+      ignore_language_directory_validation: true,
+      run_precheck_before_submit: false,
+      reject_if_possible: ENV["IOS_REJECT_IF_POSSIBLE"] == "1",
+      submit_for_review: submit_for_review,
+      automatic_release: ENV["IOS_AUTOMATIC_RELEASE"] == "1",
+      submission_information: {
+        add_id_info_uses_idfa: ENV["IOS_USES_IDFA"] == "1",
+        export_compliance_uses_encryption: ENV["IOS_USES_ENCRYPTION"] == "1",
+        export_compliance_encryption_updated: false
+      }
+    }
+
+    if skip_binary_upload
+      upload_options[:build_number] = build_number
+    else
+      upload_options[:ipa] = ipa_path
+    end
+
+    upload_to_app_store(upload_options)
+  end
+
+  desc "Upload screenshots to App Store Connect"
+  lane :upload_screenshots do
+    upload_to_app_store(
+      force: true,
+      skip_binary_upload: true,
+      skip_metadata: true,
+      skip_screenshots: false
+    )
+  end
+end

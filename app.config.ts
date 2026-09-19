@@ -1,7 +1,7 @@
 import 'ts-node/register'
 
 import { ExpoConfig } from 'expo/config'
-import { version, versionCode } from './package.json'
+import { version, versionCode, buildNumber } from './package.json'
 
 const intentFilters = [
   {
@@ -28,6 +28,7 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
       supportsTablet: true,
       bundleIdentifier: 'jp.nonbili.noutube',
       appleTeamId: 'NXW8RMPV8L',
+      buildNumber,
       infoPlist: {
         // The player keeps going with the screen off and on the lock screen.
         UIBackgroundModes: ['audio'],
@@ -53,6 +54,7 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
     },
     plugins: [
       './plugins/withAndroidPlugin.ts',
+      './plugins/withIosPlugin.ts',
       'expo-router',
       [
         'expo-splash-screen',
