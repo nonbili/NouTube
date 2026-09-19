@@ -168,11 +168,15 @@ export const SettingsModalTabSync = () => {
             <View className="px-5 py-5">
               <NouText className="text-lg font-semibold">{t('sync.label')}</NouText>
               <NouText className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">{t('sync.hint')}</NouText>
-              <View className="mt-5">
-                <NouLink href="https://noutube.inks.page/auth/app" target="_blank">
-                  <View className="items-center rounded-full bg-indigo-600 px-6 py-2 dark:bg-indigo-500">
-                    <NouText className="text-white dark:text-white">Login NouTube</NouText>
-                  </View>
+              <View className="mt-5 items-start">
+                {/* Link renders a Text, so style it directly: a View nested in
+                    it gets clipped on iOS. */}
+                <NouLink
+                  className="overflow-hidden rounded-full bg-indigo-600 px-6 py-2 text-white dark:bg-indigo-500"
+                  href="https://noutube.inks.page/auth/app"
+                  target="_blank"
+                >
+                  Login NouTube
                 </NouLink>
               </View>
             </View>

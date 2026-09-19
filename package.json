@@ -8,7 +8,7 @@
   "main": "expo-router/entry",
   "version": "0.6.13",
   "versionCode": 78,
-  "buildNumber": "1",
+  "buildNumber": "4",
   "scripts": {
     "bundle": "bun build --target browser content/main.ts --outfile assets/scripts/main.bjs",
     "bundle:es": "esbuild --bundle content/main.ts --minify --outfile=assets/scripts/main.bjs",
