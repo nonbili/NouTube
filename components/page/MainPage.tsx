@@ -1,6 +1,7 @@
 import { auth$ } from '@/states/auth'
 import { MainPageContent } from './MainPageContent'
 import { supabase } from '@/lib/supabase/client'
+import { listenIosTransactions, reconcileIosTransactions } from '@/lib/ios-billing'
 import { useEffect, useState } from 'react'
 import { ui$ } from '@/states/ui'
 import { useValue } from '@legendapp/state/react'
@@ -75,12 +76,17 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
       auth$.assign({
         loaded: true,
         userId: session?.user.id,
+        userEmail: session?.user.email,
         user: session?.user.user_metadata,
         accessToken: session?.access_token,
       })
+      if (session && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')) {
+        void reconcileIosTransactions()
+      }
     })
 
     feederLoop()
+    return listenIosTransactions()
   }, [])
 
   return (

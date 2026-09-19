@@ -4,6 +4,7 @@ import { observable } from '@legendapp/state'
 interface Store {
   loaded: boolean
   userId: string | undefined
+  userEmail: string | undefined
   user: UserMetadata | undefined
   accessToken: string
   plan: string | undefined
@@ -12,6 +13,7 @@ interface Store {
 export const auth$ = observable<Store>({
   loaded: false,
   userId: undefined,
+  userEmail: undefined,
   user: undefined,
   accessToken: '',
   plan: undefined,
