@@ -2,6 +2,19 @@ import { retry } from 'es-toolkit'
 import { iconAddQueue, iconDownload, iconStar } from './icons'
 import { emit, nouPolicy } from './utils'
 
+// Items on a playlist page link into the playlist, e.g.
+// watch?v=ID&list=WL&index=1&pp=..., and a bookmark made from that url would
+// reopen inside the playlist at that position instead of on its own.
+const stripPlaylistContext = (url: string) => {
+  try {
+    const parsed = new URL(url)
+    ;['list', 'index', 'start_radio', 'pp'].forEach((param) => parsed.searchParams.delete(param))
+    return parsed.href
+  } catch {
+    return url
+  }
+}
+
 const makeMenuItem = ({ icon, label }: { icon: string; label: string }) =>
   nouPolicy.createHTML(/* HTML */ `
     <button class="menu-item-button" style="display: flex; align-items: center; width: 100%; padding: 0 16px; min-height: 48px; background: none; border: none; font-family: inherit; font-size: 14px; text-align: left; cursor: pointer;">
@@ -113,7 +126,7 @@ export function handleMenu() {
   document.addEventListener('click', async (e) => {
     const el = e.target as HTMLElement
     const videoItem = el.closest(
-      'ytm-media-item,ytm-compact-video-renderer,yt-lockup-metadata-view-model,ytd-video-renderer,ytd-grid-video-renderer',
+      'ytm-media-item,ytm-compact-video-renderer,ytm-video-card-renderer,ytm-playlist-video-renderer,yt-lockup-metadata-view-model,ytd-video-renderer,ytd-grid-video-renderer',
     )
     if (videoItem) {
       const menuResult = await retry(
@@ -142,7 +155,8 @@ export function handleMenu() {
       const { menu, listItemTemplate } = menuResult
       const title =
         videoItem.querySelector('h3')?.textContent?.trim() || videoItem.querySelector('h4')?.textContent?.trim()
-      const url = videoItem.querySelector('a')?.href
+      const href = videoItem.querySelector('a')?.href
+      const url = href ? stripPlaylistContext(href) : href
       let menuItem: HTMLElement
 
       if (window.NouTubeI) {
