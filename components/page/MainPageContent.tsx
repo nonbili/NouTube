@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useValue, useObserveEffect } from '@legendapp/state/react'
-import { ui$ } from '@/states/ui'
+import { ui$, updateUrl } from '@/states/ui'
 import { tabs$, type Tab } from '@/states/tabs'
 import { queue$ } from '@/states/queue'
 import { settings$ } from '@/states/settings'
@@ -718,25 +718,36 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
             settings$.playbackQuality.set(data.playbackQuality)
           }
           break
-        case 'playback-end':
-          const endedUrl = source === 'player' ? ui$.playerPageUrl.get() || currentPageUrl : currentPageUrl
+        case 'playback-next':
+        case 'playback-end': {
+          const manualNext = type === 'playback-next'
+          const endedUrl =
+            manualNext && typeof data?.url === 'string'
+              ? data.url
+              : source === 'player'
+                ? ui$.playerPageUrl.get() || currentPageUrl
+                : currentPageUrl
           const hasPlaylistParam = endedUrl.includes('list=')
-          if (!hasPlaylistParam) {
-            trackQueueEnded(endedUrl)
+          if (manualNext || !hasPlaylistParam) {
+            if (!manualNext) trackQueueEnded(endedUrl)
             const nextUrl = getNextQueueUrl(endedUrl)
             if (nextUrl) {
               if (isWeb) {
                 tabs$.updateTabUrl(nextUrl)
               } else if (splitWatchView && isWatchUrl(nextUrl)) {
-                // Advancing on its own must not throw the video back at the
-                // user: whatever the player was, it stays.
+                // Keep the player's current presentation when advancing the queue.
                 openInPlayer(nextUrl, { keepMode: source === 'player' })
               } else {
-                ui$.url.set(nextUrl)
+                updateUrl(nextUrl)
               }
+            } else if (manualNext) {
+              // Call the player directly: NouTube.next() would bridge back here.
+              const ref = source === 'player' ? playerRef.current : nativeRef.current
+              ref?.executeJavaScript('document.getElementById("movie_player")?.nextVideo()')
             }
           }
           break
+        }
         case 'embed':
           ui$.embedVideoId.set(data)
           break

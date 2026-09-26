@@ -5,7 +5,7 @@ import {
 } from './css'
 import { playDefaultAudio, restoreLastPlaying } from './player'
 import { getPlayerFormats } from './player-formats'
-import { emit } from './utils'
+import { emit, isYTMusic } from './utils'
 import { createDefaultUserStylesSnapshot, type UserStylesSnapshot } from '../lib/user-styles'
 import { createDefaultBlocklistSnapshot, type BlocklistSnapshot } from '../lib/blocklist'
 
@@ -106,7 +106,13 @@ export function initNouTube() {
     play: () => getPlayer()?.playVideo(),
     pause: () => getPlayer()?.pauseVideo(),
     prev: () => getPlayer()?.previousVideo(),
-    next: () => getPlayer()?.nextVideo(),
+    next: () => {
+      if (window.NouTubeI && !isYTMusic) {
+        emit('playback-next', { url: document.location.href })
+      } else {
+        getPlayer()?.nextVideo()
+      }
+    },
     seekBy: (delta: number) => getPlayer()?.seekBy(delta),
     seekTo: (seconds: number) => getPlayer()?.seekTo(seconds),
     getVideoUrl: () => getPlayer()?.getVideoUrl?.() || '',
