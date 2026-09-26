@@ -1,0 +1,4 @@
+- Respect playback queue for media next controls
+- Go back to previous video on a single previous press
+- Add menu items to more video lists
+- Rotate fullscreen on YouTube Music

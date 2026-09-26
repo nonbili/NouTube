@@ -103,8 +103,8 @@ android {
         applicationId 'jp.nonbili.noutube'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 78
-        versionName "0.6.13"
+        versionCode 79
+        versionName "0.6.14"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
         resourceConfigurations += ["b+en", "b+de", "b+es", "b+fr", "b+id", "b+ja", "b+pl", "b+pt", "b+pt+BR", "b+ru", "b+tr", "b+uk", "b+vi", "b+zh+Hans", "b+zh+Hant"]
