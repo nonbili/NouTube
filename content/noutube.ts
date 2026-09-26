@@ -78,6 +78,29 @@ function setBlocklist(next?: BlocklistSnapshot) {
   return blocklist
 }
 
+function skipToPrevious() {
+  const player = getPlayer()
+  // YouTube restarts the current video instead of going back once it has
+  // played a few seconds; rewinding first makes one press go back.
+  player?.seekTo?.(0)
+  player?.previousVideo()
+}
+
+// YouTube Music's own previous buttons follow the same restart rule.
+function handlePreviousButtons() {
+  document.addEventListener(
+    'click',
+    (e) => {
+      const button = (e.target as HTMLElement).closest?.('.previous-button')
+      if (!button?.closest('ytmusic-player-bar,ytmusic-player-controls')) return
+      e.preventDefault()
+      e.stopImmediatePropagation()
+      skipToPrevious()
+    },
+    true,
+  )
+}
+
 export function initNouTube() {
   if (window.NouTubeInitialSettings) {
     setSettings(window.NouTubeInitialSettings)
@@ -92,6 +115,9 @@ export function initNouTube() {
   }
 
   watchPictureInPictureVideo()
+  if (isYTMusic) {
+    handlePreviousButtons()
+  }
 
   return {
     getSettings,
@@ -105,7 +131,7 @@ export function initNouTube() {
     shortsHidden: true,
     play: () => getPlayer()?.playVideo(),
     pause: () => getPlayer()?.pauseVideo(),
-    prev: () => getPlayer()?.previousVideo(),
+    prev: skipToPrevious,
     next: () => {
       if (window.NouTubeI && !isYTMusic) {
         emit('playback-next', { url: document.location.href })
