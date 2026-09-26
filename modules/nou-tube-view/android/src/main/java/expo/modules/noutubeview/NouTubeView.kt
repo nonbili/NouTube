@@ -87,13 +87,15 @@ internal fun fullscreenOrientationFor(mode: Int): Int =
 
 // window.NouTubeFsIntent is stamped by the content script when the user taps the
 // player's fullscreen button; it is consumed here so it never leaks into the
-// next entry.
+// next entry. YouTube Music has no gesture that enters fullscreen, so every
+// entry there is explicit.
 private val FULLSCREEN_MODE_JS =
   "(() => {" +
     "const video = document.querySelector('#movie_player video') || document.querySelector('video');" +
     "if (video && video.videoHeight > video.videoWidth) return $FULLSCREEN_PORTRAIT_VIDEO;" +
     "const intent = window.NouTubeFsIntent;" +
     "window.NouTubeFsIntent = 0;" +
+    "if (location.host === 'music.youtube.com') return $FULLSCREEN_LANDSCAPE_EXPLICIT;" +
     "const explicit = typeof intent === 'number' && Date.now() - intent < 2000;" +
     "return explicit ? $FULLSCREEN_LANDSCAPE_EXPLICIT : $FULLSCREEN_LANDSCAPE_GESTURE;" +
   "})()"
