@@ -62,4 +62,15 @@ describe('settings', () => {
     expect(settings?.translateComments).toBe(false)
     expect(settings?.translationTargetLanguage).toBeNull()
   })
+
+  it('carries the old mini player corner over to a position', () => {
+    const settings = normalizeSettings({ miniPlayerCorner: 'top-left' } as Partial<SettingsSnapshot>)
+    expect(settings?.miniPlayerPosition).toEqual({ x: 0, y: 0 })
+    expect(getSettingsSnapshot({}).miniPlayerPosition).toEqual({ x: 1, y: 1 })
+  })
+
+  it('clamps an out-of-range mini player position', () => {
+    const settings = normalizeSettings<Partial<SettingsSnapshot>>({ miniPlayerPosition: { x: 2, y: -1 } })
+    expect(settings?.miniPlayerPosition).toEqual({ x: 1, y: 0 })
+  })
 })

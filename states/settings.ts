@@ -23,7 +23,9 @@ export interface SettingsSnapshot {
   keepHistory: boolean
   replaceWatchNavigation: boolean
   miniPlayer: boolean
-  miniPlayerCorner: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+  // Where the mini player was last dropped, as fractions of the room it can
+  // move in, so it lands in the same spot after a rotation or resize.
+  miniPlayerPosition: { x: number; y: number }
   pictureInPicture: boolean
   preferH264: boolean
   clickbaitThumbnail: 'default' | 'hq1' | 'hq2' | 'hq3'
@@ -73,7 +75,22 @@ interface Store extends SettingsSnapshot {
   isYTMusic: () => boolean
 }
 
-const MINI_PLAYER_CORNERS = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
+const clampFraction = (value: unknown, fallback: number) =>
+  typeof value === 'number' && Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : fallback
+
+/* Earlier versions only snapped to corners; carry that choice over. */
+const getMiniPlayerPosition = (value: Partial<Store> | undefined): SettingsSnapshot['miniPlayerPosition'] => {
+  const corner = (value as { miniPlayerCorner?: unknown } | undefined)?.miniPlayerCorner
+  const fallback = {
+    x: typeof corner === 'string' && corner.endsWith('left') ? 0 : 1,
+    y: typeof corner === 'string' && corner.startsWith('top') ? 0 : 1,
+  }
+  const position = value?.miniPlayerPosition
+  return {
+    x: clampFraction(position?.x, fallback.x),
+    y: clampFraction(position?.y, fallback.y),
+  }
+}
 
 export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefined>(data: T) => {
   if (!data) {
@@ -164,11 +181,10 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   if (typeof data.miniPlayer !== 'boolean') {
     data.miniPlayer = false
   }
-  // PlayerFrame reads this one straight out of the store and calls string
-  // methods on it, so anything unexpected has to be replaced, not defaulted.
-  if (!MINI_PLAYER_CORNERS.includes(data.miniPlayerCorner as string)) {
-    data.miniPlayerCorner = 'bottom-right'
-  }
+  // PlayerFrame reads this one straight out of the store and does arithmetic
+  // on it, so anything unexpected has to be replaced, not defaulted.
+  data.miniPlayerPosition = getMiniPlayerPosition(data)
+  delete (data as { miniPlayerCorner?: unknown }).miniPlayerCorner
   if (typeof data.pictureInPicture !== 'boolean') {
     data.pictureInPicture = false
   }
@@ -211,9 +227,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   keepHistory: typeof value?.keepHistory === 'boolean' ? value.keepHistory : true,
   replaceWatchNavigation: Boolean(value?.replaceWatchNavigation),
   miniPlayer: typeof value?.miniPlayer === 'boolean' ? value.miniPlayer : false,
-  miniPlayerCorner: MINI_PLAYER_CORNERS.includes(value?.miniPlayerCorner as string)
-    ? (value?.miniPlayerCorner as SettingsSnapshot['miniPlayerCorner'])
-    : 'bottom-right',
+  miniPlayerPosition: getMiniPlayerPosition(value),
   pictureInPicture: Boolean(value?.pictureInPicture),
   preferH264: Boolean(value?.preferH264),
   clickbaitThumbnail: ['hq1', 'hq2', 'hq3'].includes(value?.clickbaitThumbnail || '')
@@ -283,7 +297,7 @@ export const settings$ = observable<Store>({
   keepHistory: true,
   replaceWatchNavigation: false,
   miniPlayer: false,
-  miniPlayerCorner: 'bottom-right',
+  miniPlayerPosition: { x: 1, y: 1 },
   pictureInPicture: false,
   preferH264: false,
   clickbaitThumbnail: 'default',

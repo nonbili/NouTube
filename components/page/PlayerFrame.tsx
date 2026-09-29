@@ -9,8 +9,6 @@ const MARGIN = 12
 const MAX_WIDTH = 260
 const WIDTH_RATIO = 0.58
 
-type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
-
 const buttonStyle = {
   position: 'absolute' as const,
   top: 6,
@@ -46,22 +44,36 @@ export const PlayerFrame: React.FC<{
   // Measured rather than taken from the window: the frame lives inside the
   // webview container, which the toolbar has already inset.
   const [area, setArea] = useState({ width: 0, height: 0 })
-  const corner = (useValue(settings$.miniPlayerCorner) || 'bottom-right') as Corner
+  const position = useValue(settings$.miniPlayerPosition)
   const boxWidth = Math.min(area.width * WIDTH_RATIO, MAX_WIDTH)
   const boxHeight = Math.round((boxWidth * 9) / 16)
+  // The room the box's top-left corner can move in, inside the margins.
+  const rangeX = Math.max(0, area.width - boxWidth - MARGIN * 2)
+  const rangeY = Math.max(0, area.height - boxHeight - MARGIN * 2)
 
-  // Where the box sits before any drag: the corner the user last dropped it in.
+  // Where the box sits before any drag: wherever the user last dropped it.
   const base = useMemo(
-    () => ({
-      x: corner.endsWith('left') ? MARGIN : Math.max(MARGIN, area.width - boxWidth - MARGIN),
-      y: corner.startsWith('top') ? MARGIN : Math.max(MARGIN, area.height - boxHeight - MARGIN),
-    }),
-    [corner, area, boxWidth, boxHeight],
+    () => ({ x: MARGIN + (position?.x ?? 1) * rangeX, y: MARGIN + (position?.y ?? 1) * rangeY }),
+    [position, rangeX, rangeY],
   )
 
   // The drag moves the view directly instead of going through state: a
   // re-render mid-drag would re-render the webview inside the frame.
   const frameRef = useRef<View>(null)
+
+  const clampToArea = (dx: number, dy: number) => ({
+    left: Math.min(MARGIN + rangeX, Math.max(MARGIN, base.x + dx)),
+    top: Math.min(MARGIN + rangeY, Math.max(MARGIN, base.y + dy)),
+  })
+
+  // Stay wherever the box was let go, kept inside the margins.
+  const drop = (dx: number, dy: number) => {
+    const { left, top } = clampToArea(dx, dy)
+    settings$.miniPlayerPosition.set({
+      x: rangeX ? (left - MARGIN) / rangeX : 1,
+      y: rangeY ? (top - MARGIN) / rangeY : 1,
+    })
+  }
 
   const panResponder = useMemo(
     () =>
@@ -72,26 +84,16 @@ export const PlayerFrame: React.FC<{
         onMoveShouldSetPanResponderCapture: (_evt, gesture) =>
           isMini && (Math.abs(gesture.dx) > 6 || Math.abs(gesture.dy) > 6),
         onPanResponderMove: (_evt, gesture) => {
-          frameRef.current?.setNativeProps({
-            style: { left: base.x + gesture.dx, top: base.y + gesture.dy },
-          })
+          frameRef.current?.setNativeProps({ style: clampToArea(gesture.dx, gesture.dy) })
         },
-        onPanResponderRelease: (_evt, gesture) => {
-          // Snap to whichever corner the box was let go nearest to.
-          const centerX = base.x + gesture.dx + boxWidth / 2
-          const centerY = base.y + gesture.dy + boxHeight / 2
-          const next = `${centerY < area.height / 2 ? 'top' : 'bottom'}-${
-            centerX < area.width / 2 ? 'left' : 'right'
-          }` as Corner
-          if (next === corner) {
-            // The same corner re-renders nothing on its own, so put it back.
-            frameRef.current?.setNativeProps({ style: { left: base.x, top: base.y } })
-            return
-          }
-          settings$.miniPlayerCorner.set(next)
-        },
+        // Keep the drag: the webview inside would otherwise take the touch
+        // back on Android and end it early.
+        onPanResponderTerminationRequest: () => false,
+        onPanResponderRelease: (_evt, gesture) => drop(gesture.dx, gesture.dy),
+        // Ended by the system anyway: still stay where the box got to.
+        onPanResponderTerminate: (_evt, gesture) => drop(gesture.dx, gesture.dy),
       }),
-    [base, boxWidth, boxHeight, corner, area, isMini],
+    [base, rangeX, rangeY, isMini],
   )
 
   const onLayout = (event: LayoutChangeEvent) => {
