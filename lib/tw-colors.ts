@@ -70,3 +70,6 @@ export const twColors = {
 } as const
 
 export type TwColor = keyof typeof twColors
+
+// Per color scheme, since dark mode also shifts tones (see lib/dynamic-palette.android.ts).
+export type DynamicPalette = Record<'light' | 'dark', Record<TwColor, string>>
