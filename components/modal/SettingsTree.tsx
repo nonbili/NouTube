@@ -465,7 +465,7 @@ export const SettingsTree = forwardRef<
         </View>
       </View>
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView className="flex-1">
         <View className={clsx('px-4 py-5', isWeb && 'mx-auto w-full max-w-3xl')}>
           {renderPage()}
           <View className="h-16" />

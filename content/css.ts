@@ -67,6 +67,14 @@ const cssContentMobile = css`
     pointer-events: auto !important;
   }
 
+  /*
+   * YouTube Music mobile fullscreen sizes the player to 56.25vw (16:9 of the
+   * width), which overflows the screen vertically on phones wider than 16:9.
+   */
+  ytmusic-player[player-ui-state='FULLSCREEN'][is-mweb-modernization-enabled][video-mode] {
+    height: min(56.25vw, 100vh) !important;
+  }
+
   #_nou_fullscreen_title {
     display: none;
   }

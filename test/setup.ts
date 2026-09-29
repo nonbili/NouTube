@@ -13,6 +13,7 @@ mock.module('react-native', () => ({
   Alert: { alert: () => {} },
   Linking: { openURL: async () => {} },
   Appearance: { getColorScheme: () => 'dark' },
+  useColorScheme: () => 'dark',
 }))
 
 class MMKVStub {
