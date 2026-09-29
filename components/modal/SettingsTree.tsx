@@ -34,10 +34,10 @@ const donateLinks = [
   { label: 'PayPal', detail: 'paypal.me/rnons', url: 'https://paypal.me/rnons' },
 ]
 export const surfaceCls =
-  'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
+  'overflow-hidden rounded-[24px] bg-white dark:bg-zinc-900'
 export const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500'
 export const iconWrapCls =
-  'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-950'
+  'h-10 w-10 items-center justify-center rounded-2xl bg-zinc-100 dark:bg-zinc-950'
 
 export type SettingsPage =
   | 'home'
@@ -77,7 +77,7 @@ export const SettingsNavRow: React.FC<{
       onPress={onPress}
       className={clsx(
         'flex-row items-center gap-3 px-4 py-4 active:bg-zinc-200/80 dark:active:bg-zinc-800/80',
-        !isLast && 'border-b border-zinc-300 dark:border-zinc-800',
+        !isLast && 'border-b-2 border-zinc-100 dark:border-zinc-950',
       )}
     >
       <View className={iconWrapCls}>
@@ -112,7 +112,7 @@ export const SettingsExternalRow: React.FC<{
       <View
         className={clsx(
           'flex-row items-center gap-3 px-4 py-4',
-          !isLast && 'border-b border-zinc-300 dark:border-zinc-800',
+          !isLast && 'border-b-2 border-zinc-100 dark:border-zinc-950',
         )}
       >
         <View className={iconWrapCls}>
@@ -387,7 +387,7 @@ export const SettingsTree = forwardRef<
       case 'about':
         return (
           <View className="gap-6">
-            <View className="rounded-[28px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/80 px-5 py-5">
+            <View className="rounded-[28px] bg-white dark:bg-zinc-900 px-5 py-5">
               <NouText className="text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500">
                 NouTube
               </NouText>

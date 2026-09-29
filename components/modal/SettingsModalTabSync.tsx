@@ -19,7 +19,7 @@ import { NouButton } from '../button/NouButton'
 import { useTwColor } from '@/lib/theme'
 
 const surfaceCls =
-  'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
+  'overflow-hidden rounded-[24px] bg-white dark:bg-zinc-900'
 const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500'
 const TERMS_OF_USE_URL = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'
 const PRIVACY_POLICY_URL = 'https://inks.page/p/privacy'

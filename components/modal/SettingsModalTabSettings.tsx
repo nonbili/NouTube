@@ -42,10 +42,10 @@ import { useTwColor } from '@/lib/theme'
 const themes = [null, 'dark', 'light'] as const
 const headerPositions = ['top', 'bottom'] as const
 const surfaceCls =
-  'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
+  'overflow-hidden rounded-[24px] bg-white dark:bg-zinc-900'
 const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500'
 const iconWrapCls =
-  'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-950'
+  'h-10 w-10 items-center justify-center rounded-2xl bg-zinc-100 dark:bg-zinc-950'
 
 const translationLanguageNames: Record<string, string> = {
   af: 'Afrikaans',
@@ -169,7 +169,7 @@ const SettingsToggleRow: React.FC<{
       onPress={onPress}
       className={clsx(
         'flex-row items-center gap-3 px-4 py-4 active:bg-zinc-200/80 dark:active:bg-zinc-800/80',
-        !isLast && 'border-b border-zinc-300 dark:border-zinc-800',
+        !isLast && 'border-b-2 border-zinc-100 dark:border-zinc-950',
       )}
     >
       <View className={iconWrapCls}>
@@ -219,7 +219,7 @@ export const SettingsActionRow: React.FC<{
       className={clsx(
         'flex-row items-center gap-3 px-4 py-4 active:bg-zinc-200/80 dark:active:bg-zinc-800/80',
         isDisabled && 'opacity-70',
-        !isLast && 'border-b border-zinc-300 dark:border-zinc-800',
+        !isLast && 'border-b-2 border-zinc-100 dark:border-zinc-950',
       )}
     >
       <View className={iconWrapCls}>
@@ -645,7 +645,7 @@ export const SettingsAppearanceContent = () => {
         !isWeb,
         <SettingsSection label={t('settings.toolbar')}>
           <View className={surfaceCls}>
-            <View className="flex-row items-center gap-3 px-4 py-4 border-b border-zinc-300 dark:border-zinc-800">
+            <View className="flex-row items-center gap-3 px-4 py-4 border-b-2 border-zinc-100 dark:border-zinc-950">
               <View className={iconWrapCls}>
                 <MaterialIcons name="vertical-align-bottom" color={isDark ? tw('zinc-300') : tw('slate-600')} size={18} />
               </View>
@@ -887,7 +887,7 @@ export const SettingsAppearanceContent = () => {
                 </View>
               </View>
             </View>
-            <View className="border-t border-zinc-300 dark:border-zinc-800 px-4 py-4">
+            <View className="border-t-2 border-zinc-100 dark:border-zinc-950 px-4 py-4">
               <View className="items-end">
                 <Segmented
                   options={[t('settings.theme.system'), t('settings.theme.dark'), t('settings.theme.light')]}
@@ -899,7 +899,7 @@ export const SettingsAppearanceContent = () => {
             </View>
             {nIf(
               isDynamicColorAvailable,
-              <View className="border-t border-zinc-300 dark:border-zinc-800">
+              <View className="border-t-2 border-zinc-100 dark:border-zinc-950">
                 <SettingsToggleRow
                   label={t('settings.dynamicColor.label')}
                   description={t('settings.dynamicColor.hint')}

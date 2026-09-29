@@ -24,10 +24,10 @@ import { MaterialButton } from '../button/IconButtons'
 import { useTwColor } from '@/lib/theme'
 
 const surfaceCls =
-  'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
+  'overflow-hidden rounded-[24px] bg-white dark:bg-zinc-900'
 const subheaderCls = 'mb-3 text-xs uppercase tracking-[0.18em] text-zinc-600 dark:text-gray-500'
 const rowCls = 'px-4 py-4'
-const rowBorderCls = 'border-b border-zinc-300 dark:border-zinc-800'
+const rowBorderCls = 'border-b-2 border-zinc-100 dark:border-zinc-950'
 const textInputCls =
   'rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 px-4 py-4 text-zinc-900 dark:text-white'
 // The full screen editors trade the labelled, roomy fields of the sidebar for a

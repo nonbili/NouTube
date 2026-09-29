@@ -10,10 +10,10 @@ import { NouText } from '../NouText'
 import { NouButton } from '../button/NouButton'
 import { useTwColor } from '@/lib/theme'
 
-const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
+const surfaceCls = 'overflow-hidden rounded-[24px] bg-white dark:bg-zinc-900'
 const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500'
-const iconWrapCls = 'h-10 w-10 items-center justify-center rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-950'
-const rowDividerCls = 'border-b border-zinc-300 dark:border-zinc-800'
+const iconWrapCls = 'h-10 w-10 items-center justify-center rounded-2xl bg-zinc-100 dark:bg-zinc-950'
+const rowDividerCls = 'border-b-2 border-zinc-100 dark:border-zinc-950'
 
 const SettingsSection: React.FC<React.PropsWithChildren<{ label: string }>> = ({ label, children }) => (
   <View>
@@ -46,7 +46,7 @@ const BlocklistRow: React.FC<{
   }
 
   return (
-    <View className={clsx('flex-row items-center gap-3 px-4 py-3', !isLast && 'border-b border-zinc-300 dark:border-zinc-800')}>
+    <View className={clsx('flex-row items-center gap-3 px-4 py-3', !isLast && 'border-b-2 border-zinc-100 dark:border-zinc-950')}>
       <Pressable onPress={toggle} className="flex-1">
         <NouText className={clsx('font-medium', !entry.enabled && 'text-zinc-500 dark:text-zinc-500')} numberOfLines={1}>
           {entry.value}

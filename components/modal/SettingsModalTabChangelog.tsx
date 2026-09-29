@@ -10,7 +10,7 @@ import { t } from 'i18next'
 import { getReleaseFeedQuery } from '@/lib/query/changelog'
 import { useTwColor } from '@/lib/theme'
 
-const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
+const surfaceCls = 'overflow-hidden rounded-[24px] bg-white dark:bg-zinc-900'
 
 function formatReleaseDate(value: string) {
   const date = new Date(value)
@@ -70,13 +70,13 @@ export const SettingsChangelogContent = () => {
             onPress={() => {
               void Linking.openURL(entry.url)
             }}
-            className="rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70 px-4 py-4 active:bg-zinc-200/80 dark:active:bg-zinc-800/80"
+            className="rounded-[24px] bg-white dark:bg-zinc-900 px-4 py-4 active:bg-zinc-200/80 dark:active:bg-zinc-800/80"
           >
             <View className="flex-row items-start gap-3">
               <View
                 className={clsx(
-                  'mt-0.5 h-10 w-10 items-center justify-center rounded-2xl border bg-zinc-200 dark:bg-zinc-950',
-                  isCurrent ? 'border-blue-500' : 'border-zinc-300 dark:border-zinc-800',
+                  'mt-0.5 h-10 w-10 items-center justify-center rounded-2xl border bg-zinc-100 dark:bg-zinc-950',
+                  isCurrent ? 'border-blue-500' : 'border-transparent',
                 )}
               >
                 <MaterialIcons name="history" color={isCurrent ? tw('blue-300') : tw('slate-500')} size={18} />
