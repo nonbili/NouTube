@@ -6,8 +6,8 @@
   "name": "noutube",
   "private": true,
   "main": "expo-router/entry",
-  "version": "0.6.14",
-  "versionCode": 79,
+  "version": "0.7.0",
+  "versionCode": 80,
   "buildNumber": "5",
   "scripts": {
     "bundle": "bun build --target browser content/main.ts --outfile assets/scripts/main.bjs",

@@ -1,0 +1,6 @@
+- Support Material You dynamic colors
+- Drop mini player anywhere instead of snapping to corners
+- Pre-fill current page URL in open URL dialog
+- Hide comment translation setting when unavailable in FOSS builds
+- Use filled tiles for settings and feed lists
+- Fit YouTube Music fullscreen player on screens wider than 16:9
