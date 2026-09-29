@@ -559,7 +559,7 @@ export const SettingsYouTubeContent = () => {
       )}
 
       {nIf(
-        !isWeb,
+        translationLanguages.length > 0,
         <View className="mt-8">
           <SettingsSection label={t('settings.preferencesComments')}>
             <View className={surfaceCls}>
