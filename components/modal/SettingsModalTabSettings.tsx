@@ -2,6 +2,7 @@ import { ActivityIndicator, Platform, Pressable, Switch, TextInput, View, useCol
 import { useState } from 'react'
 import { useLocales } from 'expo-localization'
 import { clsx, isAndroid, isIos, isWeb, nIf } from '@/lib/utils'
+import { isDynamicColorAvailable } from '@/lib/dynamic-palette'
 import { useValue } from '@legendapp/state/react'
 import { settings$, ZOOM_PRESETS } from '@/states/settings'
 import { Segmented } from '../picker/Segmented'
@@ -36,6 +37,7 @@ import {
   type BuiltinUserStyleId,
 } from '@/lib/user-styles'
 import { userStyles$ } from '@/states/user-styles'
+import { useTwColor } from '@/lib/theme'
 
 const themes = [null, 'dark', 'light'] as const
 const headerPositions = ['top', 'bottom'] as const
@@ -159,6 +161,7 @@ const SettingsToggleRow: React.FC<{
   onPress: () => void
   isLast?: boolean
 }> = ({ label, description, icon, value, onPress, isLast = false }) => {
+  const tw = useTwColor()
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   return (
@@ -170,7 +173,7 @@ const SettingsToggleRow: React.FC<{
       )}
     >
       <View className={iconWrapCls}>
-        <MaterialIcons name={icon} color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+        <MaterialIcons name={icon} color={isDark ? tw('zinc-300') : tw('slate-600')} size={18} />
       </View>
       <View className="flex-1">
         <NouText className="font-medium">{label}</NouText>
@@ -183,11 +186,11 @@ const SettingsToggleRow: React.FC<{
         <Switch
           value={value}
           onValueChange={onPress}
-          trackColor={{ false: '#52525b', true: '#1d4ed8' }}
-          thumbColor={value ? '#eff6ff' : '#f4f4f5'}
+          trackColor={{ false: tw('zinc-600'), true: tw('blue-700') }}
+          thumbColor={value ? tw('blue-50') : tw('zinc-100')}
           {...Platform.select({
             web: {
-              activeThumbColor: '#eff6ff',
+              activeThumbColor: tw('blue-50'),
             },
           })}
         />
@@ -205,6 +208,7 @@ export const SettingsActionRow: React.FC<{
   loading?: boolean
   disabled?: boolean
 }> = ({ label, description, icon, onPress, isLast = false, loading = false, disabled = false }) => {
+  const tw = useTwColor()
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   const isDisabled = disabled || loading
@@ -219,7 +223,7 @@ export const SettingsActionRow: React.FC<{
       )}
     >
       <View className={iconWrapCls}>
-        <MaterialIcons name={icon} color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+        <MaterialIcons name={icon} color={isDark ? tw('zinc-300') : tw('slate-600')} size={18} />
       </View>
       <View className="flex-1">
         <NouText className="font-medium">{label}</NouText>
@@ -228,9 +232,9 @@ export const SettingsActionRow: React.FC<{
         ) : null}
       </View>
       {loading ? (
-        <ActivityIndicator color={isDark ? '#d4d4d8' : '#475569'} />
+        <ActivityIndicator color={isDark ? tw('zinc-300') : tw('slate-600')} />
       ) : (
-        <MaterialIcons name="chevron-right" color={isDark ? '#71717a' : '#52525b'} size={20} />
+        <MaterialIcons name="chevron-right" color={isDark ? tw('zinc-500') : tw('zinc-600')} size={20} />
       )}
     </Pressable>
   )
@@ -246,6 +250,7 @@ const clickbaitLabel = (value: (typeof clickbaitOptions)[number]) => {
 // NouTube's own behavior. Anything that changes the YouTube page itself belongs on the YouTube
 // side of the settings index instead (see SettingsYouTubeContent).
 export const SettingsPreferencesContent = () => {
+  const tw = useTwColor()
   const settings = useValue(settings$)
 
   return (
@@ -316,7 +321,7 @@ export const SettingsPreferencesContent = () => {
                     value={settings.proxyHost}
                     onChangeText={(text) => settings$.proxyHost.set(text)}
                     placeholder={t('settings.proxy.hostPlaceholder')}
-                    placeholderTextColor="#71717a"
+                    placeholderTextColor={tw('zinc-500')}
                     autoCapitalize="none"
                     autoCorrect={false}
                   />
@@ -328,7 +333,7 @@ export const SettingsPreferencesContent = () => {
                     value={settings.proxyPort}
                     onChangeText={(text) => settings$.proxyPort.set(text)}
                     placeholder={t('settings.proxy.portPlaceholder')}
-                    placeholderTextColor="#71717a"
+                    placeholderTextColor={tw('zinc-500')}
                     keyboardType="numeric"
                     returnKeyType="done"
                   />
@@ -344,6 +349,7 @@ export const SettingsPreferencesContent = () => {
 
 // Everything that changes what the YouTube page itself shows.
 export const SettingsYouTubeContent = () => {
+  const tw = useTwColor()
   const settings = useValue(settings$)
   const builtinStyles = useValue(userStyles$.builtins)
   const colorScheme = useColorScheme()
@@ -383,7 +389,7 @@ export const SettingsYouTubeContent = () => {
     handler: () => settings$.clickbaitThumbnail.set(option),
     meta:
       settings.clickbaitThumbnail === option ? (
-        <MaterialIcons name="check" size={18} color={isDark ? '#60a5fa' : '#1d4ed8'} />
+        <MaterialIcons name="check" size={18} color={isDark ? tw('blue-400') : tw('blue-700')} />
       ) : undefined,
   }))
 
@@ -428,7 +434,7 @@ export const SettingsYouTubeContent = () => {
             />
             <View className="flex-row items-center gap-3 px-4 py-4">
               <View className={iconWrapCls}>
-                <MaterialIcons name="image" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+                <MaterialIcons name="image" color={isDark ? tw('zinc-300') : tw('slate-600')} size={18} />
               </View>
               <View className="flex-1">
                 <NouText className="font-medium">{t('settings.clickbaitThumbnail.label')}</NouText>
@@ -526,7 +532,7 @@ export const SettingsYouTubeContent = () => {
             <View className={surfaceCls}>
               <View className="flex-row items-center gap-3 px-4 py-4">
                 <View className={iconWrapCls}>
-                  <MaterialIcons name="zoom-in" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+                  <MaterialIcons name="zoom-in" color={isDark ? tw('zinc-300') : tw('slate-600')} size={18} />
                 </View>
                 <View className="flex-1">
                   <NouText className="font-medium">{t('settings.zoom.defaultLabel')}</NouText>
@@ -559,7 +565,7 @@ export const SettingsYouTubeContent = () => {
             <View className={surfaceCls}>
               <View className="flex-row items-center justify-between gap-3 px-4 py-4">
                 <View className={iconWrapCls}>
-                  <MaterialIcons name="g-translate" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+                  <MaterialIcons name="g-translate" color={isDark ? tw('zinc-300') : tw('slate-600')} size={18} />
                 </View>
                 <View className="flex-1">
                   <NouText className="font-medium">{t('settings.translation.enable')}</NouText>
@@ -596,6 +602,7 @@ export const SettingsYouTubeContent = () => {
 }
 
 export const SettingsAppearanceContent = () => {
+  const tw = useTwColor()
   const settings = useValue(settings$)
   const theme = settings.theme
   // Only four of these ever fit next to the seek bar, so the hint says how many
@@ -640,7 +647,7 @@ export const SettingsAppearanceContent = () => {
           <View className={surfaceCls}>
             <View className="flex-row items-center gap-3 px-4 py-4 border-b border-zinc-300 dark:border-zinc-800">
               <View className={iconWrapCls}>
-                <MaterialIcons name="vertical-align-bottom" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+                <MaterialIcons name="vertical-align-bottom" color={isDark ? tw('zinc-300') : tw('slate-600')} size={18} />
               </View>
               <NouText className="flex-1 font-medium">{t('settings.headerPosition.label')}</NouText>
               <Segmented
@@ -839,7 +846,7 @@ export const SettingsAppearanceContent = () => {
           <View className={surfaceCls}>
             <View className="flex-row items-center justify-between gap-3 px-4 py-4">
               <View className={iconWrapCls}>
-                <MaterialIcons name="translate" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+                <MaterialIcons name="translate" color={isDark ? tw('zinc-300') : tw('slate-600')} size={18} />
               </View>
               <View className="flex-1">
                 <NouText className="font-medium">{t('settings.language.label')}</NouText>
@@ -870,7 +877,7 @@ export const SettingsAppearanceContent = () => {
             <View className="px-4 py-4">
               <View className="flex-row items-start gap-3">
                 <View className={iconWrapCls}>
-                  <MaterialIcons name="palette" color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+                  <MaterialIcons name="palette" color={isDark ? tw('zinc-300') : tw('slate-600')} size={18} />
                 </View>
                 <View className="flex-1">
                   <NouText className="font-medium">{t('settings.theme.label')}</NouText>
@@ -890,6 +897,19 @@ export const SettingsAppearanceContent = () => {
                 />
               </View>
             </View>
+            {nIf(
+              isDynamicColorAvailable,
+              <View className="border-t border-zinc-300 dark:border-zinc-800">
+                <SettingsToggleRow
+                  label={t('settings.dynamicColor.label')}
+                  description={t('settings.dynamicColor.hint')}
+                  icon="wallpaper"
+                  value={settings.dynamicColor}
+                  onPress={() => settings$.dynamicColor.set(!settings.dynamicColor)}
+                  isLast
+                />
+              </View>,
+            )}
           </View>
         </SettingsSection>
       </View>

@@ -363,6 +363,10 @@
       "light": "Light",
       "hint": "Applies to the app and YouTube. Restart manually if change not reflected in webview."
     },
+    "dynamicColor": {
+      "label": "Dynamic color",
+      "hint": "Use your system color palette."
+    },
     "language": {
       "label": "Language",
       "system": "System",

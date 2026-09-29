@@ -34,6 +34,7 @@ import { useActivePageUrl } from '@/lib/hooks/useActivePageUrl'
 import { toggleDesktopMode, useDesktopMode } from '@/lib/hooks/useDesktopMode'
 import { handleSplitBack } from '@/lib/split-view'
 import { togglePictureInPicture } from '@/lib/picture-in-picture'
+import { useTwColor } from '@/lib/theme'
 
 const getTabLabel = (tab: { title?: string; pageUrl?: string; url?: string }) => {
   if (tab.title) {
@@ -73,6 +74,7 @@ const TabFavicon: React.FC<{ tab: Tab; color: string }> = ({ tab, color }) => {
 }
 
 export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) => {
+  const tw = useTwColor()
   const autoHideHeader = useValue(settings$.autoHideHeader)
   const autoHideSidebar = useValue(settings$.autoHideSidebar)
   const doubleTapToToggleHeader = useValue(settings$.doubleTapToToggleHeader)
@@ -119,7 +121,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const isSidebarLayout = isWeb && isHorizontal
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
-  const headerControlColor = isDark ? colors.icon : colors.iconLight
+  const headerControlColor = isDark ? tw(colors.icon) : tw(colors.iconLight)
 
   useEffect(() => {
     const webview = getNoutube()
@@ -301,13 +303,13 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
             <>
               <View className="h-2 w-2" />
               <MaterialButton
-                color={canGoBack ? headerControlColor : isDark ? colors.underlay : '#94a3b8'}
+                color={canGoBack ? headerControlColor : isDark ? tw(colors.underlay) : tw('slate-400')}
                 name="arrow-back"
                 disabled={!canGoBack}
                 onPress={goBack}
               />
               <MaterialButton
-                color={canGoForward ? headerControlColor : isDark ? colors.underlay : '#94a3b8'}
+                color={canGoForward ? headerControlColor : isDark ? tw(colors.underlay) : tw('slate-400')}
                 name="arrow-forward"
                 disabled={!canGoForward}
                 onPress={goForward}
@@ -417,7 +419,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           showSleepTimerButton,
           <MaterialButton
             name="bedtime"
-            color={sleepTimerActive ? '#60a5fa' : headerControlColor}
+            color={sleepTimerActive ? tw('blue-400') : headerControlColor}
             onPress={() => ui$.sleepTimerModalOpen.set(true)}
           />,
         )}
@@ -433,7 +435,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           !isIos && (pageType?.type === 'watch' || hasDownloads),
           <MaterialButton
             name="download"
-            color={isDownloading ? '#60a5fa' : headerControlColor}
+            color={isDownloading ? tw('blue-400') : headerControlColor}
             onPress={() => {
               if (pageType?.type === 'watch') {
                 ui$.toolsModalUrl.set(activePageUrl)

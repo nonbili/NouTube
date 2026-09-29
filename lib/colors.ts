@@ -1,11 +1,14 @@
+import type { TwColor } from './tw-colors'
+
+// Resolve with tw() from useTwColor so they follow the dynamic palette.
 export const colors = {
-  text: '#f1f5f9',
-  bg: '#27272a',
-  icon: '#f1f5f9',
-  underlay: '#4b5563',
-  iconLight: '#334155',
-  iconLightStrong: '#0f172a',
-  iconMutedLight: '#475569',
-  iconMutedDark: '#d4d4d8',
-  iconSubtle: '#71717a',
-}
+  text: 'slate-100',
+  bg: 'zinc-800',
+  icon: 'slate-100',
+  underlay: 'gray-600',
+  iconLight: 'slate-700',
+  iconLightStrong: 'slate-900',
+  iconMutedLight: 'slate-600',
+  iconMutedDark: 'zinc-300',
+  iconSubtle: 'zinc-500',
+} satisfies Record<string, TwColor>

@@ -4,11 +4,13 @@ import { buttonStyle, disabled, frame, tint } from '@expo/ui/swift-ui/modifiers'
 import type { Item } from './NouMenu'
 import { cloneElement, Fragment, isValidElement, ReactNode } from 'react'
 import { useColorScheme } from 'react-native'
+import { useTwColor } from '@/lib/theme'
 
 export const NouMenu: React.FC<{ trigger: ReactNode; items: Item[]; triggerColor?: string }> = ({ trigger, items, triggerColor }) => {
+  const tw = useTwColor()
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
-  const resolvedTriggerColor = triggerColor ?? (isDark ? colors.icon : colors.iconLight)
+  const resolvedTriggerColor = triggerColor ?? (isDark ? tw(colors.icon) : tw(colors.iconLight))
   const groups = items.reduce<Item[][]>((acc, item) => {
     if (item.kind === 'separator') {
       acc.push([])

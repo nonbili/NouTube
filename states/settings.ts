@@ -57,6 +57,7 @@ export interface SettingsSnapshot {
   desktopModeYT: boolean
   defaultZoom: number
   theme: null | 'dark' | 'light'
+  dynamicColor: boolean
   proxyEnabled: boolean
   proxyType: 'http' | 'socks'
   proxyHost: string
@@ -253,6 +254,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   desktopModeYT: Boolean(value?.desktopModeYT),
   defaultZoom: typeof value?.defaultZoom === 'number' ? value.defaultZoom : 100,
   theme: value?.theme === 'dark' || value?.theme === 'light' ? value.theme : null,
+  dynamicColor: typeof value?.dynamicColor === 'boolean' ? value.dynamicColor : true,
   proxyEnabled: Boolean(value?.proxyEnabled),
   proxyType: value?.proxyType === 'socks' ? 'socks' : 'http',
   proxyHost: typeof value?.proxyHost === 'string' ? value.proxyHost : '',
@@ -315,6 +317,7 @@ export const settings$ = observable<Store>({
   desktopModeYT: false,
   defaultZoom: 100,
   theme: isWeb ? 'dark' : null,
+  dynamicColor: true,
   proxyEnabled: false,
   proxyType: 'http',
   proxyHost: '',

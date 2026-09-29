@@ -9,8 +9,10 @@ import { translateText } from '@/lib/translation'
 import { ui$ } from '@/states/ui'
 import { NouText } from '@/components/NouText'
 import { nIf } from '@/lib/utils'
+import { useTwColor } from '@/lib/theme'
 
 export const TranslationCard = () => {
+  const tw = useTwColor()
   const request = useValue(ui$.translation)
   const insets = useSafeAreaInsets()
   const [translationState, setTranslationState] = useState<{
@@ -87,10 +89,10 @@ export const TranslationCard = () => {
             hitSlop={8}
             onPress={() => setPinnedRequestId(pinned ? null : request.id)}
           >
-            <MaterialIcons name="push-pin" size={20} color={pinned ? '#2563eb' : '#71717a'} />
+            <MaterialIcons name="push-pin" size={20} color={pinned ? tw('blue-600') : tw('zinc-500')} />
           </Pressable>
           <Pressable accessibilityRole="button" accessibilityLabel={t('buttons.cancel')} hitSlop={8} onPress={close}>
-            <MaterialIcons name="close" size={20} color="#71717a" />
+            <MaterialIcons name="close" size={20} color={tw('zinc-500')} />
           </Pressable>
         </View>
       </View>

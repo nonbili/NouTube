@@ -15,10 +15,12 @@ import { findPinnedFormats, togglePinnedFormat } from '@/lib/download-format'
 import { listFormats } from '@/lib/list-formats'
 import { isAndroid, nIf } from '@/lib/utils'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
+import { useTwColor } from '@/lib/theme'
 
 type Phase = 'idle' | 'loading' | 'choosing' | 'error'
 
 export const ToolsModal = () => {
+  const tw = useTwColor()
   const toolsModalOpen = useValue(ui$.toolsModalOpen)
   const toolsModalUrl = useValue(ui$.toolsModalUrl)
   const isOpen = toolsModalOpen || !!toolsModalUrl
@@ -176,7 +178,7 @@ export const ToolsModal = () => {
             }}
             returnKeyType="go"
             placeholder="https://www.youtube.com/watch?v=..."
-            placeholderTextColor={isDark ? '#71717a' : '#a1a1aa'}
+            placeholderTextColor={isDark ? tw('zinc-500') : tw('zinc-400')}
           />
         </View>
 
@@ -275,7 +277,7 @@ export const ToolsModal = () => {
                     )}
                     {nIf(
                       d.phase === 'downloading',
-                      <ActivityIndicator size="small" color={isDark ? '#7dd3fc' : '#0284c7'} />,
+                      <ActivityIndicator size="small" color={isDark ? tw('sky-300') : tw('sky-600')} />,
                     )}
                   </View>
                   {d.phase === 'downloading' && (
@@ -357,7 +359,7 @@ export const ToolsModal = () => {
             })}
           </View>
         )}
-        {phase === 'loading' && <ActivityIndicator color={isDark ? 'white' : '#3f3f46'} />}
+        {phase === 'loading' && <ActivityIndicator color={isDark ? 'white' : tw('zinc-700')} />}
 
         {phase === 'choosing' && (
           <View className="gap-3">
@@ -398,7 +400,7 @@ export const ToolsModal = () => {
                       <MaterialIcons
                         name="push-pin"
                         size={20}
-                        color={isPinned ? (isDark ? '#818cf8' : '#4f46e5') : isDark ? '#71717a' : '#a1a1aa'}
+                        color={isPinned ? (isDark ? tw('indigo-400') : tw('indigo-600')) : isDark ? tw('zinc-500') : tw('zinc-400')}
                       />
                     </Pressable>
                     <Pressable
@@ -428,7 +430,7 @@ export const ToolsModal = () => {
                 <MaterialIcons
                   name={showAllFormats ? 'expand-less' : 'expand-more'}
                   size={18}
-                  color={isDark ? '#818cf8' : '#4f46e5'}
+                  color={isDark ? tw('indigo-400') : tw('indigo-600')}
                 />
               </Pressable>,
             )}

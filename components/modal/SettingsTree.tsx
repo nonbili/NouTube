@@ -25,6 +25,7 @@ import {
 import { SettingsChangelogContent } from './SettingsModalTabChangelog'
 import { SettingsUserStylesContent } from './SettingsUserStylesContent'
 import { SettingsBlocklistContent } from './SettingsBlocklistContent'
+import { useTwColor } from '@/lib/theme'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const donateLinks = [
@@ -68,6 +69,7 @@ export const SettingsNavRow: React.FC<{
   onPress: () => void
   isLast?: boolean
 }> = ({ title, description, icon, meta, onPress, isLast = false }) => {
+  const tw = useTwColor()
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   return (
@@ -79,7 +81,7 @@ export const SettingsNavRow: React.FC<{
       )}
     >
       <View className={iconWrapCls}>
-        <MaterialIcons name={icon} color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+        <MaterialIcons name={icon} color={isDark ? tw('zinc-300') : tw('slate-600')} size={18} />
       </View>
       <View className="flex-1">
         <View className="flex-row items-center gap-2">
@@ -90,7 +92,7 @@ export const SettingsNavRow: React.FC<{
         </View>
         <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{description}</NouText>
       </View>
-      <MaterialIcons name="chevron-right" color={isDark ? '#71717a' : '#52525b'} size={20} />
+      <MaterialIcons name="chevron-right" color={isDark ? tw('zinc-500') : tw('zinc-600')} size={20} />
     </Pressable>
   )
 }
@@ -102,6 +104,7 @@ export const SettingsExternalRow: React.FC<{
   icon?: MaterialIconsIconName
   isLast?: boolean
 }> = ({ title, detail, href, icon = 'open-in-new', isLast = false }) => {
+  const tw = useTwColor()
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   return (
@@ -113,13 +116,13 @@ export const SettingsExternalRow: React.FC<{
         )}
       >
         <View className={iconWrapCls}>
-          <MaterialIcons name={icon} color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+          <MaterialIcons name={icon} color={isDark ? tw('zinc-300') : tw('slate-600')} size={18} />
         </View>
         <View className="flex-1">
           <NouText className="font-medium">{title}</NouText>
           <NouText className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{detail}</NouText>
         </View>
-        <MaterialIcons name="chevron-right" color={isDark ? '#71717a' : '#52525b'} size={20} />
+        <MaterialIcons name="chevron-right" color={isDark ? tw('zinc-500') : tw('zinc-600')} size={20} />
       </View>
     </NouLink>
   )
@@ -155,6 +158,7 @@ export const SettingsTree = forwardRef<
     showShellTools?: boolean
   }
 >(({ version, onExit, renderSync, showShellTools = true }, ref) => {
+  const tw = useTwColor()
   const theme = useValue(settings$.theme)
   const { user, plan } = useValue(auth$)
   const colorScheme = useColorScheme()
@@ -452,7 +456,7 @@ export const SettingsTree = forwardRef<
               }}
               className="h-11 w-11 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-900"
             >
-              <MaterialIcons name={canGoBack ? 'arrow-back' : 'close'} color={isDark ? 'white' : '#111827'} size={22} />
+              <MaterialIcons name={canGoBack ? 'arrow-back' : 'close'} color={isDark ? 'white' : tw('gray-900')} size={22} />
             </Pressable>
           ) : null}
           <View className="flex-1">

@@ -12,11 +12,13 @@ import { folders$, newFolder } from '@/states/folders'
 import { ui$ } from '@/states/ui'
 import { NouText } from '../NouText'
 import { BaseCenterModal } from './BaseCenterModal'
+import { useTwColor } from '@/lib/theme'
 
 const NO_FOLDER_ID = '__no_folder__'
 const NEW_FOLDER_ID = '__new__'
 
 export const MoveBookmarkModal = () => {
+  const tw = useTwColor()
   const bookmark = useValue(ui$.moveBookmarkModalBookmark)
   const folders = useValue(folders$.folders)
   const folderModalFolder = useValue(ui$.folderModalFolder)
@@ -95,9 +97,9 @@ export const MoveBookmarkModal = () => {
                     selected && 'bg-indigo-50 dark:bg-zinc-800',
                   )}
                 >
-                  <MaterialIcons name={item.id === NEW_FOLDER_ID ? 'create-new-folder' : 'folder'} size={22} color="#a1a1aa" />
+                  <MaterialIcons name={item.id === NEW_FOLDER_ID ? 'create-new-folder' : 'folder'} size={22} color={tw('zinc-400')} />
                   <NouText className={clsx('flex-1', selected && 'font-semibold')}>{item.name}</NouText>
-                  {nIf(selected, <MaterialIcons name="check" size={22} color="#6366f1" />)}
+                  {nIf(selected, <MaterialIcons name="check" size={22} color={tw('indigo-500')} />)}
                 </Pressable>
               )
             }}

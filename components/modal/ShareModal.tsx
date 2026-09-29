@@ -10,6 +10,7 @@ import { nIf } from '@/lib/utils'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
 
 import { t } from 'i18next'
+import { useTwColor } from '@/lib/theme'
 
 /* player.getVideoUrl() already embeds the current position as ?t= */
 const getPosition = (videoUrl: string) => {
@@ -32,6 +33,7 @@ const withoutPosition = (videoUrl: string) => {
 }
 
 const ShareModalContent: React.FC<{ pageUrl: string; videoUrl: string }> = ({ pageUrl, videoUrl }) => {
+  const tw = useTwColor()
   const [includePosition, setIncludePosition] = useState(false)
   const onClose = () => ui$.shareModalUrls.set(null)
   const videoTime = getPosition(videoUrl)
@@ -59,7 +61,7 @@ const ShareModalContent: React.FC<{ pageUrl: string; videoUrl: string }> = ({ pa
               }}
               className="flex-row items-center gap-3 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 px-4 py-3"
             >
-              <MaterialIcons name={option.icon} size={22} color="#71717a" />
+              <MaterialIcons name={option.icon} size={22} color={tw('zinc-500')} />
               <View className="flex-1">
                 <NouText className="font-medium">{option.label}</NouText>
                 <NouText className="mt-1 text-xs text-zinc-500 dark:text-zinc-400" numberOfLines={1}>
@@ -77,7 +79,7 @@ const ShareModalContent: React.FC<{ pageUrl: string; videoUrl: string }> = ({ pa
               <MaterialIcons
                 name={includePosition ? 'check-box' : 'check-box-outline-blank'}
                 size={20}
-                color={includePosition ? '#6366f1' : '#71717a'}
+                color={includePosition ? tw('indigo-500') : tw('zinc-500')}
               />
               <NouText className="text-sm">{t('modals.shareIncludePosition', 'Include current position')}</NouText>
             </Pressable>,

@@ -8,6 +8,7 @@ import type { BlocklistEntry, BlocklistKind } from '@/lib/blocklist'
 import { clsx, isWeb, nIf } from '@/lib/utils'
 import { NouText } from '../NouText'
 import { NouButton } from '../button/NouButton'
+import { useTwColor } from '@/lib/theme'
 
 const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
 const sectionLabelCls = 'mb-2 px-1 text-[11px] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-500'
@@ -26,6 +27,7 @@ const BlocklistRow: React.FC<{
   kind: BlocklistKind
   isLast: boolean
 }> = ({ entry, kind, isLast }) => {
+  const tw = useTwColor()
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   const toggle = () => {
@@ -54,13 +56,13 @@ const BlocklistRow: React.FC<{
         <Switch
           value={entry.enabled}
           onValueChange={toggle}
-          trackColor={{ false: '#52525b', true: '#1d4ed8' }}
-          thumbColor={entry.enabled ? '#eff6ff' : '#f4f4f5'}
-          {...(isWeb ? { activeThumbColor: '#eff6ff' } : {})}
+          trackColor={{ false: tw('zinc-600'), true: tw('blue-700') }}
+          thumbColor={entry.enabled ? tw('blue-50') : tw('zinc-100')}
+          {...(isWeb ? { activeThumbColor: tw('blue-50') } : {})}
         />
       </View>
       <Pressable onPress={remove} className="h-10 w-10 items-center justify-center rounded-full active:bg-zinc-200 dark:active:bg-zinc-800">
-        <MaterialIcons name="delete-outline" size={20} color={isDark ? '#d4d4d8' : '#475569'} />
+        <MaterialIcons name="delete-outline" size={20} color={isDark ? tw('zinc-300') : tw('slate-600')} />
       </Pressable>
     </View>
   )
@@ -75,6 +77,7 @@ const BlocklistSection: React.FC<{
   kind: BlocklistKind
   entries: BlocklistEntry[]
 }> = ({ label, placeholder, empty, note, icon, kind, entries }) => {
+  const tw = useTwColor()
   const [value, setValue] = useState('')
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
@@ -90,14 +93,14 @@ const BlocklistSection: React.FC<{
       <View className={surfaceCls}>
         <View className={clsx('flex-row items-center gap-3 px-4 py-4', rowDividerCls)}>
           <View className={iconWrapCls}>
-            <MaterialIcons name={icon} color={isDark ? '#d4d4d8' : '#475569'} size={18} />
+            <MaterialIcons name={icon} color={isDark ? tw('zinc-300') : tw('slate-600')} size={18} />
           </View>
           <TextInput
             value={value}
             onChangeText={setValue}
             onSubmitEditing={add}
             placeholder={placeholder}
-            placeholderTextColor={isDark ? '#71717a' : '#64748b'}
+            placeholderTextColor={isDark ? tw('zinc-500') : tw('slate-500')}
             className="min-h-11 flex-1 rounded-2xl border border-zinc-300 bg-zinc-50 px-3 text-base text-zinc-950 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
             autoCapitalize="none"
             autoCorrect={false}
@@ -109,7 +112,7 @@ const BlocklistSection: React.FC<{
         </View>
 
         <View className={clsx('flex-row gap-3 px-4 py-3 bg-zinc-50/70 dark:bg-zinc-950/30', entries.length > 0 && rowDividerCls)}>
-          <MaterialIcons name="info-outline" color={isDark ? '#a1a1aa' : '#64748b'} size={18} />
+          <MaterialIcons name="info-outline" color={isDark ? tw('zinc-400') : tw('slate-500')} size={18} />
           <NouText className="flex-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">{note}</NouText>
         </View>
 

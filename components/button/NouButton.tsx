@@ -1,6 +1,7 @@
 import { clsx, nIf } from '@/lib/utils'
 import { NouText } from '../NouText'
 import { ActivityIndicator, TouchableOpacity } from 'react-native'
+import { useTwColor } from '@/lib/theme'
 
 export const NouButton = ({
   className,
@@ -20,8 +21,9 @@ export const NouButton = ({
   disabled?: boolean
   onPress: () => void
 }>) => {
+  const tw = useTwColor()
   const isDisabled = Boolean(disabled || loading)
-  const spinnerColor = variant === 'solid' ? '#ffffff' : variant === 'soft' ? '#4338ca' : '#475569'
+  const spinnerColor = variant === 'solid' ? '#ffffff' : variant === 'soft' ? tw('indigo-700') : tw('slate-600')
 
   return (
     <TouchableOpacity

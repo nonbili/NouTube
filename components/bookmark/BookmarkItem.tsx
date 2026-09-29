@@ -12,6 +12,7 @@ import { MaterialButton } from '../button/IconButtons'
 import { share } from '@/lib/share'
 import { RetryImage } from '../image/RetryImage'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
+import { useTwColor } from '@/lib/theme'
 
 /* https://www.youtube.com/watch?v=<id> */
 function getThumbnail(url: string) {
@@ -27,6 +28,7 @@ const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
 
 export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = memo(({ bookmark }) => {
+  const tw = useTwColor()
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   const onPress = () => {
@@ -64,7 +66,7 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = memo(({ bookmark }
               ? [
                   {
                     label: t('menus.openInNewTab'),
-                    icon: <MaterialIcons name="open-in-new" size={18} color={isDark ? '#d4d4d8' : '#475569'} />,
+                    icon: <MaterialIcons name="open-in-new" size={18} color={isDark ? tw('zinc-300') : tw('slate-600')} />,
                     handler: () => {
                       tabs$.openTab(bookmark.url)
                       ui$.assign({ libraryModalOpen: false })
@@ -74,25 +76,25 @@ export const BookmarkItem: React.FC<{ bookmark: Bookmark }> = memo(({ bookmark }
               : []),
             {
               label: t('menus.edit'),
-              icon: <MaterialIcons name="edit" size={18} color={isDark ? '#d4d4d8' : '#475569'} />,
+              icon: <MaterialIcons name="edit" size={18} color={isDark ? tw('zinc-300') : tw('slate-600')} />,
               systemImage: 'pencil',
               handler: () => ui$.bookmarkModalBookmark.set(bookmark),
             },
             {
               label: t('menus.moveTo'),
-              icon: <MaterialIcons name="drive-file-move-outline" size={18} color={isDark ? '#d4d4d8' : '#475569'} />,
+              icon: <MaterialIcons name="drive-file-move-outline" size={18} color={isDark ? tw('zinc-300') : tw('slate-600')} />,
               systemImage: 'folder',
               handler: () => ui$.moveBookmarkModalBookmark.set(bookmark),
             },
             {
               label: t('menus.share'),
-              icon: <MaterialIcons name="share" size={18} color={isDark ? '#d4d4d8' : '#475569'} />,
+              icon: <MaterialIcons name="share" size={18} color={isDark ? tw('zinc-300') : tw('slate-600')} />,
               systemImage: 'square.and.arrow.up',
               handler: () => share(bookmark.url),
             },
             {
               label: t('menus.remove'),
-              icon: <MaterialIcons name="delete-outline" size={18} color={isDark ? '#d4d4d8' : '#475569'} />,
+              icon: <MaterialIcons name="delete-outline" size={18} color={isDark ? tw('zinc-300') : tw('slate-600')} />,
               systemImage: 'trash',
               handler: () => removeBookmark(bookmark),
             },

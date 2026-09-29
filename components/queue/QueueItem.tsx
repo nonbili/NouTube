@@ -13,6 +13,7 @@ import { MaterialButton } from '../button/IconButtons'
 import { t } from 'i18next'
 import { share } from '@/lib/share'
 import { RetryImage } from '../image/RetryImage'
+import { useTwColor } from '@/lib/theme'
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
@@ -23,6 +24,7 @@ export const QueueItem: React.FC<{ bookmark: Bookmark; playing: boolean; index: 
   index,
   total,
 }) => {
+  const tw = useTwColor()
   const onPress = () => {
     updateUrl(bookmark.url)
   }
@@ -30,7 +32,7 @@ export const QueueItem: React.FC<{ bookmark: Bookmark; playing: boolean; index: 
   return (
     <View className="flex-row my-2 overflow-hidden">
       <View className="flex-row items-center">
-        <View className="w-6">{nIf(playing, <MaterialIcons name="play-arrow" color={colors.icon} size={16} />)}</View>
+        <View className="w-6">{nIf(playing, <MaterialIcons name="play-arrow" color={tw(colors.icon)} size={16} />)}</View>
         <Pressable className="w-[120px]" onPress={onPress}>
           <RetryImage
             source={bookmark.thumbnail || getThumbnail(bookmark.url)}
@@ -52,7 +54,7 @@ export const QueueItem: React.FC<{ bookmark: Bookmark; playing: boolean; index: 
           style={{ height: 30, width: 30 }}
           onPress={() => queue$.moveUp(index)}
           disabled={index === 0}
-          color={index === 0 ? colors.iconSubtle : undefined}
+          color={index === 0 ? tw(colors.iconSubtle) : undefined}
         />
         <MaterialButton
           name="keyboard-arrow-down"
@@ -60,7 +62,7 @@ export const QueueItem: React.FC<{ bookmark: Bookmark; playing: boolean; index: 
           style={{ height: 30, width: 30 }}
           onPress={() => queue$.moveDown(index)}
           disabled={index === total - 1}
-          color={index === total - 1 ? colors.iconSubtle : undefined}
+          color={index === total - 1 ? tw(colors.iconSubtle) : undefined}
         />
       </View>
       <NouMenu

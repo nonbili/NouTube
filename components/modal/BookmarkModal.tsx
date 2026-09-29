@@ -15,6 +15,7 @@ import { showConfirm } from '@/lib/confirm'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { clsx, nIf } from '@/lib/utils'
 import { getBookmarkFolderTab } from '@/lib/bookmark-folders'
+import { useTwColor } from '@/lib/theme'
 
 const NO_FOLDER_ID = '__no_folder__'
 const NEW_FOLDER_ID = '__new__'
@@ -34,6 +35,7 @@ const BookmarkModalContent: React.FC<{
   bookmark: Bookmark
   bookmarkModalMode: 'default' | 'feed'
 }> = ({ bookmark, bookmarkModalMode }) => {
+  const tw = useTwColor()
   const onClose = () => {
     ui$.bookmarkModalBookmark.set(undefined)
     ui$.bookmarkModalMode.set('default')
@@ -128,9 +130,9 @@ const BookmarkModalContent: React.FC<{
           onPress={() => setFolderPickerShown(!folderPickerShown)}
           className="flex-row items-center gap-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 py-3 active:bg-zinc-100 dark:active:bg-zinc-800"
         >
-          <MaterialIcons name="folder" size={22} color="#a1a1aa" />
+          <MaterialIcons name="folder" size={22} color={tw('zinc-400')} />
           <NouText className="flex-1">{folder?.name || t('modals.noFolder')}</NouText>
-          <MaterialIcons name={folderPickerShown ? 'expand-less' : 'expand-more'} size={24} color="#a1a1aa" />
+          <MaterialIcons name={folderPickerShown ? 'expand-less' : 'expand-more'} size={24} color={tw('zinc-400')} />
         </Pressable>
         {folderPickerShown ? (
           <View className="mt-2 max-h-[220px] overflow-hidden rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900">
@@ -148,9 +150,9 @@ const BookmarkModalContent: React.FC<{
                       selected && 'bg-indigo-50 dark:bg-zinc-800',
                     )}
                   >
-                    <MaterialIcons name={item.id === NEW_FOLDER_ID ? 'create-new-folder' : 'folder'} size={22} color="#a1a1aa" />
+                    <MaterialIcons name={item.id === NEW_FOLDER_ID ? 'create-new-folder' : 'folder'} size={22} color={tw('zinc-400')} />
                     <NouText className={clsx('flex-1', selected && 'font-semibold')}>{item.name}</NouText>
-                    {nIf(selected, <MaterialIcons name="check" size={22} color="#6366f1" />)}
+                    {nIf(selected, <MaterialIcons name="check" size={22} color={tw('indigo-500')} />)}
                   </Pressable>
                 )
               }}

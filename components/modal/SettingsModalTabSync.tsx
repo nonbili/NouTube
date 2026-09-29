@@ -16,6 +16,7 @@ import { capitalize } from 'es-toolkit'
 import { t } from 'i18next'
 import { MaterialButton } from '../button/IconButtons'
 import { NouButton } from '../button/NouButton'
+import { useTwColor } from '@/lib/theme'
 
 const surfaceCls =
   'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
@@ -36,6 +37,7 @@ const SettingsBadge: React.FC<{ label: string }> = ({ label }) => {
 const getErrorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error))
 
 export const SettingsModalTabSync = () => {
+  const tw = useTwColor()
   const { user, userEmail, plan, accessToken } = useValue(auth$)
   const { me } = useMe()
   const planLabel = plan ? capitalize(plan) : t('sync.freePlan')
@@ -193,7 +195,7 @@ export const SettingsModalTabSync = () => {
         <View className={surfaceCls}>
           <View className="flex-row items-center gap-3 px-4 py-4">
             <Image
-              style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: '#18181b' }}
+              style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: tw('zinc-900') }}
               source={user.picture}
               contentFit="cover"
             />

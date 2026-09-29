@@ -17,6 +17,7 @@ import { isIos, isWeb } from '@/lib/utils'
 import { t } from 'i18next'
 import { RetryImage } from '../image/RetryImage'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
+import { useTwColor } from '@/lib/theme'
 
 dayjs.extend(relativeTime)
 
@@ -28,6 +29,7 @@ export const FeedItem: React.FC<{
   channel?: Bookmark
   onPressChannel?: (channel: Bookmark) => void
 }> = memo(({ bookmark, channel, onPressChannel: onSelectChannel }) => {
+  const tw = useTwColor()
   const starUrl = normalizeUrl(bookmark.url)
   const starred = useValue(library$.urls).has(getBookmarkKey(starUrl))
 
@@ -68,7 +70,7 @@ export const FeedItem: React.FC<{
           items={[
             {
               label: starred ? t('menus.unstar') : t('menus.star'),
-              icon: <MaterialIcons name={starred ? 'star' : 'star-outline'} size={18} color="#475569" />,
+              icon: <MaterialIcons name={starred ? 'star' : 'star-outline'} size={18} color={tw('slate-600')} />,
               systemImage: starred ? 'star.slash' : 'star',
               handler: () =>
                 bookmarks$.toggleBookmark(
@@ -84,7 +86,7 @@ export const FeedItem: React.FC<{
               : [
                   {
                     label: t('menus.download'),
-                    icon: <MaterialIcons name="download" size={18} color="#475569" />,
+                    icon: <MaterialIcons name="download" size={18} color={tw('slate-600')} />,
                     systemImage: 'arrow.down.circle',
                     handler: () => {
                       ui$.toolsModalUrl.set(starUrl)
@@ -95,7 +97,7 @@ export const FeedItem: React.FC<{
                 ]),
             {
               label: t('menus.share'),
-              icon: <MaterialIcons name="share" size={18} color="#475569" />,
+              icon: <MaterialIcons name="share" size={18} color={tw('slate-600')} />,
               systemImage: 'square.and.arrow.up',
               handler: () => share(bookmark.url),
             },

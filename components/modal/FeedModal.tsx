@@ -30,6 +30,7 @@ import { Image } from 'expo-image'
 import { gray } from '@radix-ui/colors'
 import { refreshChannelFeed } from '@/lib/feeder'
 import { showToast } from '@/lib/toast'
+import { useTwColor } from '@/lib/theme'
 
 const MENU_TOP = 68
 
@@ -64,6 +65,7 @@ export const FeedContent: React.FC<{ showClose?: boolean; onClose?: () => void; 
   onClose = () => undefined,
   maxContentWidth,
 }) => {
+  const tw = useTwColor()
   const folders = useValue(folders$.folders)
   const bookmarks = useValue(bookmarks$.bookmarks)
   const feedState = useValue(feeds$.feeds)
@@ -72,7 +74,7 @@ export const FeedContent: React.FC<{ showClose?: boolean; onClose?: () => void; 
   const bookmarkModalBookmark = useValue(ui$.bookmarkModalBookmark)
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
-  const iconColor = isDark ? 'white' : '#111827'
+  const iconColor = isDark ? 'white' : tw('gray-900')
 
   const [modeIndex, setModeIndex] = useState(0)
   const [filterKey, setFilterKey] = useState(ALL_FEED_FILTER_KEY)

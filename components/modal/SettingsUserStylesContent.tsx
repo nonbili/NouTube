@@ -21,6 +21,7 @@ import { ui$ } from '@/states/ui'
 import { showToast } from '@/lib/toast'
 import { NouButton } from '../button/NouButton'
 import { MaterialButton } from '../button/IconButtons'
+import { useTwColor } from '@/lib/theme'
 
 const surfaceCls =
   'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
@@ -36,7 +37,6 @@ const nameInputCls =
 const editorLabelCls = 'mb-2 mt-4 px-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-600 dark:text-zinc-500'
 
 const switchProps = Platform.select({
-  web: { activeThumbColor: '#818cf8' },
   ios: { style: { transform: [{ scale: 0.8 }] } },
 })
 
@@ -49,24 +49,27 @@ const ToggleRow: React.FC<{
   onValueChange: (value: boolean) => void
   disabled?: boolean
   isLast?: boolean
-}> = ({ title, hint, value, onValueChange, disabled, isLast }) => (
-  <View
-    className={clsx('flex-row items-center justify-between px-4 py-3', !isLast && rowBorderCls, disabled && 'opacity-50')}
-  >
-    <View className="flex-1 pr-4">
-      <NouText className="font-medium">{title}</NouText>
-      <NouText className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-500">{hint}</NouText>
+}> = ({ title, hint, value, onValueChange, disabled, isLast }) => {
+  const tw = useTwColor()
+  return (
+    <View
+      className={clsx('flex-row items-center justify-between px-4 py-3', !isLast && rowBorderCls, disabled && 'opacity-50')}
+    >
+      <View className="flex-1 pr-4">
+        <NouText className="font-medium">{title}</NouText>
+        <NouText className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-500">{hint}</NouText>
+      </View>
+      <Switch
+        value={value}
+        onValueChange={onValueChange}
+        disabled={disabled}
+        trackColor={{ false: tw('zinc-800'), true: tw('indigo-800') }}
+        thumbColor={value ? tw('indigo-400') : tw('zinc-500')}
+        {...(isWeb ? { activeThumbColor: tw('indigo-400') } : switchProps)}
+      />
     </View>
-    <Switch
-      value={value}
-      onValueChange={onValueChange}
-      disabled={disabled}
-      trackColor={{ false: '#27272a', true: '#3730a3' }}
-      thumbColor={value ? '#818cf8' : '#71717a'}
-      {...switchProps}
-    />
-  </View>
-)
+  )
+}
 
 type DraftState = {
   id: string | null
@@ -153,6 +156,7 @@ async function readPickedScript() {
 }
 
 export const SettingsUserStylesContent = () => {
+  const tw = useTwColor()
   const customStyles = useValue(userStyles$.customStyles)
   const customScripts = useValue(userStyles$.customScripts).filter((script): script is CustomUserScript => Boolean(script))
   const [draft, setDraft] = useState<DraftState | null>(null)
@@ -285,7 +289,7 @@ export const SettingsUserStylesContent = () => {
                 onPress={() => setDraft(createDraft())}
                 className="flex-row items-center gap-1 rounded-full bg-indigo-600/10 px-3 py-1.5 active:bg-indigo-600/20"
               >
-                <MaterialIcons name="add" color="#818cf8" size={18} />
+                <MaterialIcons name="add" color={tw('indigo-400')} size={18} />
                 <NouText className="text-xs font-semibold text-indigo-400">{t('settings.userStyles.add')}</NouText>
               </Pressable>
             </View>
@@ -293,7 +297,7 @@ export const SettingsUserStylesContent = () => {
               {!hasStyles ? (
                 <View className="items-center justify-center px-6 py-10">
                   <View className="h-12 w-12 items-center justify-center rounded-2xl bg-zinc-200 dark:bg-zinc-950">
-                    <MaterialIcons name="brush" color="#3f3f46" size={24} />
+                    <MaterialIcons name="brush" color={tw('zinc-700')} size={24} />
                   </View>
                   <NouText className="mt-4 text-center text-sm leading-6 text-zinc-600 dark:text-zinc-500">
                     {t('settings.userStyles.custom.empty')}
@@ -318,11 +322,11 @@ export const SettingsUserStylesContent = () => {
                   <Switch
                     value={style.enabled}
                     onValueChange={() => userStyles$.toggleCustomStyle(style.id)}
-                    trackColor={{ false: '#27272a', true: '#3730a3' }}
-                    thumbColor={style.enabled ? '#818cf8' : '#71717a'}
+                    trackColor={{ false: tw('zinc-800'), true: tw('indigo-800') }}
+                    thumbColor={style.enabled ? tw('indigo-400') : tw('zinc-500')}
                     {...Platform.select({
                       web: {
-                        activeThumbColor: '#818cf8',
+                        activeThumbColor: tw('indigo-400'),
                       },
                       ios: {
                         style: { transform: [{ scale: 0.8 }] },
@@ -341,7 +345,7 @@ export const SettingsUserStylesContent = () => {
                 onPress={() => setScriptDraft(createScriptDraft())}
                 className="flex-row items-center gap-1 rounded-full bg-indigo-600/10 px-3 py-1.5 active:bg-indigo-600/20"
               >
-                <MaterialIcons name="add" color="#818cf8" size={18} />
+                <MaterialIcons name="add" color={tw('indigo-400')} size={18} />
                 <NouText className="text-xs font-semibold text-indigo-400">{t('settings.userStyles.scripts.add')}</NouText>
               </Pressable>
             </View>
@@ -349,7 +353,7 @@ export const SettingsUserStylesContent = () => {
               {!hasScripts ? (
                 <View className="items-center justify-center px-6 py-10">
                   <View className="h-12 w-12 items-center justify-center rounded-2xl bg-zinc-200 dark:bg-zinc-950">
-                    <MaterialIcons name="code" color="#3f3f46" size={24} />
+                    <MaterialIcons name="code" color={tw('zinc-700')} size={24} />
                   </View>
                   <NouText className="mt-4 text-center text-sm leading-6 text-zinc-600 dark:text-zinc-500">
                     {t('settings.userStyles.scripts.empty')}
@@ -381,7 +385,7 @@ export const SettingsUserStylesContent = () => {
                     script.pinToHeader,
                     <MaterialIcons
                       name="push-pin"
-                      color={script.enabled ? '#818cf8' : '#71717a'}
+                      color={script.enabled ? tw('indigo-400') : tw('zinc-500')}
                       size={18}
                       style={{ marginRight: 12 }}
                     />,
@@ -389,11 +393,11 @@ export const SettingsUserStylesContent = () => {
                   <Switch
                     value={script.enabled}
                     onValueChange={() => userStyles$.toggleCustomScript(script.id)}
-                    trackColor={{ false: '#27272a', true: '#3730a3' }}
-                    thumbColor={script.enabled ? '#818cf8' : '#71717a'}
+                    trackColor={{ false: tw('zinc-800'), true: tw('indigo-800') }}
+                    thumbColor={script.enabled ? tw('indigo-400') : tw('zinc-500')}
                     {...Platform.select({
                       web: {
-                        activeThumbColor: '#818cf8',
+                        activeThumbColor: tw('indigo-400'),
                       },
                       ios: {
                         style: { transform: [{ scale: 0.8 }] },
@@ -413,7 +417,7 @@ export const SettingsUserStylesContent = () => {
             <View>
               <View className="flex-row items-center gap-3">
                 <View className="h-10 w-10 items-center justify-center rounded-xl bg-indigo-600/10">
-                  <MaterialIcons name="auto-fix-high" color="#818cf8" size={20} />
+                  <MaterialIcons name="auto-fix-high" color={tw('indigo-400')} size={20} />
                 </View>
                 <NouText className="text-xl font-bold tracking-tight">
                   {draft.id ? t('settings.userStyles.editTitle') : t('settings.userStyles.addTitle')}
@@ -430,7 +434,7 @@ export const SettingsUserStylesContent = () => {
                   autoCorrect={false}
                   onChangeText={(name) => setDraft((value) => (value ? { ...value, name } : value))}
                   placeholder={t('settings.userStyles.namePlaceholder')}
-                  placeholderTextColor="#71717a"
+                  placeholderTextColor={tw('zinc-500')}
                   value={draft.name}
                 />
               </View>
@@ -451,7 +455,7 @@ export const SettingsUserStylesContent = () => {
                     multiline
                     onChangeText={(css) => setDraft((value) => (value ? { ...value, css } : value))}
                     placeholder={`body {\n  font-size: 18px;\n}`}
-                    placeholderTextColor="#71717a"
+                    placeholderTextColor={tw('zinc-500')}
                     style={{
                       textAlignVertical: 'top',
                       fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
@@ -536,7 +540,7 @@ export const SettingsUserStylesContent = () => {
                   autoCorrect={false}
                   onChangeText={(name) => setDraft((value) => (value ? { ...value, name } : value))}
                   placeholder={t('settings.userStyles.namePlaceholder')}
-                  placeholderTextColor="#71717a"
+                  placeholderTextColor={tw('zinc-500')}
                   value={draft.name}
                 />,
               )}
@@ -558,7 +562,7 @@ export const SettingsUserStylesContent = () => {
                   onBlur={() => setCodeFocused(false)}
                   onChangeText={(css) => setDraft((value) => (value ? { ...value, css } : value))}
                   placeholder={`body {\n  font-size: 18px;\n}`}
-                  placeholderTextColor="#71717a"
+                  placeholderTextColor={tw('zinc-500')}
                   style={{
                     textAlignVertical: 'top',
                     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
@@ -578,7 +582,7 @@ export const SettingsUserStylesContent = () => {
             <View>
               <View className="flex-row items-center gap-3">
                 <View className="h-10 w-10 items-center justify-center rounded-xl bg-indigo-600/10">
-                  <MaterialIcons name="code" color="#818cf8" size={20} />
+                  <MaterialIcons name="code" color={tw('indigo-400')} size={20} />
                 </View>
                 <NouText className="text-xl font-bold tracking-tight">
                   {scriptDraft.id ? t('settings.userStyles.scripts.editTitle') : t('settings.userStyles.scripts.addTitle')}
@@ -595,7 +599,7 @@ export const SettingsUserStylesContent = () => {
                   autoCorrect={false}
                   onChangeText={(name) => setScriptDraft((value) => (value ? { ...value, name } : value))}
                   placeholder={t('settings.userStyles.scripts.namePlaceholder')}
-                  placeholderTextColor="#71717a"
+                  placeholderTextColor={tw('zinc-500')}
                   value={scriptDraft.name}
                 />
               </View>
@@ -647,7 +651,7 @@ export const SettingsUserStylesContent = () => {
                     scrollEnabled
                     onChangeText={(js) => setScriptDraft((value) => (value ? { ...value, js } : value))}
                     placeholder={`document.title = 'noutube'`}
-                    placeholderTextColor="#71717a"
+                    placeholderTextColor={tw('zinc-500')}
                     style={{
                       height: 300,
                       textAlignVertical: 'top',
@@ -734,7 +738,7 @@ export const SettingsUserStylesContent = () => {
                     autoCorrect={false}
                     onChangeText={(name) => setScriptDraft((value) => (value ? { ...value, name } : value))}
                     placeholder={t('settings.userStyles.scripts.namePlaceholder')}
-                    placeholderTextColor="#71717a"
+                    placeholderTextColor={tw('zinc-500')}
                     value={scriptDraft.name}
                   />
 
@@ -791,7 +795,7 @@ export const SettingsUserStylesContent = () => {
                   onBlur={() => setCodeFocused(false)}
                   onChangeText={(js) => setScriptDraft((value) => (value ? { ...value, js } : value))}
                   placeholder={`document.title = 'noutube'`}
-                  placeholderTextColor="#71717a"
+                  placeholderTextColor={tw('zinc-500')}
                   style={{
                     textAlignVertical: 'top',
                     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',

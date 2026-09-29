@@ -8,6 +8,7 @@ import { NouButton } from '../button/NouButton'
 import { clsx, isWeb } from '@/lib/utils'
 import { t } from 'i18next'
 import { getReleaseFeedQuery } from '@/lib/query/changelog'
+import { useTwColor } from '@/lib/theme'
 
 const surfaceCls = 'overflow-hidden rounded-[24px] border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70'
 
@@ -23,6 +24,7 @@ function formatReleaseDate(value: string) {
 }
 
 export const SettingsChangelogContent = () => {
+  const tw = useTwColor()
   const currentVersion = `v${isWeb ? desktopVersion : version}`
   const { data, isLoading, isError, refetch, isFetching } = useQuery(getReleaseFeedQuery())
 
@@ -77,7 +79,7 @@ export const SettingsChangelogContent = () => {
                   isCurrent ? 'border-blue-500' : 'border-zinc-300 dark:border-zinc-800',
                 )}
               >
-                <MaterialIcons name="history" color={isCurrent ? '#93c5fd' : '#64748b'} size={18} />
+                <MaterialIcons name="history" color={isCurrent ? tw('blue-300') : tw('slate-500')} size={18} />
               </View>
               <View className="flex-1">
                 <View className="flex-row items-center gap-2">
@@ -104,7 +106,7 @@ export const SettingsChangelogContent = () => {
                   )}
                 </View>
               </View>
-              <MaterialIcons name="open-in-new" color="#71717a" size={18} />
+              <MaterialIcons name="open-in-new" color={tw('zinc-500')} size={18} />
             </View>
           </Pressable>
         )

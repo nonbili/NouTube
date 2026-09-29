@@ -5,6 +5,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { NouText } from '../NouText'
 import { useKeyboardHeight } from '@/lib/hooks/useKeyboardHeight'
 import { useModal } from '@/lib/hooks/useModal'
+import { useTwColor } from '@/lib/theme'
 
 /*
  * A page, not a card: editors that own the whole screen (code, long forms) get
@@ -23,6 +24,7 @@ export const BaseFullScreenModal: React.FC<{
   actions?: ReactNode
   children: ReactNode
 }> = ({ title, icon, onClose, actions, children }) => {
+  const tw = useTwColor()
   useModal(onClose)
   const isDark = useColorScheme() !== 'light'
   const insets = useSafeAreaInsets()
@@ -36,10 +38,10 @@ export const BaseFullScreenModal: React.FC<{
             onPress={onClose}
             className="h-11 w-11 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-900"
           >
-            <MaterialIcons name="arrow-back" color={isDark ? 'white' : '#111827'} size={22} />
+            <MaterialIcons name="arrow-back" color={isDark ? 'white' : tw('gray-900')} size={22} />
           </Pressable>
           <View className="flex-1 flex-row items-center gap-2">
-            <MaterialIcons name={icon} color="#818cf8" size={18} />
+            <MaterialIcons name={icon} color={tw('indigo-400')} size={18} />
             <NouText className="text-lg font-semibold" numberOfLines={1}>
               {title}
             </NouText>

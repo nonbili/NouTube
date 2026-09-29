@@ -3,6 +3,7 @@ import { DropdownMenu } from '@radix-ui/themes'
 import { cloneElement, isValidElement, ReactNode, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useColorScheme } from 'react-native'
+import { useTwColor } from '@/lib/theme'
 
 export interface Item {
   label: string
@@ -17,10 +18,11 @@ export interface Item {
 }
 
 export const NouMenu: React.FC<{ trigger: ReactNode; items: Item[]; triggerColor?: string }> = ({ trigger, items, triggerColor }) => {
+  const tw = useTwColor()
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   const [open, setOpen] = useState(false)
-  const resolvedTriggerColor = triggerColor ?? (isDark ? colors.icon : colors.iconLight)
+  const resolvedTriggerColor = triggerColor ?? (isDark ? tw(colors.icon) : tw(colors.iconLight))
   const renderedTrigger =
     isValidElement(trigger) ? cloneElement(trigger as React.ReactElement<any>, { color: resolvedTriggerColor }) : trigger
 

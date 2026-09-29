@@ -3,7 +3,7 @@ import './global.css'
 
 import { StatusBar } from 'expo-status-bar'
 import { settings$ } from '@/states/settings'
-import { Appearance, View, useColorScheme } from 'react-native'
+import { AppState, Appearance, View, useColorScheme } from 'react-native'
 import NouTubeViewModule from '@/modules/nou-tube-view'
 import { useObserveEffect, useValue } from '@legendapp/state/react'
 import { Slot } from 'expo-router'
@@ -11,11 +11,28 @@ import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-cont
 import { useEffect } from 'react'
 import { ui$ } from '@/states/ui'
 import { nIf } from '@/lib/utils'
+import { applyPalette, getDynamicPalette } from '@/lib/dynamic-palette'
+import { dynamicPalette$ } from '@/lib/theme'
 
 function RootLayoutContent() {
   useObserveEffect(settings$.theme, ({ value }) => {
     Appearance.setColorScheme?.(value ?? 'unspecified')
   })
+
+  const dynamicColor = useValue(settings$.dynamicColor)
+  useEffect(() => {
+    const update = () => {
+      const palette = dynamicColor ? getDynamicPalette() : null
+      if (JSON.stringify(palette) !== JSON.stringify(dynamicPalette$.peek())) {
+        dynamicPalette$.set(palette)
+        applyPalette(palette)
+      }
+    }
+    update()
+    // The wallpaper may have changed while the app was in the background.
+    const sub = AppState.addEventListener('change', (state) => state === 'active' && update())
+    return () => sub.remove()
+  }, [dynamicColor])
 
   useEffect(() => {
     return () => {

@@ -5,6 +5,7 @@ import { Modal, Pressable, ScrollView, useColorScheme, useWindowDimensions, View
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { NouText } from '../NouText'
 import { MaterialButton } from '../button/IconButtons'
+import { useTwColor } from '@/lib/theme'
 
 type Anchor = {
   x: number
@@ -14,11 +15,12 @@ type Anchor = {
 }
 
 export const NouMenu: React.FC<{ trigger?: ReactNode; items: Item[]; triggerColor?: string }> = ({ items, trigger, triggerColor }) => {
+  const tw = useTwColor()
   const [open, setOpen] = useState(false)
   const [anchor, setAnchor] = useState<Anchor | null>(null)
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
-  const resolvedTriggerColor = triggerColor ?? (isDark ? colors.icon : colors.iconLight)
+  const resolvedTriggerColor = triggerColor ?? (isDark ? tw(colors.icon) : tw(colors.iconLight))
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
   const insets = useSafeAreaInsets()
   const triggerRef = useRef<View>(null)
@@ -86,7 +88,7 @@ export const NouMenu: React.FC<{ trigger?: ReactNode; items: Item[]; triggerColo
               left,
               width: menuWidth,
               maxHeight: maxMenuHeight,
-              backgroundColor: isDark ? colors.bg : '#f8fafc',
+              backgroundColor: isDark ? tw(colors.bg) : tw('slate-50'),
               shadowColor: '#000',
               shadowOpacity: isDark ? 0.42 : 0.18,
               shadowRadius: isDark ? 18 : 14,
@@ -115,7 +117,7 @@ export const NouMenu: React.FC<{ trigger?: ReactNode; items: Item[]; triggerColo
                     key={index}
                     className="px-4 flex-row items-center gap-3"
                     style={{ minHeight: getRowHeight(item) }}
-                    android_ripple={{ color: isDark ? colors.underlay : '#e5e7eb' }}
+                    android_ripple={{ color: isDark ? tw(colors.underlay) : tw('gray-200') }}
                     disabled={item.disabled}
                     onPress={() => {
                       closeMenu()

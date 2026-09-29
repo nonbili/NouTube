@@ -15,6 +15,7 @@ import { NouMenu } from '@/components/menu/NouMenu'
 import { NouText } from '@/components/NouText'
 import { toolbarPillLabelClass, toolbarPillPressableClass } from '@/components/header/toolbar-classes'
 import { colors } from '@/lib/colors'
+import { useTwColor } from '@/lib/theme'
 import { fixPageTitle, getPageType, getThumbnail } from '@/lib/page'
 import { formatPlaybackQuality } from '@/lib/playback-quality'
 import { formatPlaybackRate } from '@/lib/playback-rate'
@@ -41,7 +42,8 @@ const ToolButton: React.FC<{
 }> = ({ name, label, selected, disabled, color: requestedColor, onPress }) => {
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
-  const color = requestedColor || (selected ? '#4f46e5' : isDark ? colors.icon : colors.iconLightStrong)
+  const tw = useTwColor()
+  const color = requestedColor || (selected ? '#4f46e5' : isDark ? tw(colors.icon) : tw(colors.iconLightStrong))
 
   return (
     <Pressable
@@ -70,7 +72,8 @@ const ExtensionHeader: React.FC<{
 }> = ({ busy, showOpenExpanded, currentBookmark, canBookmarkCurrentPage, onBookmarkCurrentPage }) => {
   const { t } = useTranslation()
   const colorScheme = useColorScheme()
-  const iconColor = colorScheme === 'light' ? colors.iconLightStrong : colors.icon
+  const tw = useTwColor()
+  const iconColor = colorScheme === 'light' ? tw(colors.iconLightStrong) : tw(colors.icon)
   const playbackRate = useValue(settings$.playbackRate)
   const playbackQuality = useValue(settings$.playbackQuality)
   const showPlaybackSpeedControl = useValue(settings$.showPlaybackSpeedControl)
