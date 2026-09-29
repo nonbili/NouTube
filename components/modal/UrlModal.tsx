@@ -15,8 +15,9 @@ export const UrlModal = () => {
   const onClose = () => ui$.urlModalOpen.set(false)
 
   useEffect(() => {
-    /* A pasted URL pre-fills the input, so the modal doubles as a confirmation. */
-    setUrl(urlModalOpen ? ui$.urlModalUrl.get() : '')
+    /* A pasted URL pre-fills the input, so the modal doubles as a confirmation.
+     * Otherwise pre-fill the current page URL, selected so typing replaces it. */
+    setUrl(urlModalOpen ? ui$.urlModalUrl.get() || ui$.pageUrl.get() : '')
     ui$.urlModalUrl.set('')
   }, [urlModalOpen])
 
@@ -45,6 +46,7 @@ export const UrlModal = () => {
           placeholder="https://www.youtube.com/watch?v=xxx"
           placeholderTextColor={gray.gray11}
           autoFocus
+          selectTextOnFocus
         />
         <View className="">
           <NouText className="text-zinc-600 dark:text-gray-400 text-sm">Supported URLs</NouText>
