@@ -33,7 +33,7 @@ export const BaseFullScreenModal: React.FC<{
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
       <SafeAreaView className="flex-1 bg-zinc-100 dark:bg-zinc-950" edges={['top', 'bottom']}>
-        <View className="flex-row items-center gap-2 border-b border-zinc-300 dark:border-zinc-800 px-3 py-3">
+        <View className="flex-row items-center gap-2 px-3 py-3">
           <Pressable
             onPress={onClose}
             className="h-11 w-11 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-900"

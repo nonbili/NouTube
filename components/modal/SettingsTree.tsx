@@ -443,7 +443,7 @@ export const SettingsTree = forwardRef<
 
   return (
     <View className="flex-1 bg-zinc-100 dark:bg-zinc-950">
-      <View className="border-b border-zinc-300 dark:border-zinc-800 px-3 py-3">
+      <View className="px-3 py-3">
         <View className="flex-row items-center gap-2">
           {showBackButton ? (
             <Pressable

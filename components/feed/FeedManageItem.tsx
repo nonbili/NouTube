@@ -6,6 +6,7 @@ import { t } from 'i18next'
 import type { FeedManagementItem } from '@/lib/feed-management'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { useTwColor } from '@/lib/theme'
+import { clsx } from '@/lib/utils'
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
@@ -23,8 +24,10 @@ function formatTimestamp(value?: Date) {
 
 export const FeedManageItem: React.FC<{
   item: FeedManagementItem
+  isFirst?: boolean
+  isLast?: boolean
   onPress: () => void
-}> = memo(({ item, onPress }) => {
+}> = memo(({ item, isFirst = false, isLast = false, onPress }) => {
   const tw = useTwColor()
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
@@ -32,7 +35,11 @@ export const FeedManageItem: React.FC<{
   return (
     <Pressable
       onPress={onPress}
-      className="mx-3 my-1.5 rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/80 px-3 py-3 active:bg-zinc-200 dark:active:bg-zinc-800"
+      className={clsx(
+        'mx-3 bg-white dark:bg-zinc-900 px-3 py-3 active:bg-zinc-200 dark:active:bg-zinc-800',
+        isFirst && 'rounded-t-[24px]',
+        isLast ? 'mb-3 rounded-b-[24px]' : 'mb-[2px]',
+      )}
     >
       <View className="flex-row items-start gap-3">
         <Image

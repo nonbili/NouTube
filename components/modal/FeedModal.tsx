@@ -358,7 +358,7 @@ export const FeedContent: React.FC<{ showClose?: boolean; onClose?: () => void; 
 
   const content = (
     <View className="flex-1 bg-zinc-100 dark:bg-zinc-950">
-      <View className="border-b border-zinc-300 dark:border-zinc-800 px-3 py-3">
+      <View className="px-3 py-3">
         <View className="flex-row items-center gap-2">
           {nIf(
             mode === 'manage' || showClose,
@@ -372,7 +372,7 @@ export const FeedContent: React.FC<{ showClose?: boolean; onClose?: () => void; 
           <NouText className="flex-1 text-lg font-semibold">{t('modals.feeds')}</NouText>
           <Pressable
             onPress={() => setActiveMenu((value) => (value === 'folder' ? undefined : 'folder'))}
-            className="max-w-[150px] flex-row items-center gap-2 rounded-full border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 px-3 py-2"
+            className="max-w-[150px] flex-row items-center gap-2 rounded-full bg-zinc-200 dark:bg-zinc-900 px-3 py-2"
           >
             {renderFilterAvatar({ icon: currentFilterIcon, thumbnail: currentFilterThumbnail })}
             <NouText className="flex-1 text-sm" numberOfLines={1}>
@@ -383,7 +383,7 @@ export const FeedContent: React.FC<{ showClose?: boolean; onClose?: () => void; 
           {mode === 'manage' ? (
             <Pressable
               onPress={() => setActiveMenu((value) => (value === 'sort' ? undefined : 'sort'))}
-              className="max-w-[110px] flex-row items-center gap-2 rounded-full border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 px-3 py-2"
+              className="max-w-[110px] flex-row items-center gap-2 rounded-full bg-zinc-200 dark:bg-zinc-900 px-3 py-2"
             >
               <MaterialIcons name="swap-vert" color={iconColor} size={16} />
               <NouText className="flex-1 text-sm" numberOfLines={1}>
@@ -421,7 +421,7 @@ export const FeedContent: React.FC<{ showClose?: boolean; onClose?: () => void; 
           removeClippedSubviews={true}
           ListEmptyComponent={
             <View className="px-6 py-12">
-              <View className="items-center rounded-3xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/70 px-5 py-8">
+              <View className="items-center rounded-3xl bg-white dark:bg-zinc-900 px-5 py-8">
                 <View className="mb-4 h-14 w-14 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-800">
                   <MaterialIcons
                     name={updatesEmptyState.icon as any}
@@ -472,9 +472,11 @@ export const FeedContent: React.FC<{ showClose?: boolean; onClose?: () => void; 
           contentContainerStyle={{ width: '100%', maxWidth: maxContentWidth, alignSelf: 'center' }}
           data={visibleManagementItems}
           keyExtractor={(item) => item.channel.id}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <FeedManageItem
               item={item}
+              isFirst={index === 0}
+              isLast={index === visibleManagementItems.length - 1}
               onPress={() => {
                 ui$.bookmarkModalBookmark.set(item.channel)
                 ui$.bookmarkModalMode.set('feed')
@@ -496,11 +498,11 @@ export const FeedContent: React.FC<{ showClose?: boolean; onClose?: () => void; 
           <Pressable className="absolute inset-0" onPress={() => setActiveMenu(undefined)} />
           {activeMenu === 'folder' ? (
             <View
-              className={isWeb ? 'absolute right-3 top-[68px] w-[320px] overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900' : 'absolute right-3 top-[68px] w-[320px] overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900'}
+              className={isWeb ? 'absolute right-3 top-[68px] w-[320px] overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900' : 'absolute right-3 top-[68px] w-[320px] overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900'}
               style={{ top: MENU_TOP, maxHeight: 420 }}
             >
               {shouldShowFilterInput ? (
-                <View className="border-b border-zinc-300 dark:border-zinc-800 px-3 py-3">
+                <View className="border-b-2 border-zinc-100 dark:border-zinc-950 px-3 py-3">
                   <TextInput
                     value={filterMenuQuery}
                     onChangeText={setFilterMenuQuery}
@@ -519,7 +521,7 @@ export const FeedContent: React.FC<{ showClose?: boolean; onClose?: () => void; 
                     onPress={item.onPress}
                     className={
                       index < visibleMenuItems.length - 1
-                        ? 'border-b border-zinc-300 dark:border-zinc-800 px-4 py-3 active:bg-zinc-200 dark:active:bg-zinc-800'
+                        ? 'border-b-2 border-zinc-100 dark:border-zinc-950 px-4 py-3 active:bg-zinc-200 dark:active:bg-zinc-800'
                         : 'px-4 py-3 active:bg-zinc-200 dark:active:bg-zinc-800'
                     }
                   >
@@ -539,14 +541,14 @@ export const FeedContent: React.FC<{ showClose?: boolean; onClose?: () => void; 
             </View>
           ) : (
             <View
-              className={isWeb ? 'absolute right-3 top-[68px] w-[280px] overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900' : 'absolute right-3 top-[68px] w-[280px] overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900'}
+              className={isWeb ? 'absolute right-3 top-[68px] w-[280px] overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900' : 'absolute right-3 top-[68px] w-[280px] overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900'}
               style={{ top: MENU_TOP }}
             >
               {visibleMenuItems.map((item, index) => (
                 <Pressable
                   key={item.key}
                   onPress={item.onPress}
-                  className={index < visibleMenuItems.length - 1 ? 'border-b border-zinc-300 dark:border-zinc-800 px-4 py-3 active:bg-zinc-200 dark:active:bg-zinc-800' : 'px-4 py-3 active:bg-zinc-200 dark:active:bg-zinc-800'}
+                  className={index < visibleMenuItems.length - 1 ? 'border-b-2 border-zinc-100 dark:border-zinc-950 px-4 py-3 active:bg-zinc-200 dark:active:bg-zinc-800' : 'px-4 py-3 active:bg-zinc-200 dark:active:bg-zinc-800'}
                 >
                   <View className="flex-row items-center gap-3">
                     <MaterialIcons name={item.icon as any} color={iconColor} size={16} />
