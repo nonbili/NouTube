@@ -13,12 +13,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Each store is skipped until its secrets are configured. Secrets can't be
+    # read in `if`, so their presence is exposed through job env.
+    env:
+      HAS_CHROME: ${{ secrets.CHROME_SERVICE_ACCOUNT_PRIVATE_KEY != '' }}
+      HAS_FIREFOX: ${{ secrets.FIREFOX_JWT_SECRET != '' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: oven-sh/setup-bun@v2
 
+      # extension/ imports the repo-root sources, so the workspace install has
+      # to happen at the root.
       - name: install
         run: |
           bun link
@@ -40,8 +47,47 @@ jobs:
           name: extension
           path: extension/.output/*.zip
 
+      # The manifest version comes from extension/package.json, so the tag has
+      # to agree with it and have a matching changelog.
+      - name: resolve tag
+        if: startsWith(github.ref, 'refs/tags/extension/v')
+        run: |
+          set -euo pipefail
+          VER=$(jq -r '.version' extension/package.json)
+          if [ "$GITHUB_REF_NAME" != "extension/v$VER" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match extension/package.json (extension/v$VER)."
+            exit 1
+          fi
+          echo "VER=$VER" >> "$GITHUB_ENV"
+
       - uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/extension/v')
         with:
+          name: NouTube Extension ${{ env.VER }}
+          body_path: extension/changelogs/v${{ env.VER }}.txt
           files: extension/.output/*.zip
+          # The `latest` pointer belongs to the Android app's `v*` releases.
           make_latest: "false"
+
+      - name: submit to Chrome Web Store
+        if: startsWith(github.ref, 'refs/tags/extension/v') && env.HAS_CHROME == 'true'
+        run: bunx wxt submit --chrome-zip ".output/noutube-extension-$VER-chrome.zip"
+        working-directory: extension
+        env:
+          CHROME_API_VERSION: v2
+          CHROME_EXTENSION_ID: cpmippodfdmialcoaegbbmhpdamodoif
+          CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+          CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL: ${{ secrets.CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL }}
+          CHROME_SERVICE_ACCOUNT_PRIVATE_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_PRIVATE_KEY }}
+
+      - name: submit to Firefox Add-ons
+        if: startsWith(github.ref, 'refs/tags/extension/v') && env.HAS_FIREFOX == 'true'
+        run: |
+          bunx wxt submit \
+            --firefox-zip ".output/noutube-extension-$VER-firefox.zip" \
+            --firefox-sources-zip ".output/noutube-extension-$VER-sources.zip"
+        working-directory: extension
+        env:
+          FIREFOX_EXTENSION_ID: browser-extension@noutube.nonbili.jp
+          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}

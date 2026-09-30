@@ -103,9 +103,28 @@ export default defineConfig({
       },
     },
   }),
+  // AMO reviewers must be able to rebuild the submission from the sources zip,
+  // so it carries every root directory the extension imports plus the
+  // workspace manifests `bun install` needs to honor bun.lock.
   zip: {
     sourcesRoot: rootDir,
-    includeSources: ['package.json', 'bun.lock', 'bunfig.toml', 'tsconfig.json', 'assets/images/**', 'content/**', 'lib/**', 'locales/**', 'extension/**'],
+    includeSources: [
+      'package.json',
+      'bun.lock',
+      'bunfig.toml',
+      'tsconfig.json',
+      'tailwind.config.js',
+      'nativewind-env.d.ts',
+      'desktop/package.json',
+      'assets/images/**',
+      'components/**',
+      'content/**',
+      'lib/**',
+      'locales/**',
+      'modules/**',
+      'states/**',
+      'extension/**',
+    ],
   },
   manifest: ({ browser }) => ({
     name: 'NouTube',
