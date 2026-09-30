@@ -1,0 +1,6 @@
+- Respect the ad blocking toggle synced from the app
+- Star videos from more lists on m.youtube.com
+- Starring a video from a playlist bookmarks the video alone
+- Keep playback speeds outside the preset list
+- Match bookmarks by canonical URL, so the same video isn't bookmarked twice
+- Filled tiles instead of borders in feeds and settings
