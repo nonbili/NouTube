@@ -38,11 +38,15 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.core.app.MultiWindowModeChangedInfo
+import androidx.core.app.OnMultiWindowModeChangedProvider
+import androidx.core.util.Consumer
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.window.layout.WindowInfoTracker
 import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.viewevent.EventDispatcher
 import expo.modules.kotlin.views.ExpoView
@@ -52,6 +56,10 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -80,9 +88,10 @@ internal const val FULLSCREEN_LANDSCAPE_GESTURE = 2
 // the user orientation because forcing them back to portrait on rotation fights
 // the web player's orientation-driven fullscreen handling and makes it enter and
 // exit fullscreen repeatedly; YouTube's own gestures keep it because the user
-// never asked to leave portrait.
-internal fun fullscreenOrientationFor(mode: Int): Int =
-  if (mode == FULLSCREEN_LANDSCAPE_EXPLICIT) ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+// never asked to leave portrait. Half-open folds and multi-window mode also
+// keep it: a landscape request can letterbox the app inside a portrait display.
+internal fun fullscreenOrientationFor(mode: Int, preserveOrientation: Boolean = false): Int =
+  if (mode == FULLSCREEN_LANDSCAPE_EXPLICIT && !preserveOrientation) ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
   else ActivityInfo.SCREEN_ORIENTATION_USER
 
 // window.NouTubeFsIntent is stamped by the content script when the user taps the
@@ -239,11 +248,22 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   private var isWindowInBackground = false
   private var pageUrl = ""
   private val retryHandler = Handler(Looper.getMainLooper())
+  private val windowTrackingHandler = Handler(Looper.getMainLooper())
+  private var windowTrackingRetryDelay = 100L
   private var loadRetryCount = 0
   private var loadRetryUrl: String? = null
   private var hasLoadError = false
   private var loadErrorShown = false
   private var customView: View? = null
+  private val fullscreenOrientation = FullscreenOrientationState { orientation ->
+    currentActivity?.let { applyFullscreenOrientation(it, orientation) }
+  }
+  private var windowLayoutJob: Job? = null
+  private var trackedActivity: Activity? = null
+  private val multiWindowListener = Consumer<MultiWindowModeChangedInfo> { info ->
+    fullscreenOrientation.onMultiWindowModeChanged(info.isInMultiWindowMode)
+  }
+  private val windowTrackingRetry = Runnable { startWindowTracking() }
   private var pullToRefreshEnabled = true
   private var cutoutLeft = 0
   private var cutoutRight = 0
@@ -583,15 +603,9 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
             if (customView !== view) {
               return@evaluateJavascript
             }
-            val mode = result?.toIntOrNull() ?: FULLSCREEN_LANDSCAPE_GESTURE
-            val orientation = fullscreenOrientationFor(mode)
-            activity.setRequestedOrientation(orientation)
-
-            if (orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE &&
-              Settings.System.getInt(activity.contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0) == 1
-            ) {
-              orientationListener.enable()
-            }
+            startWindowTracking()
+            fullscreenOrientation.onMultiWindowModeChanged(activity.isInMultiWindowMode)
+            fullscreenOrientation.enter(result?.toIntOrNull() ?: FULLSCREEN_LANDSCAPE_GESTURE)
           }
 
           // https://stackoverflow.com/a/64828067
@@ -602,18 +616,21 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
         }
 
         override fun onHideCustomView() {
+          fullscreenOrientation.exit()
+          if (::orientationListener.isInitialized) orientationListener.disable()
+          val fullscreenView = customView
+          fullscreenView?.setKeepScreenOn(false)
+          customView = null
+          (fullscreenView?.parent as? ViewGroup)?.removeView(fullscreenView)
           val activity = currentActivity
           if (activity == null) {
             return
           }
           val window = activity.window
-          (window.decorView as FrameLayout).removeView(customView)
           // The brightness override belongs to the fullscreen player only.
           window.attributes = window.attributes.apply {
             screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
           }
-          customView?.setKeepScreenOn(false)
-          customView = null
           activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER)
 
           val controller = WindowCompat.getInsetsController(window, window.decorView)
@@ -625,7 +642,6 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
           // force a focus transition or the keyboard never shows again
           this@apply.clearFocus()
           this@apply.requestFocus()
-          orientationListener.disable()
         }
       }
     }
@@ -829,8 +845,61 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     post { NouPictureInPicture.setVideo(this, width, height) }
   }
 
+  private fun applyFullscreenOrientation(activity: Activity, orientation: Int) {
+    activity.requestedOrientation = orientation
+    // initService can run before Expo has an activity. Fullscreen orientation
+    // still works then; only the optional sensor listener is unavailable.
+    if (!::orientationListener.isInitialized) return
+    if (orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE &&
+      Settings.System.getInt(activity.contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0) == 1
+    ) {
+      orientationListener.enable()
+    } else {
+      orientationListener.disable()
+    }
+  }
+
+  private fun startWindowTracking() {
+    if (!isAttachedToWindow) return
+    windowTrackingHandler.removeCallbacks(windowTrackingRetry)
+    val activity = currentActivity
+    if (activity == null) {
+      // Attaching can precede Expo publishing the activity. Back off to a
+      // five-second interval and cancel the retry when detached or destroyed.
+      // Page-load retries use a separate handler so navigation cannot stop this.
+      windowTrackingHandler.postDelayed(windowTrackingRetry, windowTrackingRetryDelay)
+      windowTrackingRetryDelay = (windowTrackingRetryDelay * 2).coerceAtMost(5000L)
+      return
+    }
+    if (trackedActivity === activity) return
+    stopWindowTracking()
+    trackedActivity = activity
+    fullscreenOrientation.onMultiWindowModeChanged(activity.isInMultiWindowMode)
+    (activity as? OnMultiWindowModeChangedProvider)?.addOnMultiWindowModeChangedListener(multiWindowListener)
+    windowLayoutJob = CoroutineScope(Dispatchers.Main.immediate).launch {
+      WindowInfoTracker.getOrCreate(activity).windowLayoutInfo(activity).collect { info ->
+        fullscreenOrientation.onWindowLayoutChanged(info)
+      }
+    }
+  }
+
+  private fun stopWindowTracking() {
+    windowTrackingHandler.removeCallbacks(windowTrackingRetry)
+    windowTrackingRetryDelay = 100L
+    windowLayoutJob?.cancel()
+    windowLayoutJob = null
+    (trackedActivity as? OnMultiWindowModeChangedProvider)?.removeOnMultiWindowModeChangedListener(multiWindowListener)
+    trackedActivity = null
+  }
+
+  override fun onAttachedToWindow() {
+    super.onAttachedToWindow()
+    startWindowTracking()
+  }
+
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
+    stopWindowTracking()
     NouPictureInPicture.onViewDetached(this)
   }
 
@@ -917,6 +986,9 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   // — outlives the view, even after exit() called stopSelf(). Driven by
   // OnViewDestroys in NouTubeViewModule.
   fun destroyService() {
+    stopWindowTracking()
+    fullscreenOrientation.exit()
+    if (::orientationListener.isInitialized) orientationListener.disable()
     retryHandler.removeCallbacksAndMessages(null)
     if (mediaSessionOwner === this) {
       mediaSessionOwner = null

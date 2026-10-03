@@ -28,4 +28,12 @@ class FullscreenOrientationTest {
       fullscreenOrientationFor(FULLSCREEN_LANDSCAPE_GESTURE)
     )
   }
+
+  @Test
+  fun explicitFullscreenKeepsUserOrientationInHalfOpenedOrMultiWindowMode() {
+    assertEquals(
+      ActivityInfo.SCREEN_ORIENTATION_USER,
+      fullscreenOrientationFor(FULLSCREEN_LANDSCAPE_EXPLICIT, preserveOrientation = true)
+    )
+  }
 }
