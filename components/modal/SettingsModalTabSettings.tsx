@@ -38,6 +38,7 @@ import {
 } from '@/lib/user-styles'
 import { userStyles$ } from '@/states/user-styles'
 import { useTwColor } from '@/lib/theme'
+import { setFeedNotificationsEnabled } from '@/lib/feed-notifications'
 
 const themes = [null, 'dark', 'light'] as const
 const headerPositions = ['top', 'bottom'] as const
@@ -711,6 +712,10 @@ export const SettingsAppearanceContent = () => {
               onPress={() => settings$.feedsEnabled.set(!settings.feedsEnabled)}
             />
             {nIf(
+              !isWeb && settings.feedsEnabled,
+              <FeedNotificationsToggle />,
+            )}
+            {nIf(
               !isWeb,
               <>
                 <SettingsToggleRow
@@ -1176,5 +1181,31 @@ export const SettingsTransferContent: React.FC<{
         </View>
       </SettingsSection>
     </View>
+  )
+}
+
+const FeedNotificationsToggle = () => {
+  const enabled = useValue(settings$.feedNotificationsEnabled)
+  const [busy, setBusy] = useState(false)
+  const toggle = async () => {
+    if (busy) return
+    setBusy(true)
+    try {
+      if (!(await setFeedNotificationsEnabled(!enabled))) showToast(t('settings.feedNotificationsUnavailable'))
+    } catch (error) {
+      console.error('Feed notification settings failed:', error)
+      showToast(t('settings.feedNotificationsError'))
+    } finally {
+      setBusy(false)
+    }
+  }
+  return (
+    <SettingsToggleRow
+      label={t('settings.feedNotifications')}
+      description={t('settings.feedNotificationsDescription')}
+      icon="notifications-none"
+      value={enabled}
+      onPress={() => void toggle()}
+    />
   )
 }

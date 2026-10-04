@@ -14,6 +14,7 @@ import { LibraryModal } from '../modal/LibraryModal'
 import { QueueModal } from '../modal/QueueModal'
 import { SettingsModal } from '../modal/SettingsModal'
 import { feederLoop } from '@/lib/feeder'
+import { listenFeedNotifications } from '@/lib/feed-notifications'
 import { FeedModal } from '../modal/FeedModal'
 import { UrlModal } from '../modal/UrlModal'
 import { CookieModal } from '../modal/CookieModal'
@@ -33,8 +34,25 @@ import { TranslationCard } from '../translation/TranslationCard'
 import { MoveBookmarkModal } from '../modal/MoveBookmarkModal'
 import { UndoToast } from '../UndoToast'
 import { Toast } from '../Toast'
+import { AppState } from 'react-native'
 
 export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
+  useEffect(() => listenFeedNotifications(() => ui$.feedModalOpen.set(true)), [])
+  const feedNotificationsEnabled = useValue(settings$.feedNotificationsEnabled)
+  const feedsEnabled = useValue(settings$.feedsEnabled)
+  useEffect(() => {
+    if (!feedsEnabled || !feedNotificationsEnabled) return
+    const refresh = () => { void feederLoop() }
+    refresh()
+    const timer = setInterval(refresh, 2 * 3600 * 1000)
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') refresh()
+    })
+    return () => {
+      clearInterval(timer)
+      subscription.remove()
+    }
+  }, [feedsEnabled, feedNotificationsEnabled])
   const locales = useLocales()
   // Nothing may cover the video while Android has the app pinned to it.
   const pictureInPicture = useValue(ui$.pictureInPicture)

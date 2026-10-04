@@ -6,6 +6,8 @@ import { mainClient } from './main-client'
 import { feeds$ } from '@/states/feeds'
 import { settings$ } from '@/states/settings'
 import { fetchYouTubeChannelMetadata } from './youtube-channel'
+import { getFeedNotificationVideos, getLatestFeedPublishedAt, type FeedNotificationUpdate } from './feed-notification-videos'
+import { notifyFeedVideos } from './feed-notifications'
 
 let isFeederRunning = false
 const fetchingChannelIds = new Set<string>()
@@ -17,7 +19,11 @@ export async function feederLoop() {
   isFeederRunning = true
 
   try {
-    await when([syncState(feeds$).isPersistLoaded])
+    await when([
+      syncState(feeds$).isPersistLoaded,
+      syncState(bookmarks$).isPersistLoaded,
+      syncState(settings$).isPersistLoaded,
+    ])
     if (!settings$.feedsEnabled.get()) {
       return
     }
@@ -47,17 +53,27 @@ export async function feederLoop() {
       })
     }
 
-    const channelIds = channels.map((x) => x.json.id!).filter(Boolean)
+    const channelIds = Array.from(new Set(channels.map((x) => x.json.id!).filter(Boolean)))
     feeds$.setFeeds(channelIds)
 
     // Fetch RSS feeds sequentially to avoid overwhelming the app
+    let success = true
+    const notifications: FeedNotificationUpdate[] = []
     for (const id of channelIds) {
-      await fetchChannel(id)
+      const result = await fetchChannel(id, { onNewVideos: (update) => notifications.push(update) })
+      if (result === 'error' || result === 'http-error' || result === 'not-found') success = false
       // Small delay between requests
       await new Promise((r) => setTimeout(r, 100))
     }
+    try {
+      await notifyFeedVideos(notifications)
+    } catch (error) {
+      console.error('Feed notification failed:', error)
+    }
+    return success
   } catch (e) {
     console.error('feederLoop failed:', e)
+    return false
   } finally {
     isFeederRunning = false
   }
@@ -151,7 +167,10 @@ const parser = new XMLParser({
 
 const threshold = 2 * 3600 * 1000 // 2 hours
 
-async function fetchChannel(id: string, { force = false }: { force?: boolean } = {}): Promise<FetchChannelResult> {
+async function fetchChannel(
+  id: string,
+  { force = false, onNewVideos }: { force?: boolean; onNewVideos?: (update: FeedNotificationUpdate) => void } = {},
+): Promise<FetchChannelResult> {
   if (!id) {
     return 'error'
   }
@@ -190,8 +209,10 @@ async function fetchChannel(id: string, { force = false }: { force?: boolean } =
     const data = parser.parse(response.body)
     const entries = data?.feed?.entry
     if (!entries) {
-      // Not necessarily an error, could be a new channel or just failed to parse/fetch
-      feeds$.saveFeed({ ...feed, fetchedAt: new Date() })
+      // Only a valid, empty feed establishes a baseline. An error response
+      // or malformed XML must not make the next fetch alert for old uploads.
+      if (!data?.feed) return 'error'
+      feeds$.saveFeed({ ...feed, fetchedAt: new Date(), latestPublishedAt: feed.latestPublishedAt ?? new Date(0) })
       return 'success'
     }
 
@@ -207,8 +228,17 @@ async function fetchChannel(id: string, { force = false }: { force?: boolean } =
         },
       }),
     )
+    const newVideos = getFeedNotificationVideos(bookmarks, feed.latestPublishedAt, feeds$.urls(), settings$.hideShorts.get())
     feeds$.importBookmarks(bookmarks)
-    feeds$.saveFeed({ ...feed, fetchedAt: new Date() })
+    feeds$.saveFeed({
+      ...feed,
+      fetchedAt: new Date(),
+      latestPublishedAt: getLatestFeedPublishedAt(bookmarks, feed.latestPublishedAt),
+    })
+    if (newVideos.length) {
+      const channel = bookmarks$.bookmarks.get().find((bookmark) => !bookmark.json.deleted && bookmark.json.id === id)
+      onNewVideos?.({ channel: channel?.title || data.feed.title || 'YouTube', count: newVideos.length })
+    }
     return 'success'
   } catch (e) {
     console.error(`Failed to fetch channel ${id}:`, e)

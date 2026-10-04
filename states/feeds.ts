@@ -9,6 +9,7 @@ import { limitFeedBookmarksPerChannel } from '@/lib/feed-cache'
 interface Feed {
   id: string
   fetchedAt: Date
+  latestPublishedAt?: Date
 }
 
 interface Store {

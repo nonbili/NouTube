@@ -56,6 +56,8 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
       './plugins/withAndroidPlugin.ts',
       './plugins/withIosPlugin.ts',
       'expo-router',
+      'expo-background-task',
+      'expo-notifications',
       [
         'expo-splash-screen',
         {

@@ -13,8 +13,22 @@ import { ui$ } from '@/states/ui'
 import { nIf } from '@/lib/utils'
 import { applyPalette, getDynamicPalette } from '@/lib/dynamic-palette'
 import { dynamicPalette$ } from '@/lib/theme'
+import { syncFeedNotificationTask } from '@/lib/feed-notifications'
 
 function RootLayoutContent() {
+  const feedsEnabled = useValue(settings$.feedsEnabled)
+  const feedNotificationsEnabled = useValue(settings$.feedNotificationsEnabled)
+  useEffect(() => {
+    const reconcile = () => {
+      void syncFeedNotificationTask().catch((error) => console.error('Feed background task registration failed:', error))
+    }
+    reconcile()
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') reconcile()
+    })
+    return () => subscription.remove()
+  }, [feedsEnabled, feedNotificationsEnabled])
+
   useObserveEffect(settings$.theme, ({ value }) => {
     Appearance.setColorScheme?.(value ?? 'unspecified')
   })

@@ -17,6 +17,7 @@ export interface SettingsSnapshot {
   hideToolbarWhenScrolled: boolean
   headerPosition: 'top' | 'bottom'
   feedsEnabled: boolean
+  feedNotificationsEnabled: boolean
   hideShorts: boolean
   hideShortsInNavbar: boolean
   hideMixPlaylist: boolean
@@ -221,6 +222,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   hideToolbarWhenScrolled: Boolean(value?.hideToolbarWhenScrolled),
   headerPosition: value?.headerPosition === 'bottom' ? 'bottom' : 'top',
   feedsEnabled: typeof value?.feedsEnabled === 'boolean' ? value.feedsEnabled : true,
+  feedNotificationsEnabled: Boolean(value?.feedNotificationsEnabled),
   hideShorts: typeof value?.hideShorts === 'boolean' ? value.hideShorts : true,
   hideShortsInNavbar: Boolean(value?.hideShortsInNavbar),
   hideMixPlaylist: Boolean(value?.hideMixPlaylist),
@@ -291,6 +293,7 @@ export const settings$ = observable<Store>({
   hideToolbarWhenScrolled: false,
   headerPosition: 'top',
   feedsEnabled: true,
+  feedNotificationsEnabled: false,
   hideShorts: true,
   hideShortsInNavbar: false,
   hideMixPlaylist: false,

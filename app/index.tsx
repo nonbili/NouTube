@@ -12,6 +12,7 @@ import { MainPage } from '@/components/page/MainPage'
 import { isAndroid, nIf } from '@/lib/utils'
 import NouTubeViewModule from '@/modules/nou-tube-view'
 import { settings$ } from '@/states/settings'
+import { syncNativeSettings } from '@/lib/native-settings'
 import { sleepTimer$ } from '@/states/sleep-timer'
 import { showToast } from '@/lib/toast'
 import { t } from 'i18next'
@@ -28,24 +29,6 @@ let lastHandledDeepLink: string | null = null
 function openDeepLink(url: string) {
   lastHandledDeepLink = url
   openSharedUrl(url)
-}
-
-const syncNativeSettings = () => {
-  const settings = settings$.get()
-  NouTubeViewModule.setSettings({
-    proxyEnabled: settings.proxyEnabled,
-    proxyType: settings.proxyType,
-    proxyHost: settings.proxyHost,
-    proxyPort: settings.proxyPort,
-    showMediaNotificationPrevButton: settings.showMediaNotificationPrevButton,
-    showMediaNotificationNextButton: settings.showMediaNotificationNextButton,
-    showMediaNotificationRewindButton: settings.showMediaNotificationRewindButton,
-    showMediaNotificationForwardButton: settings.showMediaNotificationForwardButton,
-    showMediaNotificationSpeedButton: settings.showMediaNotificationSpeedButton,
-    showMediaNotificationCloseButton: settings.showMediaNotificationCloseButton,
-    playbackRate: settings.playbackRate,
-    blockAds: settings.blockAds,
-  })
 }
 
 export default function HomeScreen() {

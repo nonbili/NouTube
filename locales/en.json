@@ -139,6 +139,11 @@
     "expiredToast": "Sleep timer expired"
   },
   "feeds": {
+    "notificationTitle": "New videos in your feed",
+    "notificationSummary_one": "{{count}} new video from {{channels}} channels",
+    "notificationSummary_other": "{{count}} new videos from {{channels}} channels",
+    "notificationBody_one": "{{count}} new video from {{channel}}",
+    "notificationBody_other": "{{count}} new videos from {{channel}}",
     "updates": "Updates",
     "manage": "Manage",
     "sortLastVideo": "Last video",
@@ -354,6 +359,10 @@
       }
     },
     "channelsFeed": "Channels feed",
+    "feedNotifications": "New feed video notifications",
+    "feedNotificationsDescription": "Check saved channels in the background. Delivery may be delayed by the system. Force-quitting stops checks until you reopen the app.",
+    "feedNotificationsUnavailable": "Allow notifications and background activity in system settings to enable feed alerts.",
+    "feedNotificationsError": "Could not enable feed notifications. Please try again.",
     "watchHistory": "Watch history",
     "replaceWatchNavigation": "Back skips watched videos",
     "theme": {

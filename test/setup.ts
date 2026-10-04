@@ -10,6 +10,7 @@ mock.module('react-native', () => ({
     OS: 'android',
     select: (obj: Record<string, unknown>) => obj?.android ?? obj?.native ?? obj?.default,
   },
+  AppState: { currentState: 'active', addEventListener: () => ({ remove: () => {} }) },
   Alert: { alert: () => {} },
   Linking: { openURL: async () => {} },
   Appearance: { getColorScheme: () => 'dark' },
