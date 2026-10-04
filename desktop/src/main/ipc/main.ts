@@ -50,23 +50,42 @@ const interfaces = {
       (cookiesArgs) =>
         new Promise<{ title: string; formats: FormatOption[] }>((resolve, reject) => {
           const proc = spawn(binary, [...ytDlpProxyArgs(), ...cookiesArgs, '--dump-json', '--no-playlist', url])
-          let stdout = ''
-          let stderr = ''
-          proc.stdout.on('data', (d) => (stdout += d))
-          proc.stderr.on('data', (d) => (stderr += d))
+          // Collect raw buffers and decode once, so multi-byte characters split across
+          // chunks are not corrupted.
+          const stdoutChunks: Buffer[] = []
+          const stderrChunks: Buffer[] = []
+          proc.stdout.on('data', (d: Buffer) => stdoutChunks.push(d))
+          proc.stderr.on('data', (d: Buffer) => stderrChunks.push(d))
+          proc.on('error', (e) => reject(new Error(`Failed to run yt-dlp: ${e.message}`)))
           proc.on('close', (code) => {
+            const stdout = Buffer.concat(stdoutChunks).toString('utf8')
+            const stderr = Buffer.concat(stderrChunks).toString('utf8')
             if (code !== 0) {
               reject(new Error(stderr.slice(0, 300) || `yt-dlp exited with code ${code}`))
               return
             }
+            let info: any
             try {
-              const info = JSON.parse(stdout)
+              // Tolerate stray non-JSON lines (e.g. notices) around the JSON object.
+              const jsonLine = stdout
+                .split(/\r?\n/)
+                .map((l) => l.trim())
+                .find((l) => l.startsWith('{'))
+              info = JSON.parse(jsonLine ?? stdout)
+            } catch (e) {
+              console.error('Failed to parse yt-dlp output', { code, stdout: stdout.slice(0, 1000), stderr })
+              const detail = (stderr.trim() || stdout.trim()).slice(0, 300) || 'empty output'
+              reject(new Error(`Failed to parse yt-dlp output (${(e as Error).message}): ${detail}`))
+              return
+            }
+            try {
               resolve({
                 title: info.title || '',
                 formats: buildFormatOptions(info),
               })
-            } catch {
-              reject(new Error('Failed to parse yt-dlp output'))
+            } catch (e) {
+              console.error('Failed to build format options', e)
+              reject(new Error(`Failed to build format options: ${(e as Error).message}`))
             }
           })
         }),
