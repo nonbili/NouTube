@@ -13,6 +13,7 @@ import {
   setPlayerWebview,
   setSplitPageUrl,
   showPlayer,
+  warmPlayerWebview,
 } from './split-view'
 
 const fakePlayer = () => {
@@ -177,6 +178,73 @@ describe('openInPlayer', () => {
   })
 })
 
+
+describe('player warmup', () => {
+  beforeEach(() => {
+    setPlayerWebview(null)
+    closePlayer()
+    settings$.miniPlayer.set(true)
+  })
+
+  it('preloads YouTube without presenting a video', () => {
+    const player = fakePlayer()
+    setPlayerWebview(player)
+    warmPlayerWebview()
+    expect(player.loaded).toEqual(['https://m.youtube.com/'])
+    expect(ui$.playerUrl.get()).toBe('')
+    expect(ui$.playerMode.get()).toBe('hidden')
+  })
+
+  it('does not replace a video requested before the view attached', () => {
+    openInPlayer('https://m.youtube.com/watch?v=early12345')
+    const player = fakePlayer()
+    setPlayerWebview(player)
+    warmPlayerWebview()
+    expect(player.loaded).toEqual(['https://m.youtube.com/watch?v=early12345'])
+  })
+
+  it('uses the preloaded router for the first video', async () => {
+    const player = fakePlayer()
+    player.executeJavaScript = (script) => {
+      player.scripts.push(script)
+      return Promise.resolve('navigated')
+    }
+    setPlayerWebview(player)
+    warmPlayerWebview()
+    setSplitPageUrl('player', 'https://m.youtube.com/')
+    openInPlayer('https://m.youtube.com/watch?v=first12345')
+    await Promise.resolve()
+    expect(player.scripts.some((script) => script.includes('navigateWatch'))).toBe(true)
+    expect(player.loaded).toEqual(['https://m.youtube.com/'])
+  })
+
+  it('falls back to a document load if the warmup bridge is not ready', async () => {
+    const player = fakePlayer()
+    setPlayerWebview(player)
+    warmPlayerWebview()
+    setSplitPageUrl('player', 'https://www.youtube.com/')
+    openInPlayer('https://m.youtube.com/watch?v=first12345')
+    await Promise.resolve()
+    expect(player.loaded).toEqual([
+      'https://m.youtube.com/', 'https://m.youtube.com/watch?v=first12345',
+    ])
+  })
+
+  it('cancels a warmup retry when the first video is opened', async () => {
+    const player = fakePlayer()
+    const retryingPlayer = {
+      ...player,
+      loadUrl: (url: string) => url === 'https://m.youtube.com/'
+        ? Promise.reject(new Error('View not attached'))
+        : player.loadUrl(url),
+    }
+    setPlayerWebview(retryingPlayer)
+    warmPlayerWebview()
+    openInPlayer('https://m.youtube.com/watch?v=first12345')
+    await new Promise((resolve) => setTimeout(resolve, 120))
+    expect(player.loaded).toEqual(['https://m.youtube.com/watch?v=first12345'])
+  })
+})
 
 describe('openInBrowse', () => {
   beforeEach(() => {

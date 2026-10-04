@@ -55,6 +55,7 @@ import {
   setSplitPageUrl,
   syncBrowseMute,
   syncForegroundWebview,
+  warmPlayerWebview,
 } from '@/lib/split-view'
 
 let restored = false
@@ -612,6 +613,12 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   const onMessage = useCallback(
     async (type: string, data: any, source: 'browse' | 'player' = 'browse') => {
+      // Preloading home is infrastructure, not playback: its previews and
+      // redirects must not update history, advance the queue, or open a page.
+      if (
+        source === 'player' && !ui$.playerUrl.get() &&
+        !['onload', 'play-state', '[content]', '[kotlin]', 'log'].includes(type)
+      ) return
       // The hidden webview keeps running; its chrome events would fight the
       // page the user is actually looking at.
       const isForeground =
@@ -667,7 +674,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
             // Desktop restores the last playing video through the tab url, so
             // this fallback is only for Android (and only fires when the
             // startup url above could not resolve the position).
-            restoreLastPlaying(webview)
+            if (source !== 'player' || ui$.playerUrl.get()) {
+              restoreLastPlaying(webview)
+            }
             toggleShorts(hideShorts)
             syncUserStylesToWebview()
             syncBlocklistToWebview()
@@ -705,7 +714,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         }
         case 'play-state':
           if (source === 'player') {
-            setPlayerPlaying(Boolean(data?.playing))
+            setPlayerPlaying(Boolean(ui$.playerUrl.get() && data?.playing))
           }
           break
         case 'playback-rate':
@@ -868,9 +877,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
 
   // The player webview is mounted for the whole session once the split is on,
   // not created on the first video: building a WebView and its renderer is a
-  // visible chunk of how long that first video takes to appear. It sits at
-  // about:blank until there is something to play. Registering it hands over any
-  // video that was asked for before it attached.
+  // visible chunk of how long that first video takes to appear. It preloads
+  // YouTube's home page at startup; closing a video later leaves about:blank.
+  // Registering it hands over any video that was asked for before it attached.
   useEffect(() => {
     if (isWeb) {
       return
@@ -883,6 +892,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       return
     }
     setPlayerWebview(playerRef.current)
+    warmPlayerWebview()
   }, [splitWatchView])
 
   // Two webviews, one media session: whichever view holds the video owns the
@@ -1079,7 +1089,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   }
 
   const onPlayerLoad = async (e: { nativeEvent: any }) => {
-    ui$.translation.set(null)
+    if (ui$.playerUrl.get()) {
+      ui$.translation.set(null)
+    }
     setSplitPageUrl('player', e.nativeEvent.url)
     // The load started the page over, so the mini presentation is gone with it.
     reapplyPlayerMode()
@@ -1104,7 +1116,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       useragent={userAgent}
       pullToRefreshEnabled={false}
       textZoom={defaultZoom}
-      scriptOnStart={`window.isAndroid = true;\n${splitRolePrelude(splitWatchView, 'player', playerMini)}\n${preludeJs}\n${contentJs}`}
+      scriptOnStart={`window.isAndroid = true;\n${splitRolePrelude(splitWatchView, 'player', playerMini)}window.NouTubePlayerWarmup = ${!playerUrl};\n${preludeJs}\n${contentJs}`}
       userScriptsOnStart={userScriptsOnStart}
       onLoad={onPlayerLoad}
       onMessage={onPlayerMessage}

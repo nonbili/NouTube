@@ -76,6 +76,16 @@ export function setPlayerWebview(webview: any) {
   }
 }
 
+/* Load YouTube's shell before the first video is requested. A blank WebView
+ * warms the renderer, but leaves all of the site's startup work for that tap.
+ * Use the same load token as videos so a delayed warmup cannot replace one. */
+export function warmPlayerWebview() {
+  if (!playerWebview || ui$.playerUrl.get() || pendingPlayerUrl) {
+    return
+  }
+  loadPlayerUrl(playerWebview, 'https://m.youtube.com/', ++playerLoadToken)
+}
+
 /* A load starts the page over, so the mini presentation has to be re-applied --
  * the queue advancing while the mini player is up is the case that needs it. */
 export function reapplyPlayerMode() {
@@ -175,11 +185,18 @@ function loadIntoPlayer(url: string) {
     pendingPlayerUrl = url
     return
   }
-  // A player already sitting on a watch page has YouTube's router live in it,
-  // and letting the router do the navigation is far cheaper than loading the
+  // A watch page or the preloaded home page already has YouTube's router live.
+  // Letting that router do the navigation is far cheaper than loading the
   // watch page as a fresh document -- the same trick the site itself uses when
   // you tap a video in the feed.
-  if (isWatchUrl(ui$.playerPageUrl.get())) {
+  const pageUrl = ui$.playerPageUrl.get()
+  let warmedHome = false
+  try {
+    const page = new URL(pageUrl)
+    warmedHome = page.pathname === '/' &&
+      ['m.youtube.com', 'www.youtube.com', 'youtube.com'].includes(page.host)
+  } catch {}
+  if (isWatchUrl(pageUrl) || warmedHome) {
     try {
       // The page answers with a sentinel: without one, a player that has not
       // installed window.NouTube yet -- still loading, a recovered renderer, an

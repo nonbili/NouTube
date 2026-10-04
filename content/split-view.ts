@@ -27,6 +27,18 @@ function role(): Role | null {
   return value === 'browse' || value === 'player' ? value : null
 }
 
+/* React's script prop can still describe the idle player when a native load
+ * starts. The document URL wins: once this page reaches /watch, warmup ends
+ * permanently so a later channel/search navigation still gets handed off. */
+function isPlayerWarmup() {
+  const root = window as any
+  if (root.NouTubePlayerWarmup && isWatchUrl(location.href)) {
+    root.NouTubePlayerWarmup = false
+    setMuted(false)
+  }
+  return Boolean(root.NouTubePlayerWarmup)
+}
+
 function resolve(href: string | null | undefined): URL | null {
   if (!href) {
     return null
@@ -95,6 +107,9 @@ function installNavigationGuard(current: Role) {
   let lastHandled = ''
 
   const check = () => {
+    // The hidden player preloads home to bring up YouTube's router. It must
+    // not hand that page back to browsing or step back out of the warmup.
+    if (current === 'player' && isPlayerWarmup()) return
     const url = resolve(location.href)
     if (!url || !belongsToOtherView(url, current)) {
       lastHandled = ''
@@ -143,6 +158,10 @@ function installNavigationGuard(current: Role) {
  * does not take it. Returns true so the native side can tell a navigation that
  * happened from one that never reached the page at all (see loadIntoPlayer). */
 export function navigateWatch(url: string) {
+  if ((window as any).NouTubePlayerWarmup) {
+    ;(window as any).NouTubePlayerWarmup = false
+    setMuted(false)
+  }
   try {
     const target = new URL(url, location.href)
     const anchor = document.createElement('a')
@@ -466,6 +485,16 @@ export function installSplitView() {
   if (current === 'player') {
     installSplitPlayerWindow()
     installPlayerHistoryCollapse()
+    // Feed previews in the preloaded shell must stay silent. Wait for the
+    // root at document start, and cancel if a video was requested meanwhile.
+    const muteWarmup = () => {
+      if (isPlayerWarmup()) setMuted(true)
+    }
+    if (document.documentElement) {
+      muteWarmup()
+    } else {
+      document.addEventListener('DOMContentLoaded', muteWarmup, { once: true })
+    }
   }
 
   // A load inside the mini player -- the queue advancing, say -- starts the
