@@ -4,6 +4,7 @@ import {
   transformBrowseResponse,
   transformGetWatchResponse,
   transformPlayerResponse,
+  transformReelResponse,
   transformSearchResponse,
 } from '@/lib/intercept'
 
@@ -24,6 +25,30 @@ export function intercept() {
         console.error('NouScript initialData:', error)
       }
       initialData = value
+    },
+    configurable: true,
+  })
+
+  // The first batch of the Shorts feed is server-rendered too, as a JSON string
+  // the page parses itself.
+  let initialReelSequence = (window as any).ytInitialReelWatchSequenceResponse
+  Object.defineProperty(window, 'ytInitialReelWatchSequenceResponse', {
+    get() {
+      return initialReelSequence
+    },
+    set(value) {
+      try {
+        const blocklist = window.NouTube?.getBlocklist?.()
+        const options = { blockAds: adsBlocked() }
+        if (typeof value === 'string') {
+          value = transformReelResponse(value, blocklist, options)
+        } else {
+          filterListResponse(value, blocklist, options)
+        }
+      } catch (error) {
+        console.error('NouScript initialReelSequence:', error)
+      }
+      initialReelSequence = value
     },
     configurable: true,
   })
@@ -59,6 +84,7 @@ export function intercept() {
           browse: (text: string, blocklist?: any) => transformBrowseResponse(text, blocklist, options),
           get_watch: (text: string) => transformGetWatchResponse(text, options),
           next: (text: string, blocklist?: any) => transformBrowseResponse(text, blocklist, options),
+          reel: (text: string, blocklist?: any) => transformReelResponse(text, blocklist, options),
           search: (text: string, _blocklist?: any) =>
             transformSearchResponse(text, blocklist, {
               hideShorts: window.NouTube.shortsHidden,
@@ -98,6 +124,7 @@ export function intercept() {
             browse: (text: string, blocklist?: any) => transformBrowseResponse(text, blocklist, options),
             get_watch: (text: string) => transformGetWatchResponse(text, options),
             next: (text: string, blocklist?: any) => transformBrowseResponse(text, blocklist, options),
+            reel: (text: string, blocklist?: any) => transformReelResponse(text, blocklist, options),
             search: (text: string, _blocklist?: any) =>
               transformSearchResponse(text, blocklist, {
                 hideShorts: window.NouTube.shortsHidden,

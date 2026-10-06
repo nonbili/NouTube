@@ -4,6 +4,7 @@ import {
   transformBrowseResponse,
   transformGetWatchResponse,
   transformPlayerResponse,
+  transformReelResponse,
   transformSearchResponse,
 } from './intercept'
 
@@ -459,6 +460,35 @@ describe('intercept ad blocking', () => {
     const transformed = JSON.parse(transformPlayerResponse(JSON.stringify(player), undefined, { blockAds: false }))
     expect(transformed.adPlacements).toHaveLength(1)
     expect(transformed.playerAds).toHaveLength(1)
+  })
+
+  const reelSequence = () => ({
+    entries: [
+      { command: { reelWatchEndpoint: { videoId: 'short1' } } },
+      { command: { reelWatchEndpoint: { videoId: 'ad1', adClientParams: { isAd: true } } } },
+      { command: { reelWatchEndpoint: { videoId: 'short2', adClientParams: { isAd: false } } } },
+    ],
+  })
+
+  const reelIds = (text: string, root = JSON.parse(text)) =>
+    root.entries.map((entry: any) => entry.command.reelWatchEndpoint.videoId)
+
+  it('drops ad entries from the shorts feed', () => {
+    expect(reelIds(transformReelResponse(JSON.stringify(reelSequence())))).toEqual(['short1', 'short2'])
+
+    const wrapped = transformReelResponse(JSON.stringify({ reelWatchSequenceResponse: reelSequence() }))
+    expect(reelIds(wrapped, JSON.parse(wrapped).reelWatchSequenceResponse)).toEqual(['short1', 'short2'])
+
+    const item = { playerResponse: { adPlacements: [{}], adSlots: [{}], videoDetails: { title: 'A' } } }
+    const transformed = JSON.parse(transformReelResponse(JSON.stringify(item)))
+    expect(transformed.playerResponse.adPlacements).toBeUndefined()
+    expect(transformed.playerResponse.adSlots).toBeUndefined()
+    expect(transformed.playerResponse.videoDetails.title).toBe('A')
+  })
+
+  it('keeps shorts feed ads when ad blocking is off', () => {
+    const text = transformReelResponse(JSON.stringify(reelSequence()), undefined, { blockAds: false })
+    expect(reelIds(text)).toEqual(['short1', 'ad1', 'short2'])
   })
 
   it('still applies the blocklist when ad blocking is off', () => {

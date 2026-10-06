@@ -4,6 +4,7 @@ import {
   transformBrowseResponse,
   transformGetWatchResponse,
   transformPlayerResponse,
+  transformReelResponse,
   transformSearchResponse,
 } from 'noutube/lib/intercept'
 import { createDefaultBlocklistSnapshot, normalizeBlocklist, type BlocklistSnapshot } from 'noutube/lib/blocklist'
@@ -212,6 +213,8 @@ export function interceptHttpRequest() {
             return new Response(transformSearchResponse(text, currentBlocklist, transformOptions), responseInit)
           case 'get_watch':
             return new Response(transformGetWatchResponse(text, transformOptions), responseInit)
+          case 'reel':
+            return new Response(transformReelResponse(text, currentBlocklist, transformOptions), responseInit)
           default:
             return new Response(transformPlayerResponse(text, undefined, transformOptions), responseInit)
         }

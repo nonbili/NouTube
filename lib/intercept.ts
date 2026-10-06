@@ -8,7 +8,7 @@ import {
 
 const keys = ['adBreakHeartbeatParams', 'adPlacements', 'adSlots', 'playerAds']
 
-export const RE_INTERCEPT = new RegExp('^/youtubei/v1/(browse|get_watch|next|player|search)')
+export const RE_INTERCEPT = new RegExp('^/youtubei/v1/(browse|get_watch|next|player|reel|search)')
 
 interface TransformOptions {
   hideShorts?: boolean
@@ -78,6 +78,18 @@ export function transformBrowseResponse(
   return JSON.stringify(data)
 }
 
+// The Shorts feed: reel/reel_watch_sequence lists the upcoming shorts (ads are
+// entries of their own), reel/reel_item_watch describes a single one.
+export function transformReelResponse(text: string, blocklist?: BlocklistSnapshot, options: TransformOptions = {}) {
+  const data = JSON.parse(text)
+  if (blocksAds(options) && data?.playerResponse && typeof data.playerResponse === 'object') {
+    stripAdKeys(data.playerResponse)
+  }
+  rewriteOriginalTitles(data, options)
+  filterListResponse(data, blocklist, options)
+  return JSON.stringify(data)
+}
+
 function transformSectionListItem(item: SectionListItem, blocklist: BlocklistSnapshot | undefined, hideShorts: boolean) {
   const { videoWithContextRenderer, gridShelfViewModel } = item
   if (
@@ -136,6 +148,11 @@ const AD_RENDERER_KEYS = [
 function isAdItem(item: any): boolean {
   if (!item || typeof item !== 'object') {
     return false
+  }
+
+  // An ad in the Shorts feed is a regular reel entry flagged as an ad.
+  if (item.command?.reelWatchEndpoint?.adClientParams?.isAd) {
+    return true
   }
 
   // Wrappers keep the ad one level down, e.g. richItemRenderer.content.adSlotRenderer.
