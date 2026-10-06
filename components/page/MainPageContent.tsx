@@ -738,7 +738,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
                 : currentPageUrl
           const hasPlaylistParam = endedUrl.includes('list=')
           if (manualNext || !hasPlaylistParam) {
-            if (!manualNext) trackQueueEnded(endedUrl)
+            // Skipping counts as finished too, or the resume point would pull
+            // every later skip back to the queue video that was skipped.
+            trackQueueEnded(endedUrl)
             const nextUrl = getNextQueueUrl(endedUrl)
             if (nextUrl) {
               if (isWeb) {

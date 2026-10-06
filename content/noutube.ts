@@ -133,8 +133,11 @@ export function initNouTube() {
     pause: () => getPlayer()?.pauseVideo(),
     prev: skipToPrevious,
     next: () => {
-      if (window.NouTubeI && !isYTMusic) {
-        emit('playback-next', { url: document.location.href })
+      if (window.NouTubeI) {
+        // The page url stops naming the playing video once the user browses
+        // away with the mini player, so prefer the player's own.
+        const videoUrl = getPlayer()?.getVideoUrl?.() || ''
+        emit('playback-next', { url: videoUrl.includes('v=') ? videoUrl : document.location.href })
       } else {
         getPlayer()?.nextVideo()
       }
