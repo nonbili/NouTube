@@ -26,7 +26,9 @@
     "updateYtDlp": "Perbarui yt-dlp",
     "updating": "Memperbarui...",
     "ytDlpUpdated": "yt-dlp sudah versi terbaru",
-    "undo": "Batalkan"
+    "undo": "Batalkan",
+    "confirm": "Konfirmasi",
+    "retry": "Coba lagi"
   },
   "library": {
     "videos": "Video",
@@ -49,7 +51,10 @@
     "pip": "Gambar dalam Gambar",
     "duplicateTab": "Duplikasi Tab",
     "close": "Tutup",
-    "moveTo": "Pindahkan ke…"
+    "moveTo": "Pindahkan ke…",
+    "star": "Tambahkan ke favorit",
+    "unstar": "Hapus dari favorit",
+    "download": "Unduh"
   },
   "modals": {
     "editBookmark": "Sunting markah",
@@ -133,7 +138,7 @@
     "hideToolbarWhenScrolled": "Sembunyikan toolbar saat halaman tidak berada di atas",
     "hideShortsInNavbar": "Sembunyikan Shorts di navbar",
     "hideMixPlaylist": "Sembunyikan playlist mix",
-    "miniPlayer": "Pemutar mini YouTube",
+    "miniPlayer": "Pemutar mini",
     "preferH264": "Utamakan H.264 (blokir VP9/AV1)",
     "clickbaitThumbnail": {
       "label": "Hindari thumbnail clickbait",
@@ -298,13 +303,52 @@
     "preferencesComments": "Komentar",
     "sidebar": "Bilah samping",
     "preferencesYouTubeHint": "Preferensi YouTube",
-    "preferencesNouTubeHint": "Preferensi NouTube"
+    "preferencesNouTubeHint": "Preferensi NouTube",
+    "showSleepTimerButtonInHeader": "Tampilkan tombol timer tidur di toolbar",
+    "showLibraryButtonInHeader": "Tampilkan tombol Library di toolbar",
+    "showStarButtonInHeader": "Tampilkan tombol favorit di toolbar",
+    "mediaNotificationButtons": "Tombol notifikasi media",
+    "showMediaNotificationPrevButton": "Tampilkan tombol Sebelumnya",
+    "showMediaNotificationNextButton": "Tampilkan tombol Berikutnya",
+    "showMediaNotificationRewindButton": "Tampilkan tombol Mundur",
+    "showMediaNotificationForwardButton": "Tampilkan tombol Maju",
+    "showMediaNotificationSpeedButton": "Tampilkan tombol kecepatan pemutaran",
+    "showMediaNotificationCloseButton": "Tampilkan tombol Tutup",
+    "mediaNotificationButtonsHint": "Android menampilkan paling banyak empat tombol ini di samping tombol putar, sesuai urutan yang tercantum di sini. Anda telah mengaktifkan {{selected}}.",
+    "miniPlayerHint": "Saat meninggalkan video, video akan tetap diputar di sudut halaman.",
+    "pictureInPicture": "Picture-in-picture",
+    "pictureInPictureHint": "Tetap putar video dalam jendela mengambang saat Anda keluar dari aplikasi.",
+    "blockAds": {
+      "label": "Blokir iklan",
+      "hint": "Nonaktifkan untuk mengizinkan iklan YouTube tampil dan mendukung kreator."
+    },
+    "dynamicColor": {
+      "label": "Warna dinamis",
+      "hint": "Gunakan palet warna sistem Anda."
+    }
   },
   "sync": {
     "label": "Sinkronisasi",
     "hint": "Sinkronkan bookmark di ponsel dan komputer Anda sebagai pengguna premium.",
     "currentPlan": "Paket saat ini",
-    "managePlan": "Kelola paket"
+    "managePlan": "Kelola paket",
+    "freePlan": "Gratis",
+    "deleteAccount": "Hapus akun",
+    "buy": "Berlangganan melalui App Store",
+    "restore": "Pulihkan pembelian",
+    "manageIos": "Kelola di App Store",
+    "purchaseTitle": "Tautkan langganan",
+    "purchaseConfirm": "Langganan ini akan ditautkan ke {{email}} dan membuka fitur sinkronisasi di mana pun Anda masuk ke akun NouTube ini.",
+    "priceLoading": "Memuat harga App Store...",
+    "purchasePending": "Pembelian menunggu persetujuan. Sinkronisasi akan terbuka setelah disetujui.",
+    "productUnavailable": "Produk App Store belum tersedia.",
+    "noPurchaseToRestore": "Tidak ditemukan pembelian NouTube Sync untuk dipulihkan.",
+    "activeViaIos": "Aktif melalui App Store",
+    "signOutSwitch": "Keluar dan ganti akun",
+    "expiresAt": "Diperpanjang atau berakhir: {{value}}",
+    "legalNotice": "Langganan diperpanjang secara otomatis kecuali dibatalkan. Dengan berlangganan, Anda menyetujui Ketentuan Penggunaan (EULA) dan Kebijakan Privasi.",
+    "termsOfUse": "Ketentuan Penggunaan (EULA)",
+    "privacyPolicy": "Kebijakan Privasi"
   },
   "changelog": {
     "label": "Log perubahan",
@@ -399,5 +443,31 @@
   },
   "folders": {
     "removed": "Folder {{name}} dihapus"
+  },
+  "history": {
+    "cleared": "Riwayat dihapus"
+  },
+  "pageLoadError": {
+    "title": "Tidak dapat memuat halaman ini",
+    "description": "Periksa koneksi Anda, lalu coba lagi."
+  },
+  "extension": {
+    "openOptions": "Daftar blokir & gaya pengguna",
+    "reloadTabs": "Muat ulang tab YouTube",
+    "applyHint": "Beberapa opsi hanya berlaku saat halaman dimuat kembali.",
+    "userScriptsUnavailable": "Skrip pengguna memerlukan izin skrip pengguna dari browser. Di Chrome, buka halaman detail ekstensi dan izinkan skrip pengguna.",
+    "feeds": "Feed",
+    "library": "Library",
+    "signIn": "Masuk",
+    "signedOut": "Belum masuk",
+    "syncNow": "Sinkronkan sekarang",
+    "refreshFeeds": "Segarkan feed",
+    "manageFeeds": "Kelola feed",
+    "account": "Akun & sinkronisasi",
+    "more": "Lainnya",
+    "openExpanded": "Buka di tab baru",
+    "openYouTube": "Buka YouTube",
+    "openYouTubeMusic": "Buka YouTube Music",
+    "saveCurrentPage": "Simpan halaman saat ini"
   }
 }

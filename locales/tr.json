@@ -37,7 +37,8 @@
     "updating": "Güncelleniyor...",
     "ytDlpUpdated": "yt-dlp güncel",
     "undo": "Geri al",
-    "retry": "Yeniden dene"
+    "retry": "Yeniden dene",
+    "confirm": "Onayla"
   },
   "library": {
     "videos": "Videolar",
@@ -60,7 +61,10 @@
     "desktop": "Masaüstü sitesi",
     "on": "Açık",
     "off": "Kapalı",
-    "moveTo": "Şuraya taşı…"
+    "moveTo": "Şuraya taşı…",
+    "star": "Yıldızla",
+    "unstar": "Yıldızı kaldır",
+    "download": "İndir"
   },
   "modals": {
     "editBookmark": "Yer işaretini düzenle",
@@ -397,6 +401,10 @@
     "blockAds": {
       "label": "Reklamları engelle",
       "hint": "YouTube reklamlarının gösterilmesini sağlamak ve içerik oluşturucuları desteklemek için bu özelliği kapatın."
+    },
+    "dynamicColor": {
+      "label": "Değişken renk",
+      "hint": "Sistem renk paletini kullan."
     }
   },
   "native": {
@@ -415,7 +423,24 @@
     "label": "Eşzamanla",
     "hint": "Premium kullanıcı olarak yer işaretlerinizi telefonlarınız ve bilgisayarlarınız arasında eşzamanlayın.",
     "currentPlan": "Mevcut plan",
-    "managePlan": "Planı yönet"
+    "managePlan": "Planı yönet",
+    "freePlan": "Ücretsiz",
+    "deleteAccount": "Hesabı sil",
+    "buy": "App Store ile abone ol",
+    "restore": "Satın alımları geri yükle",
+    "manageIos": "App Store içinde yönet",
+    "purchaseTitle": "Aboneliği bağla",
+    "purchaseConfirm": "Bu abonelik {{email}} adresine bağlanacak ve bu NouTube hesabına giriş yaptığınız her yerde eşzamanlamayı etkinleştirecektir.",
+    "priceLoading": "App Store fiyatı yükleniyor...",
+    "purchasePending": "Satın alma işlemi onay bekliyor. Onaylandığında eşzamanlama kilidi açılır.",
+    "productUnavailable": "App Store ürünü henüz kullanılabilir değil.",
+    "noPurchaseToRestore": "Geri yüklenecek NouTube Sync satın alımı bulunamadı.",
+    "activeViaIos": "App Store ile etkinleştir",
+    "signOutSwitch": "Oturumu kapat ve hesap değiştir",
+    "expiresAt": "Yenilenir veya süresi dolar: {{value}}",
+    "legalNotice": "Abonelikler, iptal edilmedikçe otomatik olarak yenilenir. Abone olarak, Kullanım Koşullarını (EULA) ve Gizlilik İlkelerini kabul etmiş olursunuz.",
+    "termsOfUse": "Kullanım Koşulları (EULA)",
+    "privacyPolicy": "Gizlilik İlkeleri"
   },
   "bookmarks": {
     "removed": "Yer imi kaldırıldı",
@@ -447,5 +472,8 @@
     "openYouTube": "YouTube'u aç",
     "openYouTubeMusic": "YouTube Müzik'i aç",
     "saveCurrentPage": "Geçerli sayfayı kaydet"
+  },
+  "history": {
+    "cleared": "Geçmiş temizlendi"
   }
 }

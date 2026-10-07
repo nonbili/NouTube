@@ -37,7 +37,8 @@
     "updateYtDlp": "Aggiorna yt-dlp",
     "updating": "Aggiornamento in corso...",
     "ytDlpUpdated": "yt-dlp è aggiornato",
-    "retry": "Riprova"
+    "retry": "Riprova",
+    "confirm": "Conferma"
   },
   "library": {
     "videos": "Video",
@@ -60,7 +61,10 @@
     "tools": "Strumenti",
     "desktop": "Sito desktop",
     "on": "On",
-    "off": "Off"
+    "off": "Off",
+    "star": "Aggiungi ai preferiti",
+    "unstar": "Rimuovi dai preferiti",
+    "download": "Download"
   },
   "bookmarks": {
     "removed": "Preferito rimosso",
@@ -166,7 +170,12 @@
     "emptyTitleWaiting": "In attesa di aggiornamenti dei feed",
     "emptyBodyWaiting": "I tuoi canali salvati sono pronti. Tieni l’app aperta per un po’ o riaprila più tardi, e i caricamenti recenti compariranno qui.",
     "removeTitle": "Rimuovere {{title}}?",
-    "removeMessage": "Questo rimuove il canale dalla Raccolta e cancella i video del suo feed."
+    "removeMessage": "Questo rimuove il canale dalla Raccolta e cancella i video del suo feed.",
+    "notificationTitle": "Nuovi video nel tuo feed",
+    "notificationSummary_one": "{{count}} nuovo video da {{channels}} canali",
+    "notificationSummary_other": "{{count}} nuovi video da {{channels}} canali",
+    "notificationBody_one": "{{count}} nuovo video da {{channel}}",
+    "notificationBody_other": "{{count}} nuovi video da {{channel}}"
   },
   "settings": {
     "label": "Impostazioni",
@@ -391,7 +400,15 @@
     "preferencesComments": "Commenti",
     "sidebar": "Barra laterale",
     "preferencesYouTubeHint": "Preferenze di YouTube",
-    "preferencesNouTubeHint": "Preferenze di NouTube"
+    "preferencesNouTubeHint": "Preferenze di NouTube",
+    "dynamicColor": {
+      "hint": "Usa la tavolozza dei colori del sistema.",
+      "label": "Colore dinamico"
+    },
+    "feedNotifications": "Notifiche di nuovi video nel feed",
+    "feedNotificationsDescription": "Controlla i canali salvati in background. Le notifiche potrebbero subire ritardi di sistema. Chiudendo l'app, i controlli riprenderanno solo alla sua riapertura.",
+    "feedNotificationsUnavailable": "Per abilitare gli avvisi relativi ai feed, abilita le notifiche e l'attività in background nelle impostazioni di sistema.",
+    "feedNotificationsError": "Impossibile abilitare le notifiche del feed. Riprova."
   },
   "native": {
     "format_bestQuality": "Migliore qualità",
@@ -409,7 +426,24 @@
     "label": "Sincronizzazione",
     "hint": "Sincronizza i preferiti tra i tuoi telefoni e computer come utente premium.",
     "currentPlan": "Piano attuale",
-    "managePlan": "Gestisci piano"
+    "managePlan": "Gestisci piano",
+    "deleteAccount": "Elimina account",
+    "buy": "Iscriviti tramite App Store",
+    "restore": "Ripristina acquisti",
+    "manageIos": "Gestisci nell'App Store",
+    "purchaseTitle": "Abbonamento vincolante",
+    "purchaseConfirm": "Questo abbonamento verrà collegato a {{email}} e sbloccherà la sincronizzazione ovunque tu acceda a questo account NouTube.",
+    "legalNotice": "Gli abbonamenti si rinnovano automaticamente a meno che non vengano annullati. Abbonandoti, accetti i Termini di utilizzo (EULA) e l'Informativa sulla privacy.",
+    "freePlan": "Gratuito",
+    "priceLoading": "Caricamento del prezzo sull'App Store...",
+    "purchasePending": "Acquisto in attesa di approvazione. La sincronizzazione verrà sbloccata una volta approvata.",
+    "productUnavailable": "Il prodotto non è ancora disponibile sull'App Store.",
+    "noPurchaseToRestore": "Nessun acquisto di NouTube Sync trovato da ripristinare.",
+    "activeViaIos": "Attiva tramite App Store",
+    "signOutSwitch": "Disconnettiti e cambia account",
+    "expiresAt": "Si rinnova o scade: {{value}}",
+    "termsOfUse": "Termini di utilizzo (EULA)",
+    "privacyPolicy": "Politica sulla riservatezza"
   },
   "pageLoadError": {
     "title": "Impossibile caricare questa pagina",
@@ -433,5 +467,8 @@
     "openYouTube": "Apri YouTube",
     "openYouTubeMusic": "Apri YouTube Music",
     "saveCurrentPage": "Salva pagina attuale"
+  },
+  "history": {
+    "cleared": "Cronologia ripulita"
   }
 }

@@ -37,7 +37,8 @@
     "updating": "Aktualizowanie...",
     "ytDlpUpdated": "yt-dlp jest aktualny",
     "undo": "Cofnij",
-    "retry": "Ponów"
+    "retry": "Ponów",
+    "confirm": "Potwierdź"
   },
   "library": {
     "videos": "Filmy",
@@ -60,7 +61,10 @@
     "desktop": "Wersja na komputer",
     "on": "Włączone",
     "off": "Wyłączone",
-    "moveTo": "Przenieś do…"
+    "moveTo": "Przenieś do…",
+    "download": "Pobieranie",
+    "unstar": "Usuń z ulubionych",
+    "star": "Dodaj do ulubionych"
   },
   "modals": {
     "editBookmark": "Edytuj zakładkę",
@@ -397,6 +401,10 @@
     "blockAds": {
       "label": "Blokuj reklamy",
       "hint": "Wyłącz, aby zezwolić na reklamy w YouTube i wspierać twórców."
+    },
+    "dynamicColor": {
+      "label": "Dynamiczny kolor",
+      "hint": "Użyj systemowej palety kolorów."
     }
   },
   "native": {
@@ -415,7 +423,24 @@
     "label": "Synchronizacja",
     "hint": "Synchronizuj zakładki na telefonach i komputerach jako użytkownik premium.",
     "currentPlan": "Aktualny plan",
-    "managePlan": "Zarządzaj planem"
+    "managePlan": "Zarządzaj planem",
+    "freePlan": "Darmowy",
+    "deleteAccount": "Usuń konto",
+    "buy": "Subskrybuj przez App Store",
+    "restore": "Przywróć zakupy",
+    "manageIos": "Zarządzaj w App Store",
+    "purchaseTitle": "Powiąż subskrypcję",
+    "purchaseConfirm": "Ta subskrypcja zostanie powiązana z adresem {{email}} i odblokuje synchronizację wszędzie tam, gdzie zalogujesz się na to konto NouTube.",
+    "priceLoading": "Wczytywanie ceny z App Store...",
+    "purchasePending": "Zakup oczekuje na zatwierdzenie. Synchronizacja zostanie odblokowana po jego zatwierdzeniu.",
+    "productUnavailable": "Produkt w App Store nie jest jeszcze dostępny.",
+    "noPurchaseToRestore": "Nie znaleziono zakupów NouTube Sync do przywrócenia.",
+    "activeViaIos": "Aktywne przez App Store",
+    "signOutSwitch": "Wyloguj się i zmień konto",
+    "expiresAt": "Odnowienie lub wygaśnięcie: {{value}}",
+    "legalNotice": "Subskrypcje odnawiają się automatycznie, chyba że zostaną anulowane. Dokonując subskrypcji, akceptujesz Warunki użytkowania (EULA) oraz Politykę prywatności.",
+    "termsOfUse": "Warunki użytkowania (EULA)",
+    "privacyPolicy": "Polityka prywatności"
   },
   "bookmarks": {
     "removed": "Usunięto zakładkę",
@@ -447,5 +472,8 @@
     "openYouTube": "Otwórz YouTube",
     "openYouTubeMusic": "Otwórz YouTube Music",
     "saveCurrentPage": "Zapisz bieżącą stronę"
+  },
+  "history": {
+    "cleared": "Historia wyczyszczona"
   }
 }

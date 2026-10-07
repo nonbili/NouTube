@@ -50,7 +50,10 @@
     "openInNewTab": "Ouvrir dans un nouvel onglet",
     "duplicateTab": "Onglet « Dupliquer »",
     "close": "Fermer",
-    "moveTo": "Aller à…"
+    "moveTo": "Aller à…",
+    "unstar": "Retirer des favoris",
+    "star": "Favoris",
+    "download": "Télécharger"
   },
   "modals": {
     "editBookmark": "Modifier le signet",
@@ -447,5 +450,8 @@
     "openYouTube": "Ouvrir YouTube",
     "openYouTubeMusic": "Ouvrir YouTube Music",
     "saveCurrentPage": "Enregistrer la page actuelle"
+  },
+  "history": {
+    "cleared": "Historique effacé"
   }
 }

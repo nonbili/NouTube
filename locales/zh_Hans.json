@@ -26,7 +26,9 @@
     "updateYtDlp": "更新 yt-dlp",
     "updating": "正在更新…",
     "ytDlpUpdated": "yt-dlp 已是最新版本",
-    "undo": "撤销"
+    "undo": "撤销",
+    "confirm": "确认",
+    "retry": "重试"
   },
   "library": {
     "videos": "视频",
@@ -49,7 +51,10 @@
     "openInNewTab": "在新标签页中打开",
     "duplicateTab": "复制标签页",
     "close": "关闭",
-    "moveTo": "移动到…"
+    "moveTo": "移动到…",
+    "star": "收藏",
+    "unstar": "取消收藏",
+    "download": "下载"
   },
   "modals": {
     "editBookmark": "编辑书签",
@@ -214,7 +219,7 @@
       "label": "语言",
       "system": "系统"
     },
-    "miniPlayer": "YouTube 迷你播放器",
+    "miniPlayer": "迷你播放器",
     "preferH264": "优先使用 H.264（阻止 VP9/AV1）",
     "clickbaitThumbnail": {
       "label": "避免使用诱导性缩略图",
@@ -304,13 +309,52 @@
     "preferencesComments": "评论",
     "sidebar": "侧边栏",
     "preferencesYouTubeHint": "YouTube 偏好设置",
-    "preferencesNouTubeHint": "NouTube 偏好设置"
+    "preferencesNouTubeHint": "NouTube 偏好设置",
+    "showSleepTimerButtonInHeader": "在工具栏中显示“睡眠定时器”按钮",
+    "showLibraryButtonInHeader": "在工具栏中显示“媒体库”按钮",
+    "showStarButtonInHeader": "在工具栏中显示“收藏”按钮",
+    "mediaNotificationButtons": "媒体通知按钮",
+    "showMediaNotificationPrevButton": "显示“上一首”按钮",
+    "showMediaNotificationNextButton": "显示“下一首”按钮",
+    "showMediaNotificationRewindButton": "显示“快退”按钮",
+    "showMediaNotificationForwardButton": "显示“快进”按钮",
+    "showMediaNotificationSpeedButton": "显示“播放速度”按钮",
+    "showMediaNotificationCloseButton": "显示“关闭”按钮",
+    "mediaNotificationButtonsHint": "Android 系统会在播放按钮旁边最多显示其中四个按钮，顺序按此处所列。您已开启 {{selected}}。",
+    "miniPlayerHint": "离开视频页面时，视频将继续在页面角落播放。",
+    "pictureInPicture": "画中画",
+    "pictureInPictureHint": "离开应用时，视频将继续在浮动窗口中播放。",
+    "blockAds": {
+      "label": "拦截广告",
+      "hint": "关闭此功能以允许显示 YouTube 广告并支持创作者。"
+    },
+    "dynamicColor": {
+      "label": "动态配色",
+      "hint": "使用您的系统调色板。"
+    }
   },
   "sync": {
     "label": "同步",
     "hint": "高级用户可在手机和电脑之间同步书签。",
     "currentPlan": "当前套餐",
-    "managePlan": "管理套餐"
+    "managePlan": "管理套餐",
+    "freePlan": "免费",
+    "deleteAccount": "删除账号",
+    "buy": "通过 App Store 订阅",
+    "restore": "恢复购买",
+    "manageIos": "在 App Store 中管理",
+    "purchaseTitle": "绑定订阅",
+    "purchaseConfirm": "此订阅将与 {{email}} 关联，并在您登录此 NouTube 账号的任何位置解锁同步功能。",
+    "priceLoading": "正在加载 App Store 价格…",
+    "purchasePending": "购买待批准。批准后将解锁同步功能。",
+    "productUnavailable": "该 App Store 商品暂不可用。",
+    "noPurchaseToRestore": "未找到可恢复的 NouTube Sync 购买记录。",
+    "activeViaIos": "通过 App Store 激活",
+    "signOutSwitch": "退出登录并切换账号",
+    "expiresAt": "续订或到期时间：{{value}}",
+    "legalNotice": "除非取消，否则订阅将自动续订。订阅即表示您同意《使用条款》（最终用户许可协议）和《隐私政策》。",
+    "termsOfUse": "使用条款（最终用户许可协议）",
+    "privacyPolicy": "隐私政策"
   },
   "feeds": {
     "updates": "更新",
@@ -405,5 +449,31 @@
   },
   "folders": {
     "removed": "文件夹 {{name}} 已移除"
+  },
+  "history": {
+    "cleared": "历史记录已清除"
+  },
+  "pageLoadError": {
+    "title": "无法加载此页面",
+    "description": "请检查您的连接，然后重试。"
+  },
+  "extension": {
+    "openOptions": "屏蔽列表和用户样式",
+    "reloadTabs": "重新加载 YouTube 标签页",
+    "applyHint": "部分选项仅在下次页面加载时生效。",
+    "userScriptsUnavailable": "用户脚本需要浏览器的用户脚本权限。在 Chrome 中，打开扩展详情页面并允许用户脚本。",
+    "feeds": "订阅源",
+    "library": "媒体库",
+    "signIn": "登录",
+    "signedOut": "未登录",
+    "syncNow": "立即同步",
+    "refreshFeeds": "刷新订阅源",
+    "manageFeeds": "管理订阅源",
+    "account": "账号和同步",
+    "more": "更多",
+    "openExpanded": "在新标签页中打开",
+    "openYouTube": "打开 YouTube",
+    "openYouTubeMusic": "打开 YouTube Music",
+    "saveCurrentPage": "保存当前页面"
   }
 }

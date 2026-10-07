@@ -36,7 +36,9 @@
     "updateYtDlp": "Cập nhật yt-dlp",
     "updating": "Đang cập nhật...",
     "ytDlpUpdated": "yt-dlp đang ở phiên bản mới nhất",
-    "undo": "Hoàn tác"
+    "undo": "Hoàn tác",
+    "confirm": "Xác nhận",
+    "retry": "Thử lại"
   },
   "library": {
     "videos": "Đoạn phim",
