@@ -59,6 +59,20 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.3.1" date="2026-10-07">
+      <description>
+        <ul>
+          <li>Add Discord rich presence</li>
+          <li>Add ad blocking toggle and block ads in Shorts feed</li>
+          <li>Improve yt-dlp output parsing and handle multi-byte characters</li>
+          <li>Pre-fill current page URL in open URL dialog</li>
+          <li>Resume playback queue where it left off</li>
+          <li>Add bookmark and download actions to history and feed menus</li>
+          <li>Persist custom playback rates</li>
+          <li>Fix watch history saving</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.3.0" date="2026-08-19">
       <description>
         <ul>

@@ -1,0 +1,8 @@
+- add Discord rich presence
+- add ad blocking toggle and block ads in Shorts feed
+- improve yt-dlp output parsing and handle multi-byte characters
+- pre-fill current page URL in open URL dialog
+- resume playback queue where it left off
+- add bookmark and download actions to history and feed menus
+- persist custom playback rates
+- fix watch history saving
