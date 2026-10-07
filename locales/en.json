@@ -211,6 +211,13 @@
       "hostPlaceholder": "e.g. 127.0.0.1 or proxy.example.com",
       "portPlaceholder": "e.g. 1080"
     },
+    "discord": {
+      "label": "Discord",
+      "enabled": "Show what’s playing on Discord",
+      "hint": "Signs in with your Discord account and sets the video or song you’re playing as your activity. Discord doesn’t officially support this.",
+      "login": "Log in to Discord",
+      "logout": "Log out of Discord"
+    },
     "autoHideHeader": "Hide and show toolbar on scroll direction",
     "autoHideSidebar": "Auto-hide sidebar and show on hover",
     "hideToolbarWhenScrolled": "Hide toolbar when page is not at top",

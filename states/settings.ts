@@ -36,6 +36,7 @@ export interface SettingsSnapshot {
   pullToRefreshEnabled: boolean
   sponsorBlock: boolean
   blockAds: boolean
+  discordPresence: boolean
   showDislikes: boolean
   showOriginalVideoTitle: boolean
   useSystemCaptionStyle: boolean
@@ -152,6 +153,9 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   if (typeof data.blockAds !== 'boolean') {
     data.blockAds = true
   }
+  if (typeof data.discordPresence !== 'boolean') {
+    data.discordPresence = false
+  }
   if (typeof data.showDislikes !== 'boolean') {
     data.showDislikes = false
   }
@@ -241,6 +245,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   pullToRefreshEnabled: typeof value?.pullToRefreshEnabled === 'boolean' ? value.pullToRefreshEnabled : true,
   sponsorBlock: typeof value?.sponsorBlock === 'boolean' ? value.sponsorBlock : true,
   blockAds: typeof value?.blockAds === 'boolean' ? value.blockAds : true,
+  discordPresence: Boolean(value?.discordPresence),
   showDislikes: Boolean(value?.showDislikes),
   showOriginalVideoTitle: Boolean(value?.showOriginalVideoTitle),
   useSystemCaptionStyle: Boolean(value?.useSystemCaptionStyle),
@@ -310,6 +315,7 @@ export const settings$ = observable<Store>({
   pullToRefreshEnabled: true,
   sponsorBlock: true,
   blockAds: true,
+  discordPresence: false,
   showDislikes: false,
   showOriginalVideoTitle: false,
   useSystemCaptionStyle: false,

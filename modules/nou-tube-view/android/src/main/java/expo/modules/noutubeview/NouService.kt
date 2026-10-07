@@ -14,6 +14,7 @@ import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.graphics.BitmapFactory
 import android.media.AudioManager
+import android.net.Uri
 import android.os.Binder
 import android.os.Build
 import android.os.Bundle
@@ -562,11 +563,18 @@ class NouService : Service() {
     mediaSession?.setMetadata(metadataBuilder.build())
     ensureForeground()
     postNotification()
+    // This runs on the bridge thread, and the url has to be read on the main
+    // one. Progress takes the same route so the two arrive in order.
+    mainHandler.post {
+      val host = if (::webView.isInitialized) Uri.parse(webView.url ?: "").host else null
+      NouDiscord.setMedia(title, author, seconds, thumbnail, host == "music.youtube.com")
+    }
   }
 
   fun notifyProgress(playing: Boolean, pos: Long) {
     val statePlaying = mediaSession?.getController()?.getPlaybackState()?.state == PlaybackStateCompat.STATE_PLAYING
     setPlaybackState(playing, pos)
+    mainHandler.post { NouDiscord.setProgress(playing, pos) }
     if (playing) {
       // Playing again after a Close: bring the session and the notification back.
       if (notificationDismissed) {
@@ -588,6 +596,7 @@ class NouService : Service() {
   }
 
   fun exit() {
+    NouDiscord.clear()
     clearSleepTimer(false)
     notificationDismissed = false
     unregisterNoisyReceiver()

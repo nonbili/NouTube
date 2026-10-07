@@ -32,6 +32,9 @@ export interface MainClient {
   isUpdateSupported(): Promise<boolean>
   checkForUpdate(): Promise<UpdateCheckResult>
   quitAndInstall(): Promise<void> | void
+  discordLogin(): Promise<{ loggedIn: boolean }>
+  discordLogout(): Promise<void> | void
+  getDiscordStatus(): Promise<{ loggedIn: boolean }> | { loggedIn: boolean }
 }
 
 type NouTubeDownloadClient = {
@@ -40,6 +43,9 @@ type NouTubeDownloadClient = {
   getDownloadsPath?: MainClient['getDownloadsPath']
   openFile?: MainClient['openFile']
   updateYtDlp?: MainClient['updateYtDlp']
+  discordLogin?: MainClient['discordLogin']
+  discordLogout?: MainClient['discordLogout']
+  getDiscordStatus?: MainClient['getDiscordStatus']
 }
 
 const nativeModule = NouTubeViewModule as NouTubeDownloadClient
@@ -109,4 +115,16 @@ export const mainClient: MainClient = {
     return { status: 'not-available' }
   },
   async quitAndInstall() {},
+  async discordLogin() {
+    if (typeof nativeModule.discordLogin !== 'function') {
+      return { loggedIn: false }
+    }
+    return nativeModule.discordLogin()
+  },
+  async discordLogout() {
+    return nativeModule.discordLogout?.()
+  },
+  async getDiscordStatus() {
+    return nativeModule.getDiscordStatus?.() ?? { loggedIn: false }
+  },
 }

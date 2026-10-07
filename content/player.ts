@@ -214,6 +214,7 @@ export function handleVideoPlayer(el: any) {
       url,
       videoId,
       title: videoDetails.title || '',
+      author: videoDetails.author || '',
       thumbnail: videoDetails.thumbnail?.thumbnails?.at(-1)?.url || '',
       current: currentTime,
       duration: Number(videoDetails.lengthSeconds) || 0,
@@ -232,6 +233,21 @@ export function handleVideoPlayer(el: any) {
     const video = getVideoElement(player)
     return video ? !video.paused : el.getPlayerState() == 1
   }
+  // Android feeds its media session through NouTubeI, and the Discord presence
+  // rides along there. Desktop has no such channel, so it gets a message.
+  const emitPlayback = throttle(() => {
+    if (window.NouTubeI) {
+      return
+    }
+    const progress = getProgress(el.getCurrentTime?.() ?? 0)
+    if (progress) {
+      emit('playback', {
+        ...progress,
+        playing: isPlaying(),
+        rate: getVideoElement(player)?.playbackRate ?? 1,
+      })
+    }
+  }, 5000)
   const notifyProgress = throttle(() => {
     if (!el.getCurrentTime) {
       hideLiveChat()
@@ -239,6 +255,7 @@ export function handleVideoPlayer(el: any) {
     }
     const currentTime = el.getCurrentTime()
     window.NouTubeI?.notifyProgress(isPlaying(), currentTime)
+    emitPlayback()
     const progress = getProgress(currentTime)
     if (progress) {
       saveProgress(progress)
@@ -264,6 +281,8 @@ export function handleVideoPlayer(el: any) {
   // is cheap, so play and pause send it straight out.
   const notifyPlayState = () => {
     window.NouTubeI?.notifyProgress(isPlaying(), el.getCurrentTime?.() ?? 0)
+    emitPlayback()
+    emitPlayback.flush()
   }
 
   // Entering fullscreen or rotating resizes the progress bar, and the redraw
@@ -315,6 +334,8 @@ export function handleVideoPlayer(el: any) {
         })
         video.addEventListener('ratechange', () => {
           emit('playback-rate', { playbackRate: video.playbackRate })
+          emitPlayback()
+          emitPlayback.flush()
         })
         progressBinded = true
       }

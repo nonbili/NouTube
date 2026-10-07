@@ -16,6 +16,13 @@
       </intent-filter>
     </service>
 
+    <activity
+      android:name=".DiscordLoginActivity"
+      android:exported="false"
+      android:launchMode="singleTop"
+      android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden|uiMode"
+      android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
+
     <receiver
       android:name="androidx.media.session.MediaButtonReceiver"
       android:exported="true">

@@ -62,6 +62,7 @@ dependencies {
   implementation "androidx.webkit:webkit:1.13.0"
   implementation 'androidx.window:window:1.5.1'
   implementation 'androidx.media:media:1.7.0'
+  implementation 'com.squareup.okhttp3:okhttp:4.9.2'
   implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
   implementation 'io.github.junkfood02.youtubedl-android:library:0.17.3'
   implementation 'io.github.junkfood02.youtubedl-android:ffmpeg:0.17.3'

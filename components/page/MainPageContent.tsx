@@ -277,7 +277,9 @@ const DesktopTabView: React.FC<{
       }
       refreshCanGoBack()
     }
-    const onIpcMessage = (e: { channel: string; args: any[] }) => onMessage(e.channel, e.args[0])
+    const onIpcMessage = (e: { channel: string; args: any[] }) =>
+      // Tabs play independently, so the Discord presence has to know which one this came from.
+      onMessage(e.channel, e.channel === 'playback' ? { ...e.args[0], source: tab.id } : e.args[0])
     const onFavicon = (e: { favicons: string[] }) => {
       tabs$.setTabMeta({ title: webview.getTitle(), icon: e.favicons.at(-1) }, index)
     }
@@ -712,6 +714,12 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           })
           break
         }
+        case 'playback':
+          // Desktop only; the main process holds the Discord connection.
+          if (isWeb && settings$.discordPresence.peek()) {
+            void mainClient.setDiscordPlayback(data)
+          }
+          break
         case 'play-state':
           if (source === 'player') {
             setPlayerPlaying(Boolean(ui$.playerUrl.get() && data?.playing))
@@ -1056,6 +1064,12 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useEffect(() => {
     syncProxyToSession()
   }, [syncProxyToSession])
+
+  useObserveEffect(settings$.discordPresence, ({ value }) => {
+    if (isWeb) {
+      void mainClient.setDiscordPresence(Boolean(value))
+    }
+  })
 
   useObserveEffect(settings$.proxyEnabled, ({ previous }) => {
     if (previous === undefined) return

@@ -6,6 +6,13 @@ import { consumePendingDeeplinks } from 'main/lib/deeplink.js'
 import { MAIN_CHANNEL } from './constants.js'
 import { uiClient } from './ui.js'
 import { applyProxy, getProxyUrl } from 'main/lib/proxy.js'
+import {
+  discordLogin,
+  discordLogout,
+  getDiscordStatus,
+  setDiscordPlayback,
+  setDiscordPresence,
+} from 'main/lib/discord.js'
 import { ipcMain, session, app, shell, dialog, net } from 'electron'
 import { spawn, exec } from 'child_process'
 import fs from 'fs/promises'
@@ -197,6 +204,11 @@ const interfaces = {
     await shell.openPath(filePath)
   },
   setProxy: applyProxy,
+  discordLogin,
+  discordLogout,
+  getDiscordStatus,
+  setDiscordPresence,
+  setDiscordPlayback,
   setCookie: async (cookie: string) => {
     const ses = session.fromPartition('persist:webview')
     const items = cookie.split(';').map((x) => x.trim())

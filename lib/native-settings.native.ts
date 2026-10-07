@@ -16,6 +16,7 @@ export const syncNativeSettings = () => {
     showMediaNotificationCloseButton: settings.showMediaNotificationCloseButton,
     playbackRate: settings.playbackRate,
     blockAds: settings.blockAds,
+    discordPresence: settings.discordPresence,
   })
 }
 

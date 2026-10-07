@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.webkit.ProxyConfig
 import androidx.webkit.ProxyController
 import androidx.webkit.WebViewFeature
+import expo.modules.kotlin.Promise
 import expo.modules.kotlin.functions.Coroutine
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
@@ -122,6 +123,7 @@ class NouTubeViewModule : Module() {
     Events("log", "sleepTimer", "downloadProgress", "captionStyle", "desktopMode", "pictureInPicture")
 
     OnCreate {
+      appContext.reactContext?.applicationContext?.let { NouDiscord.init(it) }
       val manager = captioning() ?: return@OnCreate
       val listener = object : CaptioningManager.CaptioningChangeListener() {
         override fun onEnabledChanged(enabled: Boolean) = emitCaptionStyle()
@@ -164,6 +166,7 @@ class NouTubeViewModule : Module() {
     Function("setSettings") { settings: NouSettings ->
       NouProxy.update(settings)
       NouAdBlock.update(settings)
+      NouDiscord.update(settings)
       applyProxy(settings)
       if (NouMediaButtons.update(settings)) {
         nouController.refreshMediaNotification()
@@ -264,6 +267,30 @@ class NouTubeViewModule : Module() {
 
     Function("getTranslationSupportedLanguages") {
       NouTranslation.getSupportedLanguages()
+    }
+
+    // Resolves once the login screen is closed, with or without a token.
+    AsyncFunction("discordLogin") { promise: Promise ->
+      val activity = appContext.currentActivity
+      if (activity == null) {
+        promise.resolve(mapOf("loggedIn" to NouDiscord.isLoggedIn()))
+        return@AsyncFunction
+      }
+      // A request still waiting on the login screen is answered by this one.
+      val previous = NouDiscord.onLoginFinished
+      NouDiscord.onLoginFinished = {
+        previous?.invoke()
+        promise.resolve(mapOf("loggedIn" to NouDiscord.isLoggedIn()))
+      }
+      activity.startActivity(Intent(activity, DiscordLoginActivity::class.java))
+    }
+
+    Function("discordLogout") {
+      NouDiscord.logout()
+    }
+
+    Function("getDiscordStatus") {
+      mapOf("loggedIn" to NouDiscord.isLoggedIn())
     }
 
     View(NouTubeView::class) {

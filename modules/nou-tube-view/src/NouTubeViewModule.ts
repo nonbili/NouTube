@@ -22,6 +22,7 @@ declare class NouTubeViewModule extends NativeModule {
     showMediaNotificationCloseButton?: boolean
     playbackRate?: number
     blockAds?: boolean
+    discordPresence?: boolean
   }): void
   extractTakeoutCsvFiles(uri: string): Promise<Array<{ name: string; uri: string }>>
   setSleepTimer(durationMs: number): Promise<void>
@@ -48,6 +49,10 @@ declare class NouTubeViewModule extends NativeModule {
   isSystemDesktopMode(): boolean
   translateText(text: string, targetLanguage: string): Promise<{ text: string; sourceLanguage?: string }>
   getTranslationSupportedLanguages(): string[]
+  /* Opens the Discord login and resolves once it is closed. */
+  discordLogin(): Promise<{ loggedIn: boolean }>
+  discordLogout(): void
+  getDiscordStatus(): { loggedIn: boolean }
 }
 
 export default requireNativeModule<NouTubeViewModule>('NouTubeView')

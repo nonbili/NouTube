@@ -49,6 +49,9 @@ class NouSettings : Record {
 
   @Field
   val blockAds: Boolean = true
+
+  @Field
+  val discordPresence: Boolean = false
 }
 
 // Ad blocking is opt-out (see states/settings.ts). The WebView client reads this

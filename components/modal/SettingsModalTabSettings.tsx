@@ -1,5 +1,5 @@
 import { ActivityIndicator, Platform, Pressable, Switch, TextInput, View, useColorScheme } from 'react-native'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocales } from 'expo-localization'
 import { clsx, isAndroid, isIos, isWeb, nIf } from '@/lib/utils'
 import { isDynamicColorAvailable } from '@/lib/dynamic-palette'
@@ -241,6 +241,91 @@ export const SettingsActionRow: React.FC<{
   )
 }
 
+const SettingsDiscordSection = () => {
+  const enabled = useValue(settings$.discordPresence)
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [busy, setBusy] = useState(false)
+  // State lags a render behind, which is long enough for a second tap.
+  const loggingIn = useRef(false)
+
+  useEffect(() => {
+    void Promise.resolve(mainClient.getDiscordStatus())
+      .then((status) => setLoggedIn(Boolean(status?.loggedIn)))
+      .catch((error) => console.error('getDiscordStatus failed', error))
+  }, [])
+
+  const login = async () => {
+    if (loggingIn.current) {
+      return false
+    }
+    loggingIn.current = true
+    setBusy(true)
+    try {
+      const status = await mainClient.discordLogin()
+      setLoggedIn(Boolean(status?.loggedIn))
+      return Boolean(status?.loggedIn)
+    } catch (error) {
+      console.error('discordLogin failed', error)
+      return false
+    } finally {
+      loggingIn.current = false
+      setBusy(false)
+    }
+  }
+
+  const onToggle = async () => {
+    if (loggingIn.current) {
+      return
+    }
+    if (enabled) {
+      settings$.discordPresence.set(false)
+    } else if (loggedIn || (await login())) {
+      settings$.discordPresence.set(true)
+    }
+  }
+
+  const onAccountPress = async () => {
+    if (loggingIn.current) {
+      return
+    }
+    if (!loggedIn) {
+      await login()
+      return
+    }
+    settings$.discordPresence.set(false)
+    await mainClient.discordLogout()
+    setLoggedIn(false)
+  }
+
+  // The token can be revoked from Discord's side, which leaves the switch on
+  // with nothing behind it; the row below is the way back in.
+  const showAccountRow = loggedIn || enabled
+  return (
+    <SettingsSection label={t('settings.discord.label')}>
+      <View className={surfaceCls}>
+        <SettingsToggleRow
+          label={t('settings.discord.enabled')}
+          description={t('settings.discord.hint')}
+          icon="headset"
+          value={enabled}
+          onPress={onToggle}
+          isLast={!showAccountRow}
+        />
+        {nIf(
+          showAccountRow,
+          <SettingsActionRow
+            label={loggedIn ? t('settings.discord.logout') : t('settings.discord.login')}
+            icon={loggedIn ? 'logout' : 'login'}
+            onPress={onAccountPress}
+            loading={busy}
+            isLast
+          />,
+        )}
+      </View>
+    </SettingsSection>
+  )
+}
+
 const clickbaitOptions = ['default', 'hq1', 'hq2', 'hq3'] as const
 
 const clickbaitLabel = (value: (typeof clickbaitOptions)[number]) => {
@@ -344,6 +429,7 @@ export const SettingsPreferencesContent = () => {
           </View>
         </SettingsSection>
       </View>
+
     </View>
   )
 }
@@ -948,50 +1034,59 @@ export const SettingsToolsContent = () => {
   }
 
   return (
-    <SettingsSection label={t('settings.tools')}>
-      <View className={surfaceCls}>
-        {sleepTimerSupported ? (
+    <View>
+      <SettingsSection label={t('settings.tools')}>
+        <View className={surfaceCls}>
+          {sleepTimerSupported ? (
+            <SettingsActionRow
+              label={t('sleepTimer.label')}
+              description={
+                active ? t('sleepTimer.endsIn', { value: formatSleepTimerRemaining(remainingMs) }) : t('sleepTimer.off')
+              }
+              icon="bedtime"
+              onPress={() => ui$.sleepTimerModalOpen.set(true)}
+            />
+          ) : null}
           <SettingsActionRow
-            label={t('sleepTimer.label')}
-            description={
-              active ? t('sleepTimer.endsIn', { value: formatSleepTimerRemaining(remainingMs) }) : t('sleepTimer.off')
-            }
-            icon="bedtime"
-            onPress={() => ui$.sleepTimerModalOpen.set(true)}
+            label={t('settings.webview.clearLabel')}
+            description="Cookies and browsing state"
+            icon="delete-sweep"
+            onPress={clearWebviewData}
           />
-        ) : null}
-        <SettingsActionRow
-          label={t('settings.webview.clearLabel')}
-          description="Cookies and browsing state"
-          icon="delete-sweep"
-          onPress={clearWebviewData}
-        />
-        <SettingsActionRow
-          label={t('settings.injectCookie')}
-          description={t('settings.injectCookieHint')}
-          icon="vpn-key"
-          onPress={() => ui$.cookieModalOpen.set(true)}
-        />
-        <SettingsActionRow
-          label={t('settings.userAgent.title')}
-          description={t('settings.userAgent.default')}
-          icon="devices"
-          onPress={() => ui$.userAgentModalOpen.set(true)}
-          isLast={isIos}
-        />
-        {nIf(
-          !isIos,
           <SettingsActionRow
-            label={t('buttons.updateYtDlp')}
-            description="Download the latest version from GitHub"
-            icon="download-for-offline"
-            onPress={handleUpdateYtDlp}
-            loading={updatingYtDlp}
-            isLast
-          />,
-        )}
-      </View>
-    </SettingsSection>
+            label={t('settings.injectCookie')}
+            description={t('settings.injectCookieHint')}
+            icon="vpn-key"
+            onPress={() => ui$.cookieModalOpen.set(true)}
+          />
+          <SettingsActionRow
+            label={t('settings.userAgent.title')}
+            description={t('settings.userAgent.default')}
+            icon="devices"
+            onPress={() => ui$.userAgentModalOpen.set(true)}
+            isLast={isIos}
+          />
+          {nIf(
+            !isIos,
+            <SettingsActionRow
+              label={t('buttons.updateYtDlp')}
+              description="Download the latest version from GitHub"
+              icon="download-for-offline"
+              onPress={handleUpdateYtDlp}
+              loading={updatingYtDlp}
+              isLast
+              />,
+          )}
+        </View>
+      </SettingsSection>
+
+      {nIf(
+        isAndroid || isWeb,
+        <View className="mt-8">
+          <SettingsDiscordSection />
+        </View>,
+      )}
+    </View>
   )
 }
 
