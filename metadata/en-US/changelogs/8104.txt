@@ -1,0 +1,7 @@
+- Add background feed notifications for new videos
+- Keep playing when leaving the app from fullscreen
+- Preload YouTube in the player webview on startup
+- Block ads in the Shorts feed
+- Respect playback queue for media next on YouTube Music
+- Fix fullscreen orientation in Flex Mode
+- Update translations
