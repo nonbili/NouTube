@@ -134,11 +134,29 @@ internal fun isYouTubeVideoUrl(value: String): Boolean {
   }
 }
 
+// In fullscreen the WebView drives the page from a view of its own, which
+// NouWebView's faked window visibility does not cover: leaving the app from
+// the fullscreen player hid the page, and the video paused and could not be
+// resumed from the media notification (#377). Holding that view in here keeps
+// the page visible the same way.
+private class FullscreenContainer(context: Context) : FrameLayout(context) {
+  override fun dispatchWindowVisibilityChanged(visibility: Int) {
+    super.dispatchWindowVisibilityChanged(VISIBLE)
+  }
+}
+
 class NouWebView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
   WebView(context, attrs, defStyleAttr) {
 
   override fun onWindowVisibilityChanged(visibility: Int) {
     super.onWindowVisibilityChanged(VISIBLE)
+  }
+
+  // Leaving fullscreen hands the page back to this view, and the WebView reads
+  // the real window visibility while doing so: a fullscreen exit in the
+  // background would hide the page after all.
+  fun keepPageVisible() {
+    onWindowVisibilityChanged(windowVisibility)
   }
 
   init {
@@ -595,8 +613,13 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
             return
           }
           val window = activity.window
-          (window.decorView as FrameLayout).addView(
+          val container = FullscreenContainer(activity)
+          container.addView(
             view,
+            FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+          )
+          (window.decorView as FrameLayout).addView(
+            container,
             FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
           )
           webView.evaluateJavascript(FULLSCREEN_MODE_JS) { result ->
@@ -621,7 +644,9 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
           val fullscreenView = customView
           fullscreenView?.setKeepScreenOn(false)
           customView = null
-          (fullscreenView?.parent as? ViewGroup)?.removeView(fullscreenView)
+          val container = fullscreenView?.parent as? ViewGroup
+          (container?.parent as? ViewGroup)?.removeView(container)
+          this@apply.keepPageVisible()
           val activity = currentActivity
           if (activity == null) {
             return
