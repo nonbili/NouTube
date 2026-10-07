@@ -5,9 +5,11 @@ import {
 } from './css'
 import { playDefaultAudio, restoreLastPlaying } from './player'
 import { getPlayerFormats } from './player-formats'
+import { navigateWatch } from './split-view'
 import { emit, isYTMusic } from './utils'
 import { createDefaultUserStylesSnapshot, type UserStylesSnapshot } from '../lib/user-styles'
 import { createDefaultBlocklistSnapshot, type BlocklistSnapshot } from '../lib/blocklist'
+import { getPlaylistNeighborUrl, type PlaylistDirection } from '../lib/playlist-nav'
 
 export const noutubeSettingsEvent = 'noutube:settings'
 export const noutubeUserStylesEvent = 'noutube:user-styles'
@@ -78,12 +80,32 @@ function setBlocklist(next?: BlocklistSnapshot) {
   return blocklist
 }
 
+// m.youtube.com keeps the playlist in the page rather than in the player, so
+// the player's own next and previous would leave the playlist.
+function skipInPlaylist(direction: PlaylistDirection) {
+  if (isYTMusic) return false
+  const player = getPlayer()
+  // The playlist panel only exists while it is expanded, so read what the
+  // page handed to the player instead.
+  const playlist = player?.getWatchNextResponse?.()?.contents?.singleColumnWatchNextResults?.playlist?.playlist
+  const url = getPlaylistNeighborUrl(playlist, direction, player?.getVideoData?.()?.video_id)
+  if (!url) return false
+  navigateWatch(url)
+  return true
+}
+
 function skipToPrevious() {
+  if (skipInPlaylist('previous')) return
   const player = getPlayer()
   // YouTube restarts the current video instead of going back once it has
   // played a few seconds; rewinding first makes one press go back.
   player?.seekTo?.(0)
   player?.previousVideo()
+}
+
+function skipToNext() {
+  if (skipInPlaylist('next')) return
+  getPlayer()?.nextVideo()
 }
 
 // YouTube Music's own previous buttons follow the same restart rule.
@@ -139,9 +161,11 @@ export function initNouTube() {
         const videoUrl = getPlayer()?.getVideoUrl?.() || ''
         emit('playback-next', { url: videoUrl.includes('v=') ? videoUrl : document.location.href })
       } else {
-        getPlayer()?.nextVideo()
+        skipToNext()
       }
     },
+    // What next falls back to once the app found nothing left in the queue.
+    skipToNext,
     seekBy: (delta: number) => getPlayer()?.seekBy(delta),
     seekTo: (seconds: number) => getPlayer()?.seekTo(seconds),
     getVideoUrl: () => getPlayer()?.getVideoUrl?.() || '',

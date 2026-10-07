@@ -752,9 +752,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
                 updateUrl(nextUrl)
               }
             } else if (manualNext) {
-              // Call the player directly: NouTube.next() would bridge back here.
+              // Skip in the page directly: NouTube.next() would bridge back here.
               const ref = source === 'player' ? playerRef.current : nativeRef.current
-              ref?.executeJavaScript('document.getElementById("movie_player")?.nextVideo()')
+              ref?.executeJavaScript('NouTube.skipToNext()')
             }
           }
           break
