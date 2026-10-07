@@ -27,7 +27,8 @@
     "updating": "Обновление...",
     "ytDlpUpdated": "yt-dlp уже обновлён",
     "undo": "Отменить",
-    "retry": "Повторить"
+    "retry": "Повторить",
+    "confirm": "Подтвердить"
   },
   "library": {
     "videos": "Видео",
@@ -50,7 +51,10 @@
     "pip": "Картинка в картинке",
     "duplicateTab": "Дублировать вкладку",
     "close": "Закрыть",
-    "moveTo": "Переместить в…"
+    "moveTo": "Переместить в…",
+    "star": "В избранное",
+    "unstar": "Убрать из избранного",
+    "download": "Скачать"
   },
   "modals": {
     "editBookmark": "Изменить закладку",
@@ -308,7 +312,7 @@
     },
     "showSleepTimerButtonInHeader": "Показывать кнопку таймера сна на панели инструментов",
     "showLibraryButtonInHeader": "Показывать кнопку «Библиотека» на панели инструментов",
-    "showStarButtonInHeader": "Показывать кнопку «Звезда» на панели инструментов",
+    "showStarButtonInHeader": "Показывать кнопку «Избранное» на панели инструментов",
     "mediaNotificationButtons": "Кнопки медиауведомления",
     "showMediaNotificationPrevButton": "Показывать кнопку «Предыдущий»",
     "showMediaNotificationNextButton": "Показывать кнопку «Следующий»",
@@ -323,13 +327,34 @@
     "blockAds": {
       "label": "Блокировать рекламу",
       "hint": "Отключите, чтобы разрешить показ рекламы на YouTube и поддержать авторов."
+    },
+    "dynamicColor": {
+      "label": "Динамические цвета",
+      "hint": "Использовать системную цветовую палитру."
     }
   },
   "sync": {
     "label": "Синхронизация",
     "hint": "Синхронизируйте закладки на телефонах и компьютерах с подпиской Premium.",
     "currentPlan": "Текущий план",
-    "managePlan": "Управление планом"
+    "managePlan": "Управление планом",
+    "freePlan": "Бесплатно",
+    "deleteAccount": "Удалить аккаунт",
+    "buy": "Оформить подписку через App Store",
+    "restore": "Восстановить покупки",
+    "manageIos": "Управлять в App Store",
+    "purchaseTitle": "Привязать подписку",
+    "purchaseConfirm": "Эта подписка будет привязана к {{email}} и разблокирует синхронизацию везде, где вы войдете в этот аккаунт NouTube.",
+    "priceLoading": "Загрузка цены из App Store...",
+    "purchasePending": "Покупка ожидает подтверждения. Синхронизация станет доступна после одобрения.",
+    "productUnavailable": "Продукт App Store пока недоступен.",
+    "noPurchaseToRestore": "Покупок NouTube Sync для восстановления не найдено.",
+    "activeViaIos": "Активна через App Store",
+    "signOutSwitch": "Выйти и сменить аккаунт",
+    "expiresAt": "Обновляется или истекает: {{value}}",
+    "legalNotice": "Подписка продлевается автоматически, если ее не отменить. Оформляя подписку, вы принимаете Условия использования (EULA) и Политику конфиденциальности.",
+    "termsOfUse": "Условия использования (EULA)",
+    "privacyPolicy": "Политика конфиденциальности"
   },
   "feeds": {
     "updates": "Обновления",
@@ -353,7 +378,7 @@
     "filterDropdownPlaceholder": "Фильтр папок и каналов",
     "filterDropdownEmpty": "Нет подходящих папок или каналов.",
     "emptyTitleNoChannels": "Нет избранных каналов",
-    "emptyBodyNoChannels": "Здесь будут появляться обновления от избранных YouTube-каналов.",
+    "emptyBodyNoChannels": "Здесь будут появляться обновления от избранных каналов YouTube.",
     "emptyTitleFolder": "Нет обновлений в папке {{folder}}",
     "emptyTitleChannel": "Нет обновлений с канала {{channel}}",
     "emptyBodyFiltered": "Сейчас здесь нет новых видео. Загляните позже или переключитесь на «Все».",
@@ -427,7 +452,7 @@
   },
   "pageLoadError": {
     "title": "Не удается загрузить эту страницу",
-    "description": "Проверьте подключение и повторите попытку."
+    "description": "Проверьте подключение к сети и попробуйте снова."
   },
   "extension": {
     "openOptions": "Черный список и пользовательские стили",
@@ -447,5 +472,8 @@
     "openYouTube": "Открыть YouTube",
     "openYouTubeMusic": "Открыть YouTube Music",
     "saveCurrentPage": "Сохранить текущую страницу"
+  },
+  "history": {
+    "cleared": "История очищена"
   }
 }

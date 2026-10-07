@@ -60,7 +60,10 @@
     "openInNewTab": "Abrir en una nueva pestaña",
     "duplicateTab": "Duplicar pestaña",
     "close": "Cerrar",
-    "moveTo": "Mover a…"
+    "moveTo": "Mover a…",
+    "download": "Descargar",
+    "star": "Destacar",
+    "unstar": "Quitar de destacados"
   },
   "modals": {
     "editBookmark": "Editar marcador",
@@ -447,5 +450,8 @@
     "openYouTube": "Abrir YouTube",
     "openYouTubeMusic": "Abrir YouTube Music",
     "saveCurrentPage": "Guardar página actual"
+  },
+  "history": {
+    "cleared": "Historial borrado"
   }
 }
