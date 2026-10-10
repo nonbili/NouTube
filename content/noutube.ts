@@ -9,7 +9,7 @@ import { navigateWatch } from './split-view'
 import { emit, isYTMusic } from './utils'
 import { createDefaultUserStylesSnapshot, type UserStylesSnapshot } from '../lib/user-styles'
 import { createDefaultBlocklistSnapshot, type BlocklistSnapshot } from '../lib/blocklist'
-import { getPlaylistNeighborUrl, type PlaylistDirection } from '../lib/playlist-nav'
+import { getPlayingPlaylist, getPlaylistNeighborUrl, type PlaylistDirection } from '../lib/playlist-nav'
 
 export const noutubeSettingsEvent = 'noutube:settings'
 export const noutubeUserStylesEvent = 'noutube:user-styles'
@@ -87,10 +87,13 @@ function skipInPlaylist(direction: PlaylistDirection) {
   const player = getPlayer()
   // The playlist panel only exists while it is expanded, so read what the
   // page handed to the player instead.
-  const playlist = player?.getWatchNextResponse?.()?.contents?.singleColumnWatchNextResults?.playlist?.playlist
-  const url = getPlaylistNeighborUrl(playlist, direction, player?.getVideoData?.()?.video_id)
-  if (!url) return false
-  navigateWatch(url)
+  const videoId = player?.getVideoData?.()?.video_id
+  const playlist = getPlayingPlaylist(player?.getWatchNextResponse?.(), videoId)
+  if (!playlist) return false
+  const url = getPlaylistNeighborUrl(playlist, direction, videoId)
+  // At either end the playlist owns the press too. Falling back to the
+  // player here starts a recommendation or jumps into unrelated history.
+  if (url) navigateWatch(url)
   return true
 }
 

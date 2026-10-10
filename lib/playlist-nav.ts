@@ -2,6 +2,18 @@ export type PlaylistDirection = 'previous' | 'next'
 
 const getVideoId = (entry: any): string | undefined => entry?.playlistPanelVideoRenderer?.videoId
 
+/** The active playlist, including Android's desktop-site layout. */
+export function getPlayingPlaylist(response: any, playingVideoId?: string): any | undefined {
+  if (!playingVideoId) return
+  const contents = response?.contents
+  for (const layout of [contents?.singleColumnWatchNextResults, contents?.twoColumnWatchNextResults]) {
+    const playlist = layout?.playlist?.playlist
+    if (Array.isArray(playlist?.contents) && playlist.contents.some((entry: any) =>
+      entry?.playlistPanelVideoRenderer?.selected && getVideoId(entry) === playingVideoId,
+    )) return playlist
+  }
+}
+
 function getEndpointUrl(endpoint: any, playlistId?: string): string | undefined {
   const url = endpoint?.commandMetadata?.webCommandMetadata?.url
   if (typeof url == 'string' && url.includes('v=')) return url

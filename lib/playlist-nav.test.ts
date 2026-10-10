@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { getPlaylistNeighborUrl } from './playlist-nav'
+import { getPlayingPlaylist, getPlaylistNeighborUrl } from './playlist-nav'
 
 const entry = (videoId: string, selected = false) => ({ playlistPanelVideoRenderer: { videoId, selected } })
 const button = (videoId: string, url?: string) => ({
@@ -19,6 +19,23 @@ const data = {
 }
 
 describe('getPlaylistNeighborUrl', () => {
+  for (const layout of ['singleColumnWatchNextResults', 'twoColumnWatchNextResults']) {
+    it(`recognizes the playing playlist in ${layout}`, () => {
+      const response = { contents: { [layout]: { playlist: { playlist: data } } } }
+      expect(getPlayingPlaylist(response, 'bbb')).toBe(data)
+      expect(getPlayingPlaylist(response, 'zzz')).toBeUndefined()
+      expect(getPlayingPlaylist(response)).toBeUndefined()
+    })
+  }
+
+  it('keeps an exhausted playlist active so media controls do not leave it', () => {
+    const playlist = { contents: [entry('aaa', true)], playlistId: 'PL1' }
+    const response = { contents: { singleColumnWatchNextResults: { playlist: { playlist } } } }
+    expect(getPlayingPlaylist(response, 'aaa')).toBe(playlist)
+    expect(getPlaylistNeighborUrl(playlist, 'next', 'aaa')).toBeUndefined()
+    expect(getPlaylistNeighborUrl(playlist, 'previous', 'aaa')).toBeUndefined()
+  })
+
   it('follows the playlist skip buttons', () => {
     expect(getPlaylistNeighborUrl(data, 'next', 'bbb')).toBe('/watch?v=ccc&list=PL1&index=3')
     expect(getPlaylistNeighborUrl(data, 'previous', 'bbb')).toBe('/watch?v=aaa&list=PL1&index=1')
