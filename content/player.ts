@@ -1,6 +1,6 @@
 import { retry, throttle } from 'es-toolkit'
 import { emit, log, isYTMusic, nouPolicy, parseJson } from './utils'
-import { hideLiveChat, showLiveChatButton } from './livechat'
+import { hideLiveChat, showLiveChatButton, showLiveChatReplayButton } from './livechat'
 import { originalLabels } from './audio'
 import { clearSkipSegments, getSkipSegments, isSponsorBlockEnabled, renderSkipSegments, Segment } from './sponsorblock'
 import { playbackRates } from '../lib/playback-rate'
@@ -360,6 +360,8 @@ export function handleVideoPlayer(el: any) {
         hideLiveChat()
         if (playabilityStatus?.liveStreamability) {
           showLiveChatButton(curVideoId)
+        } else if (videoDetails.isLiveContent) {
+          void showLiveChatReplayButton(curVideoId)
         }
       }
 
