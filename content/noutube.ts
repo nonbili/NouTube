@@ -9,7 +9,13 @@ import { navigateWatch } from './split-view'
 import { emit, isYTMusic } from './utils'
 import { createDefaultUserStylesSnapshot, type UserStylesSnapshot } from '../lib/user-styles'
 import { createDefaultBlocklistSnapshot, type BlocklistSnapshot } from '../lib/blocklist'
-import { getPlayingPlaylist, getPlaylistNeighborUrl, type PlaylistDirection } from '../lib/playlist-nav'
+import {
+  getHeldPlaylist,
+  getPlayingPlaylist,
+  getPlaylistNeighborUrl,
+  isPlaylistCurrent,
+  type PlaylistDirection,
+} from '../lib/playlist-nav'
 
 export const noutubeSettingsEvent = 'noutube:settings'
 export const noutubeUserStylesEvent = 'noutube:user-styles'
@@ -88,12 +94,28 @@ function skipInPlaylist(direction: PlaylistDirection) {
   // The playlist panel only exists while it is expanded, so read what the
   // page handed to the player instead.
   const videoId = player?.getVideoData?.()?.video_id
-  const playlist = getPlayingPlaylist(player?.getWatchNextResponse?.(), videoId)
+  const response = player?.getWatchNextResponse?.()
+  // The player has no response yet right after a page load, while the one the
+  // page was served with is already there.
+  const playlist =
+    getPlayingPlaylist(response, videoId) ||
+    getHeldPlaylist(
+      [response, (window as any).ytInitialData],
+      videoId,
+      new URLSearchParams(location.search).get('list'),
+    )
   if (!playlist) return false
   const url = getPlaylistNeighborUrl(playlist, direction, videoId)
   // At either end the playlist owns the press too. Falling back to the
   // player here starts a recommendation or jumps into unrelated history.
-  if (url) navigateWatch(url)
+  if (!url) return true
+  if (isPlaylistCurrent(playlist, videoId)) {
+    navigateWatch(url)
+  } else {
+    // The page stopped fetching playlists, and navigating inside it would
+    // leave it that way. Loading the video afresh gets it going again.
+    location.assign(url)
+  }
   return true
 }
 
@@ -107,8 +129,66 @@ function skipToPrevious() {
 }
 
 function skipToNext() {
+  const button = pressedNextButton
+  pressedNextButton = undefined
+  if (button?.isConnected) {
+    // The press came from the page and the queue had nothing for it, so it
+    // goes back to the button it was taken from.
+    passNextClick = true
+    try {
+      button.click()
+    } finally {
+      passNextClick = false
+    }
+    return
+  }
   if (skipInPlaylist('next')) return
   getPlayer()?.nextVideo()
+}
+
+function next() {
+  if (window.NouTubeI) {
+    // The page url stops naming the playing video once the user browses
+    // away with the mini player, so prefer the player's own.
+    const videoUrl = getPlayer()?.getVideoUrl?.() || ''
+    emit('playback-next', { url: videoUrl.includes('v=') ? videoUrl : document.location.href })
+  } else {
+    skipToNext()
+  }
+}
+
+let pressedNextButton: HTMLElement | undefined
+let passNextClick = false
+
+// The next button of the mobile player shares its class with the previous
+// one and has no label that survives a change of language, so it is told
+// apart by coming last.
+function getNextButton(target: EventTarget | null): HTMLElement | undefined {
+  const button = (target as HTMLElement | null)?.closest?.<HTMLElement>('.player-middle-controls-prev-next-button')
+  const buttons = button?.closest('.player-controls-middle')?.querySelectorAll('.player-middle-controls-prev-next-button')
+  if (button && buttons && buttons.length > 1 && buttons[buttons.length - 1] == button) return button
+}
+
+// YouTube's own next button knows nothing of the app's queue, so the app gets
+// to answer the press first, the same as for the next of the media controls.
+function handleNextButtons() {
+  document.addEventListener(
+    'click',
+    (e) => {
+      if (passNextClick) return
+      const button = getNextButton(e.target)
+      if (!button || button.getAttribute('aria-disabled') == 'true') return
+      e.preventDefault()
+      e.stopImmediatePropagation()
+      pressedNextButton = button
+      // An answer that never comes must not send a later press to this button.
+      setTimeout(() => {
+        if (pressedNextButton == button) pressedNextButton = undefined
+      }, 2000)
+      next()
+    },
+    true,
+  )
 }
 
 // YouTube Music's own previous buttons follow the same restart rule.
@@ -142,6 +222,8 @@ export function initNouTube() {
   watchPictureInPictureVideo()
   if (isYTMusic) {
     handlePreviousButtons()
+  } else if (window.NouTubeI) {
+    handleNextButtons()
   }
 
   return {
@@ -157,16 +239,7 @@ export function initNouTube() {
     play: () => getPlayer()?.playVideo(),
     pause: () => getPlayer()?.pauseVideo(),
     prev: skipToPrevious,
-    next: () => {
-      if (window.NouTubeI) {
-        // The page url stops naming the playing video once the user browses
-        // away with the mini player, so prefer the player's own.
-        const videoUrl = getPlayer()?.getVideoUrl?.() || ''
-        emit('playback-next', { url: videoUrl.includes('v=') ? videoUrl : document.location.href })
-      } else {
-        skipToNext()
-      }
-    },
+    next,
     // What next falls back to once the app found nothing left in the queue.
     skipToNext,
     seekBy: (delta: number) => getPlayer()?.seekBy(delta),

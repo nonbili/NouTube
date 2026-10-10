@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { getPlayingPlaylist, getPlaylistNeighborUrl } from './playlist-nav'
+import { getHeldPlaylist, getPlayingPlaylist, getPlaylistNeighborUrl } from './playlist-nav'
 
 const entry = (videoId: string, selected = false) => ({ playlistPanelVideoRenderer: { videoId, selected } })
 const button = (videoId: string, url?: string) => ({
@@ -34,6 +34,31 @@ describe('getPlaylistNeighborUrl', () => {
     expect(getPlayingPlaylist(response, 'aaa')).toBe(playlist)
     expect(getPlaylistNeighborUrl(playlist, 'next', 'aaa')).toBeUndefined()
     expect(getPlaylistNeighborUrl(playlist, 'previous', 'aaa')).toBeUndefined()
+  })
+
+  it('finds the playing video in a playlist that was fetched for an earlier one', () => {
+    const stale = { contents: { singleColumnWatchNextResults: { playlist: { playlist: data } } } }
+    expect(getPlayingPlaylist(stale, 'aaa')).toBeUndefined()
+    expect(getHeldPlaylist([stale], 'aaa', 'PL1')).toBe(data)
+    // The skip buttons still skip from the selected video, so they are no help.
+    expect(getPlaylistNeighborUrl(data, 'next', 'aaa')).toBe('/watch?v=bbb&list=PL1')
+    expect(getPlaylistNeighborUrl(data, 'previous', 'ccc')).toBe('/watch?v=bbb&list=PL1')
+    expect(getPlaylistNeighborUrl(data, 'previous', 'aaa')).toBeUndefined()
+    expect(getPlaylistNeighborUrl(data, 'next', 'ccc')).toBeUndefined()
+  })
+
+  it('prefers the held response that is about the playing video', () => {
+    const current = { playlistId: 'PL1', contents: [entry('aaa', true), entry('bbb'), entry('ccc')] }
+    const wrap = (playlist: any) => ({ contents: { singleColumnWatchNextResults: { playlist: { playlist } } } })
+    expect(getHeldPlaylist([wrap(data), wrap(current)], 'aaa', 'PL1')).toBe(current)
+    expect(getHeldPlaylist([undefined, wrap(current)], 'aaa', 'PL1')).toBe(current)
+  })
+
+  it('drops a held playlist once the page left it', () => {
+    const held = [{ contents: { singleColumnWatchNextResults: { playlist: { playlist: data } } } }]
+    expect(getHeldPlaylist(held, 'bbb', null)).toBeUndefined()
+    expect(getHeldPlaylist(held, 'bbb', 'PL2')).toBeUndefined()
+    expect(getHeldPlaylist(held, 'zzz', 'PL1')).toBeUndefined()
   })
 
   it('follows the playlist skip buttons', () => {

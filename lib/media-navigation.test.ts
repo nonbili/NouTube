@@ -9,22 +9,25 @@ const restore = () => {
   }
 }
 
-function browser(layout: string, ids: string[], playingId: string) {
+function browser(layout: string, ids: string[], playingId: string, selectedId = playingId) {
   const messages: unknown[] = []
   const navigations: string[] = []
   const calls: string[] = []
+  const loads: string[] = []
   const player = {
     getVideoData: () => ({ video_id: playingId }),
     getVideoUrl: () => `https://m.youtube.com/watch?v=${playingId}`,
     getWatchNextResponse: () => ({ contents: { [layout]: { playlist: { playlist: {
       playlistId: 'PL1',
-      contents: ids.map((videoId) => ({ playlistPanelVideoRenderer: { videoId, selected: videoId === playingId } })),
+      contents: ids.map((videoId) => ({ playlistPanelVideoRenderer: { videoId, selected: videoId === selectedId } })),
     } } } } }),
     nextVideo: () => calls.push('next'),
     previousVideo: () => calls.push('previous'),
     seekTo: () => calls.push('seek'),
   }
-  const location = new URL(`https://m.youtube.com/watch?v=${playingId}&list=PL1`)
+  const location = Object.assign(new URL(`https://m.youtube.com/watch?v=${playingId}&list=PL1`), {
+    assign: (url: string) => loads.push(url),
+  })
   const document = Object.assign(new EventTarget(), {
     location,
     getElementById: () => player,
@@ -35,7 +38,7 @@ function browser(layout: string, ids: string[], playingId: string) {
     NouTubeI: { onMessage: (payload: string) => messages.push(JSON.parse(payload)) },
   })
   Object.assign(globalThis, { document, window, location, screen: { orientation: new EventTarget() } })
-  return { calls, messages, navigations }
+  return { calls, document, loads, messages, navigations }
 }
 
 let initNouTube: typeof import('../content/noutube').initNouTube
@@ -72,5 +75,61 @@ describe('media navigation', () => {
       expect(page.navigations).toEqual([])
       expect(page.calls).toEqual([])
     })
+
+    it(`reloads to leave a ${layout} playlist that is about an earlier video`, () => {
+      const page = browser(layout, ['aaa', 'bbb', 'ccc'], 'aaa', 'bbb')
+      const controls = initNouTube()
+      controls.skipToNext()
+      controls.prev()
+      expect(page.loads).toEqual(['/watch?v=bbb&list=PL1'])
+      expect(page.navigations).toEqual([])
+      expect(page.calls).toEqual([])
+    })
   }
+
+  it('leaves a playlist alone that the page was served with and has since left', () => {
+    const page = browser('singleColumnWatchNextResults', [], 'bbb')
+    const contents = ['aaa', 'bbb'].map((videoId) => ({
+      playlistPanelVideoRenderer: { videoId, selected: videoId == 'bbb' },
+    }))
+    const playlist = { playlistId: 'PL1', contents }
+    Object.assign(globalThis.window, {
+      ytInitialData: { contents: { singleColumnWatchNextResults: { playlist: { playlist } } } },
+    })
+    const controls = initNouTube()
+    controls.prev()
+    expect(page.navigations).toEqual(['https://m.youtube.com/watch?v=aaa&list=PL1'])
+    ;(globalThis as any).location.search = ''
+    controls.prev()
+    expect(page.navigations.length).toBe(1)
+    expect(page.calls).toEqual(['seek', 'previous'])
+  })
+
+  it("offers the page's own next button to the manual queue first", () => {
+    const page = browser('singleColumnWatchNextResults', [], 'bbb')
+    const controls = initNouTube()
+    const clicks: string[] = []
+    const previous = { closest: () => undefined }
+    const nextButton: any = { isConnected: true, getAttribute: () => 'false', click: () => clicks.push('next') }
+    const middle = { querySelectorAll: () => [previous, nextButton] }
+    nextButton.closest = (selector: string) => (selector == '.player-controls-middle' ? middle : nextButton)
+    const press = () => {
+      const event = new Event('click', { cancelable: true })
+      Object.defineProperty(event, 'target', { value: nextButton })
+      page.document.dispatchEvent(event)
+      return event
+    }
+
+    expect(press().defaultPrevented).toBe(true)
+    expect(page.messages).toEqual([{ type: 'playback-next', data: { url: 'https://m.youtube.com/watch?v=bbb' } }])
+    expect(clicks).toEqual([])
+
+    // The queue had nothing, so the press goes back to the button once.
+    controls.skipToNext()
+    expect(clicks).toEqual(['next'])
+    expect(page.calls).toEqual([])
+    controls.skipToNext()
+    expect(clicks).toEqual(['next'])
+    expect(page.calls).toEqual(['next'])
+  })
 })
