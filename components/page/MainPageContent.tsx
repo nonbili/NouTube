@@ -846,14 +846,17 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     if (webview) {
       setBrowseWebview(webview)
       const url = ui$.url.get()
+      // A link can arrive before this view mounts. The URL observer sends
+      // watch links to the player, so the browsing view needs Home underneath.
+      const browseUrl = isSplitWatchEnabled() && isWatchUrl(url) ? 'https://m.youtube.com/' : url
       ;(async () => {
         try {
           const location = await webview.executeJavaScript('document.location.href')
           if (location == 'about:blank') {
-            webview.loadUrl(url)
+            webview.loadUrl(browseUrl)
           }
         } catch (e) {
-          webview.loadUrl(url)
+          webview.loadUrl(browseUrl)
         }
       })()
     }

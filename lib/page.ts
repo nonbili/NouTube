@@ -2,7 +2,7 @@ import { ui$, updateUrl } from '@/states/ui'
 import { onReceiveAuthUrl } from './supabase/auth'
 import { settings$ } from '@/states/settings'
 import { debounce } from 'es-toolkit'
-import { isSupportedUrl, normalizeSupportedUrl } from './supported-url'
+import { expandShortUrl, isSupportedUrl, normalizeSupportedUrl } from './supported-url'
 import { removeTrackingParams } from './tracking-url'
 
 export { getPageType } from './page-type'
@@ -41,7 +41,7 @@ export function openSharedUrl(url: string) {
   try {
     const fixed = fixSharingUrl(url)
     if (isSupportedUrl(fixed)) {
-      updateUrl(normalizeSupportedUrl(fixed))
+      updateUrl(expandShortUrl(normalizeSupportedUrl(fixed)))
     }
   } catch (error) {
     console.error(error)
