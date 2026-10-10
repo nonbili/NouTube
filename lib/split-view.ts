@@ -45,8 +45,12 @@ export function isShortsUrl(url: string) {
 /* The webview the user is looking at, which is the one every page-level action
  * -- bookmarking, sharing, downloading, reloading -- has to talk to. The mini
  * player does not count: it is a corner of the browsing page, not the page. */
+export function isPlayerForeground() {
+  return ui$.playerMode.get() === 'full' && Boolean(playerWebview)
+}
+
 export function syncForegroundWebview() {
-  const showingPlayer = ui$.playerMode.get() === 'full' && Boolean(playerWebview)
+  const showingPlayer = isPlayerForeground()
   const foreground = showingPlayer ? playerWebview : browseWebview
   if (foreground && ui$.webview.peek() !== foreground) {
     ui$.webview.set(ObservableHint.opaque(foreground))

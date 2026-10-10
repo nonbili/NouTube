@@ -56,6 +56,8 @@ interface Store {
   urlModalOpen: boolean
   urlModalUrl: string
   cookieModalOpen: boolean
+  // Session only: the sign-in banner comes back on the next launch.
+  googleLoginNoticeDismissed: boolean
   userAgentModalOpen: boolean
   toolsModalOpen: boolean
   toolsModalUrl: string
@@ -109,6 +111,7 @@ export const ui$ = observable<Store>({
   urlModalOpen: false,
   urlModalUrl: '',
   cookieModalOpen: false,
+  googleLoginNoticeDismissed: false,
   userAgentModalOpen: false,
   toolsModalOpen: false,
   toolsModalUrl: '',

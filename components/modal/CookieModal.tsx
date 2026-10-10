@@ -1,3 +1,4 @@
+import { when } from '@legendapp/state'
 import { useValue } from '@legendapp/state/react'
 import { ui$ } from '@/states/ui'
 import { BaseCenterModal } from './BaseCenterModal'
@@ -11,6 +12,20 @@ import { showToast } from '@/lib/toast'
 import { isWeb } from '@/lib/utils'
 import { getDocumentAsync } from 'expo-document-picker'
 import { mainClient } from '@/lib/main-client'
+import { SIGN_IN_FAQ_URL } from '@/lib/help'
+import { NouLink } from '../link/NouLink'
+import { settings$ } from '@/states/settings'
+import { isPlayerForeground, isSplitWatchEnabled } from '@/lib/split-view'
+
+// accounts.youtube.com is part of Google's sign-in flow, not a page to land on.
+const isYouTubePage = (url: string) => {
+  try {
+    const { hostname } = new URL(url)
+    return hostname !== 'accounts.youtube.com' && (hostname === 'youtube.com' || hostname.endsWith('.youtube.com'))
+  } catch {
+    return false
+  }
+}
 
 const parseCookies = (text: string) => {
   const lines = text.split('\n')
@@ -75,9 +90,22 @@ export const CookieModal = () => {
       return
     }
 
+    // The dialog can be opened from Google's sign-in page (see
+    // GoogleLoginNotice), where reloading shows the same page again and, on
+    // native, document.cookie cannot write .youtube.com cookies at all.
+    // Follow the url of this webview rather than the foreground one: the user
+    // can switch between the player and the browsing page while this waits.
+    const inPlayer = isSplitWatchEnabled() && isPlayerForeground()
+    const pageUrl$ = !isSplitWatchEnabled() ? ui$.pageUrl : inPlayer ? ui$.playerPageUrl : ui$.browsePageUrl
+    const onYouTube = isYouTubePage(pageUrl$.get())
+
     if (isWeb) {
       await mainClient.setCookie(cookie)
-      webview.executeJavaScript('location.reload()')
+      if (onYouTube) {
+        webview.executeJavaScript('location.reload()')
+      } else {
+        webview.loadURL('https://www.youtube.com')
+      }
     } else {
       const script =
         cookie
@@ -85,6 +113,21 @@ export const CookieModal = () => {
           .map((x) => `document.cookie="${x.trim()};max-age=31536000;path=/;domain=.youtube.com";`)
           .join('') + 'location.reload();'
 
+      if (!onYouTube) {
+        onClose()
+        // The player webview only ever holds a video, so send it back to its own.
+        const playerUrl = inPlayer ? ui$.playerUrl.get() : ''
+        const home = settings$.home.get() === 'yt-music' ? 'https://music.youtube.com' : 'https://m.youtube.com'
+        webview.loadUrl(playerUrl || home)
+        const arrived = await Promise.race([
+          when(() => isYouTubePage(pageUrl$.get())).then(() => true),
+          new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 15000)),
+        ])
+        if (!arrived) {
+          showToast('Could not open YouTube to inject cookie')
+          return
+        }
+      }
       webview.executeJavaScript(script)
     }
     onClose()
@@ -99,6 +142,9 @@ export const CookieModal = () => {
       <View className="p-5">
         <NouText className="text-lg font-semibold mb-4">{t('settings.injectCookieTitle')}</NouText>
         <NouText className="mb-4 text-gray-400 text-sm leading-5">{t('settings.injectCookieHint')}</NouText>
+        <NouLink href={SIGN_IN_FAQ_URL} className="mb-4 text-sm text-blue-600 dark:text-blue-400 underline">
+          {t('settings.cookieFaq')}
+        </NouLink>
         <TextInput
           className="border border-gray-600 rounded mb-6 text-white p-2 text-sm"
           value={text}

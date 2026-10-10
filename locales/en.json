@@ -1,5 +1,8 @@
 {
   "about": {
+    "help": "Help",
+    "faq": "FAQ",
+    "faqHint": "Answers to common questions",
     "label": "About",
     "code": "Source code",
     "donate": "Donate",
@@ -413,6 +416,9 @@
     "injectCookie": "Inject cookie if couldn't login from webview",
     "injectCookieTitle": "Inject auth cookie into the webview",
     "injectCookieHint": "Copy the Cookie header value from your PC browser. This is a workaround when you couldn't login with email/password.",
+    "googleLoginCookieHint": "Google sign-in often doesn't work in the webview. You may need to inject cookies from a browser where you're signed in.",
+    "cookieFaq": "How to inject cookies",
+    "injectCookieAction": "Inject cookie",
     "groupYouTube": "YouTube",
     "groupNouTube": "NouTube",
     "preferencesComments": "Comments",

@@ -43,6 +43,7 @@ import { addPictureInPictureListener } from '@/lib/picture-in-picture'
 import { useDesktopMode } from '@/lib/hooks/useDesktopMode'
 import { SettingsModal } from '../modal/SettingsModal'
 import { PlayerFrame } from './PlayerFrame'
+import { GoogleLoginNotice } from './GoogleLoginNotice'
 import {
   closePlayer,
   isSplitWatchEnabled,
@@ -358,6 +359,7 @@ const DesktopTabView: React.FC<{
       pointerEvents={isActive ? 'auto' : 'none'}
       style={[StyleSheet.absoluteFill, { opacity: isActive ? 1 : 0, zIndex: isActive ? 1 : 0 }]}
     >
+      <GoogleLoginNotice url={tab.pageUrl || tab.url} />
       <NouTubeView
         ref={webviewRef}
         style={{ flex: 1 }}
@@ -387,6 +389,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const playerMini = playerMode === 'mini'
   const [playerPlaying, setPlayerPlaying] = useState(false)
   const playerPageUrl = useValue(ui$.playerPageUrl)
+  const browsePageUrl = useValue(ui$.browsePageUrl)
   const hideShorts = useValue(settings$.hideShorts)
   const isYTMusic = useValue(settings$.isYTMusic)
   const autoHideHeader = useValue(settings$.autoHideHeader)
@@ -1127,19 +1130,22 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   // Built once and handed to whichever wrapper is showing, so React keeps the
   // same native view across a mode change instead of remounting it.
   const playerView = (
-    <NouTubeView
-      ref={playerRef}
-      style={{
-        flex: 1,
-      }}
-      useragent={userAgent}
-      pullToRefreshEnabled={false}
-      textZoom={defaultZoom}
-      scriptOnStart={`window.isAndroid = true;\n${splitRolePrelude(splitWatchView, 'player', playerMini)}window.NouTubePlayerWarmup = ${!playerUrl};\n${preludeJs}\n${contentJs}`}
-      userScriptsOnStart={userScriptsOnStart}
-      onLoad={onPlayerLoad}
-      onMessage={onPlayerMessage}
-    />
+    <>
+      <GoogleLoginNotice url={playerPageUrl || playerUrl || ''} />
+      <NouTubeView
+        ref={playerRef}
+        style={{
+          flex: 1,
+        }}
+        useragent={userAgent}
+        pullToRefreshEnabled={false}
+        textZoom={defaultZoom}
+        scriptOnStart={`window.isAndroid = true;\n${splitRolePrelude(splitWatchView, 'player', playerMini)}window.NouTubePlayerWarmup = ${!playerUrl};\n${preludeJs}\n${contentJs}`}
+        userScriptsOnStart={userScriptsOnStart}
+        onLoad={onPlayerLoad}
+        onMessage={onPlayerMessage}
+      />
+    </>
   )
 
   return (
@@ -1170,6 +1176,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           </View>
         ) : (
           <WebviewContainer headerPosition={headerPosition} nativeHeaderInset={nativeHeaderInset}>
+            <GoogleLoginNotice url={splitWatchView ? browsePageUrl : currentPageUrl} />
             <View style={{ flex: 1 }} pointerEvents={playerFull ? 'none' : 'auto'}>
               <NouTubeView
                 ref={nativeRef}

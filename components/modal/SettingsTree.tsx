@@ -26,6 +26,7 @@ import { SettingsChangelogContent } from './SettingsModalTabChangelog'
 import { SettingsUserStylesContent } from './SettingsUserStylesContent'
 import { SettingsBlocklistContent } from './SettingsBlocklistContent'
 import { useTwColor } from '@/lib/theme'
+import { FAQ_URL } from '@/lib/help'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const donateLinks = [
@@ -408,6 +409,18 @@ export const SettingsTree = forwardRef<
                 </View>
               </SettingsSection>
             ) : null}
+
+            <SettingsSection label={t('about.help')}>
+              <View className={surfaceCls}>
+                <SettingsExternalRow
+                  title={t('about.faq')}
+                  detail={t('about.faqHint')}
+                  href={FAQ_URL}
+                  icon="help-outline"
+                  isLast
+                />
+              </View>
+            </SettingsSection>
 
             <SettingsSection label={t('about.code')}>
               <View className={surfaceCls}>
