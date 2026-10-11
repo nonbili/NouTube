@@ -1,0 +1,6 @@
+- Support Discord Rich Presence
+- Follow playlists for media next and previous controls
+- Support live chat replay for stream recordings
+- Show tappable foreground feed toasts for new videos
+- Prevent playing duplicate videos from external links
+- Add FAQ links and cookie guidance for Google sign-in
