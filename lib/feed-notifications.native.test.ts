@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { AppState } from 'react-native'
 import i18n from 'i18next'
 import { settings$ } from '@/states/settings'
+import { dismissToast, toasts$ } from '@/states/toast'
+import { ui$ } from '@/states/ui'
 
 let task: () => Promise<number>
 let notificationHandler: { handleNotification: () => Promise<any> }
@@ -72,6 +74,8 @@ beforeEach(() => {
   settings$.feedNotificationsEnabled.set(false)
 })
 afterEach(() => {
+  for (const toast of toasts$.get()) dismissToast(toast.id)
+  ui$.feedModalOpen.set(false)
   settings$.feedNotificationsEnabled.set(false)
   settings$.language.set(null)
 })
@@ -181,14 +185,41 @@ describe('mobile feed notifications', () => {
     expect(feederLoop).not.toHaveBeenCalled()
   })
 
-  it('suppresses foreground notifications and foreground banners', async () => {
+  it('shows a tappable foreground toast while suppressing system notifications', async () => {
     await setFeedNotificationsEnabled(true)
     Object.assign(AppState, { currentState: 'active' })
     await notifyFeedVideos([{ channel: 'Channel', count: 2 }])
     expect(schedule).not.toHaveBeenCalled()
+    expect(toasts$.get()).toHaveLength(1)
+    expect(toasts$[0].message.get()).toBe('2 new videos from Channel')
+    toasts$[0].onPress.get()?.()
+    expect(ui$.feedModalOpen.get()).toBe(true)
     const behavior = await notificationHandler.handleNotification()
     expect(behavior.shouldShowBanner).toBe(false)
     expect(behavior.shouldShowList).toBe(false)
+  })
+
+  it('shows a foreground summary even when background execution is restricted', async () => {
+    await setFeedNotificationsEnabled(true)
+    available = false
+    Object.assign(AppState, { currentState: 'active' })
+    await notifyFeedVideos([{ channel: 'A', count: 2 }, { channel: 'B', count: 3 }])
+    expect(toasts$[0].message.get()).toBe('5 new videos from 2 channels')
+    expect(schedule).not.toHaveBeenCalled()
+  })
+
+  it('does not show foreground toasts for empty updates, disabled alerts or revoked permission', async () => {
+    Object.assign(AppState, { currentState: 'active' })
+    await notifyFeedVideos([{ channel: 'Channel', count: 2 }])
+    await setFeedNotificationsEnabled(true)
+    await notifyFeedVideos([])
+    settings$.feedsEnabled.set(false)
+    await notifyFeedVideos([{ channel: 'Channel', count: 2 }])
+    settings$.feedsEnabled.set(true)
+    granted = false
+    await notifyFeedVideos([{ channel: 'Channel', count: 2 }])
+    expect(toasts$.get()).toHaveLength(0)
+    expect(schedule).not.toHaveBeenCalled()
   })
 
   it('collapses multiple channels into a single summary notification', async () => {

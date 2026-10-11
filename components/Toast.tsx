@@ -5,8 +5,7 @@ import { NouText } from './NouText'
 import { getToastColors } from '@/lib/toast-theme'
 import { dismissToast, toasts$ } from '@/states/toast'
 
-// Only iOS fills toasts$ (see lib/toast.ios.ts); elsewhere this renders
-// nothing and the platform's own toast is used instead.
+// Android also uses this host for actionable feed alerts.
 export const Toast = () => {
   const toasts = useValue(toasts$)
   const insets = useSafeAreaInsets()
@@ -28,7 +27,11 @@ export const Toast = () => {
           <Pressable
             key={toast.id}
             accessibilityLiveRegion="polite"
-            onPress={() => dismissToast(toast.id)}
+            accessibilityRole={toast.onPress ? 'button' : undefined}
+            onPress={() => {
+              dismissToast(toast.id)
+              toast.onPress?.()
+            }}
             className="rounded-xl px-4 py-3 shadow-xl"
             style={{ backgroundColor: toastColors.background }}
           >

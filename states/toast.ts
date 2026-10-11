@@ -6,22 +6,21 @@ const MAX_TOASTS = 3
 export interface ToastItem {
   id: string
   message: string
+  onPress?: () => void
 }
 
-// Feeds the in-app toast host. Android and the desktop shell each have a toast
-// of their own (see lib/toast.android.ts, lib/toast.ts); this one backs iOS,
-// which has no system toast.
+// Feeds the in-app toast host for iOS messages and actionable mobile toasts.
 export const toasts$ = observable<ToastItem[]>([])
 
 const dismissTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
-export function pushToast(message: string) {
+export function pushToast(message: string, onPress?: () => void) {
   while (toasts$.length >= MAX_TOASTS) {
     dismissToast(toasts$[0].id.get())
   }
 
   const id = `${Date.now()}-${Math.random()}`
-  toasts$.push({ id, message })
+  toasts$.push({ id, message, onPress })
   dismissTimers.set(id, setTimeout(() => dismissToast(id), TOAST_TIMEOUT_MS))
 }
 

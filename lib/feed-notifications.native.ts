@@ -9,6 +9,8 @@ import { resolveI18nLanguageFromExpoLocale } from './i18n'
 import { syncNativeSettings } from './native-settings'
 import type { FeedNotificationUpdate } from './feed-notification-videos'
 import { settings$ } from '@/states/settings'
+import { pushToast } from '@/states/toast'
+import { ui$ } from '@/states/ui'
 
 const TASK_NAME = 'noutube-feed-notifications'
 const CHANNEL_ID = 'feed-videos'
@@ -104,17 +106,28 @@ export async function setFeedNotificationsEnabled(enabled: boolean): Promise<boo
 export async function notifyFeedVideos(updates: FeedNotificationUpdate[]): Promise<void> {
   const count = updates.reduce((sum, update) => sum + update.count, 0)
   if (!count || !settings$.feedsEnabled.get() || !settings$.feedNotificationsEnabled.get()) return
-  if (!(await syncFeedNotificationTask()) || isAppActive()) return
+  const backgroundEnabled = await syncFeedNotificationTask()
+  if (!settings$.feedNotificationsEnabled.get()) return
   await applyNotificationLanguage()
+  const body = updates.length === 1
+    ? t('feeds.notificationBody', { count, channel: updates[0].channel })
+    : t('feeds.notificationSummary', { count, channels: updates.length })
+  const showFeedToast = () => pushToast(body, () => ui$.feedModalOpen.set(true))
+  if (isAppActive()) {
+    showFeedToast()
+    return
+  }
+  if (!backgroundEnabled) return
   await ensureChannel()
   // The user may have returned to the app while permission/language APIs ran.
-  if (isAppActive()) return
+  if (isAppActive()) {
+    showFeedToast()
+    return
+  }
   await Notifications.scheduleNotificationAsync({
     content: {
       title: t('feeds.notificationTitle'),
-      body: updates.length === 1
-        ? t('feeds.notificationBody', { count, channel: updates[0].channel })
-        : t('feeds.notificationSummary', { count, channels: updates.length }),
+      body,
       data: { noutubeFeed: true },
     },
     trigger: Platform.OS === 'android' ? { channelId: CHANNEL_ID } : null,
