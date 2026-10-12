@@ -1,5 +1,6 @@
 import { buildCaptionCss, captionFontSizeIncrement, type SystemCaptionStyle } from '../lib/captions'
 import { noutubeSettingsEvent } from './noutube'
+import { nouStorage } from './utils'
 
 let player: any = null
 
@@ -12,7 +13,7 @@ const savedFontSizeKey = 'nou:caption-font-size'
 
 const readSavedFontSize = () => {
   try {
-    const raw = localStorage.getItem(savedFontSizeKey)
+    const raw = nouStorage.getItem(savedFontSizeKey)
     if (raw == null) {
       return null
     }
@@ -59,7 +60,7 @@ export function applyCaptionFontScale(el?: any) {
     if (saved != null) {
       try {
         target.setOption('captions', 'fontSize', saved)
-        localStorage.removeItem(savedFontSizeKey)
+        nouStorage.removeItem(savedFontSizeKey)
       } catch {}
     }
     return
@@ -70,7 +71,7 @@ export function applyCaptionFontScale(el?: any) {
   if (saved == null) {
     try {
       const current = target.getOption?.('captions', 'fontSize')
-      localStorage.setItem(savedFontSizeKey, String(typeof current === 'number' ? current : 0))
+      nouStorage.setItem(savedFontSizeKey, String(typeof current === 'number' ? current : 0))
     } catch {}
   }
 

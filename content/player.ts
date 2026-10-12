@@ -1,5 +1,5 @@
 import { retry, throttle } from 'es-toolkit'
-import { emit, log, isYTMusic, nouPolicy, parseJson } from './utils'
+import { emit, log, isEmbedFrame, isYTMusic, nouPolicy, nouStorage, parseJson } from './utils'
 import { hideLiveChat, showLiveChatButton, showLiveChatReplayButton } from './livechat'
 import { originalLabels } from './audio'
 import { clearSkipSegments, getSkipSegments, isSponsorBlockEnabled, renderSkipSegments, Segment } from './sponsorblock'
@@ -18,7 +18,7 @@ const keys = {
 }
 
 function getSettings() {
-  return parseJson(localStorage.getItem(keys.settings), {}) as {
+  return parseJson(nouStorage.getItem(keys.settings), {}) as {
     playbackRate?: number
     playbackQuality?: string
     sponsorBlock?: boolean
@@ -222,7 +222,7 @@ export function handleVideoPlayer(el: any) {
   }
 
   const saveProgress = throttle((progress: NonNullable<ReturnType<typeof getProgress>>) => {
-    localStorage.setItem(keys.playing, JSON.stringify({ url: progress.url, current: progress.current }))
+    nouStorage.setItem(keys.playing, JSON.stringify({ url: progress.url, current: progress.current }))
     emit('progress', progress)
   }, 5000)
   // One source for the play state in both notify paths below. YouTube reports
@@ -315,7 +315,7 @@ export function handleVideoPlayer(el: any) {
       return
     }
     if (state == 0 && !isYTMusic) {
-      localStorage.removeItem(keys.playing)
+      nouStorage.removeItem(keys.playing)
       emit('playback-end')
     }
     if (document.location.host == 'm.youtube.com' && document.location.pathname == '/') {
@@ -347,7 +347,11 @@ export function handleVideoPlayer(el: any) {
       // The previous video's trailing save is still pending; letting it land
       // would put that video back at the top of the history, after this one.
       saveProgress.cancel()
-      player.unMute()
+      // A site mutes its embed on purpose, typically so that it may autoplay,
+      // and the browser pauses a video that is unmuted without a user gesture.
+      if (!isEmbedFrame) {
+        player.unMute()
+      }
       const thumb = thumbnail.thumbnails.at(-1)
       duration = +lengthSeconds
       title = _title
@@ -566,7 +570,7 @@ async function seekToSavedPosition(current: number) {
 }
 
 export function restoreLastPlaying() {
-  const value = parseJson(localStorage.getItem(keys.playing), {}) as { url?: string; current?: number }
+  const value = parseJson(nouStorage.getItem(keys.playing), {}) as { url?: string; current?: number }
   if (!value.url) {
     return
   }

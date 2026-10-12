@@ -1,4 +1,4 @@
-import { isYTMusic } from './utils'
+import { isYTMusic, nouStorage } from './utils'
 
 const styleId = '_nou_pip'
 const ancestorClass = '_nou_pip_ancestor'
@@ -88,7 +88,7 @@ let reported = ''
 // here.
 function isPictureInPictureEnabled(): boolean {
   try {
-    const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')
+    const settings = JSON.parse(nouStorage.getItem(SETTINGS_KEY) || '{}')
     return settings.pictureInPicture === true
   } catch {
     return false

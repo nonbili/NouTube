@@ -33,3 +33,35 @@ export const nouPolicy = window.trustedTypes
   : { createHTML: (x: string) => x }
 
 export const isYTMusic = document.location.host == 'music.youtube.com'
+
+// The embedded player as an iframe on somebody else's page. The app's own embed
+// modal loads the same url as a top-level document and is not one of these.
+export const isEmbedFrame = window !== window.top && document.location.pathname.startsWith('/embed/')
+
+// localStorage with an in-memory fallback. A cross-site frame (the embedded
+// player on another site) can be denied storage altogether, and there merely
+// reading window.localStorage throws.
+const memoryStorage = new Map<string, string>()
+export const nouStorage = {
+  getItem(key: string) {
+    try {
+      return localStorage.getItem(key)
+    } catch {
+      return memoryStorage.get(key) ?? null
+    }
+  },
+  setItem(key: string, value: string) {
+    try {
+      localStorage.setItem(key, value)
+    } catch {
+      memoryStorage.set(key, value)
+    }
+  },
+  removeItem(key: string) {
+    try {
+      localStorage.removeItem(key)
+    } catch {
+      memoryStorage.delete(key)
+    }
+  },
+}

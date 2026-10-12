@@ -1,3 +1,5 @@
+import { nouStorage } from './utils'
+
 export interface Segment {
   // https://wiki.sponsor.ajay.app/w/Types#Category
   category: string
@@ -6,7 +8,7 @@ export interface Segment {
 }
 
 export function isSponsorBlockEnabled() {
-  const value = localStorage.getItem('nou:settings')
+  const value = nouStorage.getItem('nou:settings')
   if (!value) {
     return false
   }

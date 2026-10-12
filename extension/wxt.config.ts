@@ -135,6 +135,7 @@ export default defineConfig({
       'https://www.youtube.com/*',
       'https://m.youtube.com/*',
       'https://music.youtube.com/*',
+      'https://www.youtube-nocookie.com/*',
       'https://pgukcvgypvjwtibzlvhr.supabase.co/*',
       'https://a.inks.page/*',
       'https://noutube.inks.page/*',

@@ -1,6 +1,6 @@
 import { formatPlaybackQuality, playbackQualities } from '../lib/playback-quality'
 import { formatPlaybackRate, playbackRatesWith } from '../lib/playback-rate'
-import { nouPolicy, parseJson } from './utils'
+import { nouPolicy, nouStorage, parseJson } from './utils'
 
 const btnId = '_nou_fs_btn'
 const panelId = '_nou_fs_panel'
@@ -55,14 +55,14 @@ let revealTimer: ReturnType<typeof setTimeout> | undefined
 // Which edge the button, the panel and the unlock button hug. Kept in
 // localStorage rather than in app settings: it is only ever changed from the
 // panel itself, so it never needs to cross the bridge.
-const getSide = () => (localStorage.getItem(sideKey) === 'right' ? 'right' : 'left')
+const getSide = () => (nouStorage.getItem(sideKey) === 'right' ? 'right' : 'left')
 
 function applySide(element: HTMLElement | null) {
   element?.classList.toggle(rightClass, getSide() === 'right')
 }
 
 function toggleSide() {
-  localStorage.setItem(sideKey, getSide() === 'right' ? 'left' : 'right')
+  nouStorage.setItem(sideKey, getSide() === 'right' ? 'left' : 'right')
   for (const id of [btnId, panelId, overlayId]) {
     applySide(document.getElementById(id))
   }
@@ -190,7 +190,7 @@ function lockScreen() {
 }
 
 function getSavedBrightness() {
-  const saved = Number(localStorage.getItem(brightnessKey))
+  const saved = Number(nouStorage.getItem(brightnessKey))
   return Number.isFinite(saved) && saved > 0 && saved <= 100 ? saved : undefined
 }
 
@@ -364,7 +364,7 @@ function getAvailableQualities() {
 // The player reports the level it actually picked, which is not the user's
 // choice while on auto, so read the same saved setting player.ts applies.
 function getCurrentQuality() {
-  const settings = parseJson(localStorage.getItem('nou:settings'), {}) as { playbackQuality?: string }
+  const settings = parseJson(nouStorage.getItem('nou:settings'), {}) as { playbackQuality?: string }
   return typeof settings.playbackQuality == 'string' ? settings.playbackQuality : 'auto'
 }
 
@@ -510,7 +510,7 @@ function renderPanelContent(panel: HTMLElement) {
   const brightnessInput = panel.querySelector<HTMLInputElement>('#_nou_fs_brightness')
   brightnessInput?.addEventListener('input', () => {
     const percent = Number(brightnessInput.value)
-    localStorage.setItem(brightnessKey, String(percent))
+    nouStorage.setItem(brightnessKey, String(percent))
     applyBrightness(percent)
     paintSlider(brightnessInput)
   })

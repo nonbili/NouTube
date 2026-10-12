@@ -7,11 +7,12 @@ import {
   type BridgePayload,
 } from '../bridge-protocol'
 import { readCache } from './prelude'
+import { nouStorage } from '@/content/utils'
 
+/* Through the content bundle's own storage, so that a frame denied
+ * localStorage still hands the player the settings from memory. */
 const writeCache = (key: string, value: unknown) => {
-  try {
-    localStorage.setItem(key, JSON.stringify(value))
-  } catch {}
+  nouStorage.setItem(key, JSON.stringify(value))
 }
 
 /* `NouTube.hideShorts` appends a fresh <style> every call and needs a head to

@@ -1,7 +1,7 @@
 import { defineContentScript } from 'wxt/utils/define-content-script'
 import { browser } from 'wxt/browser'
 import { bridgeReadyEvent, bridgeStateEvent, encodeBridgePayload, type BridgePayload } from '../lib/bridge-protocol'
-import { YOUTUBE_MATCHES } from '../lib/hosts'
+import { isYouTubeEmbed, YOUTUBE_EMBED_MATCHES, YOUTUBE_MATCHES } from '../lib/hosts'
 import { normalizeBlocklist } from '@/lib/blocklist'
 import { normalizeUserStyles } from '@/lib/user-styles'
 import type { SettingsSnapshot } from '@/states/settings'
@@ -27,10 +27,16 @@ async function readPayload(): Promise<BridgePayload> {
 }
 
 export default defineContentScript({
-  matches: YOUTUBE_MATCHES,
+  // The embed patterns only add youtube-nocookie.com to the hosts above.
+  matches: [...YOUTUBE_MATCHES, ...YOUTUBE_EMBED_MATCHES],
   runAt: 'document_start',
-  allFrames: false,
+  allFrames: true,
   main() {
+    // Only the frames the page half boots in: the top one and embedded players.
+    if (window !== window.top && !isYouTubeEmbed(location.href)) {
+      return
+    }
+
     let latest: BridgePayload | undefined
 
     const send = (payload: BridgePayload) => {

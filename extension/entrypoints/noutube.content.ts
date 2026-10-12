@@ -4,10 +4,12 @@ import { defineContentScript } from 'wxt/utils/define-content-script'
 import '../lib/page/prelude'
 import '@/content/main'
 import { attachBridge } from '../lib/page/bridge'
-import { YOUTUBE_MATCHES } from '../lib/hosts'
+import { YOUTUBE_EMBED_MATCHES, YOUTUBE_MATCHES } from '../lib/hosts'
 
 export default defineContentScript({
   matches: YOUTUBE_MATCHES,
+  // noutube-embed.content.ts owns the embedded player, in every frame.
+  excludeMatches: YOUTUBE_EMBED_MATCHES,
   // The bundle reaches for `#movie_player`, `ytInitialData` and `fetch`, none of
   // which exist in an isolated world.
   world: 'MAIN',
