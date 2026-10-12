@@ -1,6 +1,6 @@
 import * as BackgroundTask from 'expo-background-task'
 import * as TaskManager from 'expo-task-manager'
-import * as Notifications from 'expo-notifications'
+import type { NotificationResponse } from 'expo-notifications'
 import { syncState, when } from '@legendapp/state'
 import { AppState, Platform } from 'react-native'
 import { changeLanguage, t } from 'i18next'
@@ -12,11 +12,20 @@ import { settings$ } from '@/states/settings'
 import { pushToast } from '@/states/toast'
 import { ui$ } from '@/states/ui'
 
+// F-Droid builds strip the Firebase-backed push token module, so importing
+// expo-notifications throws at startup there. Degrade to in-app toasts instead.
+let Notifications: typeof import('expo-notifications') | null = null
+try {
+  Notifications = require('expo-notifications')
+} catch (error) {
+  console.warn('expo-notifications unavailable:', error)
+}
+
 const TASK_NAME = 'noutube-feed-notifications'
 const CHANNEL_ID = 'feed-videos'
 const isAppActive = () => AppState.currentState === 'active'
 
-Notifications.setNotificationHandler({
+Notifications?.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: !isAppActive(),
     shouldShowList: !isAppActive(),
@@ -50,7 +59,7 @@ async function applyNotificationLanguage() {
 }
 
 async function ensureChannel() {
-  if (Platform.OS === 'android') {
+  if (Notifications && Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
       name: t('feeds.notificationTitle'),
       importance: Notifications.AndroidImportance.DEFAULT,
@@ -64,7 +73,9 @@ export function syncFeedNotificationTask(): Promise<boolean> {
   registration = registration.catch(() => false).then(async () => {
     await when(syncState(settings$).isPersistLoaded)
     let available = false
-    if (settings$.feedNotificationsEnabled.get()) {
+    // Without expo-notifications the opt-in is kept for foreground toasts, but
+    // background delivery stays unavailable.
+    if (Notifications && settings$.feedNotificationsEnabled.get()) {
       const permitted = (await Notifications.getPermissionsAsync()).granted
       if (!permitted) {
         settings$.feedNotificationsEnabled.set(false)
@@ -86,7 +97,7 @@ export function syncFeedNotificationTask(): Promise<boolean> {
 }
 
 export async function setFeedNotificationsEnabled(enabled: boolean): Promise<boolean> {
-  if (enabled) {
+  if (enabled && Notifications) {
     if ((await BackgroundTask.getStatusAsync()) !== BackgroundTask.BackgroundTaskStatus.Available) return false
     await applyNotificationLanguage()
     await ensureChannel()
@@ -117,14 +128,14 @@ export async function notifyFeedVideos(updates: FeedNotificationUpdate[]): Promi
     showFeedToast()
     return
   }
-  if (!backgroundEnabled) return
+  if (!Notifications || !backgroundEnabled) return
   await ensureChannel()
   // The user may have returned to the app while permission/language APIs ran.
   if (isAppActive()) {
     showFeedToast()
     return
   }
-  await Notifications.scheduleNotificationAsync({
+  await Notifications?.scheduleNotificationAsync({
     content: {
       title: t('feeds.notificationTitle'),
       body,
@@ -136,17 +147,19 @@ export async function notifyFeedVideos(updates: FeedNotificationUpdate[]): Promi
 
 let lastResponseId: string | undefined
 export function listenFeedNotifications(openFeed: () => void): () => void {
+  if (!Notifications) return () => {}
+  const notifications = Notifications
   let active = true
-  const handle = (response: Notifications.NotificationResponse | null) => {
-    if (!active || !response || response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) return
+  const handle = (response: NotificationResponse | null) => {
+    if (!active || !response || response.actionIdentifier !== notifications.DEFAULT_ACTION_IDENTIFIER) return
     const { identifier, content } = response.notification.request
     if (content.data?.noutubeFeed !== true || identifier === lastResponseId) return
     lastResponseId = identifier
     openFeed()
-    void Notifications.clearLastNotificationResponseAsync()
+    void notifications.clearLastNotificationResponseAsync()
   }
-  const subscription = Notifications.addNotificationResponseReceivedListener(handle)
-  void Notifications.getLastNotificationResponseAsync().then(handle).catch((error) => console.error('Feed notification response failed:', error))
+  const subscription = notifications.addNotificationResponseReceivedListener(handle)
+  void notifications.getLastNotificationResponseAsync().then(handle).catch((error) => console.error('Feed notification response failed:', error))
   return () => {
     active = false
     subscription.remove()

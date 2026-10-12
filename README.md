@@ -11,7 +11,6 @@ Install from F-Droid, or download APK from GitHub.
       alt="Get it on GitHub"
       hspace="16"
       height="50">](https://github.com/nonbili/NouTube/releases/latest)
-
 [<img src="https://img.shields.io/badge/TestFlight-0D96F6?style=for-the-badge&logo=appstore&logoColor=white"
     alt="Join the iOS beta on TestFlight"
     height="50">](https://testflight.apple.com/join/kkUdF2hV)
