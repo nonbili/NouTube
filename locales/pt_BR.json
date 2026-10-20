@@ -26,7 +26,9 @@
     "updateYtDlp": "Atualizar yt-dlp",
     "updating": "Atualizando…",
     "ytDlpUpdated": "yt-dlp atualizado",
-    "undo": "Desfazer"
+    "undo": "Desfazer",
+    "confirm": "Confirmar",
+    "retry": "Tentar novamente"
   },
   "library": {
     "videos": "Vídeos",
@@ -49,7 +51,10 @@
     "openInNewTab": "Abrir em uma nova guia",
     "moveTo": "Mover para…",
     "duplicateTab": "Duplicar aba",
-    "close": "Fechar"
+    "close": "Fechar",
+    "star": "Favoritar",
+    "unstar": "Desfavoritar",
+    "download": "Download"
   },
   "modals": {
     "editBookmark": "Editar favorito",
@@ -68,12 +73,26 @@
     "playbackSpeed": "Velocidade de reprodução",
     "activeDownloads": "Downloads em andamento",
     "downloadHistory": "Histórico de downloads",
-    "playbackQuality": "Qualidade de reprodução"
+    "playbackQuality": "Qualidade de reprodução",
+    "noFolder": "Sem pasta",
+    "downloadUseCookies": "Aceitar meus cookies",
+    "downloadUseCookiesHint": "Necessário para vídeos com restrição de idade, exclusivos para membros ou privados. Isso pode fazer com que você seja desconectado do YouTube, e usar uma conta dessa forma acarreta o risco de ela ser sinalizada.",
+    "downloadErrorBlocked": "O YouTube recusou esse download. Ele exige um token que o yt-dlp ainda não consegue gerar; portanto, esse vídeo não pode ser baixado por enquanto — a maioria dos outros vídeos ainda funciona.",
+    "downloadErrorSignIn": "O YouTube exige que você esteja conectado para assistir a este vídeo. Ative a opção “Usar meus cookies” e tente novamente.",
+    "downloadErrorFormat": "Esse formato não está mais disponível. Carregue os formatos novamente e escolha outro.",
+    "downloadErrorUnavailable": "Este vídeo não está disponível.",
+    "downloadErrorNetwork": "Não foi possível acessar o YouTube. Verifique sua conexão e tente novamente.",
+    "showAllFormats": "Mostrar todos os formatos",
+    "showFewerFormats": "Mostrar menos formatos",
+    "pinnedFormat": "Fixado",
+    "pinFormat": "Definir como formato padrão",
+    "sharePageUrl": "URL da página",
+    "shareVideoUrl": "URL do vídeo"
   },
   "settings": {
     "label": "Configurações",
     "general": "Geral",
-    "restoreOnStart": "Restaurar a última reprodução ao iniciar",
+    "restoreOnStart": "Restaurar a última sessão ao iniciar",
     "hideShorts": "Oculta Shorts na tela inicial",
     "channelsFeed": "Feed de canais",
     "watchHistory": "Histórico de reprodução",
@@ -107,7 +126,7 @@
     "preferences": "Preferências",
     "preferencesHint": "Comportamento da reprodução, do feed e do histórico.",
     "appearance": "Aparência",
-    "appearanceHint": "Controle a aparência do YouTube dentro do aplicativo.",
+    "appearanceHint": "Barra de ferramentas, idioma e tema.",
     "tools": "Ferramentas",
     "toolsHint": "Gerenciar o ambiente do WebView e outras ferramentas.",
     "transfer": "Importar & Exportar",
@@ -167,6 +186,25 @@
       "label": "Posição da barra de ferramentas",
       "top": "Acima",
       "bottom": "Abaixo"
+    },
+    "preferencesContent": "Conteúdo",
+    "preferencesDistractionFree": "Sem distrações",
+    "preferencesPlayback": "Reprodução e exibição",
+    "preferencesGeneral": "Geral",
+    "zoom": {
+      "label": "Ampliar texto",
+      "defaultLabel": "Ampliar texto",
+      "defaultHint": "Ajuste o tamanho do texto nas páginas do YouTube."
+    },
+    "pullToRefresh": "Puxe para atualizar",
+    "proxy": {
+      "label": "Proxy",
+      "enabled": "Ativar proxy",
+      "type": "Tipo de proxy",
+      "host": "Host do proxy",
+      "port": "Porta do proxy",
+      "hostPlaceholder": "ex. 127.0.0.1 ou proxy.example.com",
+      "portPlaceholder": "ex. 1080"
     }
   },
   "sync": {
@@ -220,7 +258,8 @@
     "emptyTitleWaiting": "Aguardando atualizações do feed",
     "emptyBodyWaiting": "Seus canais salvos estão prontos. Deixe o aplicativo aberto por um tempo ou reabra-o mais tarde, e os vídeos enviados recentemente aparecerão aqui.",
     "removeTitle": "Remover {{title}}?",
-    "removeMessage": "Isso remove o canal da Biblioteca e apaga os vídeos do feed."
+    "removeMessage": "Isso remove o canal da Biblioteca e apaga os vídeos do feed.",
+    "notificationTitle": "Novos vídeos no seu feed"
   },
   "sleepTimer": {
     "hint": "Pause a reprodução após uma duração predefinida ou um valor em minutos definido por você.",
@@ -260,5 +299,16 @@
     "error": "Falha ao buscar atualizações",
     "downloadedTitle": "Download concluído",
     "downloadedHint": "A versão {{version}} foi baixada. Reiniciar agora para instalar?"
+  },
+  "bookmarks": {
+    "removed": "Favorito removido",
+    "moved": "Movido para {{folder}}",
+    "movedToRoot": "Removido da pasta"
+  },
+  "folders": {
+    "removed": "Pasta {{name}} removida"
+  },
+  "history": {
+    "cleared": "Histórico apagado"
   }
 }
