@@ -4,7 +4,10 @@
     "code": "Исходный код",
     "donate": "Пожертвовать",
     "hint": "Информация о версии, обновления, исходный код и ссылки на поддержку.",
-    "updates": "Обновления"
+    "updates": "Обновления",
+    "help": "Справка",
+    "faq": "FAQ",
+    "faqHint": "Ответы на часто задаваемые вопросы"
   },
   "buttons": {
     "clear": "Очистить",
@@ -116,8 +119,8 @@
     "importList": "Импортировать список ссылок",
     "importTakeout": "Импортировать из YouTube takeout",
     "exportLabel": "Экспортировать закладки в CSV-файл",
-    "injectCookie": "Внедрить cookie, если не удается войти через webview",
-    "injectCookieTitle": "Внедрить cookie авторизации в webview",
+    "injectCookie": "Импортировать cookie, если не удалось войти через webview",
+    "injectCookieTitle": "Импортировать cookie авторизации в webview",
     "injectCookieHint": "Скопируйте значение заголовка Cookie из вашего браузера на ПК. Используйте этот способ, если не удается войти с помощью email/пароля.",
     "userAgent": {
       "default": "User-Agent по умолчанию",
@@ -174,7 +177,7 @@
       "nameLabel": "Название",
       "namePlaceholder": "Мой стиль",
       "validation": {
-        "css": "CSS не может быть пустым"
+        "css": "Обязательно укажите CSS"
       },
       "deleteConfirm": "Удалить этот стиль?",
       "copyCss": "Копировать CSS",
@@ -199,7 +202,7 @@
         "deleteConfirm": "Удалить этот скрипт?",
         "noActiveTab": "Нет активного webview",
         "validation": {
-          "js": "JavaScript не может быть пустым"
+          "js": "Обязательно укажите JavaScript"
         },
         "runAtStart": "Выполнять при старте документа",
         "runAtStartHint": "Выполнять до построения DOM, а не после события DOMContentLoaded.",
@@ -331,7 +334,21 @@
     "dynamicColor": {
       "label": "Динамические цвета",
       "hint": "Использовать системную цветовую палитру."
-    }
+    },
+    "feedNotifications": "Уведомления о новых видео в ленте",
+    "feedNotificationsDescription": "Проверка сохраненных каналов в фоновом режиме. Система может задерживать доставку. Принудительное закрытие приложения остановит проверки до его повторного запуска.",
+    "feedNotificationsUnavailable": "Разрешите уведомления и фоновую активность в настройках системы, чтобы включить оповещения из ленты.",
+    "feedNotificationsError": "Не удалось включить уведомления для ленты. Попробуйте снова.",
+    "discord": {
+      "label": "Discord",
+      "enabled": "Показывать, что сейчас играет, в Discord",
+      "hint": "Выполняет вход в ваш аккаунт Discord и отображает воспроизводимое видео или трек в статусе активности. Discord официально не поддерживает эту функцию.",
+      "login": "Войти в Discord",
+      "logout": "Выйти из Discord"
+    },
+    "googleLoginCookieHint": "Вход в аккаунт Google часто не работает в webview. Возможно, потребуется импортировать cookie из браузера, в котором вы уже авторизованы.",
+    "cookieFaq": "Как импортировать cookie",
+    "injectCookieAction": "Импортировать cookie"
   },
   "sync": {
     "label": "Синхронизация",
@@ -391,7 +408,12 @@
     "emptyTitleWaiting": "Ожидание обновлений ленты",
     "emptyBodyWaiting": "Ваши каналы сохранены. Оставьте приложение открытым ненадолго или зайдите позже, и здесь появятся новые видео.",
     "removeTitle": "Удалить {{title}}?",
-    "removeMessage": "Это удалит канал из библиотеки и очистит его видео в ленте."
+    "removeMessage": "Это удалит канал из библиотеки и очистит его видео в ленте.",
+    "notificationTitle": "Новые видео в ленте",
+    "notificationSummary_one": "{{count}} новое видео с {{channels}} каналов",
+    "notificationSummary_other": "{{count}} новых видео с {{channels}} каналов",
+    "notificationBody_one": "{{count}} новое видео от {{channel}}",
+    "notificationBody_other": "{{count}} новых видео от {{channel}}"
   },
   "changelog": {
     "label": "Журнал изменений",

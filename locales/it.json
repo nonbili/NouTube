@@ -4,7 +4,10 @@
     "code": "Codice sorgente",
     "donate": "Dona",
     "updates": "Aggiornamenti",
-    "hint": "Informazioni sulla versione, aggiornamenti, codice sorgente e link di supporto."
+    "hint": "Informazioni sulla versione, aggiornamenti, codice sorgente e link di supporto.",
+    "help": "Aiuto",
+    "faq": "FAQ",
+    "faqHint": "Risposte alle domande più frequenti"
   },
   "changelog": {
     "label": "Registro modifiche",
@@ -408,7 +411,17 @@
     "feedNotifications": "Notifiche di nuovi video nel feed",
     "feedNotificationsDescription": "Controlla i canali salvati in background. Le notifiche potrebbero subire ritardi di sistema. Chiudendo l'app, i controlli riprenderanno solo alla sua riapertura.",
     "feedNotificationsUnavailable": "Per abilitare gli avvisi relativi ai feed, abilita le notifiche e l'attività in background nelle impostazioni di sistema.",
-    "feedNotificationsError": "Impossibile abilitare le notifiche del feed. Riprova."
+    "feedNotificationsError": "Impossibile abilitare le notifiche del feed. Riprova.",
+    "discord": {
+      "label": "Discord",
+      "enabled": "Mostra cosa è in riproduzione su Discord",
+      "hint": "Accede con il tuo account Discord e imposta il video o il brano che stai riproducendo come attività. Discord non supporta ufficialmente questa funzione.",
+      "login": "Accedi a Discord",
+      "logout": "Disconnettiti da Discord"
+    },
+    "googleLoginCookieHint": "L'accesso tramite Google spesso non funziona nella visualizzazione web. Potrebbe essere necessario inserire i cookie da un browser in cui si è effettuato l'accesso.",
+    "cookieFaq": "Come iniettare i cookie",
+    "injectCookieAction": "Inietta cookie"
   },
   "native": {
     "format_bestQuality": "Migliore qualità",

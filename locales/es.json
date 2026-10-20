@@ -37,7 +37,8 @@
     "updating": "Actualizando...",
     "ytDlpUpdated": "yt-dlp está actualizado",
     "undo": "Deshacer",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "confirm": "Confirmar"
   },
   "library": {
     "videos": "Vídeos",
@@ -153,7 +154,12 @@
     "emptyTitleWaiting": "Esperando actualizaciones del feed",
     "emptyBodyWaiting": "Tus canales guardados están listos. Mantén la aplicación abierta un momento o vuelve a abrirla más tarde, y las subidas recientes aparecerán aquí.",
     "removeTitle": "¿Eliminar {{title}}?",
-    "removeMessage": "Esto eliminará el canal de la biblioteca y limpiará sus videos del feed."
+    "removeMessage": "Esto eliminará el canal de la biblioteca y limpiará sus videos del feed.",
+    "notificationTitle": "Nuevos vídeos en tus fuentes",
+    "notificationSummary_one": "{{count}} vídeo nuevo de {{channels}} canales",
+    "notificationSummary_other": "{{count}} videos nuevos de {{channels}} canales",
+    "notificationBody_one": "{{count}} video nuevo de {{channel}}",
+    "notificationBody_other": "{{count}} vídeos nuevos de {{channel}}"
   },
   "settings": {
     "hubHint": "Herramientas de reproducción, sincronización, importación y vista web en un solo lugar.",
@@ -391,6 +397,21 @@
     "blockAds": {
       "label": "Bloquear anuncios",
       "hint": "Desactívalo para permitir los anuncios de YouTube y apoyar a los creadores."
+    },
+    "discord": {
+      "label": "Comunidad",
+      "enabled": "Mostrar reproducción en Discord",
+      "hint": "Inicia sesión con tu cuenta de Discord y muestra tu reproducción como actividad. Discord no admite esto oficialmente.",
+      "login": "Iniciar sesión en Discord",
+      "logout": "Cerrar sesión en Discord"
+    },
+    "feedNotifications": "Notificaciones de nuevos vídeos",
+    "feedNotificationsDescription": "Verifica los canales guardados en segundo plano. La entrega puede retrasarse según el sistema. Forzar el cierre detiene la verificación hasta reabrir la aplicación.",
+    "feedNotificationsUnavailable": "Permite notificaciones y actividad en segundo plano en los ajustes del sistema para activar alertas de tus fuentes.",
+    "feedNotificationsError": "No se pudieron activar las notificaciones. Inténtalo de nuevo.",
+    "dynamicColor": {
+      "label": "Color dinámico",
+      "hint": "Usar la paleta de colores del sistema."
     }
   },
   "native": {
@@ -409,7 +430,24 @@
     "label": "Sincronizar",
     "hint": "Sincroniza marcadores entre tus teléfonos y computadoras como usuario premium.",
     "currentPlan": "Plan actual",
-    "managePlan": "Gestionar plan"
+    "managePlan": "Gestionar plan",
+    "freePlan": "Gratis",
+    "deleteAccount": "Eliminar cuenta",
+    "buy": "Suscribirse con App Store",
+    "restore": "Restaurar compras",
+    "manageIos": "Gestionar en App Store",
+    "purchaseTitle": "Vincular suscripción",
+    "purchaseConfirm": "Se vinculará a {{email}} y activará la sincronización al iniciar sesión con esta cuenta de NouTube.",
+    "priceLoading": "Cargando el precio de App Store...",
+    "purchasePending": "Compra pendiente. La sincronización se activará al aprobarse.",
+    "productUnavailable": "El producto de App Store aún no está disponible.",
+    "noPurchaseToRestore": "No se encontraron compras para restaurar.",
+    "activeViaIos": "Activa mediante App Store",
+    "signOutSwitch": "Cerrar sesión y cambiar de cuenta",
+    "expiresAt": "Se renueva o vence: {{value}}",
+    "legalNotice": "Las suscripciones se renuevan automáticamente a menos que se cancelen. Al suscribirte, aceptas los Términos de uso (EULA) y la Política de privacidad.",
+    "termsOfUse": "Términos de uso (EULA)",
+    "privacyPolicy": "Política de privacidad"
   },
   "update": {
     "check": "Buscar actualizaciones",

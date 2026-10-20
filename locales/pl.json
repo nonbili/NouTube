@@ -4,7 +4,10 @@
     "code": "Kod źródłowy",
     "updates": "Aktualizacje",
     "hint": "Informacje o wersji, aktualizacje, kod źródłowy i linki pomocy technicznej.",
-    "donate": "Darowizna"
+    "donate": "Darowizna",
+    "help": "Pomoc",
+    "faq": "FAQ",
+    "faqHint": "Odpowiedzi na często zadawane pytania"
   },
   "changelog": {
     "label": "Dziennik zmian",
@@ -71,7 +74,7 @@
     "title": "Tytuł",
     "folder": "Folder",
     "ungrouped": "Niepogrupowane",
-    "feeds": "Subskrypcje",
+    "feeds": "Aktualności",
     "history": "Historia",
     "queue": "Kolejka",
     "downloadVideo": "Pobierz wideo",
@@ -163,7 +166,12 @@
     "emptyTitleWaiting": "Oczekiwanie na aktualizacje kanału",
     "emptyBodyWaiting": "Twoje zapisane kanały są gotowe. Pozostaw aplikację otwartą na chwilę lub otwórz ją ponownie później, a ostatnio przesłane pliki pojawią się tutaj.",
     "removeTitle": "Usunąć {{title}}?",
-    "removeMessage": "Spowoduje to usunięcie kanału z biblioteki i wyczyszczenie jego kanałów wideo."
+    "removeMessage": "Spowoduje to usunięcie kanału z biblioteki i wyczyszczenie jego kanałów wideo.",
+    "notificationTitle": "Nowe filmy w Twoim kanale",
+    "notificationSummary_one": "{{count}} nowy film z {{channels}} kanałów",
+    "notificationSummary_other": "{{count}} nowych filmów z {{channels}} kanałów",
+    "notificationBody_one": "{{count}} nowy film z {{channel}}",
+    "notificationBody_other": "{{count}} nowy film z {{channel}}"
   },
   "settings": {
     "label": "Ustawienia",
@@ -405,7 +413,21 @@
     "dynamicColor": {
       "label": "Dynamiczny kolor",
       "hint": "Użyj systemowej palety kolorów."
-    }
+    },
+    "feedNotifications": "Powiadomienia o nowych filmach na kanale",
+    "feedNotificationsDescription": "Sprawdzaj zapisane kanały w tle. System może opóźnić dostarczanie powiadomień. Wymuszenie zatrzymania aplikacji wstrzyma sprawdzanie do momentu jej ponownego otwarcia.",
+    "feedNotificationsUnavailable": "Zezwól na powiadomienia i aktywność w tle w ustawieniach systemowych, aby włączyć alerty z kanałów.",
+    "feedNotificationsError": "Nie udało się włączyć powiadomień z kanałów. Spróbuj ponownie.",
+    "discord": {
+      "label": "Discord",
+      "enabled": "Pokazuj w Discordzie, czego słuchasz",
+      "hint": "Loguje się za pomocą Twojego konta Discord i ustawia odtwarzany film lub utwór jako Twoją aktywność. Discord nie wspiera tego oficjalnie.",
+      "login": "Zaloguj się do Discorda",
+      "logout": "Wyloguj się z Discorda"
+    },
+    "googleLoginCookieHint": "Logowanie przez Google często nie działa w widoku webview. Może być konieczne wstrzyknięcie plików cookie z przeglądarki, w której jesteś zalogowany(-a).",
+    "cookieFaq": "Jak wstrzykiwać pliki cookie",
+    "injectCookieAction": "Wstrzyknij pliki cookie"
   },
   "native": {
     "format_bestQuality": "Najlepsza jakość",

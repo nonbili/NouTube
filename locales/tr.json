@@ -4,7 +4,10 @@
     "code": "Kaynak kodu",
     "donate": "Bağış yap",
     "updates": "Güncellemeler",
-    "hint": "Sürüm bilgisi, güncellemeler, kaynak kodu ve destek bağlantıları."
+    "hint": "Sürüm bilgisi, güncellemeler, kaynak kodu ve destek bağlantıları.",
+    "help": "Yardım",
+    "faq": "SSS",
+    "faqHint": "Sık sorulan soruların yanıtları"
   },
   "changelog": {
     "label": "Değişiklik Günlüğü",
@@ -163,7 +166,12 @@
     "emptyTitleWaiting": "Akış güncellemeleri bekleniyor",
     "emptyBodyWaiting": "Kaydedilen kanallarınız hazır. Uygulamayı bir süre açık tutun veya daha sonra tekrar açın; son yüklemeler burada görünecektir.",
     "removeTitle": "{{title}} kaldırılsın mı?",
-    "removeMessage": "Bu işlem kanalı Kitaplık'tan kaldırır ve akış videolarını temizler."
+    "removeMessage": "Bu işlem kanalı Kitaplık'tan kaldırır ve akış videolarını temizler.",
+    "notificationTitle": "Akışınızdaki yeni videolar",
+    "notificationSummary_one": "{{channels}} kanaldan {{count}} yeni video",
+    "notificationSummary_other": "{{channels}} kanaldan {{count}} yeni video",
+    "notificationBody_one": "{{channel}} kanalından {{count}} yeni video",
+    "notificationBody_other": "{{channel}} kanalından {{count}} yeni video"
   },
   "settings": {
     "label": "Ayarlar",
@@ -405,7 +413,21 @@
     "dynamicColor": {
       "label": "Değişken renk",
       "hint": "Sistem renk paletini kullan."
-    }
+    },
+    "feedNotifications": "Yeni akış videosu bildirimleri",
+    "feedNotificationsDescription": "Kaydedilen kanalları arka planda denetleyin. Sistem nedeniyle işlem gecikebilir. Zorla çıkış yaparsanız, uygulamayı yeniden açana kadar denetimler durur.",
+    "feedNotificationsUnavailable": "Akış uyarılarını etkinleştirmek için sistem ayarlarından bildirimlere ve arka planda çalışmaya izin verin.",
+    "feedNotificationsError": "Akış bildirimleri etkinleştirilemedi. Lütfen tekrar deneyin.",
+    "discord": {
+      "label": "Discord",
+      "enabled": "Discord'da neyin oynatıldığını göster",
+      "hint": "Discord hesabınızla oturum açar ve oynattığınız videoyu veya şarkıyı etkinlik olarak belirler. Discord bu özelliği resmi olarak desteklemez.",
+      "login": "Discord'da oturum aç",
+      "logout": "Discord oturumunu kapat"
+    },
+    "googleLoginCookieHint": "Google ile oturum açma işlemi, web görünümünde genellikle çalışmaz. Oturum açtığınız bir tarayıcıdan çerezleri enjekte etmeniz gerekebilir.",
+    "cookieFaq": "Çerezler nasıl enjekte edilir",
+    "injectCookieAction": "Çerez enjekte et"
   },
   "native": {
     "format_bestQuality": "En iyi kalite",
