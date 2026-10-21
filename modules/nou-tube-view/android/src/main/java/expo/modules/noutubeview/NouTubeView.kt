@@ -186,9 +186,8 @@ class NouWebView @JvmOverloads constructor(context: Context, attrs: AttributeSet
   }
 
   // The user agent string passes for Chrome, but the client hints (Sec-CH-UA and
-  // navigator.userAgentData) still announce "Android WebView", and YouTube holds
-  // its page UI back for about 7 seconds for WebView clients -- the video plays
-  // on a black page meanwhile. Report the same Chrome identity there as well.
+  // navigator.userAgentData) would still announce "Android WebView" and give it
+  // away. Report the same Chrome identity there as well.
   fun setUserAgent(ua: String) {
     settings.setUserAgentString(ua)
     if (!WebViewFeature.isFeatureSupported(WebViewFeature.USER_AGENT_METADATA)) {
