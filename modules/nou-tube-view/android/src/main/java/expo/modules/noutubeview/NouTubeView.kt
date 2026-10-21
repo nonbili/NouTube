@@ -46,6 +46,9 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.webkit.UserAgentMetadata
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewFeature
 import androidx.window.layout.WindowInfoTracker
 import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.viewevent.EventDispatcher
@@ -180,6 +183,29 @@ class NouWebView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     // https://stackoverflow.com/a/64564676
     setFocusable(true)
     setFocusableInTouchMode(true)
+  }
+
+  // The user agent string passes for Chrome, but the client hints (Sec-CH-UA and
+  // navigator.userAgentData) still announce "Android WebView", and YouTube holds
+  // its page UI back for about 7 seconds for WebView clients -- the video plays
+  // on a black page meanwhile. Report the same Chrome identity there as well.
+  fun setUserAgent(ua: String) {
+    settings.setUserAgentString(ua)
+    if (!WebViewFeature.isFeatureSupported(WebViewFeature.USER_AGENT_METADATA)) {
+      return
+    }
+    val metadata = WebSettingsCompat.getUserAgentMetadata(settings)
+    val brands = metadata.brandVersionList.map { brand ->
+      if (brand.brand == "Android WebView") {
+        UserAgentMetadata.BrandVersion.Builder(brand).setBrand("Google Chrome").build()
+      } else {
+        brand
+      }
+    }
+    WebSettingsCompat.setUserAgentMetadata(
+      settings,
+      UserAgentMetadata.Builder(metadata).setBrandVersionList(brands).build(),
+    )
   }
 
   suspend fun eval(script: String): String? = suspendCancellableCoroutine { cont ->
