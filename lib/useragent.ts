@@ -1,4 +1,4 @@
-const chromeVersion = 150
+const chromeVersion = 155
 const safariVersion = '17.6'
 
 // WebKit only keeps a YouTube stream alive past its first minute when YouTube
