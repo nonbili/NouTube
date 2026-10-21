@@ -35,14 +35,19 @@ function stripAdKeys(data: any) {
   return data
 }
 
-export function transformPlayerResponse(text: string, _blocklist?: BlocklistSnapshot, options: TransformOptions = {}) {
-  const data = JSON.parse(text)
+/* A player response wherever it comes from: a request the page made, or the one
+ * the watch page embeds for its first video (see content/intercept.ts). */
+export function filterPlayerResponse(data: any, options: TransformOptions = {}) {
   if (blocksAds(options)) {
     stripAdKeys(data)
   }
   applyPlayerResponseOriginalTitle(data, options)
   rewriteOriginalTitles(data, options)
-  return JSON.stringify(data)
+  return data
+}
+
+export function transformPlayerResponse(text: string, _blocklist?: BlocklistSnapshot, options: TransformOptions = {}) {
+  return JSON.stringify(filterPlayerResponse(JSON.parse(text), options))
 }
 
 export function transformSearchResponse(text: string, blocklist?: BlocklistSnapshot, options: TransformOptions = {}) {

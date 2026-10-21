@@ -1,6 +1,7 @@
 import {
   RE_INTERCEPT,
   filterListResponse,
+  filterPlayerResponse,
   transformBrowseResponse,
   transformGetWatchResponse,
   transformPlayerResponse,
@@ -25,6 +26,31 @@ export function intercept() {
         console.error('NouScript initialData:', error)
       }
       initialData = value
+    },
+    configurable: true,
+  })
+
+  // The watch page embeds its first player response as well. Left alone, its ad
+  // placements reach the player, which then goes after ads the native side
+  // blocks. Filtered on the way in, and once more in case this script landed
+  // after the page had already set it.
+  const filterInitialPlayerResponse = (value: any) => {
+    try {
+      if (value && typeof value === 'object') {
+        filterPlayerResponse(value, { blockAds: adsBlocked() })
+      }
+    } catch (error) {
+      console.error('NouScript initialPlayerResponse:', error)
+    }
+    return value
+  }
+  let initialPlayerResponse = filterInitialPlayerResponse((window as any).ytInitialPlayerResponse)
+  Object.defineProperty(window, 'ytInitialPlayerResponse', {
+    get() {
+      return initialPlayerResponse
+    },
+    set(value) {
+      initialPlayerResponse = filterInitialPlayerResponse(value)
     },
     configurable: true,
   })
