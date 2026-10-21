@@ -62,7 +62,9 @@ export function intercept() {
     const request = args[0]
     const url = request instanceof Request ? request.url : request.toString()
     let res = await winFetch(...args)
-    const match = new URL(url).pathname.match(RE_INTERCEPT)
+    // Relative to the page, as fetch itself resolves it: without a base a relative
+    // url throws here and turns a response that arrived fine into a rejection.
+    const match = new URL(url, location.origin).pathname.match(RE_INTERCEPT)
     const blocklist = window.NouTube?.getBlocklist?.()
     const settings = window.NouTube?.getSettings?.()
     const options = {
