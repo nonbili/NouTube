@@ -18,8 +18,14 @@ import { installSystemCaptionStyle } from './captions'
 import { installEncodedAuthorNameFix } from './author-names'
 import { guardMediaSessionHandlers, installBackgroundGuard } from './background-guard'
 import { installSplitView, navigateWatch, setMuted, setNativeMini } from './split-view'
+import { installIdleCallbackShim } from './idle-callback'
 
 try {
+  // First of all: YouTube's scripts schedule idle work as soon as they run.
+  if (window.isAndroid) {
+    installIdleCallbackShim()
+  }
+
   if ((window as any).NouTubePreferH264) {
     installH264ify()
   }
