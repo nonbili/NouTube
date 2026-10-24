@@ -418,8 +418,17 @@ document.addEventListener(
   true,
 )
 
+// The WebView fakes its visibility, so visibilityState stays 'visible' in the
+// background; NouTubeBackground is the real state. Entering fullscreen while
+// backgrounded attaches the player to a stopped activity and playback stops
+// (#402).
 screen.orientation.addEventListener('change', (event) => {
-  if (window.NouTubePip || document.location.pathname != '/watch' || document.visibilityState != 'visible') {
+  if (
+    window.NouTubePip ||
+    window.NouTubeBackground ||
+    document.location.pathname != '/watch' ||
+    document.visibilityState != 'visible'
+  ) {
     return
   }
 

@@ -550,8 +550,14 @@ class NouService : Service() {
       )
     if (thumbnail != "") {
       scope.launch {
-        val stream = URL(thumbnail).openStream()
-        val largeIcon = BitmapFactory.decodeStream(stream)
+        // A thumbnail that fails to load (404, offline) only costs the album
+        // art; uncaught here it would take the whole app down.
+        val largeIcon = try {
+          URL(thumbnail).openStream().use { BitmapFactory.decodeStream(it) }
+        } catch (e: Exception) {
+          nouController.log("notify thumbnail failed: ${e.message}")
+          return@launch
+        }
         val metadata = metadataBuilder.putBitmap(
           MediaMetadataCompat.METADATA_KEY_ALBUM_ART,
           largeIcon
