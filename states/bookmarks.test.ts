@@ -57,6 +57,44 @@ describe('bookmarks$', () => {
     expect(bookmarks$.bookmarks.get().find((x) => x.id === bookmark.id)?.json.deleted).toBe(false)
   })
 
+  it('does not add a channel twice under another spelling', () => {
+    const channel = newBookmark({ url: 'https://m.youtube.com/@deadp47', json: { id: 'UCdupechannel' } })
+    bookmarks$.addBookmark(channel)
+    const size = bookmarks$.bookmarks.length
+
+    bookmarks$.toggleBookmark(newBookmark({ url: 'https://www.youtube.com/deadp47', json: { id: 'UCdupechannel' } }))
+    bookmarks$.addBookmark(newBookmark({ url: 'https://m.youtube.com/@DeadP47/videos' }))
+
+    expect(bookmarks$.bookmarks.length).toBe(size)
+    expect(bookmarks$.bookmarks.get().find((x) => x.id === channel.id)?.json.deleted).toBeFalsy()
+  })
+
+  it('keeps a live channel over restoring its deleted legacy url', () => {
+    const live = newBookmark({ url: 'https://m.youtube.com/@livechan', json: { id: 'UClivechannel' } })
+    const legacy = newBookmark({ url: 'https://m.youtube.com/livechan', json: { id: 'UClivechannel', deleted: true } })
+    bookmarks$.bookmarks.unshift(legacy, live)
+
+    bookmarks$.addBookmark(newBookmark({ url: legacy.url, json: { id: 'UClivechannel' } }))
+    bookmarks$.toggleBookmark(newBookmark({ url: legacy.url, json: { id: 'UClivechannel' } }))
+
+    const byId = (id: string) => bookmarks$.bookmarks.get().find((x) => x.id === id)
+    expect(byId(live.id)?.json.deleted).toBeFalsy()
+    expect(byId(legacy.id)?.json.deleted).toBe(true)
+  })
+
+  it('does not import a channel twice from one batch', () => {
+    const size = bookmarks$.bookmarks.length
+
+    bookmarks$.importBookmarks([
+      newBookmark({ url: 'https://m.youtube.com/@batchchan', json: { id: 'UCbatchchannel' } }),
+      newBookmark({ url: 'https://m.youtube.com/channel/UCbatchchannel', json: { id: 'UCbatchchannel' } }),
+      newBookmark({ url: 'https://www.youtube.com/@BatchChan/videos' }),
+      newBookmark({ url: 'https://m.youtube.com/channel/UCbatchchannel' }),
+    ])
+
+    expect(bookmarks$.bookmarks.length).toBe(size + 1)
+  })
+
   it('does not add a bookmark when removing an unknown URL', () => {
     const unknown = newBookmark({ url: 'https://www.youtube.com/watch?v=unknown123' })
     const size = bookmarks$.bookmarks.length

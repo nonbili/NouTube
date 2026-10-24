@@ -89,5 +89,13 @@ export function getBookmarkKey(url: string) {
     return `https://${host}/${segments[0] || 'playlist'}?list=${listId}`
   }
   const tail = segments.length > 1 && channelTabs.has(segments[segments.length - 1]) ? segments.slice(0, -1) : segments
+  // Handles are case-insensitive: @Name and @name are the same channel.
+  if (tail[0]?.startsWith('@')) {
+    let handle = tail[0]
+    try {
+      handle = decodeURIComponent(handle)
+    } catch {}
+    tail[0] = handle.toLowerCase()
+  }
   return `https://${host}/${tail.join('/')}`
 }

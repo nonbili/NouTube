@@ -50,6 +50,15 @@ const getBookmarksByKey = (url: string): Observable<Bookmark>[] => {
   return bookmarks$.bookmarks.filter((x) => getBookmarkKey(x.url.get()) == key)
 }
 
+// A channel reaches us under spellings no key can tie together, like a legacy
+// /name url and its @handle, so its id is the other way to find it.
+const getBookmarksByChannelId = (id: string | undefined): Observable<Bookmark>[] => {
+  if (!id) {
+    return []
+  }
+  return bookmarks$.bookmarks.filter((x) => x.json.id.get() == id)
+}
+
 const setDeleted = (bookmark: Observable<Bookmark>, deleted: boolean) => {
   bookmark.assign({
     updated_at: new Date(),
@@ -75,17 +84,17 @@ export const bookmarks$ = observable<Store>({
       // Every live entry for the page, or the star would come straight back on
       // the duplicate that unstarring left behind.
       batch(() => active.forEach((x) => setDeleted(x, true)))
-    } else if (matches.length) {
-      setDeleted(matches[0], false)
     } else {
-      bookmark.url = normalizeUrl(bookmark.url)
-      bookmarks$.bookmarks.unshift(bookmark)
+      // Restores a deleted entry, unless the channel is live under another url.
+      bookmarks$.addBookmark(bookmark)
     }
     bookmarks$.setUpdatedTime()
   },
   addBookmark: (bookmark) => {
     bookmark.url = normalizeUrl(bookmark.url)
-    const existing = bookmarks$.getBookmarkByUrl(bookmark.url)
+    const matches = [...getBookmarksByKey(bookmark.url), ...getBookmarksByChannelId(bookmark.json.id)]
+    // A live entry under either match wins over restoring a deleted one.
+    const existing = matches.find((x) => !x.json.deleted.get()) ?? matches[0]
     if (!existing) {
       bookmarks$.bookmarks.unshift(bookmark)
       bookmarks$.setUpdatedTime()
@@ -110,12 +119,28 @@ export const bookmarks$ = observable<Store>({
       return 0
     }
     const bookmarkUrls = getBookmarkUrls()
+    const channelIds = new Set(
+      bookmarks$.bookmarks
+        .get()
+        .filter((x) => !x.json.deleted && x.json.id)
+        .map((x) => x.json.id),
+    )
     const xs = bookmarks
       .map((x) => {
         x.url = normalizeUrl(x.url)
         return x
       })
-      .filter((x) => !bookmarkUrls.has(getBookmarkKey(x.url)))
+      .filter((x) => {
+        const key = getBookmarkKey(x.url)
+        const known = bookmarkUrls.has(key) || (!!x.json.id && channelIds.has(x.json.id))
+        // The batch can repeat itself too, and a skipped entry is still an
+        // alias for the channel it matched.
+        bookmarkUrls.add(key)
+        if (x.json.id) {
+          channelIds.add(x.json.id)
+        }
+        return !known
+      })
     bookmarks$.bookmarks.unshift(...xs)
     bookmarks$.setUpdatedTime()
     return xs.length

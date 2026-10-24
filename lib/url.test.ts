@@ -54,6 +54,11 @@ describe('getBookmarkKey', () => {
     expect(getBookmarkKey('https://m.youtube.com/@name/')).toBe('https://m.youtube.com/@name')
   })
 
+  it('keys a handle regardless of its case', () => {
+    expect(getBookmarkKey('https://m.youtube.com/@Maple-Circuit')).toBe('https://m.youtube.com/@maple-circuit')
+    expect(getBookmarkKey('https://www.youtube.com/@NAME/videos')).toBe(getBookmarkKey('https://m.youtube.com/@name'))
+  })
+
   it('survives what is not a url', () => {
     expect(getBookmarkKey('')).toBe('')
     expect(getBookmarkKey('not a url')).toBe('not a url')
