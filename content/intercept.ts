@@ -11,6 +11,12 @@ import {
 
 const adsBlocked = () => window.NouTube?.getSettings?.()?.blockAds !== false
 
+// The embedded player response gets the same treatment as a fetched one below.
+const playerOptions = () => ({
+  showOriginalVideoTitle: Boolean(window.NouTube?.getSettings?.()?.showOriginalVideoTitle),
+  blockAds: adsBlocked(),
+})
+
 export function intercept() {
   // Intercept initial page data (server-rendered in script tags)
   let initialData = (window as any).ytInitialData
@@ -37,7 +43,7 @@ export function intercept() {
   const filterInitialPlayerResponse = (value: any) => {
     try {
       if (value && typeof value === 'object') {
-        filterPlayerResponse(value, { blockAds: adsBlocked() })
+        filterPlayerResponse(value, playerOptions())
       }
     } catch (error) {
       console.error('NouScript initialPlayerResponse:', error)
