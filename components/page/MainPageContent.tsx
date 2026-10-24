@@ -894,7 +894,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   // The player webview is mounted for the whole session once the split is on,
   // not created on the first video: building a WebView and its renderer is a
   // visible chunk of how long that first video takes to appear. It preloads
-  // YouTube's home page at startup; closing a video later leaves about:blank.
+  // YouTube's home page at startup, and again whenever a video is closed.
   // Registering it hands over any video that was asked for before it attached.
   useEffect(() => {
     if (isWeb) {
@@ -1140,7 +1140,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         useragent={userAgent}
         pullToRefreshEnabled={false}
         textZoom={defaultZoom}
-        scriptOnStart={`window.isAndroid = true;\n${splitRolePrelude(splitWatchView, 'player', playerMini)}window.NouTubePlayerWarmup = ${!playerUrl};\n${preludeJs}\n${contentJs}`}
+        scriptOnStart={`window.isAndroid = true;\n${splitRolePrelude(splitWatchView, 'player', playerMini)}window.NouTubePlayerWarmup = window.NouTubePlayerWarmup || ${!playerUrl};\n${preludeJs}\n${contentJs}`}
         userScriptsOnStart={userScriptsOnStart}
         onLoad={onPlayerLoad}
         onMessage={onPlayerMessage}

@@ -3,7 +3,9 @@ import { NativeModule, requireNativeModule } from 'expo'
 declare class NouTubeViewModule extends NativeModule {
   executeJavaScript(script: string): Promise<string>
   executeJavaScriptAsync(script: string): Promise<string>
-  loadUrl(url: string): void
+  /* `startScript` runs as this one document starts, ahead of scriptOnStart.
+   * Android only. */
+  loadUrl(url: string, startScript?: string): void
   goBack(): Promise<void>
   /* Point the media notification and the system media controls at this view.
    * Only meaningful with more than one view alive (see lib/split-view.ts). */

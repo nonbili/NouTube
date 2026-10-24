@@ -252,6 +252,18 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
   private var scriptOnStart = ""
   private var userScriptsOnStart: List<String> = emptyList()
+  // Belongs to the one load it was handed with (see loadUrl), run ahead of
+  // scriptOnStart. React props reach this view on their own schedule, so a
+  // load that needs the page set up a certain way cannot rely on them. Kept
+  // for that url until it finishes cleanly, so the automatic retries of a
+  // failed load (see onReceivedError) start the same way.
+  private var loadScript = ""
+  private var loadScriptUrl: String? = null
+
+  private fun clearLoadScript() {
+    loadScript = ""
+    loadScriptUrl = null
+  }
 
   // addJavascriptInterface hands NouTubeI to every frame, ad iframes included,
   // and gives no way to tell them apart. This token is only ever evaluated into
@@ -521,10 +533,15 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
               loadRetryCount = 0
               loadRetryUrl = null
             }
+            // A load script is only for the url it was handed with: anything
+            // else -- a redirect, a page of the site's own -- is not its load.
+            if (url != loadScriptUrl) {
+              clearLoadScript()
+            }
             // NouTubeBackground must survive navigations (the queue advances in
             // the background), so seed every new document with the current value.
             evaluateJavascript(
-              "window.NouTubeToken = '$bridgeToken';window.NouTubeBackground = $isWindowInBackground;$scriptOnStart",
+              "window.NouTubeToken = '$bridgeToken';window.NouTubeBackground = $isWindowInBackground;$loadScript$scriptOnStart",
               null
             )
             // Each user script is its own compilation unit: a syntax error in
@@ -535,6 +552,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
           override fun onPageFinished(view: WebView, url: String) {
             swipeRefreshLayout.isRefreshing = false
             if (!hasLoadError) {
+              clearLoadScript()
               loadRetryCount = 0
               loadRetryUrl = null
               if (loadErrorShown) {
@@ -866,6 +884,14 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     activeServiceConnection = connection
 
     orientationListener = NouOrientationListener(activity, this)
+  }
+
+  // Any load clears what an earlier one was handed, whether or not it got as far
+  // as starting.
+  fun loadUrl(url: String, startScript: String?) {
+    loadScript = startScript.orEmpty()
+    loadScriptUrl = if (startScript.isNullOrEmpty()) null else url
+    webView.loadUrl(url)
   }
 
   fun setScriptOnStart(script: String) {

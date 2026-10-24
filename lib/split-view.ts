@@ -80,6 +80,14 @@ export function setPlayerWebview(webview: any) {
   }
 }
 
+// The page the idle player waits on: YouTube's home, muted, with its router
+// up so the next video is an in-page navigation (see loadIntoPlayer). The
+// warmup flag travels with the load itself: the scriptOnStart prop follows
+// playerUrl only once React has re-rendered, and a home page started with the
+// stale one would play out loud and step its history back to the closed video.
+const WARM_URL = 'https://m.youtube.com/'
+const WARM_SCRIPT = 'window.NouTubePlayerWarmup = true;'
+
 /* Load YouTube's shell before the first video is requested. A blank WebView
  * warms the renderer, but leaves all of the site's startup work for that tap.
  * Use the same load token as videos so a delayed warmup cannot replace one. */
@@ -87,7 +95,7 @@ export function warmPlayerWebview() {
   if (!playerWebview || ui$.playerUrl.get() || pendingPlayerUrl) {
     return
   }
-  loadPlayerUrl(playerWebview, 'https://m.youtube.com/', ++playerLoadToken)
+  loadPlayerUrl(playerWebview, WARM_URL, ++playerLoadToken, WARM_SCRIPT)
 }
 
 /* A load starts the page over, so the mini presentation has to be re-applied --
@@ -148,22 +156,24 @@ export function openInBrowse(url: string) {
 /* A player load, retried while the webview it belongs to is still coming up
  * (see retryNativeViewCall) and abandoned once a newer load, a teardown or a
  * replaced webview has made it stale. */
-function loadPlayerUrl(webview: any, url: string, token: number) {
+function loadPlayerUrl(webview: any, url: string, token: number, startScript?: string) {
   retryNativeViewCall(
-    () => webview.loadUrl?.(url),
+    () => (startScript ? webview.loadUrl?.(url, startScript) : webview.loadUrl?.(url)),
     () => token !== playerLoadToken || playerWebview !== webview,
   )
 }
 
-/* Tear the video down for good. The webview itself stays for the next one --
- * it is kept warm on purpose -- so it has to be emptied rather than dropped,
- * or it would go on playing with nothing on screen to stop it. */
+/* Tear the video down for good. The webview itself stays for the next one, so
+ * it has to be emptied rather than dropped, or it would go on playing with
+ * nothing on screen to stop it. It is emptied onto the warm home page rather
+ * than about:blank: a blank page leaves the next video a full cold load, while
+ * from home it is an in-page navigation. Home loads muted (see WARM_SCRIPT). */
 export function closePlayer() {
   pausePlayer()
   pendingPlayerUrl = ''
   playerLoadToken++
   // Through applyPlayerMode rather than setting the mode directly: the page has
-  // to be told to drop the mini layout even when the about:blank load below
+  // to be told to drop the mini layout even when the load below
   // never happens, or it is left stripped down to a fixed full-viewport player.
   applyPlayerMode('hidden')
   ui$.playerUrl.set('')
@@ -171,7 +181,7 @@ export function closePlayer() {
   // Through the retrying load: emptying it is what stops the audio, so it has
   // to survive a webview that has not come up yet just as a video does.
   if (playerWebview) {
-    loadPlayerUrl(playerWebview, 'about:blank', playerLoadToken)
+    loadPlayerUrl(playerWebview, WARM_URL, playerLoadToken, WARM_SCRIPT)
   }
   syncForegroundWebview()
 }

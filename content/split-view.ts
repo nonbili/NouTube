@@ -164,6 +164,11 @@ export function navigateWatch(url: string) {
   }
   try {
     const target = new URL(url, location.href)
+    // The router only takes same-origin links: a www.youtube.com link on
+    // m.youtube.com would be a full cold load of the watch page instead.
+    if (isWatch(target)) {
+      target.host = location.host
+    }
     const anchor = document.createElement('a')
     anchor.href = target.href
     anchor.style.display = 'none'

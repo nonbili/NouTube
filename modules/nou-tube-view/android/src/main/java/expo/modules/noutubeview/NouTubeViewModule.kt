@@ -343,8 +343,8 @@ class NouTubeViewModule : Module() {
         }
       }
 
-      AsyncFunction("loadUrl") { view: NouTubeView, url: String ->
-        view.webView.loadUrl(url)
+      AsyncFunction("loadUrl") { view: NouTubeView, url: String, startScript: String? ->
+        view.loadUrl(url, startScript)
       }
 
       AsyncFunction("claimMediaSession") { view: NouTubeView ->

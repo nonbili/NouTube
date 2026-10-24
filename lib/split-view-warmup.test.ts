@@ -128,3 +128,23 @@ describe('player document warmup', () => {
     ])
   })
 })
+
+describe('navigateWatch', () => {
+  afterEach(() => {
+    content.setMuted(false)
+    restoreGlobals()
+  })
+
+  // The router only takes same-origin links; a www link is a cold load.
+  it('opens a watch link from another YouTube host on the page host', () => {
+    const page = browser('https://m.youtube.com/')
+    const clicked: string[] = []
+    Object.assign(page.document, {
+      createElement: () => ({ style: {}, href: '', click() { clicked.push(this.href) }, remove() {} }),
+      body: { appendChild() {} },
+    })
+
+    expect(content.navigateWatch('https://www.youtube.com/watch?v=abc123&t=42s')).toBe(true)
+    expect(clicked).toEqual(['https://m.youtube.com/watch?v=abc123&t=42s'])
+  })
+})

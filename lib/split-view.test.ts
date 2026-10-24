@@ -19,10 +19,16 @@ import {
 const fakePlayer = () => {
   const loaded: string[] = []
   const scripts: string[] = []
+  // The start script each load was handed, in step with loaded.
+  const startScripts: (string | undefined)[] = []
   return {
     loaded,
     scripts,
-    loadUrl: (url: string) => loaded.push(url),
+    startScripts,
+    loadUrl: (url: string, startScript?: string) => {
+      loaded.push(url)
+      startScripts.push(startScript)
+    },
     executeJavaScript: (script: string) => {
       scripts.push(script)
       return Promise.resolve('')
@@ -169,12 +175,15 @@ describe('openInPlayer', () => {
     expect(player.loaded).toEqual(['https://m.youtube.com/watch?v=early12345'])
   })
 
-  it('empties the kept-warm webview when the video is closed', () => {
+  it('empties the kept-warm webview onto the warm home page when the video is closed', () => {
     const player = fakePlayer()
     setPlayerWebview(player)
     openInPlayer('https://m.youtube.com/watch?v=abc123')
     closePlayer()
-    expect(player.loaded.at(-1)).toBe('about:blank')
+    expect(player.loaded.at(-1)).toBe('https://m.youtube.com/')
+    // Muted from its first script, whatever the scriptOnStart prop still says.
+    expect(player.startScripts.at(-1)).toContain('NouTubePlayerWarmup = true')
+    expect(player.startScripts[0]).toBeUndefined()
   })
 })
 
@@ -191,6 +200,7 @@ describe('player warmup', () => {
     setPlayerWebview(player)
     warmPlayerWebview()
     expect(player.loaded).toEqual(['https://m.youtube.com/'])
+    expect(player.startScripts[0]).toContain('NouTubePlayerWarmup = true')
     expect(ui$.playerUrl.get()).toBe('')
     expect(ui$.playerMode.get()).toBe('hidden')
   })
@@ -216,6 +226,26 @@ describe('player warmup', () => {
     await Promise.resolve()
     expect(player.scripts.some((script) => script.includes('navigateWatch'))).toBe(true)
     expect(player.loaded).toEqual(['https://m.youtube.com/'])
+  })
+
+  // Closing a video used to leave about:blank, and every video after it paid a
+  // full cold load of the watch page.
+  it('uses the router again for the video after a closed one', async () => {
+    const player = fakePlayer()
+    player.executeJavaScript = (script) => {
+      player.scripts.push(script)
+      return Promise.resolve('navigated')
+    }
+    setPlayerWebview(player)
+    openInPlayer('https://m.youtube.com/watch?v=first12345')
+    setSplitPageUrl('player', 'https://m.youtube.com/watch?v=first12345')
+    closePlayer()
+    setSplitPageUrl('player', 'https://m.youtube.com/')
+    player.scripts.length = 0
+    openInPlayer('https://m.youtube.com/watch?v=second1234')
+    await Promise.resolve()
+    expect(player.scripts.some((script) => script.includes('second1234'))).toBe(true)
+    expect(player.loaded.at(-1)).toBe('https://m.youtube.com/')
   })
 
   it('falls back to a document load if the warmup bridge is not ready', async () => {
@@ -352,7 +382,7 @@ describe('setSplitPageUrl', () => {
 
     expect(ui$.playerUrl.get()).toBe('')
     expect(ui$.playerMode.get()).toBe('hidden')
-    expect(player.loaded.at(-1)).toBe('about:blank')
+    expect(player.loaded.at(-1)).toBe('https://m.youtube.com/')
     // No video left to own the audio, so the browsing side takes it back.
     expect(browse.scripts.at(-1)).toContain('setMuted?.(false)')
   })
@@ -368,7 +398,7 @@ describe('setSplitPageUrl', () => {
 
     expect(ui$.playerUrl.get()).toBe('https://m.youtube.com/watch?v=abc123')
     expect(ui$.playerMode.get()).toBe('mini')
-    expect(player.loaded).not.toContain('about:blank')
+    expect(player.loaded).not.toContain('https://m.youtube.com/')
   })
 
   it('has nothing to tear down on YouTube Music without a video', () => {
