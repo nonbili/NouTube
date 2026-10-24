@@ -5,7 +5,9 @@ import enText from '@/locales/en.json'
 import deText from '@/locales/de.json'
 import esText from '@/locales/es.json'
 import frText from '@/locales/fr.json'
+import glText from '@/locales/gl.json'
 import idText from '@/locales/id.json'
+import itText from '@/locales/it.json'
 import jaText from '@/locales/ja.json'
 import plText from '@/locales/pl.json'
 import ptText from '@/locales/pt.json'
@@ -18,7 +20,7 @@ import zhHansText from '@/locales/zh_Hans.json'
 import zhHantText from '@/locales/zh_Hant.json'
 import type { Locale } from 'expo-localization'
 
-export const supportedI18nLanguages = ['de', 'en', 'es', 'fr', 'id', 'ja', 'pl', 'pt', 'pt_BR', 'ru', 'tr', 'uk', 'vi', 'zh_Hans', 'zh_Hant'] as const
+export const supportedI18nLanguages = ['de', 'en', 'es', 'fr', 'gl', 'id', 'it', 'ja', 'pl', 'pt', 'pt_BR', 'ru', 'tr', 'uk', 'vi', 'zh_Hans', 'zh_Hant'] as const
 export type SupportedI18nLanguage = (typeof supportedI18nLanguages)[number]
 
 export const i18nLanguageNativeNames: Record<SupportedI18nLanguage, string> = {
@@ -26,7 +28,9 @@ export const i18nLanguageNativeNames: Record<SupportedI18nLanguage, string> = {
   en: 'English',
   es: 'Español',
   fr: 'Français',
+  gl: 'Galego',
   id: 'Bahasa Indonesia',
+  it: 'Italiano',
   ja: '日本語',
   pl: 'Polski',
   pt: 'Português',
@@ -52,8 +56,14 @@ const resources: Resource = {
   fr: {
     translation: frText,
   },
+  gl: {
+    translation: glText,
+  },
   id: {
     translation: idText,
+  },
+  it: {
+    translation: itText,
   },
   ja: {
     translation: jaText,
