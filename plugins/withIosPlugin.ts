@@ -1,4 +1,10 @@
-import { ConfigPlugin, withAppDelegate, withInfoPlist, withPodfile } from '@expo/config-plugins'
+import {
+  ConfigPlugin,
+  withAppDelegate,
+  withEntitlementsPlist,
+  withInfoPlist,
+  withPodfile,
+} from '@expo/config-plugins'
 
 // Xcode 27 rejects deployment targets below 15.0, but some pods still declare
 // older ones (RNCAsyncStorage 13.4, RNSVG 12.4), which fails the archive.
@@ -139,6 +145,17 @@ const withSceneDelegate: ConfigPlugin = (config) => {
   })
 }
 
-const withIosPlugin: ConfigPlugin = (config) => withSceneDelegate(withPodDeploymentTarget(config))
+// expo-notifications always adds the aps-environment entitlement, but feed
+// notifications are local and need no push. The entitlement makes App Store
+// export fail, because the distribution profile lacks Push Notifications.
+// This plugin is listed before expo-notifications, so its mod runs after.
+const withoutPushEntitlement: ConfigPlugin = (config) =>
+  withEntitlementsPlist(config, (config) => {
+    delete config.modResults['aps-environment']
+    return config
+  })
+
+const withIosPlugin: ConfigPlugin = (config) =>
+  withoutPushEntitlement(withSceneDelegate(withPodDeploymentTarget(config)))
 
 export default withIosPlugin

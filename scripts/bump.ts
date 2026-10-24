@@ -8,6 +8,7 @@ const nextVersion = [major, minor, +patch + 1].join('.')
 
 packageJson.version = nextVersion
 packageJson.versionCode = packageJson.versionCode + 1
+packageJson.buildNumber = String(+packageJson.buildNumber + 1)
 
 await fs.writeFile('package.json', JSON.stringify(packageJson, null, 2) + '\n')
 

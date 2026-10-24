@@ -1,0 +1,4 @@
+- Speed up watch page loading and opening subsequent videos
+- Keep background playback going when rotating the device
+- Fix duplicate channel subscriptions across URL formats
+- Add Galician and Italian translations and update existing translations
