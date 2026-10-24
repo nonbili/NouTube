@@ -1,0 +1,49 @@
+{
+  "target": {
+    "app_id": "6758827937",
+    "version_id": "a760f6d7-49f0-466c-8e6b-b5e1682770c2",
+    "version": "0.6.13",
+    "locale_id": "e5760be0-afd8-4334-a930-5eb3d7cbf784"
+  },
+  "screenshot_sets": [
+    {
+      "platform": "ios",
+      "set_id": "063e0731-6686-424e-95bf-3e4bba6ebe27",
+      "type": "APP_IPHONE_67",
+      "ids": [
+        "3e400019-2db8-87a1-8010-40a1f3568134",
+        "78000019-2db8-87a1-8021-8a383418cbf5",
+        "bd800019-2db8-87a1-800e-eb94cb52abdb",
+        "3e000019-2db8-87a1-8034-b6a817d0ceb7",
+        "35400019-2db8-87a1-8007-8020a266b2cb",
+        "42800019-2db8-87a1-801e-ab642394f9c2"
+      ]
+    },
+    {
+      "platform": "ipad",
+      "set_id": "ed6cd7e3-5d88-4113-a9e9-7340afeb08c8",
+      "type": "APP_IPAD_PRO_3GEN_129",
+      "ids": [
+        "22c00019-2db8-87a1-8020-3a7274859f08",
+        "49400019-2db8-87a1-801c-debafd32a800",
+        "42c00019-2db8-87a1-8022-9ad95b981663",
+        "47800019-2db8-87a1-8006-14680858d99b",
+        "d1c00019-2db8-87a1-8033-48bd7599c912",
+        "a6c00019-2db8-87a1-8038-bf650f540132"
+      ]
+    }
+  ],
+  "preview_id": "e9400019-2db8-87a1-811e-d9f3c812d6d8",
+  "preview_state": {
+    "errors": [
+
+    ],
+    "warnings": null,
+    "state": "COMPLETE"
+  },
+  "submitted_for_review": false,
+  "verified_at": "2026-10-24T08:25:37Z",
+  "video_file": "metadata/en-US/app-preview/noutube-app-store-preview-v2.mp4",
+  "video_checksum_md5": "f66535c1c30c999412b4c70dc2120274",
+  "poster_timecode": "00:00:10:00"
+}

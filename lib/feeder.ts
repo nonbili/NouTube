@@ -193,7 +193,12 @@ async function fetchChannel(
   fetchingChannelIds.add(id)
 
   try {
-    const response = await mainClient.fetchFeed(`https://www.youtube.com/feeds/videos.xml?channel_id=${id}`)
+    const feedUrl = new URL('https://www.youtube.com/feeds/videos.xml')
+    feedUrl.searchParams.set('channel_id', id)
+    // YouTube can cache a 404 for an existing channel's feed. A fresh query
+    // keeps that stale response from hiding uploads until its cache expires.
+    feedUrl.searchParams.set('_nou_ts', String(Date.now()))
+    const response = await mainClient.fetchFeed(feedUrl.href)
     if (!response.ok) {
       console.warn(`Feed returned HTTP ${response.status} for channel: ${id}`)
       feeds$.saveFeed({ ...feed, fetchedAt: new Date() })

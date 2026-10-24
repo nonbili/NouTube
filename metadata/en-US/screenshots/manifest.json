@@ -1,0 +1,110 @@
+[
+  {
+    "platform": "android",
+    "file": "metadata/en-US/images/phoneScreenshots/1.jpg",
+    "width": 1080,
+    "height": 1920
+  },
+  {
+    "platform": "android",
+    "file": "metadata/en-US/images/phoneScreenshots/2.jpg",
+    "width": 1080,
+    "height": 1920
+  },
+  {
+    "platform": "android",
+    "file": "metadata/en-US/images/phoneScreenshots/3.jpg",
+    "width": 1080,
+    "height": 1920
+  },
+  {
+    "platform": "android",
+    "file": "metadata/en-US/images/phoneScreenshots/4.jpg",
+    "width": 1080,
+    "height": 1920
+  },
+  {
+    "platform": "android",
+    "file": "metadata/en-US/images/phoneScreenshots/5.jpg",
+    "width": 1080,
+    "height": 1920
+  },
+  {
+    "platform": "android",
+    "file": "metadata/en-US/images/phoneScreenshots/6.jpg",
+    "width": 1080,
+    "height": 1920
+  },
+  {
+    "platform": "ipad",
+    "file": "fastlane/metadata/ios/en-US/ipad-01-playback.png",
+    "width": 2064,
+    "height": 2752
+  },
+  {
+    "platform": "ipad",
+    "file": "fastlane/metadata/ios/en-US/ipad-02-background.png",
+    "width": 2064,
+    "height": 2752
+  },
+  {
+    "platform": "ipad",
+    "file": "fastlane/metadata/ios/en-US/ipad-03-feeds.png",
+    "width": 2064,
+    "height": 2752
+  },
+  {
+    "platform": "ipad",
+    "file": "fastlane/metadata/ios/en-US/ipad-04-distractions.png",
+    "width": 2064,
+    "height": 2752
+  },
+  {
+    "platform": "ipad",
+    "file": "fastlane/metadata/ios/en-US/ipad-05-blocklist.png",
+    "width": 2064,
+    "height": 2752
+  },
+  {
+    "platform": "ipad",
+    "file": "fastlane/metadata/ios/en-US/ipad-06-controls.png",
+    "width": 2064,
+    "height": 2752
+  },
+  {
+    "platform": "ios",
+    "file": "fastlane/metadata/ios/en-US/01-playback.png",
+    "width": 1320,
+    "height": 2868
+  },
+  {
+    "platform": "ios",
+    "file": "fastlane/metadata/ios/en-US/02-background.png",
+    "width": 1320,
+    "height": 2868
+  },
+  {
+    "platform": "ios",
+    "file": "fastlane/metadata/ios/en-US/03-feeds.png",
+    "width": 1320,
+    "height": 2868
+  },
+  {
+    "platform": "ios",
+    "file": "fastlane/metadata/ios/en-US/04-distractions.png",
+    "width": 1320,
+    "height": 2868
+  },
+  {
+    "platform": "ios",
+    "file": "fastlane/metadata/ios/en-US/05-blocklist.png",
+    "width": 1320,
+    "height": 2868
+  },
+  {
+    "platform": "ios",
+    "file": "fastlane/metadata/ios/en-US/06-import.png",
+    "width": 1320,
+    "height": 2868
+  }
+]

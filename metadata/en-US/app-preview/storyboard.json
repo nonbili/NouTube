@@ -1,0 +1,42 @@
+[
+  {
+    "capture": "captures/01-watch.mp4",
+    "start": 0,
+    "duration": 6,
+    "title": "Your videos. Your way.",
+    "subtitle": "Watch with NouTube.",
+    "credit": "Visualizations: NASA's Goddard Space Flight Center"
+  },
+  {
+    "capture": "captures/02-library.mp4",
+    "start": 0,
+    "duration": 6,
+    "title": "Keep your favorites.",
+    "subtitle": "Your library. No sign-in needed.",
+    "credit": "Visualizations: NASA's Goddard Space Flight Center"
+  },
+  {
+    "capture": "captures/03-speed.mp4",
+    "start": 0,
+    "duration": 6,
+    "title": "Find your pace.",
+    "subtitle": "Playback speed, one tap away.",
+    "credit": "Visualizations: NASA's Goddard Space Flight Center"
+  },
+  {
+    "capture": "captures/04-history.mp4",
+    "start": 0,
+    "duration": 6,
+    "title": "Return to a favorite.",
+    "subtitle": "Your watch history, without an account.",
+    "credit": "Visualizations: NASA's Goddard Space Flight Center"
+  },
+  {
+    "capture": "captures/05-appearance.mp4",
+    "start": 0,
+    "duration": 6,
+    "title": "Make it yours.",
+    "subtitle": "Light or dark. Find your look.",
+    "caption_position": "top"
+  }
+]

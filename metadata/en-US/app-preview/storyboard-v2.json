@@ -1,0 +1,40 @@
+[
+  {
+    "capture": "captures/v2-01-playback.mp4",
+    "start": 0,
+    "duration": 3.5,
+    "title": "No ads. Just your video.",
+    "subtitle": "Ad blocking + SponsorBlock.",
+    "credit": "Lunar visualization: NASA's Goddard Space Flight Center"
+  },
+  {
+    "capture": "captures/v2-01-playback.mp4",
+    "start": 3.5,
+    "duration": 3.5,
+    "title": "Keep listening.",
+    "subtitle": "Background playback. Even with the screen off.",
+    "credit": "Lunar visualization: NASA's Goddard Space Flight Center"
+  },
+  {
+    "capture": "captures/v2-02-feeds.mp4",
+    "start": 0,
+    "duration": 10,
+    "title": "Your channels. No login.",
+    "subtitle": "New uploads, together in your own feed.",
+    "credit": "Demo channel and video thumbnails: NASA"
+  },
+  {
+    "capture": "captures/v2-03-distractions.mp4",
+    "start": 0,
+    "duration": 7,
+    "title": "Cut the distractions.",
+    "subtitle": "Hide Shorts, recommendations and end screens."
+  },
+  {
+    "capture": "captures/v2-04-blocklist.mp4",
+    "start": 0,
+    "duration": 6,
+    "title": "Choose what gets through.",
+    "subtitle": "Block channels and title keywords."
+  }
+]

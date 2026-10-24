@@ -48,7 +48,11 @@ Or use the browser extension on Firefox and Chrome.
 
 ## Screenshots
 
-<img src="metadata/en-US/images/phoneScreenshots/1.jpg" width="240" alt="youtube"> <img src="metadata/en-US/images/phoneScreenshots/2.jpg" width="240" alt="youtube-music"> <img src="metadata/en-US/images/phoneScreenshots/3.jpg" width="240" alt="music-library">
+<img src="metadata/en-US/images/phoneScreenshots/1.jpg" width="240" alt="Ad-free playback"> <img src="metadata/en-US/images/phoneScreenshots/2.jpg" width="240" alt="Background playback"> <img src="metadata/en-US/images/phoneScreenshots/3.jpg" width="240" alt="Channel feeds">
+
+<img src="metadata/en-US/images/phoneScreenshots/4.jpg" width="240" alt="Distraction controls"> <img src="metadata/en-US/images/phoneScreenshots/5.jpg" width="240" alt="Content filters"> <img src="metadata/en-US/images/phoneScreenshots/6.jpg" width="240" alt="Playback controls">
+
+[Android and iOS store screenshots](metadata/en-US/screenshots/README.md)
 
 ## Contributing
 
