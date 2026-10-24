@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test'
 import { normalizeBlocklist } from './blocklist'
 import {
+  filterPlayerResponse,
   transformBrowseResponse,
   transformGetWatchResponse,
   transformPlayerResponse,
@@ -460,6 +461,24 @@ describe('intercept ad blocking', () => {
     const transformed = JSON.parse(transformPlayerResponse(JSON.stringify(player), undefined, { blockAds: false }))
     expect(transformed.adPlacements).toHaveLength(1)
     expect(transformed.playerAds).toHaveLength(1)
+  })
+
+  // The watch page embeds its first player response as an object rather than
+  // fetching it, so it is filtered in place.
+  it('strips the ads from an embedded player response in place', () => {
+    const player: Record<string, unknown> = {
+      adPlacements: [{}],
+      adSlots: [{}],
+      playerAds: [{}],
+      adBreakHeartbeatParams: 'x',
+      videoDetails: { title: 'A' },
+    }
+    expect(filterPlayerResponse(player)).toBe(player)
+    expect(player).toEqual({ videoDetails: { title: 'A' } })
+
+    const kept = { adPlacements: [{}], videoDetails: { title: 'A' } }
+    filterPlayerResponse(kept, { blockAds: false })
+    expect(kept.adPlacements).toHaveLength(1)
   })
 
   const reelSequence = () => ({

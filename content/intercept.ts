@@ -1,6 +1,7 @@
 import {
   RE_INTERCEPT,
   filterListResponse,
+  filterPlayerResponse,
   transformBrowseResponse,
   transformGetWatchResponse,
   transformPlayerResponse,
@@ -9,6 +10,12 @@ import {
 } from '@/lib/intercept'
 
 const adsBlocked = () => window.NouTube?.getSettings?.()?.blockAds !== false
+
+// The embedded player response gets the same treatment as a fetched one below.
+const playerOptions = () => ({
+  showOriginalVideoTitle: Boolean(window.NouTube?.getSettings?.()?.showOriginalVideoTitle),
+  blockAds: adsBlocked(),
+})
 
 export function intercept() {
   // Intercept initial page data (server-rendered in script tags)
@@ -25,6 +32,31 @@ export function intercept() {
         console.error('NouScript initialData:', error)
       }
       initialData = value
+    },
+    configurable: true,
+  })
+
+  // The watch page embeds its first player response as well. Left alone, its ad
+  // placements reach the player, which then goes after ads the native side
+  // blocks. Filtered on the way in, and once more in case this script landed
+  // after the page had already set it.
+  const filterInitialPlayerResponse = (value: any) => {
+    try {
+      if (value && typeof value === 'object') {
+        filterPlayerResponse(value, playerOptions())
+      }
+    } catch (error) {
+      console.error('NouScript initialPlayerResponse:', error)
+    }
+    return value
+  }
+  let initialPlayerResponse = filterInitialPlayerResponse((window as any).ytInitialPlayerResponse)
+  Object.defineProperty(window, 'ytInitialPlayerResponse', {
+    get() {
+      return initialPlayerResponse
+    },
+    set(value) {
+      initialPlayerResponse = filterInitialPlayerResponse(value)
     },
     configurable: true,
   })
@@ -62,7 +94,9 @@ export function intercept() {
     const request = args[0]
     const url = request instanceof Request ? request.url : request.toString()
     let res = await winFetch(...args)
-    const match = new URL(url).pathname.match(RE_INTERCEPT)
+    // Relative to the page, as fetch itself resolves it: without a base a relative
+    // url throws here and turns a response that arrived fine into a rejection.
+    const match = new URL(url, location.origin).pathname.match(RE_INTERCEPT)
     const blocklist = window.NouTube?.getBlocklist?.()
     const settings = window.NouTube?.getSettings?.()
     const options = {

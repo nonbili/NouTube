@@ -307,7 +307,7 @@ class NouTubeViewModule : Module() {
       }
 
       Prop("useragent") { view: NouTubeView, ua: String ->
-        view.webView.settings.setUserAgentString(ua)
+        view.webView.setUserAgent(ua)
       }
 
       Prop("pullToRefreshEnabled") { view: NouTubeView, enabled: Boolean ->

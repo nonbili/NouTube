@@ -46,6 +46,9 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.webkit.UserAgentMetadata
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewFeature
 import androidx.window.layout.WindowInfoTracker
 import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.viewevent.EventDispatcher
@@ -180,6 +183,50 @@ class NouWebView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     // https://stackoverflow.com/a/64564676
     setFocusable(true)
     setFocusableInTouchMode(true)
+  }
+
+  // The WebView's own client hints, before setUserAgent rewrote them.
+  private var defaultUserAgentMetadata: UserAgentMetadata? = null
+
+  // The user agent string passes for Chrome, but the client hints (Sec-CH-UA and
+  // navigator.userAgentData) would still announce "Android WebView" at the
+  // WebView's own version and give it away. Report the Chrome the string names,
+  // at its version, with the platform and form factor it claims. Any other
+  // string -- a custom one that is not Chrome -- gets the WebView's own hints
+  // back rather than a Chrome identity it does not claim.
+  fun setUserAgent(ua: String) {
+    settings.setUserAgentString(ua)
+    if (!WebViewFeature.isFeatureSupported(WebViewFeature.USER_AGENT_METADATA)) {
+      return
+    }
+    val default = defaultUserAgentMetadata
+      ?: WebSettingsCompat.getUserAgentMetadata(settings).also { defaultUserAgentMetadata = it }
+    val chromeVersion = Regex("""Chrome/(\d+)""").find(ua)?.groupValues?.get(1)
+    if (chromeVersion == null || Regex("""Edg/|OPR/|SamsungBrowser/""").containsMatchIn(ua)) {
+      WebSettingsCompat.setUserAgentMetadata(settings, default)
+      return
+    }
+    val fullVersion = "$chromeVersion.0.0.0"
+    val brands = default.brandVersionList.map { brand ->
+      val builder = UserAgentMetadata.BrandVersion.Builder(brand)
+      when (brand.brand) {
+        "Android WebView" -> builder.setBrand("Google Chrome").setMajorVersion(chromeVersion).setFullVersion(fullVersion)
+        "Chromium" -> builder.setMajorVersion(chromeVersion).setFullVersion(fullVersion)
+        else -> {}
+      }
+      builder.build()
+    }
+    val builder = UserAgentMetadata.Builder(default)
+      .setBrandVersionList(brands)
+      .setFullVersion(fullVersion)
+      .setMobile(ua.contains(" Mobile "))
+    if (!ua.contains("Android")) {
+      // The desktop site asks as Chrome on Linux: no Android version or model.
+      builder.setPlatform(if (ua.contains("Macintosh")) "macOS" else if (ua.contains("Windows")) "Windows" else "Linux")
+        .setPlatformVersion("")
+        .setModel("")
+    }
+    WebSettingsCompat.setUserAgentMetadata(settings, builder.build())
   }
 
   suspend fun eval(script: String): String? = suspendCancellableCoroutine { cont ->
