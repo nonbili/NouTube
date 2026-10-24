@@ -11,15 +11,38 @@ import type { FeedNotificationUpdate } from './feed-notification-videos'
 import { settings$ } from '@/states/settings'
 import { pushToast } from '@/states/toast'
 import { ui$ } from '@/states/ui'
+import NouTubeViewModule from '@/modules/nou-tube-view'
 
 // F-Droid builds strip the Firebase-backed push token module, so importing
-// expo-notifications throws at startup there. Degrade to in-app toasts instead.
+// expo-notifications throws at startup there. NouTube's own module posts the
+// notifications on Android then.
 let Notifications: typeof import('expo-notifications') | null = null
 try {
   Notifications = require('expo-notifications')
 } catch (error) {
   console.warn('expo-notifications unavailable:', error)
 }
+
+type NativeNotifications = Omit<typeof NouTubeViewModule, 'addListener'> & {
+  addListener?: (eventName: 'feedNotificationOpened', listener: () => void) => { remove?: () => void }
+}
+const nativeNotifications =
+  Platform.OS === 'android' && !Notifications && NouTubeViewModule.postNotification
+    ? (NouTubeViewModule as NativeNotifications)
+    : null
+const canNotify = Boolean(Notifications || nativeNotifications)
+
+async function hasPermission() {
+  if (Notifications) return (await Notifications.getPermissionsAsync()).granted
+  return nativeNotifications?.areNotificationsEnabled?.() ?? false
+}
+
+async function requestPermission() {
+  if (Notifications) return (await Notifications.requestPermissionsAsync()).granted
+  return (await nativeNotifications?.requestNotificationPermission?.()) ?? false
+}
+
+let nativeId = 1000 + Math.floor(Math.random() * 0x40000000)
 
 const TASK_NAME = 'noutube-feed-notifications'
 const CHANNEL_ID = 'feed-videos'
@@ -73,11 +96,10 @@ export function syncFeedNotificationTask(): Promise<boolean> {
   registration = registration.catch(() => false).then(async () => {
     await when(syncState(settings$).isPersistLoaded)
     let available = false
-    // Without expo-notifications the opt-in is kept for foreground toasts, but
+    // Without any way to notify the opt-in is kept for foreground toasts, but
     // background delivery stays unavailable.
-    if (Notifications && settings$.feedNotificationsEnabled.get()) {
-      const permitted = (await Notifications.getPermissionsAsync()).granted
-      if (!permitted) {
+    if (canNotify && settings$.feedNotificationsEnabled.get()) {
+      if (!(await hasPermission())) {
         settings$.feedNotificationsEnabled.set(false)
       } else {
         available = (await BackgroundTask.getStatusAsync()) === BackgroundTask.BackgroundTaskStatus.Available
@@ -97,12 +119,11 @@ export function syncFeedNotificationTask(): Promise<boolean> {
 }
 
 export async function setFeedNotificationsEnabled(enabled: boolean): Promise<boolean> {
-  if (enabled && Notifications) {
+  if (enabled && canNotify) {
     if ((await BackgroundTask.getStatusAsync()) !== BackgroundTask.BackgroundTaskStatus.Available) return false
     await applyNotificationLanguage()
     await ensureChannel()
-    const permission = await Notifications.requestPermissionsAsync()
-    if (!permission.granted) return false
+    if (!(await requestPermission())) return false
   }
   settings$.feedNotificationsEnabled.set(enabled)
   try {
@@ -128,11 +149,17 @@ export async function notifyFeedVideos(updates: FeedNotificationUpdate[]): Promi
     showFeedToast()
     return
   }
-  if (!Notifications || !backgroundEnabled) return
+  if (!canNotify || !backgroundEnabled) return
   await ensureChannel()
   // The user may have returned to the app while permission/language APIs ran.
   if (isAppActive()) {
     showFeedToast()
+    return
+  }
+  if (nativeNotifications) {
+    // Each one keeps its own id, as expo-notifications posts them; 777 is the media notification's.
+    nativeId = (nativeId + 1) % 0x7fffffff || 1000
+    nativeNotifications.postNotification?.(CHANNEL_ID, t('feeds.notificationTitle'), nativeId, t('feeds.notificationTitle'), body)
     return
   }
   await Notifications?.scheduleNotificationAsync({
@@ -147,6 +174,11 @@ export async function notifyFeedVideos(updates: FeedNotificationUpdate[]): Promi
 
 let lastResponseId: string | undefined
 export function listenFeedNotifications(openFeed: () => void): () => void {
+  if (nativeNotifications) {
+    if (nativeNotifications.takeFeedNotificationLaunch?.()) openFeed()
+    const subscription = nativeNotifications.addListener?.('feedNotificationOpened', openFeed)
+    return () => subscription?.remove?.()
+  }
   if (!Notifications) return () => {}
   const notifications = Notifications
   let active = true

@@ -1,8 +1,10 @@
 package expo.modules.noutubeview
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.view.accessibility.CaptioningManager
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.webkit.ProxyConfig
@@ -120,7 +122,13 @@ class NouTubeViewModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("NouTubeView")
 
-    Events("log", "sleepTimer", "downloadProgress", "captionStyle", "desktopMode", "pictureInPicture")
+    Events("log", "sleepTimer", "downloadProgress", "captionStyle", "desktopMode", "pictureInPicture", "feedNotificationOpened")
+
+    OnNewIntent { intent ->
+      if (NouNotifications.takeFeedTap(intent)) {
+        sendEvent("feedNotificationOpened", mapOf<String, Any>())
+      }
+    }
 
     OnCreate {
       appContext.reactContext?.applicationContext?.let { NouDiscord.init(it) }
@@ -139,6 +147,42 @@ class NouTubeViewModule : Module() {
       captioningListener?.let { captioningManager?.removeCaptioningChangeListener(it) }
       captioningListener = null
       captioningManager = null
+    }
+
+    Function("areNotificationsEnabled") {
+      val context = appContext.reactContext
+      context != null && NouNotifications.areEnabled(context)
+    }
+
+    // Resolves to whether notifications may be posted; Android 13 and later ask the user first.
+    AsyncFunction("requestNotificationPermission") { promise: Promise ->
+      val context = appContext.reactContext
+      val permissions = appContext.permissions
+      if (context == null) {
+        promise.resolve(false)
+      } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || permissions == null) {
+        promise.resolve(NouNotifications.areEnabled(context))
+      } else {
+        permissions.askForPermissions(
+          { promise.resolve(NouNotifications.areEnabled(context)) },
+          Manifest.permission.POST_NOTIFICATIONS
+        )
+      }
+    }
+
+    Function("postNotification") { channelId: String, channelName: String, id: Int, title: String, body: String ->
+      val context = appContext.reactContext
+      try {
+        context != null && NouNotifications.post(context, channelId, channelName, id, title, body)
+      } catch (e: Exception) {
+        nouController.log("postNotification failed: ${e.message}")
+        false
+      }
+    }
+
+    // A cold start from a feed notification tap, which OnNewIntent doesn't see.
+    Function("takeFeedNotificationLaunch") {
+      NouNotifications.takeFeedTap(appContext.currentActivity?.intent)
     }
 
     Function("getSystemCaptionStyle") {

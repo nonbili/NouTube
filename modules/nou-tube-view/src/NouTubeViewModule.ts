@@ -55,6 +55,12 @@ declare class NouTubeViewModule extends NativeModule {
   discordLogin(): Promise<{ loggedIn: boolean }>
   discordLogout(): void
   getDiscordStatus(): { loggedIn: boolean }
+  /* Android only: notifications without expo-notifications, which the F-Droid
+   * build lacks. A tap emits `feedNotificationOpened`. */
+  areNotificationsEnabled?(): boolean
+  requestNotificationPermission?(): Promise<boolean>
+  postNotification?(channelId: string, channelName: string, id: number, title: string, body: string): boolean
+  takeFeedNotificationLaunch?(): boolean
 }
 
 export default requireNativeModule<NouTubeViewModule>('NouTubeView')
