@@ -4,6 +4,23 @@ import { getSettingsSnapshot, normalizeSettings, type SettingsSnapshot } from '.
 const normalizePartialSettings = () => normalizeSettings<Partial<SettingsSnapshot>>({})
 
 describe('settings', () => {
+  it('defaults disable autoplay off in snapshots and persisted settings', () => {
+    expect(getSettingsSnapshot({}).disableAutoplay).toBe(false)
+    expect(normalizePartialSettings()?.disableAutoplay).toBe(false)
+  })
+
+  it('preserves boolean disable autoplay preferences and rejects invalid values', () => {
+    for (const disableAutoplay of [true, false]) {
+      expect(getSettingsSnapshot({ disableAutoplay }).disableAutoplay).toBe(disableAutoplay)
+      expect(normalizeSettings({ disableAutoplay }).disableAutoplay).toBe(disableAutoplay)
+    }
+    for (const disableAutoplay of ['true', 1, null]) {
+      const data = { disableAutoplay } as unknown as Partial<SettingsSnapshot>
+      expect(getSettingsSnapshot(data).disableAutoplay).toBe(false)
+      expect(normalizeSettings(data)?.disableAutoplay).toBe(false)
+    }
+  })
+
   it('defaults original video title setting off in snapshots', () => {
     expect(getSettingsSnapshot({}).showOriginalVideoTitle).toBe(false)
   })

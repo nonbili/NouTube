@@ -15,6 +15,7 @@ export const getContentSettings = (settings: RawSettings): ContentSettings => ({
   blockAds: bool(settings?.blockAds, true),
   playbackRate: typeof settings?.playbackRate === 'number' ? settings.playbackRate : 1,
   playbackQuality: typeof settings?.playbackQuality === 'string' ? settings.playbackQuality : 'auto',
+  disableAutoplay: bool(settings?.disableAutoplay),
   // The mini player, the double-tap gesture, on-device translation and system
   // caption styles are all driven by the native shell.
   miniPlayer: false,

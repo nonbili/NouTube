@@ -32,6 +32,7 @@ export interface SettingsSnapshot {
   clickbaitThumbnail: 'default' | 'hq1' | 'hq2' | 'hq3'
   playbackRate: number
   playbackQuality: string
+  disableAutoplay: boolean
   restoreOnStart: boolean
   pullToRefreshEnabled: boolean
   sponsorBlock: boolean
@@ -119,6 +120,9 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   }
   if (typeof data.playbackQuality !== 'string') {
     data.playbackQuality = 'auto'
+  }
+  if (typeof data.disableAutoplay !== 'boolean') {
+    data.disableAutoplay = false
   }
   if (typeof data.showPlaybackQualityControl !== 'boolean') {
     data.showPlaybackQualityControl = false
@@ -241,6 +245,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
     : 'default',
   playbackRate: typeof value?.playbackRate === 'number' ? value.playbackRate : 1,
   playbackQuality: typeof value?.playbackQuality === 'string' ? value.playbackQuality : 'auto',
+  disableAutoplay: typeof value?.disableAutoplay === 'boolean' ? value.disableAutoplay : false,
   restoreOnStart: typeof value?.restoreOnStart === 'boolean' ? value.restoreOnStart : false,
   pullToRefreshEnabled: typeof value?.pullToRefreshEnabled === 'boolean' ? value.pullToRefreshEnabled : true,
   sponsorBlock: typeof value?.sponsorBlock === 'boolean' ? value.sponsorBlock : true,
@@ -311,6 +316,7 @@ export const settings$ = observable<Store>({
   clickbaitThumbnail: 'default',
   playbackRate: 1,
   playbackQuality: 'auto',
+  disableAutoplay: false,
   restoreOnStart: false,
   pullToRefreshEnabled: true,
   sponsorBlock: true,

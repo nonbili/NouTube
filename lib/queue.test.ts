@@ -32,6 +32,21 @@ describe('getNextQueueUrl for media Next', () => {
     expect(getNextQueueUrl('https://m.youtube.com/watch?v=h_D3VFfhvs4')).toBe(second)
   })
 
+  it('does not start or resume an unrelated queue when autoplay is disabled', () => {
+    const unrelated = 'https://m.youtube.com/watch?v=h_D3VFfhvs4'
+    expect(getNextQueueUrl(unrelated, { resumeUnrelated: false })).toBeUndefined()
+    queue$.markPlaying(first)
+    expect(getNextQueueUrl(unrelated, { resumeUnrelated: false })).toBeUndefined()
+    queue$.markEnded(first)
+    expect(getNextQueueUrl(unrelated, { resumeUnrelated: false })).toBeUndefined()
+  })
+
+  it('still advances within the queue when autoplay is disabled', () => {
+    trackQueueEnded(first)
+    expect(getNextQueueUrl(`${first}&t=20`, { resumeUnrelated: false })).toBe(second)
+    expect(getNextQueueUrl(second, { resumeUnrelated: false })).toBeUndefined()
+  })
+
   it('leaves the queue once its last video was skipped', () => {
     queue$.markPlaying(second)
     trackQueueEnded(second)

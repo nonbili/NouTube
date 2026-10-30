@@ -8,6 +8,7 @@ describe('content settings', () => {
     expect(settings.blockAds).toBe(true)
     expect(settings.playbackRate).toBe(1)
     expect(settings.playbackQuality).toBe('auto')
+    expect(settings.disableAutoplay).toBe(false)
     expect(getHideShorts(undefined)).toBe(true)
     expect(getPreferH264(undefined)).toBe(false)
     expect(getClickbaitThumbnail(undefined)).toBe('default')
@@ -18,11 +19,13 @@ describe('content settings', () => {
       sponsorBlock: false,
       blockAds: false,
       playbackRate: 1.5,
+      disableAutoplay: true,
       showDislikes: true,
     } as never)
     expect(settings.sponsorBlock).toBe(false)
     expect(settings.blockAds).toBe(false)
     expect(settings.playbackRate).toBe(1.5)
+    expect(settings.disableAutoplay).toBe(true)
     expect(settings.showDislikes).toBe(true)
   })
 
@@ -32,6 +35,11 @@ describe('content settings', () => {
     expect(settings.translateComments).toBe(false)
     expect(settings.doubleTapToToggleHeader).toBe(false)
     expect(settings.captionStyle).toBeNull()
+  })
+
+  it('only accepts boolean disable autoplay preferences', () => {
+    expect(getContentSettings({ disableAutoplay: false }).disableAutoplay).toBe(false)
+    expect(getContentSettings({ disableAutoplay: 'true' } as never).disableAutoplay).toBe(false)
   })
 
   it('only accepts the clickbait frames the content bundle knows', () => {

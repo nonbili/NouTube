@@ -8,6 +8,7 @@ export interface ContentSettings {
   blockAds: boolean
   playbackRate: number
   playbackQuality: string
+  disableAutoplay: boolean
   miniPlayer: boolean
   showDislikes: boolean
   showOriginalVideoTitle: boolean
