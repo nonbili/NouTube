@@ -272,6 +272,8 @@
     "pictureInPicture": "Picture-in-picture",
     "pictureInPictureHint": "Keep the video playing in a floating window when you leave the app.",
     "preferH264": "Prefer H.264 (block VP9/AV1)",
+    "disableAutoplay": "Disable autoplay",
+    "disableAutoplayHint": "Keep YouTube's Autoplay toggle off to stop recommended next videos. Queues and playlists continue playing.",
     "showDislikes": "Show dislikes",
     "showOriginalVideoTitle": "Show original video title",
     "systemCaptionStyle": {

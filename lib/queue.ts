@@ -26,8 +26,9 @@ export function usePlayingQueueIndex() {
  * it is some unrelated video the queue picks up where it was left off instead
  * of restarting from the top: the last queue video that was opened, or the
  * entry after it when that one already played to the end.
+ * Set resumeUnrelated to false to advance only within the current queue.
  */
-export function getNextQueueUrl(pageUrl: string): string | undefined {
+export function getNextQueueUrl(pageUrl: string, { resumeUnrelated = true } = {}): string | undefined {
   const bookmarks = queue$.bookmarks.get()
   const videoId = getVideoId(pageUrl)
   if (!videoId || !bookmarks.length) return
@@ -36,6 +37,7 @@ export function getNextQueueUrl(pageUrl: string): string | undefined {
   if (index >= 0) {
     return bookmarks[index + 1]?.url
   }
+  if (!resumeUnrelated) return
 
   const lastPlayedId = getVideoId(queue$.lastPlayedUrl.get())
   const lastPlayedIndex = lastPlayedId ? bookmarks.findIndex((x) => getVideoId(x.url) == lastPlayedId) : -1

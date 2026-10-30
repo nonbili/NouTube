@@ -5,6 +5,7 @@ import { originalLabels } from './audio'
 import { clearSkipSegments, getSkipSegments, isSponsorBlockEnabled, renderSkipSegments, Segment } from './sponsorblock'
 import { playbackRates } from '../lib/playback-rate'
 import { applyCaptionFontScale } from './captions'
+import { applyAutoplayPolicy } from './autoplay'
 
 export let player: any
 let curVideoId = ''
@@ -22,7 +23,23 @@ function getSettings() {
     playbackRate?: number
     playbackQuality?: string
     sponsorBlock?: boolean
+    disableAutoplay?: boolean
   }
+}
+
+function applySavedAutoplayPolicy() {
+  if (isYTMusic || isEmbedFrame) return
+  applyAutoplayPolicy(document, nouStorage, getSettings().disableAutoplay === true)
+}
+
+window.addEventListener('noutube:settings', applySavedAutoplayPolicy)
+// Controls may arrive after the player or be rerendered during SPA navigation.
+// Attribute observation also catches YouTube re-enabling the toggle.
+if (typeof MutationObserver !== 'undefined') {
+  new MutationObserver(throttle(applySavedAutoplayPolicy, 1000)).observe(document, {
+    childList: true, subtree: true, attributes: true,
+    attributeFilter: ['aria-checked', 'aria-pressed'],
+  })
 }
 
 function getSavedPlaybackRate() {
@@ -196,6 +213,7 @@ export function handleVideoPlayer(el: any) {
   // onApiChange fires when the player's modules (captions included) load, which
   // is the earliest point setOption('captions', ...) is accepted.
   el.addEventListener('onApiChange', () => applyCaptionFontScale(el))
+  applySavedAutoplayPolicy()
   applyCaptionFontScale(el)
   let title = ''
   let duration = 0
@@ -305,6 +323,7 @@ export function handleVideoPlayer(el: any) {
 
   let progressBinded = false
   const onStateChange = async (state: number) => {
+    applySavedAutoplayPolicy()
     // The native mini player draws its own play/pause button, so it needs the
     // state transitions -- notifyProgress is throttled and too coarse for a
     // button the user just tapped.

@@ -550,6 +550,13 @@ export const SettingsYouTubeContent = () => {
         <SettingsSection label={t('settings.preferencesPlayback')}>
           <View className={surfaceCls}>
             <SettingsToggleRow
+              label={t('settings.disableAutoplay')}
+              description={t('settings.disableAutoplayHint')}
+              icon="pause-circle-outline"
+              value={settings.disableAutoplay}
+              onPress={() => settings$.disableAutoplay.set(!settings.disableAutoplay)}
+            />
+            <SettingsToggleRow
               label={t('settings.preferH264')}
               icon="hd"
               value={settings.preferH264}
