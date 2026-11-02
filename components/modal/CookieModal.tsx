@@ -110,7 +110,14 @@ export const CookieModal = () => {
       const script =
         cookie
           .split(';')
-          .map((x) => `document.cookie="${x.trim()};max-age=31536000;path=/;domain=.youtube.com";`)
+          .map((x) => {
+            const v = x.trim()
+            const nome = v.split('=')[0] || ''
+            // document.cookie NUNCA grava cookie __Secure-/__Host- sem `Secure`;
+            // o WebView descarta silenciosamente e o login "nao pega".
+            const secure = /^__(Secure|Host)-/i.test(nome) ? ';secure' : ''
+            return `document.cookie="${v};max-age=31536000;path=/${secure};domain=.youtube.com";`
+          })
           .join('') + 'location.reload();'
 
       if (!onYouTube) {
