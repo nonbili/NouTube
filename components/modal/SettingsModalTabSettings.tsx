@@ -360,6 +360,7 @@ const ProxyTextInput = ({ field, ...props }: TextInputProps & { field: ProxyFiel
 export const SettingsPreferencesContent = () => {
   const tw = useTwColor()
   const settings = useValue(settings$)
+  const supportsProxy = !isIos || Number.parseInt(String(Platform.Version), 10) >= 17
 
   return (
     <View className="pb-4">
@@ -405,9 +406,12 @@ export const SettingsPreferencesContent = () => {
           <View className={surfaceCls}>
             <SettingsToggleRow
               label={t('settings.proxy.enabled')}
+              description={supportsProxy ? undefined : t('settings.proxy.iosRequires17')}
               icon="settings-ethernet"
               value={settings.proxyEnabled}
-              onPress={() => settings$.proxyEnabled.set(!settings.proxyEnabled)}
+              onPress={() => {
+                settings$.proxyEnabled.set(!settings.proxyEnabled)
+              }}
               isLast={!settings.proxyEnabled}
             />
             {nIf(
@@ -419,7 +423,13 @@ export const SettingsPreferencesContent = () => {
                     options={['HTTP', 'SOCKS']}
                     selectedIndex={settings.proxyType === 'socks' ? 1 : 0}
                     size={1}
-                    onChange={(index) => settings$.proxyType.set(index === 1 ? 'socks' : 'http')}
+                    onChange={(index) => {
+                      if (index === 1 && !supportsProxy) {
+                        showToast(t('settings.proxy.iosRequires17'))
+                        return
+                      }
+                      settings$.proxyType.set(index === 1 ? 'socks' : 'http')
+                    }}
                   />
                 </View>
                 <View className="flex-row items-center justify-between gap-3 border-b border-zinc-300 px-4 py-4 dark:border-zinc-800">
@@ -445,7 +455,7 @@ export const SettingsPreferencesContent = () => {
                   />
                 </View>
                 {nIf(
-                  !isIos,
+                  supportsProxy,
                   (['proxyUsername', 'proxyPassword'] as const).map((key) => (
                     <View key={key} className="flex-row items-center justify-between gap-3 border-t border-zinc-300 px-4 py-4 dark:border-zinc-800">
                       <NouText className="w-24 font-medium">
@@ -463,8 +473,10 @@ export const SettingsPreferencesContent = () => {
                   )),
                 )}
                 {nIf(
-                  !isIos,
-                  <NouText className="px-4 pb-4 text-sm text-zinc-500">{t('settings.proxy.credentialsHint')}</NouText>,
+                  supportsProxy,
+                  <NouText className="px-4 pb-4 text-sm text-zinc-500">
+                    {t(isIos ? 'settings.proxy.credentialsHintIos' : 'settings.proxy.credentialsHint')}
+                  </NouText>,
                 )}
               </>,
             )}

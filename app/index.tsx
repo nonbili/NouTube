@@ -9,7 +9,7 @@ import { useIncomingShare } from '@/lib/incoming-share'
 import { parseSharedUrl } from '@/lib/share-intent'
 import * as Linking from 'expo-linking'
 import { MainPage } from '@/components/page/MainPage'
-import { isAndroid, nIf } from '@/lib/utils'
+import { isAndroid, isIos, nIf } from '@/lib/utils'
 import NouTubeViewModule from '@/modules/nou-tube-view'
 import { settings$ } from '@/states/settings'
 import { syncNativeSettings } from '@/lib/native-settings'
@@ -81,7 +81,7 @@ export default function HomeScreen() {
       console.log('[kotlin]', evt.msg)
     })
 
-    if (isAndroid) {
+    if (isAndroid || isIos) {
       syncNativeSettings()
     }
 
@@ -145,7 +145,7 @@ export default function HomeScreen() {
   })
 
   useObserveEffect(settings$, () => {
-    if (isAndroid) {
+    if (isAndroid || isIos) {
       syncNativeSettings()
     }
   })

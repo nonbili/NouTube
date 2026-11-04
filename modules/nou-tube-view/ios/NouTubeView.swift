@@ -56,6 +56,7 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
   private var appStateObservers: [NSObjectProtocol] = []
   private var lastScrollY: CGFloat = 0
   private var loadErrorShown = false
+  private var proxyRetryURL: URL?
   private var lastBrightness = UIScreen.main.brightness
   private var pipWakeFrames: Int?
   private let refreshControl = UIRefreshControl()
@@ -67,6 +68,7 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
     configuration.allowsInlineMediaPlayback = true
     configuration.allowsPictureInPictureMediaPlayback = true
     configuration.mediaTypesRequiringUserActionForPlayback = []
+    NouProxy.shared.applyToWebViews()
     configuration.websiteDataStore = .default()
     configuration.processPool = NouTubeView.sharedProcessPool
 
@@ -115,6 +117,29 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
       }
       appStateObservers.append(observer)
     }
+
+    let proxyObserver = NotificationCenter.default.addObserver(
+      forName: NouProxy.didChange, object: nil, queue: .main
+    ) { [weak self] _ in
+      guard let self else { return }
+      let settings = NouProxy.shared.snapshot()
+      do {
+        try settings.validateBrowsing()
+        if let retryURL = self.proxyRetryURL {
+          self.proxyRetryURL = nil
+          self.webView.load(URLRequest(url: retryURL))
+        }
+      }
+      catch {
+        // Keep the current page visible while the user fills out the endpoint.
+        // The data store still blocks network traffic until it becomes valid.
+        guard !settings.host.isEmpty, !settings.port.isEmpty else { return }
+        self.proxyRetryURL = self.webView.url ?? URL(string: self.pageUrl)
+        self.webView.stopLoading()
+        self.handleLoadError(error)
+      }
+    }
+    appStateObservers.append(proxyObserver)
 
     rebuildUserScripts()
   }
@@ -370,6 +395,15 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
     decidePolicyFor navigationAction: WKNavigationAction,
     decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
   ) {
+    do { try NouProxy.shared.snapshot().validateBrowsing() }
+    catch {
+      if navigationAction.targetFrame?.isMainFrame != false {
+        proxyRetryURL = navigationAction.request.url
+        handleLoadError(error)
+      }
+      decisionHandler(.cancel)
+      return
+    }
     guard let url = navigationAction.request.url else {
       decisionHandler(.allow)
       return
@@ -450,6 +484,16 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
     // A cancelled navigation is what every in-page link looks like once the
     // next one supersedes it; it is not something to show the user.
     guard nsError.code != NSURLErrorCancelled else { return }
+    let proxy = NouProxy.shared.snapshot()
+    if proxy.enabled, !(error is NouProxyError) {
+      // Failed subresource activity during an incomplete edit should not
+      // replace the page. Explicit main-frame navigation still reports errors.
+      if #available(iOS 17.0, *) {
+        if proxy.host.isEmpty || proxy.port.isEmpty { return }
+      }
+      proxyRetryURL = webView.url ?? URL(string: pageUrl)
+    }
+    guard !(error is NouProxyError && loadErrorShown) else { return }
     loadErrorShown = true
     emit("load-error", [
       "url": (nsError.userInfo[NSURLErrorFailingURLStringErrorKey] as? String) ?? pageUrl,
@@ -491,6 +535,12 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
 
   func loadUrl(_ url: String) {
     guard let parsed = URL(string: url) else { return }
+    do { try NouProxy.shared.snapshot().validateBrowsing() }
+    catch {
+      proxyRetryURL = parsed
+      handleLoadError(error)
+      return
+    }
     webView.load(URLRequest(url: parsed))
   }
 

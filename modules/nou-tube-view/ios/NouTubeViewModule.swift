@@ -17,7 +17,6 @@ internal final class NouUnsupportedException: GenericException<String> {
 }
 
 public final class NouTubeViewModule: Module {
-  private var settings = NouSettings()
   private var sleepTimer: Timer?
   private var sleepTimerEndsAt: Date?
   private var localeStrings: [String: String] = [:]
@@ -51,7 +50,13 @@ public final class NouTubeViewModule: Module {
     Function("exit") {}
 
     Function("setSettings") { (settings: NouSettings) in
-      self.settings = settings
+      var host = settings.proxyHost.trimmingCharacters(in: .whitespacesAndNewlines)
+      if host.hasPrefix("["), host.hasSuffix("]") { host = String(host.dropFirst().dropLast()) }
+      NouProxy.shared.update(NouProxySettings(
+        enabled: settings.proxyEnabled, type: settings.proxyType, host: host,
+        port: settings.proxyPort.trimmingCharacters(in: .whitespacesAndNewlines),
+        username: settings.proxyUsername, password: settings.proxyPassword
+      ))
     }
 
     Function("setLocaleStrings") { (strings: [String: String]) in
@@ -229,15 +234,8 @@ public final class NouTubeViewModule: Module {
     }
     var request = URLRequest(url: parsed)
     request.timeoutInterval = 10
-    let configuration = URLSessionConfiguration.ephemeral
-    if settings.proxyEnabled, !settings.proxyHost.isEmpty, let port = Int(settings.proxyPort) {
-      configuration.connectionProxyDictionary = [
-        kCFNetworkProxiesHTTPEnable: 1,
-        kCFNetworkProxiesHTTPProxy: settings.proxyHost,
-        kCFNetworkProxiesHTTPPort: port,
-      ]
-    }
-    let session = URLSession(configuration: configuration)
+    let session = URLSession(configuration: try NouProxy.shared.sessionConfiguration())
+    defer { session.invalidateAndCancel() }
     let (data, response) = try await session.data(for: request)
     let status = (response as? HTTPURLResponse)?.statusCode ?? 0
     return [

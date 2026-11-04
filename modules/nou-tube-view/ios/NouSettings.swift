@@ -5,6 +5,8 @@ struct NouSettings: Record {
   @Field var proxyType: String = "http"
   @Field var proxyHost: String = ""
   @Field var proxyPort: String = ""
+  @Field var proxyUsername: String = ""
+  @Field var proxyPassword: String = ""
   @Field var showMediaNotificationPrevButton: Bool = true
   @Field var showMediaNotificationNextButton: Bool = true
   @Field var showMediaNotificationRewindButton: Bool = true

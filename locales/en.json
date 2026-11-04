@@ -216,7 +216,9 @@
       "username": "Username",
       "password": "Password",
       "credentialsHint": "Optional. Changes apply shortly after you stop typing. Credentials stay on this device and are excluded from backups and sync. While authentication is enabled, other apps on this device can use the local proxy relay.",
-      "applyFailed": "Could not apply proxy settings."
+      "applyFailed": "Could not apply proxy settings.",
+      "credentialsHintIos": "Optional. Changes apply shortly after you stop typing. Credentials stay on this device and are excluded from backups and sync.",
+      "iosRequires17": "On iOS 16, an HTTP proxy can be used for feeds only. Proxying browsing, SOCKS and authentication require iOS 17 or later."
     },
     "discord": {
       "label": "Discord",
