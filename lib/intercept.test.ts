@@ -415,6 +415,30 @@ describe('intercept original title rewriting', () => {
 })
 
 describe('intercept ad blocking', () => {
+  it('filters Shorts across feed sections and continuations only when requested', () => {
+    const ordinary = { videoWithContextRenderer: { navigationEndpoint: {
+      commandMetadata: { webCommandMetadata: { url: '/watch?v=normal' } },
+    }, menu: { url: '/shorts/not-the-card' } } }
+    const shorts = { richItemRenderer: { content: { shortsLockupViewModel: { entityId: 'short' } } } }
+    const compact = { compactVideoRenderer: { navigationEndpoint: { commandMetadata: {
+      webCommandMetadata: { url: '/shorts/compact' },
+    } } } }
+    const grid = { gridVideoRenderer: { navigationEndpoint: { reelWatchEndpoint: { videoId: 'grid' } } } }
+    const response = { contents: [ordinary, shorts, { richSectionRenderer: { content: {
+      gridShelfViewModel: { contents: [{ shortsLockupViewModel: {} }] },
+    } } }], onResponseReceivedActions: [{ appendContinuationItemsAction: { continuationItems: [
+      { videoWithContextRenderer: { navigationEndpoint: { commandMetadata: {
+        webCommandMetadata: { url: '/shorts/abc' },
+      } } } }, ordinary, compact, grid,
+    ] } }] }
+    const hidden = JSON.parse(transformBrowseResponse(JSON.stringify(response), undefined, { hideShorts: true }))
+    expect(hidden.contents).toEqual([ordinary])
+    expect(hidden.onResponseReceivedActions[0].appendContinuationItemsAction.continuationItems).toEqual([ordinary])
+    const shown = JSON.parse(transformBrowseResponse(JSON.stringify(response), undefined, { hideShorts: false }))
+    expect(shown.contents).toHaveLength(3)
+    expect(shown.onResponseReceivedActions[0].appendContinuationItemsAction.continuationItems).toHaveLength(4)
+  })
+
   const feed = () => ({
     contents: {
       twoColumnBrowseResultsRenderer: {

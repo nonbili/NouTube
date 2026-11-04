@@ -47,6 +47,7 @@ window.NouTubeInitialSettings = {
   ...readCache<Record<string, unknown>>(contentSettingsKey),
 }
 window.NouTubeBlocklist = normalizeBlocklist(cache.blocklist)
+window.NouTubeHideShorts = cache.hideShorts !== false
 window.NouTubeUserStyles = normalizeUserStyles(cache.userStyles)
 ;(window as any).NouTubePreferH264 = cache.preferH264 === true
 ;(window as any).NouTubeClickbaitThumbnail = cache.clickbaitThumbnail || 'default'

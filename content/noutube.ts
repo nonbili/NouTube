@@ -235,7 +235,7 @@ export function initNouTube() {
     setBlocklist,
     preparePictureInPicture,
     setPictureInPicture,
-    shortsHidden: true,
+    shortsHidden: window.NouTubeHideShorts !== false,
     play: () => getPlayer()?.playVideo(),
     pause: () => getPlayer()?.pauseVideo(),
     prev: skipToPrevious,

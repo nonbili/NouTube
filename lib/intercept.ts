@@ -68,7 +68,7 @@ export function transformSearchResponse(text: string, blocklist?: BlocklistSnaps
       .map((x) => transformSectionListItem(x, blocklist, hideShorts))
       .filter(Boolean) as any
   }
-  filterListResponse(data, blocklist, options)
+  filterListResponse(data, blocklist, { ...options, hideShorts })
   return JSON.stringify(data)
 }
 
@@ -96,12 +96,7 @@ export function transformReelResponse(text: string, blocklist?: BlocklistSnapsho
 }
 
 function transformSectionListItem(item: SectionListItem, blocklist: BlocklistSnapshot | undefined, hideShorts: boolean) {
-  const { videoWithContextRenderer, gridShelfViewModel } = item
-  if (
-    hideShorts &&
-    (gridShelfViewModel ||
-      videoWithContextRenderer?.navigationEndpoint.commandMetadata.webCommandMetadata.url.startsWith('/shorts'))
-  ) {
+  if (hideShorts && isShortsItem(item)) {
     return undefined
   }
   if (itemMatchesBlocklist(item, blocklist)) {
@@ -119,12 +114,37 @@ export function filterListResponse(data: any, blocklist?: BlocklistSnapshot, opt
   for (const key of Object.keys(data)) {
     const value = data[key]
     if (Array.isArray(value)) {
-      data[key] = value.filter((item) => !(dropAds && isAdItem(item)) && !itemMatchesBlocklist(item, blocklist))
+      data[key] = value.filter(
+        (item) =>
+          !(dropAds && isAdItem(item)) &&
+          !(options.hideShorts && isShortsItem(item)) &&
+          !itemMatchesBlocklist(item, blocklist),
+      )
       data[key].forEach((item: any) => filterListResponse(item, blocklist, options))
     } else if (value && typeof value === 'object') {
       filterListResponse(value, blocklist, options)
     }
   }
+}
+
+// Only inspect the card itself and known card wrappers. A recursive URL search
+// would also discard ordinary videos with a Shorts link in their menu/metadata.
+function isShortsItem(item: any): boolean {
+  if (!item || typeof item !== 'object') return false
+  const candidates = [item, item.richItemRenderer?.content, item.richSectionRenderer?.content].filter(Boolean)
+  return candidates.some((card) => {
+    if (card.reelShelfRenderer || card.reelItemRenderer || card.shortsLockupViewModel || card.shortsShelfViewModel) {
+      return true
+    }
+    if (card.richShelfRenderer?.isShorts) return true
+    if (card.gridShelfViewModel?.contents?.some((child: any) => child.shortsLockupViewModel)) return true
+    const renderer = card.videoWithContextRenderer || card.videoRenderer || card.compactVideoRenderer ||
+      card.gridVideoRenderer || card.lockupViewModel
+    const endpoint = renderer?.navigationEndpoint || renderer?.onTap?.innertubeCommand ||
+      renderer?.rendererContext?.commandContext?.onTap?.innertubeCommand
+    const url = endpoint?.commandMetadata?.webCommandMetadata?.url
+    return Boolean(endpoint?.reelWatchEndpoint || (typeof url === 'string' && /^\/shorts(?:\/|\?|$)/.test(url)))
+  })
 }
 
 // Renderers that carry an ad/promo instead of real content. Dropping the whole
