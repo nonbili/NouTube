@@ -1,5 +1,8 @@
-import { beforeEach, describe, expect, it } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import { history$, History } from './history'
+import { settings$ } from './settings'
+
+afterEach(() => settings$.keepHistory.set(true))
 
 const add = (videoId: string, extra: Record<string, unknown> = {}) =>
   history$.addHistory({
@@ -55,6 +58,18 @@ describe('addHistory', () => {
     add('a')
     add('b')
     expect(history$.size()).toBe(2)
+  })
+
+  it('does not add or update history while recording is disabled', () => {
+    add('a', { current: 42 })
+    const before = history$.bookmarks.get()
+    settings$.keepHistory.set(false)
+    add('b')
+    add('a', { current: 100 })
+    expect(history$.bookmarks.get()).toEqual(before)
+    settings$.keepHistory.set(true)
+    add('b')
+    expect(history$.bookmarks.get().map(x => x.videoId)).toEqual(['b', 'a'])
   })
 })
 

@@ -6,6 +6,7 @@ import { getIndexedDBPlugin } from './indexeddb'
 // page-type rather than lib/page: the latter pulls in states/ui and with it a
 // states/tabs import cycle.
 import { getPageType } from '@/lib/page-type'
+import { settings$ } from './settings'
 
 const LIMIT = 1000
 
@@ -48,6 +49,9 @@ export const history$ = observable<Store>({
     history$.bookmarks.set(filtered)
   },
   addHistory: (partial) => {
+    // Read at the write boundary: a progress event queued before the user
+    // disabled history must not add or update an entry afterwards.
+    if (!settings$.keepHistory.peek()) return
     // A spread would let an explicit undefined wipe a field the entry already
     // had, which is never what a partial update means here.
     const history = Object.fromEntries(

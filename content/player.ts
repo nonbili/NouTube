@@ -6,6 +6,7 @@ import { clearSkipSegments, getSkipSegments, isSponsorBlockEnabled, renderSkipSe
 import { playbackRates } from '../lib/playback-rate'
 import { applyCaptionFontScale } from './captions'
 import { applyAutoplayPolicy } from './autoplay'
+import { bindPlayerMedia, readPlayerProgress } from './player-progress'
 
 export let player: any
 let curVideoId = ''
@@ -53,7 +54,9 @@ function getSavedPlaybackQuality() {
 }
 
 function getVideoElement(player: any) {
-  const video = document.querySelector('#movie_player video') || player?.querySelector?.('video') || document.querySelector('video')
+  const video = player
+    ? player.querySelector?.('video')
+    : document.querySelector('#movie_player video') || document.querySelector('video')
   return video instanceof HTMLVideoElement ? video : null
 }
 
@@ -173,31 +176,20 @@ function applySavedPlaybackQuality(player: any) {
   }
 }
 
-export function handleMutations(mutations: MutationRecord[]) {
-  for (const mutation of mutations) {
-    for (const node of mutation.addedNodes.values()) {
-      const el = node as any
-      if (el.id == 'movie_player') {
-        handleVideoPlayer(el)
-      }
-    }
-  }
-  // YouTube Music mounts the player deep inside <ytmusic-player>, so the added
-  // node is an ancestor and the id check above never sees it -- the player goes
-  // unbound for the whole session and nothing ever reaches the media
-  // notification. A document lookup finds it wherever it lands, and stays cheap:
-  // at most one indexed id query per batch, and only while no live player is
-  // bound. A player YouTube has swapped out stops being connected, which is what
-  // lets its replacement be picked up.
-  if (!player?.__nouPlayerBound || !player.isConnected) {
-    const found = document.querySelector('#movie_player')
-    if (found) {
-      handleVideoPlayer(found)
-    }
+export function handleMutations(_mutations: MutationRecord[]) {
+  // The container can survive while YouTube replaces its video child. Check
+  // both on each DOM batch, including players mounted inside a new ancestor.
+  const found = document.querySelector('#movie_player')
+  if (found) {
+    handleVideoPlayer(found)
+  } else if (player && !player.isConnected) {
+    player.__nouPlayerCleanup?.()
+    player = undefined
   }
 }
 
 export function handleVideoPlayer(el: any) {
+  if (player !== el) player?.__nouPlayerCleanup?.()
   player = el
   // YouTube re-inserts #movie_player on its own, and the mutation observer
   // hands every insertion back here. Binding twice would double the listeners
@@ -205,14 +197,18 @@ export function handleVideoPlayer(el: any) {
   // below only refills when the video id changes -- overwriting a good history
   // entry with blanks.
   if (el.__nouPlayerBound) {
+    el.__nouSyncMedia?.()
     return
   }
   el.__nouPlayerBound = true
+  let active = true
+  const isCurrent = () => active && player === el && el.isConnected
   extendPlaybackRates(player)
   extendPlaybackQuality(player)
   // onApiChange fires when the player's modules (captions included) load, which
   // is the earliest point setOption('captions', ...) is accepted.
-  el.addEventListener('onApiChange', () => applyCaptionFontScale(el))
+  const onApiChange = () => { if (isCurrent()) applyCaptionFontScale(el) }
+  el.addEventListener('onApiChange', onApiChange)
   applySavedAutoplayPolicy()
   applyCaptionFontScale(el)
   let title = ''
@@ -221,40 +217,37 @@ export function handleVideoPlayer(el: any) {
   // Everything the save needs is read in one go, so a throttled call can never
   // pair one video's position with another's url: the trailing call replays the
   // snapshot it was given instead of re-reading the player as it is by then.
-  const getProgress = (currentTime: number) => {
-    const { videoDetails } = el.getPlayerResponse?.() || {}
-    const videoId = videoDetails?.videoId
-    const url = player.getVideoUrl?.() || ''
-    if (!videoId || !url) {
-      return undefined
-    }
-    return {
-      url,
-      videoId,
-      title: videoDetails.title || '',
-      author: videoDetails.author || '',
-      thumbnail: videoDetails.thumbnail?.thumbnails?.at(-1)?.url || '',
-      current: currentTime,
-      duration: Number(videoDetails.lengthSeconds) || 0,
-    }
-  }
+  const getProgress = (currentTime: number) => isCurrent() ? readPlayerProgress(el, currentTime) : undefined
 
   const saveProgress = throttle((progress: NonNullable<ReturnType<typeof getProgress>>) => {
+    if (!isCurrent() || el.getPlayerResponse?.()?.videoDetails?.videoId !== progress.videoId) return
     nouStorage.setItem(keys.playing, JSON.stringify({ url: progress.url, current: progress.current }))
     emit('progress', progress)
   }, 5000)
+  let lastProgressVideoId = ''
+  const recordProgress = (progress: NonNullable<ReturnType<typeof getProgress>>, immediate = false) => {
+    const changed = progress.videoId !== lastProgressVideoId
+    if (changed) {
+      saveProgress.cancel()
+      lastProgressVideoId = progress.videoId
+    }
+    saveProgress(progress)
+    // A newly identified video must not wait behind the previous video's
+    // five-second window, including when metadata arrived after its state event.
+    if (changed || immediate) saveProgress.flush()
+  }
   // One source for the play state in both notify paths below. YouTube reports
   // state 3 while it buffers, which the element still calls playing, so the two
   // disagree across a transition -- and a progress tick landing on the other
   // answer would undo the state a button press had just sent.
   const isPlaying = () => {
-    const video = getVideoElement(player)
+    const video = getVideoElement(el)
     return video ? !video.paused : el.getPlayerState() == 1
   }
   // Android feeds its media session through NouTubeI, and the Discord presence
   // rides along there. Desktop has no such channel, so it gets a message.
   const emitPlayback = throttle(() => {
-    if (window.NouTubeI) {
+    if (!isCurrent() || window.NouTubeI) {
       return
     }
     const progress = getProgress(el.getCurrentTime?.() ?? 0)
@@ -262,11 +255,12 @@ export function handleVideoPlayer(el: any) {
       emit('playback', {
         ...progress,
         playing: isPlaying(),
-        rate: getVideoElement(player)?.playbackRate ?? 1,
+        rate: getVideoElement(el)?.playbackRate ?? 1,
       })
     }
   }, 5000)
   const notifyProgress = throttle(() => {
+    if (!isCurrent()) return
     if (!el.getCurrentTime) {
       hideLiveChat()
       return
@@ -276,14 +270,14 @@ export function handleVideoPlayer(el: any) {
     emitPlayback()
     const progress = getProgress(currentTime)
     if (progress) {
-      saveProgress(progress)
+      recordProgress(progress)
     }
     if (isSponsorBlockEnabled() && curVideoId == skipSegments.videoId && skipSegments.segments.length) {
       renderSkipSegments(curVideoId, skipSegments.segments, duration || el.getDuration?.() || 0)
       for (const segment of skipSegments.segments) {
         const [start, end] = segment.segment
         if (currentTime > start && currentTime < end) {
-          player.seekTo(end)
+          el.seekTo(end)
           return
         }
       }
@@ -298,6 +292,7 @@ export function handleVideoPlayer(el: any) {
   // media notification then show what the video is not doing. The state itself
   // is cheap, so play and pause send it straight out.
   const notifyPlayState = () => {
+    if (!isCurrent()) return
     window.NouTubeI?.notifyProgress(isPlaying(), el.getCurrentTime?.() ?? 0)
     emitPlayback()
     emitPlayback.flush()
@@ -307,28 +302,57 @@ export function handleVideoPlayer(el: any) {
   // above only rides on playback ticks, so a paused video would keep segments
   // drawn at the old width.
   const redrawSegments = () => {
+    if (!isCurrent()) return
     if (isSponsorBlockEnabled() && curVideoId == skipSegments.videoId && skipSegments.segments.length) {
       renderSkipSegments(curVideoId, skipSegments.segments, duration || el.getDuration?.() || 0)
     }
   }
-  if (!segmentsResizeBinded) {
+  const onFullscreenChange = () => {
+    redrawSegments()
+    setTimeout(redrawSegments, 400)
+  }
+  const ownsResizeListeners = !segmentsResizeBinded
+  if (ownsResizeListeners) {
     segmentsResizeBinded = true
     window.addEventListener('resize', redrawSegments)
-    document.addEventListener('fullscreenchange', () => {
-      redrawSegments()
-      // The fullscreen transition animates, so catch the settled layout too.
-      setTimeout(redrawSegments, 400)
-    })
+    document.addEventListener('fullscreenchange', onFullscreenChange)
   }
 
-  let progressBinded = false
+  const media = bindPlayerMedia({
+    getMedia: () => getVideoElement(el),
+    isCurrent,
+    onProgress: notifyProgress,
+    onPlayState: notifyPlayState,
+    onRateChange: (video) => {
+      emit('playback-rate', { playbackRate: video.playbackRate })
+      emitPlayback()
+      emitPlayback.flush()
+    },
+    cancelPending: () => {
+      notifyProgress.cancel()
+      saveProgress.cancel()
+      emitPlayback.cancel()
+    },
+  })
+  const recordNow = () => {
+    const progress = getProgress(el.getCurrentTime?.() ?? 0)
+    if (progress) {
+      recordProgress(progress, true)
+    }
+  }
+  const syncMedia = () => {
+    if (media.sync() && [1, 2, 3].includes(el.getPlayerState?.())) recordNow()
+  }
+  el.__nouSyncMedia = syncMedia
   const onStateChange = async (state: number) => {
+    if (!isCurrent()) return
+    syncMedia()
     applySavedAutoplayPolicy()
     // The native mini player draws its own play/pause button, so it needs the
     // state transitions -- notifyProgress is throttled and too coarse for a
     // button the user just tapped.
     emit('play-state', { playing: state == 1 })
-    const { playabilityStatus, videoDetails } = el.getPlayerResponse() || {}
+    const { playabilityStatus, videoDetails } = el.getPlayerResponse?.() || {}
     if (!videoDetails) {
       hideLiveChat()
       return
@@ -341,37 +365,19 @@ export function handleVideoPlayer(el: any) {
       el.pauseVideo()
       return
     }
-    if (!progressBinded) {
-      const video = getVideoElement(player)
-      if (video) {
-        video.addEventListener('timeupdate', notifyProgress)
-        ;['play', 'pause'].forEach((evt) => {
-          video.addEventListener(evt, () => {
-            notifyPlayState()
-            notifyProgress()
-          })
-        })
-        video.addEventListener('ratechange', () => {
-          emit('playback-rate', { playbackRate: video.playbackRate })
-          emitPlayback()
-          emitPlayback.flush()
-        })
-        progressBinded = true
-      }
-    }
-
     const { title: _title, author, thumbnail, lengthSeconds, videoId } = videoDetails
     renderFullscreenTitle(_title)
     if (curVideoId != videoId) {
       // The previous video's trailing save is still pending; letting it land
       // would put that video back at the top of the history, after this one.
       saveProgress.cancel()
+      recordNow()
       // A site mutes its embed on purpose, typically so that it may autoplay,
       // and the browser pauses a video that is unmuted without a user gesture.
       if (!isEmbedFrame) {
-        player.unMute()
+        el.unMute()
       }
-      const thumb = thumbnail.thumbnails.at(-1)
+      const thumb = thumbnail?.thumbnails?.at(-1)
       duration = +lengthSeconds
       title = _title
       window.NouTubeI?.notify(title, author, duration, thumb?.url || '')
@@ -394,18 +400,33 @@ export function handleVideoPlayer(el: any) {
         const nextSkipSegments = await getSkipSegments(videoId)
         // A previous request may finish after the user has navigated to a new
         // video. Never let that stale response replace or paint the new video.
-        if (curVideoId !== videoId) {
+        if (!isCurrent() || curVideoId !== videoId) {
           return
         }
         skipSegments = nextSkipSegments
         renderSkipSegments(videoId, nextSkipSegments.segments, duration)
       }
 
-      applySavedPlaybackRate(player)
-      applySavedPlaybackQuality(player)
+      applySavedPlaybackRate(el)
+      applySavedPlaybackQuality(el)
     }
   }
   el.addEventListener('onStateChange', onStateChange)
+  el.__nouPlayerCleanup = () => {
+    active = false
+    media.dispose()
+    el.removeEventListener('onStateChange', onStateChange)
+    el.removeEventListener('onApiChange', onApiChange)
+    if (ownsResizeListeners) {
+      window.removeEventListener('resize', redrawSegments)
+      document.removeEventListener('fullscreenchange', onFullscreenChange)
+      segmentsResizeBinded = false
+    }
+    el.__nouPlayerBound = false
+    delete el.__nouSyncMedia
+    delete el.__nouPlayerCleanup
+  }
+  syncMedia()
 
   // Binding can land mid-playback: YouTube Music mounts its player long after
   // the page, so the state change that would have set all this up has already
@@ -477,7 +498,7 @@ export async function playDefaultAudio() {
   player?.playVideo()
   const audioTracks: any[] = await retry(
     () => {
-      const tracks = player.getAvailableAudioTracks()
+      const tracks = player?.getAvailableAudioTracks?.() || []
       if (!tracks.length) {
         throw 'tracks not ready'
       }
@@ -494,7 +515,7 @@ export async function playDefaultAudio() {
       if (value && typeof value == 'object' && 'isDefault' in value && value.name) {
         if (originalLabels.some((x) => value.name.includes(x))) {
           selected = i.toString()
-          player.setAudioTrack(track)
+          player?.setAudioTrack?.(track)
         }
         options += `<option value="${i}">${value.name}</option>`
       }
@@ -521,7 +542,7 @@ export async function playDefaultAudio() {
     select.onchange = (e) => {
       const i = (e.target as HTMLSelectElement).value
       if (i != null) {
-        player.setAudioTrack(audioTracks[+i])
+        player?.setAudioTrack?.(audioTracks[+i])
       }
     }
   }
@@ -554,7 +575,8 @@ async function renderPlayOriginalAudioBtn() {
   `)
   container.onclick = (e) => {
     e.stopPropagation()
-    player.pauseVideo()
+    if (!player) return
+    player.pauseVideo?.()
     emit('embed', curVideoId)
   }
 
