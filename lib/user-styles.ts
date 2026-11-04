@@ -65,10 +65,12 @@ export const builtinUserStyleDefinitions: BuiltinUserStyleDefinition[] = [
   {
     id: 'hide-mix-playlist',
     labelKey: 'settings.userStyles.builtin.hideMixPlaylist.label',
+    // Every playlist thumbnail has a collections stack now, so match the mix
+    // link instead, or a channel's Playlists tab ends up empty.
     css: css`
-      ytm-compact-radio-renderer:has(yt-collections-stack),
-      ytm-compact-playlist-renderer:has(yt-collections-stack),
-      ytm-rich-item-renderer:has(yt-collections-stack) {
+      ytm-compact-radio-renderer,
+      ytm-compact-playlist-renderer:has(a[href*='start_radio=1']),
+      ytm-rich-item-renderer:has(a[href*='start_radio=1']) {
         display: none !important;
       }
     `,
