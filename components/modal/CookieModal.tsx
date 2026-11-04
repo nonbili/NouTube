@@ -110,7 +110,17 @@ export const CookieModal = () => {
       const script =
         cookie
           .split(';')
-          .map((x) => `document.cookie="${x.trim()};max-age=31536000;path=/;domain=.youtube.com";`)
+          .map((x) => {
+            const item = x.trim()
+            const name = item.split('=')[0]
+            // Prefixed cookies are dropped silently unless they carry the
+            // attributes the prefix demands: __Secure- needs Secure, __Host-
+            // needs Secure and no Domain (same as setCookie on desktop).
+            const attrs = name.startsWith('__Host-')
+              ? ';secure'
+              : `;domain=.youtube.com${name.startsWith('__Secure-') ? ';secure' : ''}`
+            return `document.cookie=${JSON.stringify(`${item};max-age=31536000;path=/${attrs}`)};`
+          })
           .join('') + 'location.reload();'
 
       if (!onYouTube) {
