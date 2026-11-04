@@ -212,7 +212,11 @@
       "host": "Proxy host",
       "port": "Proxy port",
       "hostPlaceholder": "e.g. 127.0.0.1 or proxy.example.com",
-      "portPlaceholder": "e.g. 1080"
+      "portPlaceholder": "e.g. 1080",
+      "username": "Username",
+      "password": "Password",
+      "credentialsHint": "Optional. Changes apply shortly after you stop typing. Credentials stay on this device and are excluded from backups and sync. While authentication is enabled, other apps on this device can use the local proxy relay.",
+      "applyFailed": "Could not apply proxy settings."
     },
     "discord": {
       "label": "Discord",

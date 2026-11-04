@@ -16,6 +16,8 @@ declare class NouTubeViewModule extends NativeModule {
     proxyType?: 'http' | 'socks'
     proxyHost?: string
     proxyPort?: string
+    proxyUsername?: string
+    proxyPassword?: string
     showMediaNotificationPrevButton?: boolean
     showMediaNotificationNextButton?: boolean
     showMediaNotificationRewindButton?: boolean

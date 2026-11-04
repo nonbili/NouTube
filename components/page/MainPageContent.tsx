@@ -1070,7 +1070,9 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       type: settings.proxyType,
       host: settings.proxyHost,
       port: settings.proxyPort,
-    })
+      username: settings.proxyUsername,
+      password: settings.proxyPassword,
+    }).catch(() => showToast(t('settings.proxy.applyFailed')))
   }, [])
 
   useEffect(() => {
@@ -1096,6 +1098,15 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     syncProxyToSession()
   })
   useObserveEffect(settings$.proxyPort, ({ previous }) => {
+    if (previous === undefined) return
+    syncProxyToSession()
+  })
+
+  useObserveEffect(settings$.proxyUsername, ({ previous }) => {
+    if (previous === undefined) return
+    syncProxyToSession()
+  })
+  useObserveEffect(settings$.proxyPassword, ({ previous }) => {
     if (previous === undefined) return
     syncProxyToSession()
   })

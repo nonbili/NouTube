@@ -70,6 +70,9 @@ export interface SettingsSnapshot {
 }
 
 interface Store extends SettingsSnapshot {
+  // Credentials stay on this device; snapshots used by sync/backups omit them.
+  proxyUsername: string
+  proxyPassword: string
   downloadPath: string
   downloadUseCookies: boolean
   downloadPresets: DownloadPreset[]
@@ -351,6 +354,8 @@ export const settings$ = observable<Store>({
   proxyType: 'http',
   proxyHost: '',
   proxyPort: '',
+  proxyUsername: '',
+  proxyPassword: '',
   downloadPath: '',
   downloadUseCookies: false,
   downloadPresets: [],

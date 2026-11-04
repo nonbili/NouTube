@@ -4,6 +4,12 @@ import { getSettingsSnapshot, normalizeSettings, type SettingsSnapshot } from '.
 const normalizePartialSettings = () => normalizeSettings<Partial<SettingsSnapshot>>({})
 
 describe('settings', () => {
+  it('keeps proxy credentials out of backup and sync snapshots', () => {
+    const snapshot = getSettingsSnapshot({ proxyUsername: 'device user', proxyPassword: 'device password' })
+    expect(snapshot).not.toHaveProperty('proxyUsername')
+    expect(snapshot).not.toHaveProperty('proxyPassword')
+  })
+
   it('defaults disable autoplay off in snapshots and persisted settings', () => {
     expect(getSettingsSnapshot({}).disableAutoplay).toBe(false)
     expect(normalizePartialSettings()?.disableAutoplay).toBe(false)

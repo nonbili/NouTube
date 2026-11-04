@@ -8,6 +8,8 @@ export const syncNativeSettings = () => {
     proxyType: settings.proxyType,
     proxyHost: settings.proxyHost,
     proxyPort: settings.proxyPort,
+    proxyUsername: settings.proxyUsername,
+    proxyPassword: settings.proxyPassword,
     showMediaNotificationPrevButton: settings.showMediaNotificationPrevButton,
     showMediaNotificationNextButton: settings.showMediaNotificationNextButton,
     showMediaNotificationRewindButton: settings.showMediaNotificationRewindButton,

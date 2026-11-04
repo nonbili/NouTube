@@ -1,5 +1,6 @@
-import { ActivityIndicator, Platform, Pressable, Switch, TextInput, View, useColorScheme } from 'react-native'
-import { useEffect, useRef, useState } from 'react'
+import { ActivityIndicator, Platform, Pressable, Switch, TextInput, View, useColorScheme, type TextInputProps } from 'react-native'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { debounce } from 'es-toolkit'
 import { useLocales } from 'expo-localization'
 import { clsx, isAndroid, isIos, isWeb, nIf } from '@/lib/utils'
 import { isDynamicColorAvailable } from '@/lib/dynamic-palette'
@@ -333,6 +334,27 @@ const clickbaitLabel = (value: (typeof clickbaitOptions)[number]) => {
   return t('settings.clickbaitThumbnail.optionFrame', { n: Number(value.slice(2)) })
 }
 
+type ProxyField = 'proxyHost' | 'proxyPort' | 'proxyUsername' | 'proxyPassword'
+
+// Batch keystrokes so editing cannot tear down a playing video's connection
+// after every character. Flush pending edits on blur or modal dismissal.
+const ProxyTextInput = ({ field, ...props }: TextInputProps & { field: ProxyField }) => {
+  const saved = useValue(settings$[field])
+  const [draft, setDraft] = useState(saved)
+  const commit = useMemo(() => debounce((text: string) => settings$[field].set(text), 500), [field])
+  useEffect(() => setDraft(saved), [saved])
+  useEffect(() => () => commit.flush(), [commit])
+  return (
+    <TextInput
+      {...props}
+      value={draft}
+      onChangeText={(text) => { setDraft(text); commit(text) }}
+      onBlur={() => commit.flush()}
+      onEndEditing={({ nativeEvent }) => { commit(nativeEvent.text); commit.flush() }}
+    />
+  )
+}
+
 // NouTube's own behavior. Anything that changes the YouTube page itself belongs on the YouTube
 // side of the settings index instead (see SettingsYouTubeContent).
 export const SettingsPreferencesContent = () => {
@@ -402,10 +424,9 @@ export const SettingsPreferencesContent = () => {
                 </View>
                 <View className="flex-row items-center justify-between gap-3 border-b border-zinc-300 px-4 py-4 dark:border-zinc-800">
                   <NouText className="w-24 font-medium">{t('settings.proxy.host')}</NouText>
-                  <TextInput
+                  <ProxyTextInput
                     className="flex-1 rounded-lg border border-zinc-300 bg-zinc-100 px-3 py-2 text-right text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-                    value={settings.proxyHost}
-                    onChangeText={(text) => settings$.proxyHost.set(text)}
+                    field="proxyHost"
                     placeholder={t('settings.proxy.hostPlaceholder')}
                     placeholderTextColor={tw('zinc-500')}
                     autoCapitalize="none"
@@ -414,16 +435,37 @@ export const SettingsPreferencesContent = () => {
                 </View>
                 <View className="flex-row items-center justify-between gap-3 px-4 py-4">
                   <NouText className="w-24 font-medium">{t('settings.proxy.port')}</NouText>
-                  <TextInput
+                  <ProxyTextInput
                     className="w-32 rounded-lg border border-zinc-300 bg-zinc-100 px-3 py-2 text-right text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-                    value={settings.proxyPort}
-                    onChangeText={(text) => settings$.proxyPort.set(text)}
+                    field="proxyPort"
                     placeholder={t('settings.proxy.portPlaceholder')}
                     placeholderTextColor={tw('zinc-500')}
                     keyboardType="numeric"
                     returnKeyType="done"
                   />
                 </View>
+                {nIf(
+                  !isIos,
+                  (['proxyUsername', 'proxyPassword'] as const).map((key) => (
+                    <View key={key} className="flex-row items-center justify-between gap-3 border-t border-zinc-300 px-4 py-4 dark:border-zinc-800">
+                      <NouText className="w-24 font-medium">
+                        {t(key === 'proxyUsername' ? 'settings.proxy.username' : 'settings.proxy.password')}
+                      </NouText>
+                      <ProxyTextInput
+                        className="flex-1 rounded-lg border border-zinc-300 bg-zinc-100 px-3 py-2 text-right text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                        accessibilityLabel={t(key === 'proxyUsername' ? 'settings.proxy.username' : 'settings.proxy.password')}
+                        field={key}
+                        secureTextEntry={key === 'proxyPassword'}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                      />
+                    </View>
+                  )),
+                )}
+                {nIf(
+                  !isIos,
+                  <NouText className="px-4 pb-4 text-sm text-zinc-500">{t('settings.proxy.credentialsHint')}</NouText>,
+                )}
               </>,
             )}
           </View>

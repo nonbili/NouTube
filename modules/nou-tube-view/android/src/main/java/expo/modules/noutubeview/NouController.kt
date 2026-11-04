@@ -27,6 +27,12 @@ class NouSettings : Record {
   val proxyPort: String = ""
 
   @Field
+  val proxyUsername: String = ""
+
+  @Field
+  val proxyPassword: String = ""
+
+  @Field
   val showMediaNotificationPrevButton: Boolean = true
 
   @Field

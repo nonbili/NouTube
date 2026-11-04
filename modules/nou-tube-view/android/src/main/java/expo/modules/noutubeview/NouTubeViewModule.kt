@@ -35,7 +35,7 @@ class NouTubeViewModule : Module() {
       return
     }
 
-    val proxyKey = "${settings.proxyEnabled}|${settings.proxyType}|${settings.proxyHost}|${settings.proxyPort}"
+    val proxyKey = NouProxy.webViewRule() ?: ""
     if (proxyKey == lastProxyKey) {
       return
     }
@@ -43,9 +43,7 @@ class NouTubeViewModule : Module() {
 
     val executor = java.util.concurrent.Executor { command -> command.run() }
     if (settings.proxyEnabled && settings.proxyHost.isNotBlank()) {
-      val type = if (settings.proxyType == "socks") "socks" else "http"
-      val portStr = if (settings.proxyPort.isNotBlank()) ":${settings.proxyPort}" else ""
-      val proxyRule = "$type://${settings.proxyHost}$portStr"
+      val proxyRule = NouProxy.webViewRule() ?: return
       val proxyConfig = ProxyConfig.Builder()
         .addProxyRule(proxyRule)
         .build()
@@ -144,6 +142,7 @@ class NouTubeViewModule : Module() {
     }
 
     OnDestroy {
+      NouProxy.close()
       captioningListener?.let { captioningManager?.removeCaptioningChangeListener(it) }
       captioningListener = null
       captioningManager = null
