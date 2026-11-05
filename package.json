@@ -6,9 +6,9 @@
   "name": "noutube",
   "private": true,
   "main": "index.js",
-  "version": "0.7.5",
-  "versionCode": 85,
-  "buildNumber": "7",
+  "version": "0.7.6",
+  "versionCode": 86,
+  "buildNumber": "8",
   "scripts": {
     "bundle": "bun build --target browser content/main.ts --outfile assets/scripts/main.bjs",
     "bundle:es": "esbuild --bundle content/main.ts --minify --outfile=assets/scripts/main.bjs",

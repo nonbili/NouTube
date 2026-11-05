@@ -1,0 +1,8 @@
+- Support proxy username and password authentication
+- Add setting to force landscape orientation
+- Add setting to disable recommended video autoplay
+- Improve Shorts and XHR ad filtering
+- Fix watch history recording across player transitions
+- Fix hide mix playlists option hiding all channel playlists
+- Fix injected __Secure- and __Host- cookies being dropped
+- Fix Android release builds failing with the CI runner's default Java version
