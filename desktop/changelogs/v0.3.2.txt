@@ -1,0 +1,8 @@
+- support proxy username and password authentication
+- support chat replay for ended live streams
+- add setting to disable recommended video autoplay
+- improve Shorts and XHR ad filtering
+- fix watch history recording across player transitions
+- fix hide mix playlists option hiding all channel playlists
+- fix duplicate channel subscriptions across URL variations
+- support Galician and Italian translations

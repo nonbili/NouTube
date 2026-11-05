@@ -59,6 +59,20 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.3.2" date="2026-11-05">
+      <description>
+        <ul>
+          <li>Support proxy username and password authentication</li>
+          <li>Support chat replay for ended live streams</li>
+          <li>Add setting to disable recommended video autoplay</li>
+          <li>Improve Shorts and XHR ad filtering</li>
+          <li>Fix watch history recording across player transitions</li>
+          <li>Fix hide mix playlists option hiding all channel playlists</li>
+          <li>Fix duplicate channel subscriptions across URL variations</li>
+          <li>Support Galician and Italian translations</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.3.1" date="2026-10-07">
       <description>
         <ul>
