@@ -26,6 +26,7 @@ declare class NouTubeViewModule extends NativeModule {
     showMediaNotificationCloseButton?: boolean
     playbackRate?: number
     blockAds?: boolean
+    forceLandscape?: boolean
     discordPresence?: boolean
   }): void
   extractTakeoutCsvFiles(uri: string): Promise<Array<{ name: string; uri: string }>>

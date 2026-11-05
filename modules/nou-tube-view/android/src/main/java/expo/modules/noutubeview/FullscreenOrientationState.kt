@@ -19,6 +19,10 @@ internal class FullscreenOrientationState(private val applyOrientation: (Int) ->
     mode = null
   }
 
+  fun reapply() {
+    mode?.let { applyOrientation(fullscreenOrientationFor(it, halfOpened || multiWindow)) }
+  }
+
   fun onWindowLayoutChanged(info: WindowLayoutInfo) {
     updateWindow(info.displayFeatures.filterIsInstance<FoldingFeature>().any {
       it.state == FoldingFeature.State.HALF_OPENED

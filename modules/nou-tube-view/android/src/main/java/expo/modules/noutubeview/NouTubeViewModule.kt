@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.view.accessibility.CaptioningManager
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.webkit.ProxyConfig
@@ -22,6 +24,7 @@ import java.io.InputStream
 import java.util.zip.ZipInputStream
 
 class NouTubeViewModule : Module() {
+  private val orientationHandler = Handler(Looper.getMainLooper())
   private var lastProxyKey: String? = null
 
   private fun ytDlp(): NouYtDlp {
@@ -129,6 +132,14 @@ class NouTubeViewModule : Module() {
     }
 
     OnCreate {
+      orientationHandler.post {
+        (appContext.reactContext ?: appContext.currentActivity)?.let {
+          NouOrientationPreferences.restore(it)
+        }
+        appContext.currentActivity?.let { activity ->
+          nouOrientationPolicy.reapplyForced { activity.requestedOrientation = it }
+        }
+      }
       appContext.reactContext?.applicationContext?.let { NouDiscord.init(it) }
       val manager = captioning() ?: return@OnCreate
       val listener = object : CaptioningManager.CaptioningChangeListener() {
@@ -146,6 +157,14 @@ class NouTubeViewModule : Module() {
       captioningListener?.let { captioningManager?.removeCaptioningChangeListener(it) }
       captioningListener = null
       captioningManager = null
+    }
+
+    OnActivityEntersForeground {
+      orientationHandler.post {
+        appContext.currentActivity?.let { activity ->
+          nouOrientationPolicy.reapplyForced { activity.requestedOrientation = it }
+        }
+      }
     }
 
     Function("areNotificationsEnabled") {
@@ -207,6 +226,14 @@ class NouTubeViewModule : Module() {
     }
 
     Function("setSettings") { settings: NouSettings ->
+      orientationHandler.post {
+        (appContext.reactContext ?: appContext.currentActivity)?.let {
+          NouOrientationPreferences.save(it, settings.forceLandscape)
+        }
+        nouOrientationPolicy.update(settings.forceLandscape) { orientation ->
+          appContext.currentActivity?.requestedOrientation = orientation
+        }
+      }
       NouProxy.update(settings)
       NouAdBlock.update(settings)
       NouDiscord.update(settings)

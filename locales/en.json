@@ -383,6 +383,8 @@
     "feedNotificationsError": "Could not enable feed notifications. Please try again.",
     "watchHistory": "Watch history",
     "replaceWatchNavigation": "Back skips watched videos",
+    "forceLandscape": "Force landscape orientation",
+    "forceLandscapeDescription": "Keep the app in landscape on phones, even when auto-rotate is off. Android may ignore this on tablets and unfolded foldables.",
     "theme": {
       "label": "Theme",
       "system": "System",

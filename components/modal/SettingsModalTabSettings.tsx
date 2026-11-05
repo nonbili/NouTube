@@ -395,6 +395,17 @@ export const SettingsPreferencesContent = () => {
               icon="swap-horiz"
               value={settings.replaceWatchNavigation}
               onPress={() => settings$.replaceWatchNavigation.set(!settings.replaceWatchNavigation)}
+              isLast={!isAndroid}
+            />,
+          )}
+          {nIf(
+            isAndroid,
+            <SettingsToggleRow
+              label={t('settings.forceLandscape')}
+              description={t('settings.forceLandscapeDescription')}
+              icon="screen-lock-landscape"
+              value={settings.forceLandscape}
+              onPress={() => settings$.forceLandscape.set(!settings.forceLandscape)}
               isLast
             />,
           )}

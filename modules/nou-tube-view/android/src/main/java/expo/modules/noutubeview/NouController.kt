@@ -15,6 +15,9 @@ private const val SLEEP_TIMER_REASON_EXPIRED = "expired"
 
 class NouSettings : Record {
   @Field
+  val forceLandscape: Boolean = false
+
+  @Field
   val proxyEnabled: Boolean = false
 
   @Field

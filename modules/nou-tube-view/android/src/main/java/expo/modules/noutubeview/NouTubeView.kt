@@ -705,6 +705,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
         override fun onHideCustomView() {
           fullscreenOrientation.exit()
+          nouOrientationPolicy.exitFullscreen(this@NouTubeView)
           if (::orientationListener.isInitialized) orientationListener.disable()
           val fullscreenView = customView
           fullscreenView?.setKeepScreenOn(false)
@@ -721,7 +722,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
           window.attributes = window.attributes.apply {
             screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
           }
-          activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER)
+          activity.requestedOrientation = nouOrientationPolicy.orientationFor()
 
           val controller = WindowCompat.getInsetsController(window, window.decorView)
           controller.show(WindowInsetsCompat.Type.systemBars())
@@ -944,11 +945,13 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   }
 
   private fun applyFullscreenOrientation(activity: Activity, orientation: Int) {
-    activity.requestedOrientation = orientation
+    nouOrientationPolicy.fullscreen(this) { fullscreenOrientation.reapply() }
+    activity.requestedOrientation = nouOrientationPolicy.orientationFor(orientation)
     // initService can run before Expo has an activity. Fullscreen orientation
     // still works then; only the optional sensor listener is unavailable.
     if (!::orientationListener.isInitialized) return
-    if (orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE &&
+    if (!nouOrientationPolicy.forceLandscape &&
+      orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE &&
       Settings.System.getInt(activity.contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0) == 1
     ) {
       orientationListener.enable()
@@ -972,6 +975,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     if (trackedActivity === activity) return
     stopWindowTracking()
     trackedActivity = activity
+    nouOrientationPolicy.reapplyForced { activity.requestedOrientation = it }
     fullscreenOrientation.onMultiWindowModeChanged(activity.isInMultiWindowMode)
     (activity as? OnMultiWindowModeChangedProvider)?.addOnMultiWindowModeChangedListener(multiWindowListener)
     windowLayoutJob = CoroutineScope(Dispatchers.Main.immediate).launch {
@@ -1057,7 +1061,8 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
 
   fun onOrientationChanged(orientation: Int) {
     val activity = currentActivity
-    if (activity?.getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE &&
+    if (!nouOrientationPolicy.forceLandscape &&
+      activity?.getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE &&
       (orientation in 70..110 || orientation in 250..290)
     ) {
       activity?.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER)
@@ -1086,6 +1091,7 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   fun destroyService() {
     stopWindowTracking()
     fullscreenOrientation.exit()
+    nouOrientationPolicy.exitFullscreen(this)
     if (::orientationListener.isInitialized) orientationListener.disable()
     retryHandler.removeCallbacksAndMessages(null)
     if (mediaSessionOwner === this) {

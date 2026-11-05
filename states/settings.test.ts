@@ -4,6 +4,20 @@ import { getSettingsSnapshot, normalizeSettings, type SettingsSnapshot } from '.
 const normalizePartialSettings = () => normalizeSettings<Partial<SettingsSnapshot>>({})
 
 describe('settings', () => {
+  it('defaults landscape forcing off and accepts only boolean preferences', () => {
+    expect(getSettingsSnapshot({}).forceLandscape).toBe(false)
+    expect(normalizePartialSettings()?.forceLandscape).toBe(false)
+    for (const forceLandscape of [true, false]) {
+      expect(getSettingsSnapshot({ forceLandscape }).forceLandscape).toBe(forceLandscape)
+      expect(normalizeSettings({ forceLandscape }).forceLandscape).toBe(forceLandscape)
+    }
+    for (const forceLandscape of ['true', 'false', 1, null]) {
+      const data = { forceLandscape } as unknown as Partial<SettingsSnapshot>
+      expect(getSettingsSnapshot(data).forceLandscape).toBe(false)
+      expect(normalizeSettings(data)?.forceLandscape).toBe(false)
+    }
+  })
+
   it('keeps proxy credentials out of backup and sync snapshots', () => {
     const snapshot = getSettingsSnapshot({ proxyUsername: 'device user', proxyPassword: 'device password' })
     expect(snapshot).not.toHaveProperty('proxyUsername')

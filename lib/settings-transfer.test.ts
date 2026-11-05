@@ -44,6 +44,7 @@ describe('settings transfer', () => {
     expect(parsed.settings?.hideShorts).toBe(false)
     expect(parsed.settings?.defaultZoom).toBe(100)
     expect(parsed.settings?.disableAutoplay).toBe(false)
+    expect(parsed.settings?.forceLandscape).toBe(false)
     expect(parsed.blocklist).toBeUndefined()
     expect(parsed.userStyles).toBeUndefined()
   })
@@ -52,18 +53,22 @@ describe('settings transfer', () => {
     settings$.defaultZoom.set(125)
     settings$.hideMixPlaylist.set(true)
     settings$.disableAutoplay.set(true)
+    settings$.forceLandscape.set(true)
     const exported = JSON.stringify(createSettingsBackup())
 
     settings$.defaultZoom.set(100)
     settings$.hideMixPlaylist.set(false)
     settings$.disableAutoplay.set(false)
+    settings$.forceLandscape.set(false)
 
     const restored = applySettingsBackup(parseSettingsBackup(exported))
     expect(restored).toEqual(['settings', 'blocklist', 'user styles'])
     expect(settings$.defaultZoom.get()).toBe(125)
     expect(settings$.hideMixPlaylist.get()).toBe(true)
     expect(settings$.disableAutoplay.get()).toBe(true)
+    expect(settings$.forceLandscape.get()).toBe(true)
     settings$.disableAutoplay.set(false)
+    settings$.forceLandscape.set(false)
   })
 
   it('keeps custom user styles when importing', () => {

@@ -23,6 +23,7 @@ export interface SettingsSnapshot {
   hideMixPlaylist: boolean
   keepHistory: boolean
   replaceWatchNavigation: boolean
+  forceLandscape: boolean
   miniPlayer: boolean
   // Where the mini player was last dropped, as fractions of the room it can
   // move in, so it lands in the same spot after a rotation or resize.
@@ -103,6 +104,9 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
     return data
   }
   data.language = normalizeI18nLanguage(data.language)
+  if (typeof data.forceLandscape !== 'boolean') {
+    data.forceLandscape = false
+  }
   if (data.headerPosition !== 'bottom') {
     data.headerPosition = 'top'
   }
@@ -239,6 +243,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   hideMixPlaylist: Boolean(value?.hideMixPlaylist),
   keepHistory: typeof value?.keepHistory === 'boolean' ? value.keepHistory : true,
   replaceWatchNavigation: Boolean(value?.replaceWatchNavigation),
+  forceLandscape: value?.forceLandscape === true,
   miniPlayer: typeof value?.miniPlayer === 'boolean' ? value.miniPlayer : false,
   miniPlayerPosition: getMiniPlayerPosition(value),
   pictureInPicture: Boolean(value?.pictureInPicture),
@@ -312,6 +317,7 @@ export const settings$ = observable<Store>({
   hideMixPlaylist: false,
   keepHistory: true,
   replaceWatchNavigation: false,
+  forceLandscape: false,
   miniPlayer: false,
   miniPlayerPosition: { x: 1, y: 1 },
   pictureInPicture: false,
