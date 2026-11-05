@@ -1,0 +1,7 @@
+- Run in embedded YouTube players on other sites
+- Add setting to disable recommended video autoplay
+- Improve Shorts and XHR ad filtering
+- Fix watch history recording across player transitions
+- Fix hide mix playlists option hiding all channel playlists
+- Fix duplicate channel subscriptions across URL variations
+- Support Galician and Italian translations
