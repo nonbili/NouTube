@@ -4,7 +4,10 @@
     "code": "Código-fonte",
     "donate": "Doações",
     "hint": "Informações sobre a versão, atualizações, código-fonte e links de suporte.",
-    "updates": "Atualizações"
+    "updates": "Atualizações",
+    "help": "Ajuda",
+    "faq": "FAQ",
+    "faqHint": "Respostas às perguntas mais frequentes"
   },
   "buttons": {
     "clear": "Limpar",
@@ -47,8 +50,8 @@
     "desktop": "Site para computador",
     "on": "Ativado",
     "off": "Desativado",
-    "pip": "Picture-in-Picture",
-    "openInNewTab": "Abrir em uma nova guia",
+    "pip": "Picture-in-Picture (PiP)",
+    "openInNewTab": "Abrir em uma nova aba",
     "moveTo": "Mover para…",
     "duplicateTab": "Duplicar aba",
     "close": "Fechar",
@@ -75,7 +78,7 @@
     "downloadHistory": "Histórico de downloads",
     "playbackQuality": "Qualidade de reprodução",
     "noFolder": "Sem pasta",
-    "downloadUseCookies": "Aceitar meus cookies",
+    "downloadUseCookies": "Usar meus cookies",
     "downloadUseCookiesHint": "Necessário para vídeos com restrição de idade, exclusivos para membros ou privados. Isso pode fazer com que você seja desconectado do YouTube, e usar uma conta dessa forma acarreta o risco de ela ser sinalizada.",
     "downloadErrorBlocked": "O YouTube recusou esse download. Ele exige um token que o yt-dlp ainda não consegue gerar; portanto, esse vídeo não pode ser baixado por enquanto — a maioria dos outros vídeos ainda funciona.",
     "downloadErrorSignIn": "O YouTube exige que você esteja conectado para assistir a este vídeo. Ative a opção “Usar meus cookies” e tente novamente.",
@@ -85,9 +88,11 @@
     "showAllFormats": "Mostrar todos os formatos",
     "showFewerFormats": "Mostrar menos formatos",
     "pinnedFormat": "Fixado",
-    "pinFormat": "Definir como formato padrão",
+    "pinFormat": "Fixar como formato padrão",
     "sharePageUrl": "URL da página",
-    "shareVideoUrl": "URL do vídeo"
+    "shareVideoUrl": "URL do vídeo",
+    "unpinFormat": "Desafixar formato padrão",
+    "shareIncludePosition": "Incluir posição atual"
   },
   "settings": {
     "label": "Configurações",
@@ -97,25 +102,25 @@
     "channelsFeed": "Feed de canais",
     "watchHistory": "Histórico de reprodução",
     "theme": {
-      "label": "Tema do YouTube",
+      "label": "Tema",
       "system": "Sistema",
       "dark": "Escuro",
       "light": "Claro",
-      "hint": "Reiniciar manualmente se a alteração não for refletida no Webview."
+      "hint": "Aplica-se ao aplicativo e ao YouTube. Reinicie manualmente caso a alteração não seja refletida na Webview."
     },
     "login": {
-      "label": "Tente isto se não conseguir fazer login a partir do Webview",
+      "label": "Tente isto se não conseguir fazer login a partir da Webview",
       "button": "Autenticar com YouTube"
     },
     "openUrlLabel": "Abrir URL suportado diretamente",
     "webview": {
-      "clearLabel": "Limpar dados do WebView"
+      "clearLabel": "Limpar dados da WebView"
     },
     "importList": "Importar uma lista de links",
     "importTakeout": "Importar do YouTube Takeout",
-    "exportLabel": "Exportar favoritos para uma lista",
-    "injectCookie": "Injetar cookie se não for possível fazer login a partir do Webview",
-    "injectCookieTitle": "Injetar cookie de autenticação no Webview",
+    "exportLabel": "Exportar favoritos para um arquivo CSV",
+    "injectCookie": "Injetar cookie se não for possível fazer login a partir da Webview",
+    "injectCookieTitle": "Injetar cookie de autenticação na Webview",
     "injectCookieHint": "Copiar valores do cabeçalho e cookies do navegador em seu computador. Esta é uma solução alternativa quando você não consegue fazer login com seu e-mail/senha.",
     "userAgent": {
       "title": "User-Agent personalizado",
@@ -128,7 +133,7 @@
     "appearance": "Aparência",
     "appearanceHint": "Barra de ferramentas, idioma e tema.",
     "tools": "Ferramentas",
-    "toolsHint": "Gerenciar o ambiente do WebView e outras ferramentas.",
+    "toolsHint": "Gerenciar o ambiente da WebView e outras ferramentas.",
     "transfer": "Importar & Exportar",
     "transferHint": "Traga seus vídeos favoritos ou leve-os com você.",
     "syncHintShort": "Sincronização da conta, plano e dispositivo.",
@@ -136,7 +141,7 @@
     "hideShortsInNavbar": "Oculta Shorts na barra de navegação",
     "hideMixPlaylist": "Ocultar playlist mistas",
     "userStyles": {
-      "label": "CSS do usuário",
+      "label": "CSS & Scripts do usuário",
       "custom": {
         "label": "CSS personalizado",
         "empty": "Ainda não há CSS personalizados."
@@ -154,7 +159,7 @@
       "cssCopied": "CSS copiado",
       "copyFailed": "Não foi possível copiar o CSS",
       "importFailed": "Falha ao importar CSS",
-      "hint": "Ajustes de CSS integrados e CSS específico para o seu site.",
+      "hint": "Seus próprios CSS e scripts de usuário específicos para cada site.",
       "builtin": {
         "label": "CSS personalizados",
         "hideShortsInNavbar": {
@@ -165,6 +170,43 @@
         },
         "hideCommunityPosts": {
           "label": "Ocultar publicações da comunidade"
+        },
+        "hideAskButton": {
+          "label": "Ocultar o botão “Perguntar ao Gemini”"
+        },
+        "hideHomeFeed": {
+          "label": "Ocultar o feed da página inicial"
+        },
+        "hideRelatedVideos": {
+          "label": "Ocultar vídeos relacionados"
+        },
+        "hideEndScreens": {
+          "label": "Ocultar cartões finais"
+        }
+      },
+      "scripts": {
+        "label": "Scripts personalizados",
+        "empty": "Ainda não há scripts personalizados.",
+        "add": "Adicionar script",
+        "addTitle": "Adicionar script do usuário",
+        "editTitle": "Editar script de usuário",
+        "namePlaceholder": "Meu script",
+        "run": "Executar",
+        "runComplete": "Script executado",
+        "runFailed": "Falha no script",
+        "import": "Importar",
+        "importFailed": "Falha ao importar script",
+        "pinToHeader": "Fixar na barra de ferramentas",
+        "pinToHeaderHint": "Exibir este script como uma ação na barra de ferramentas.",
+        "pinnedToHeader": "Fixado na barra de ferramentas",
+        "runAtStart": "Executar no início do documento",
+        "runAtStartHint": "Executado antes de o DOM ser construído, em vez de após o \"DOMContentLoaded\".",
+        "runAtStartDesktopHint": "Ainda não disponível para desktop, os scripts são executados assim que o DOM está pronto.",
+        "runAtStartBadge": "Executa no início do documento",
+        "deleteConfirm": "Remover este script personalizado?",
+        "noActiveTab": "Nenhuma Webview ativa",
+        "validation": {
+          "js": "O JavaScript não pode estar vazio"
         }
       }
     },
@@ -203,15 +245,137 @@
       "type": "Tipo de proxy",
       "host": "Host do proxy",
       "port": "Porta do proxy",
-      "hostPlaceholder": "ex. 127.0.0.1 ou proxy.example.com",
-      "portPlaceholder": "ex. 1080"
-    }
+      "hostPlaceholder": "ex. 127.0.0.1 ou proxy.exemplo.com",
+      "portPlaceholder": "ex. 1080",
+      "username": "Usuário",
+      "password": "Senha",
+      "credentialsHint": "Opcional: As alterações entram em vigor logo após você parar de digitar. As credenciais permanecem neste dispositivo e são excluídas dos backups e da sincronização. Enquanto a autenticação estiver ativada, outros aplicativos neste dispositivo poderão usar o proxy local.",
+      "applyFailed": "Não foi possível aplicar as configurações de proxy.",
+      "credentialsHintIos": "Opcional: As alterações entram em vigor pouco depois de você parar de digitar. As credenciais permanecem neste dispositivo e não são incluídas em backups nem em sincronizações.",
+      "iosRequires17": "No iOS 16, um proxy HTTP pode ser usado apenas para feeds. O uso de proxy para navegação, SOCKS e autenticação requer o iOS 17 ou posterior."
+    },
+    "discord": {
+      "enabled": "Mostrar o que está sendo reproduzido no Discord",
+      "hint": "Faça login com sua conta do Discord e defina o vídeo ou a música que você está reproduzindo como sua atividade. O Discord não oferece suporte oficial a isso.",
+      "login": "Fazer login no Discord",
+      "label": "Discord",
+      "logout": "Sair do Discord"
+    },
+    "autoHideSidebar": "Ocultar automaticamente a barra lateral e exibi-la ao passar o mouse",
+    "toolbar": "Barra de ferramentas",
+    "toolbarButtons": "Botões da barra de ferramentas",
+    "showHomeButtonInHeader": "Mostrar o botão “Página inicial” na barra de ferramentas",
+    "showBackButtonInHeader": "Mostrar o botão “Voltar” na barra de ferramentas",
+    "showForwardButtonInHeader": "Mostrar o botão “Avançar” na barra de ferramentas",
+    "showReloadButtonInHeader": "Mostrar o botão “Atualizar” na barra de ferramentas",
+    "showHistoryButtonInHeader": "Mostrar o botão “Histórico” na barra de ferramentas",
+    "showSleepTimerButtonInHeader": "Mostrar o botão “Fazer uma pausa” na barra de ferramentas",
+    "showLibraryButtonInHeader": "Mostrar o botão “Biblioteca” na barra de ferramentas",
+    "showStarButtonInHeader": "Mostrar o botão “Vídeos favoritos” na barra de ferramentas",
+    "mediaNotificationButtons": "Botões de notificação de mídia",
+    "showMediaNotificationPrevButton": "Mostrar o botão “Vídeo anterior”",
+    "showMediaNotificationNextButton": "Mostrar o botão “Próximo vídeo”",
+    "showMediaNotificationRewindButton": "Mostrar o botão “Retroceder”",
+    "showMediaNotificationForwardButton": "Mostrar o botão “Avançar”",
+    "showMediaNotificationSpeedButton": "Mostrar o botão “Velocidade de reprodução”",
+    "showMediaNotificationCloseButton": "Mostrar o botão “Fechar”",
+    "mediaNotificationButtonsHint": "O Android exibe, no máximo, quatro desses botões ao lado do botão de reprodução, na ordem aqui listada. Você ativou {{selected}}.",
+    "doubleTapToToggleHeader": "Toque duas vezes na página para ocultar ou exibir a barra de ferramentas",
+    "translation": {
+      "enable": "Traduzir comentários",
+      "hint": "Mostra um botão de tradução nos comentários para traduzi-los no seu dispositivo.",
+      "targetLanguage": "Traduzir para",
+      "appLanguage": "App",
+      "systemLanguage": "Sistema",
+      "notSelected": "Escolha um idioma",
+      "chooseLanguage": "Escolha primeiro um idioma para a tradução",
+      "loading": "Traduzindo…",
+      "copy": "Copiar tradução",
+      "copySource": "Copiar fonte",
+      "pin": "Fixar tradução",
+      "unpin": "Desafixar tradução",
+      "failed": "Não foi possível traduzir este texto",
+      "unsupported": "Este par de idiomas não está disponível neste dispositivo"
+    },
+    "miniPlayerHint": "Ao deixar um vídeo aberto, ele continua sendo reproduzido em um canto da página.",
+    "pictureInPicture": "Picture-in-picture (PiP)",
+    "pictureInPictureHint": "Mantenha o vídeo sendo reproduzido em uma janela flutuante quando você sair do aplicativo.",
+    "showOriginalVideoTitle": "Mostrar o título original do vídeo",
+    "systemCaptionStyle": {
+      "label": "Usar o estilo de legenda do sistema",
+      "hint": "Aplica a cor, o plano de fundo e o tamanho do texto das legendas do Android às legendas do YouTube.",
+      "openSystemSettings": "Configurações de legenda do sistema"
+    },
+    "blockAds": {
+      "label": "Bloquear anúncios",
+      "hint": "Desative essa opção para permitir a exibição de anúncios no YouTube e apoiar os criadores."
+    },
+    "blocklist": {
+      "label": "Lista de bloqueados",
+      "hint": "Ocultar vídeos do YouTube por canal ou palavra-chave do título.",
+      "channels": "Canais",
+      "keywords": "Palavras-chave",
+      "channelPlaceholder": "Nome do canal, identificador ou URL",
+      "keywordPlaceholder": "Palavra-chave do título",
+      "emptyChannels": "Ainda não há canais bloqueados.",
+      "emptyKeywords": "Ainda não há palavras-chave bloqueadas.",
+      "add": "Adicionar",
+      "channelsNote": "Os canais correspondem exatamente pelo nome, identificador ou ID do canal.",
+      "keywordsNote": "A correspondência de palavras-chave é feita por inclusão (busca por textos nos títulos)."
+    },
+    "feedNotifications": "Notificações de novos vídeos no feed",
+    "feedNotificationsDescription": "As verificações dos canais salvos ocorrem em segundo plano. A entrega pode sofrer atrasos por parte do sistema. O encerramento forçado do aplicativo interrompe essas verificações até que você o abra novamente.",
+    "feedNotificationsUnavailable": "Permita notificações e atividade em segundo plano nas configurações do sistema para ativar os alertas do feed.",
+    "feedNotificationsError": "Não foi possível ativar as notificações do feed. Tente novamente.",
+    "replaceWatchNavigation": "Pular vídeos já assistidos",
+    "dynamicColor": {
+      "label": "Cor dinâmica",
+      "hint": "Use a paleta de cores do seu sistema."
+    },
+    "importSettings": "Importar configurações",
+    "importSettingsDescription": "Restaurar configurações a partir de um arquivo de configurações do NouTube",
+    "importSettingsConfirm": "Isso substituirá suas configurações atuais, lista de bloqueios, estilos de usuário e scripts personalizados. Continuar?",
+    "importSettingsWithScriptsConfirm": "Este arquivo contém {{count}} script(s) personalizado(s) ativado(s), que podem executar código dentro do YouTube. Prossiga apenas se você confiar no arquivo. Suas configurações atuais, lista de bloqueios, CSS de usuário e scripts personalizados serão substituídos.",
+    "importSettingsDone": "Importado: {{sections}}",
+    "exportSettings": "Exportar configurações",
+    "exportSettingsDescription": "Salve as configurações, a lista de bloqueios, os estilos de usuário e os scripts personalizados como um arquivo JSON",
+    "googleLoginCookieHint": "O login com o Google frequentemente não funciona na Webview. Talvez seja necessário injetar cookies provenientes de um navegador no qual você esteja conectado.",
+    "cookieFaq": "Como injetar cookies",
+    "injectCookieAction": "Injetar cookie",
+    "groupYouTube": "YouTube",
+    "groupNouTube": "NouTube",
+    "preferencesComments": "Comentários",
+    "sidebar": "Barra lateral",
+    "preferencesYouTubeHint": "Preferências do YouTube",
+    "preferencesNouTubeHint": "Preferências do NouTube",
+    "showDislikes": "Mostrar dislikes",
+    "disableAutoplay": "Desativar reprodução automática",
+    "disableAutoplayHint": "Mantenha a opção de reprodução automática do YouTube desativada para evitar que vídeos recomendados sejam reproduzidos na sequência. Filas e playlists continuarão sendo reproduzidas.",
+    "forceLandscape": "Forçar orientação para o modo paisagem",
+    "forceLandscapeDescription": "Mantenha o aplicativo na orientação para o modo paisagem em celulares, mesmo quando a rotação automática estiver desativada. O Android pode ignorar essa configuração em tablets e dispositivos dobráveis quando estiverem abertos."
   },
   "sync": {
     "label": "Sincronizar",
     "hint": "Sincronizar favoritos entre seus telefones e computadores como usuário premium.",
     "currentPlan": "Plano atual",
-    "managePlan": "Gerenciar plano"
+    "managePlan": "Gerenciar plano",
+    "freePlan": "Gratuito",
+    "deleteAccount": "Excluir conta",
+    "buy": "Assinar pela App Store",
+    "restore": "Restaurar compras",
+    "manageIos": "Gerenciar na App Store",
+    "purchaseTitle": "Vincular assinatura",
+    "purchaseConfirm": "Essa assinatura será vinculada ao endereço {{email}} e ativará a sincronização em qualquer lugar em que você fizer login nessa conta do NouTube.",
+    "priceLoading": "Carregando preço da App Store...",
+    "purchasePending": "Compra aguardando aprovação. A sincronização é liberada assim que a compra for aprovada.",
+    "productUnavailable": "O produto na App Store ainda não está disponível.",
+    "noPurchaseToRestore": "Não foi encontrada nenhuma compra do \"NouTube Sync\" para restaurar.",
+    "activeViaIos": "Ativo via App Store",
+    "signOutSwitch": "Sair e trocar de conta",
+    "expiresAt": "Renova ou expira: {{value}}",
+    "legalNotice": "As assinaturas são renovadas automaticamente, a menos que sejam canceladas. Ao assinar, você concorda com os Termos de Uso (EULA) e com a Política de Privacidade.",
+    "termsOfUse": "Termos de Uso (EULA)",
+    "privacyPolicy": "Política de Privacidade"
   },
   "changelog": {
     "label": "Histórico de atualização",
@@ -259,7 +423,11 @@
     "emptyBodyWaiting": "Seus canais salvos estão prontos. Deixe o aplicativo aberto por um tempo ou reabra-o mais tarde, e os vídeos enviados recentemente aparecerão aqui.",
     "removeTitle": "Remover {{title}}?",
     "removeMessage": "Isso remove o canal da Biblioteca e apaga os vídeos do feed.",
-    "notificationTitle": "Novos vídeos no seu feed"
+    "notificationTitle": "Novos vídeos no seu feed",
+    "notificationSummary_one": "{{count}} novo vídeo de {{channels}} canais",
+    "notificationSummary_other": "{{count}} novos vídeos de {{channels}} canais",
+    "notificationBody_one": "{{count}} novo vídeo de {{channel}}",
+    "notificationBody_other": "{{count}} novos vídeos de {{channel}}"
   },
   "sleepTimer": {
     "hint": "Pause a reprodução após uma duração predefinida ou um valor em minutos definido por você.",
@@ -293,11 +461,11 @@
   },
   "update": {
     "check": "Buscar atualizações",
-    "checkHint": "Verifique se há uma versão mais recente disponível.",
-    "upToDate": "Você está usando a versão mais recente.",
+    "checkHint": "Verifique se há uma versão mais recente disponível",
+    "upToDate": "Você está usando a versão mais recente",
     "downloading": "Baixando atualização v{{version}}…",
     "error": "Falha ao buscar atualizações",
-    "downloadedTitle": "Download concluído",
+    "downloadedTitle": "Atualização pronta",
     "downloadedHint": "A versão {{version}} foi baixada. Reiniciar agora para instalar?"
   },
   "bookmarks": {
@@ -310,5 +478,28 @@
   },
   "history": {
     "cleared": "Histórico apagado"
+  },
+  "pageLoadError": {
+    "title": "Não é possível carregar esta página",
+    "description": "Verifique sua conexão e tente novamente."
+  },
+  "extension": {
+    "openOptions": "Lista de bloqueio & CSS do usuário",
+    "reloadTabs": "Recarregar abas do YouTube",
+    "applyHint": "Algumas opções só entram em vigor no próximo carregamento da página.",
+    "userScriptsUnavailable": "Scripts do usuário exigem a permissão do navegador para esse tipo de script. No Chrome, abra a página \"Detalhes da extensão\" e conceda permissão para scripts do usuário.",
+    "feeds": "Feeds",
+    "library": "Biblioteca",
+    "signIn": "Fazer login",
+    "signedOut": "Não conectado",
+    "syncNow": "Sincronizar agora",
+    "refreshFeeds": "Atualizar feeds",
+    "manageFeeds": "Gerenciar feeds",
+    "account": "Conta & sincronização",
+    "more": "Mais",
+    "openExpanded": "Abrir em uma nova aba",
+    "openYouTube": "Ir para o YouTube",
+    "openYouTubeMusic": "Ir para o YouTube Music",
+    "saveCurrentPage": "Salvar página atual"
   }
 }

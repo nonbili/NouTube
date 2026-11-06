@@ -204,7 +204,13 @@
       "host": "Host proxy",
       "port": "Port proxy",
       "hostPlaceholder": "np. 127.0.0.1 lub proxy.example.com",
-      "portPlaceholder": "np. 1080"
+      "portPlaceholder": "np. 1080",
+      "username": "Nazwa użytkownika",
+      "password": "Hasło",
+      "credentialsHint": "Opcjonalne. Zmiany zostaną wprowadzone krótko po zakończeniu pisania. Dane logowania pozostają na tym urządzeniu oraz są wyłączone z kopii zapasowych i synchronizacji. Gdy uwierzytelnianie jest włączone, inne aplikacje na tym urządzeniu mogą korzystać z lokalnego serwera przekazującego proxy.",
+      "applyFailed": "Nie udało się zastosować ustawień serwera proxy.",
+      "credentialsHintIos": "Opcjonalne. Zmiany wejdą w życie chwilę po zakończeniu wpisywania tekstu. Dane logowania pozostają na tym urządzeniu oraz są wyłączone z kopii zapasowych i synchronizacji.",
+      "iosRequires17": "W systemie iOS 16 proxy HTTP może być używane wyłącznie do pobierania kanałów. Przekierowanie ruchu przeglądarki, SOCKS oraz uwierzytelnianie wymagają systemu iOS 17 lub nowszego."
     },
     "autoHideHeader": "Ukryj i pokaż pasek narzędzi w zależności od kierunku przewijania",
     "autoHideSidebar": "Automatyczne ukrywanie paska bocznego i wyświetlanie po najechaniu kursorem",
@@ -378,7 +384,7 @@
     "importSettingsConfirm": "To zastępuje Twoje obecne ustawienia, listę blokowanych, style użytkownika i niestandardowe skrypty. Kontynuować?",
     "importSettingsWithScriptsConfirm": "Ten plik zawiera {{count}} włączony(ch) skrypt(ów) użytkownika, które mogą uruchamiać kod w serwisie YouTube. Kontynuuj tylko wtedy, gdy ufasz temu plikowi. Twoje obecne ustawienia, lista blokowanych, style użytkownika i niestandardowe skrypty zostaną zastąpione.",
     "importSettingsDone": "Zaimportowano: {{sections}}",
-    "exportSettings": "Ustawienia eksportu",
+    "exportSettings": "Eksportuj ustawienia",
     "exportSettingsDescription": "Zapisz ustawienia, listę blokowanych, style użytkownika i niestandardowe skrypty jako plik JSON",
     "preferencesDistractionFree": "Tryb skupienia",
     "groupYouTube": "YouTube",
@@ -427,7 +433,11 @@
     },
     "googleLoginCookieHint": "Logowanie przez Google często nie działa w widoku webview. Może być konieczne wstrzyknięcie plików cookie z przeglądarki, w której jesteś zalogowany(-a).",
     "cookieFaq": "Jak wstrzykiwać pliki cookie",
-    "injectCookieAction": "Wstrzyknij pliki cookie"
+    "injectCookieAction": "Wstrzyknij pliki cookie",
+    "disableAutoplay": "Wyłącz automatyczne odtwarzanie",
+    "disableAutoplayHint": "Pozostaw funkcję automatycznego odtwarzania w YouTube wyłączoną, aby zatrzymać odtwarzanie kolejnych polecanych filmów. Kolejki i playlisty będą nadal odtwarzane.",
+    "forceLandscape": "Wymuś tryb poziomy",
+    "forceLandscapeDescription": "Utrzymuj aplikację w orientacji poziomej na telefonach, nawet gdy automatyczne obracanie jest wyłączone. System Android może zignorować to ustawienie na tabletach i rozłożonych urządzeniach składanych."
   },
   "native": {
     "format_bestQuality": "Najlepsza jakość",
