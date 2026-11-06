@@ -37,7 +37,7 @@ export const ToolsModal = () => {
   const [showAllFormats, setShowAllFormats] = useState(false)
   const activeDownloads = useValue(downloads$)
   const loadingUrlRef = useRef('')
-  const scrollRef = useRef<ScrollView>(null)
+  const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null)
   const downloadsSectionYRef = useRef(0)
   const scrollToDownloadsRef = useRef(false)
   const isDark = useColorScheme() !== 'light'

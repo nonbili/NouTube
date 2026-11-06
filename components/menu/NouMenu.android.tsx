@@ -23,7 +23,7 @@ export const NouMenu: React.FC<{ trigger?: ReactNode; items: Item[]; triggerColo
   const resolvedTriggerColor = triggerColor ?? (isDark ? tw(colors.icon) : tw(colors.iconLight))
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
   const insets = useSafeAreaInsets()
-  const triggerRef = useRef<View>(null)
+  const triggerRef = useRef<React.ComponentRef<typeof View>>(null)
   const menuWidth = 280
   const getRowHeight = (item: Item) => {
     if (item.kind === 'separator') return 9

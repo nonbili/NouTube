@@ -23,7 +23,6 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
     icon: './assets/images/icon.png',
     scheme: 'noutube',
     userInterfaceStyle: 'automatic',
-    newArchEnabled: true,
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'jp.nonbili.noutube',

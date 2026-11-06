@@ -59,7 +59,7 @@ export const PlayerFrame: React.FC<{
 
   // The drag moves the view directly instead of going through state: a
   // re-render mid-drag would re-render the webview inside the frame.
-  const frameRef = useRef<View>(null)
+  const frameRef = useRef<React.ComponentRef<typeof View>>(null)
 
   const clampToArea = (dx: number, dy: number) => ({
     left: Math.min(MARGIN + rangeX, Math.max(MARGIN, base.x + dx)),

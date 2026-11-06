@@ -105,9 +105,11 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 86
         versionName "0.7.6"
+// @generated begin expo-localization-supported-locales - expo prebuild (DO NOT MODIFY) sync-fefc0efb7190274e8806633196c4a475fee8245b
+        resourceConfigurations += ["b+en", "b+de", "b+es", "b+fr", "b+gl", "b+in", "b+it", "b+ja", "b+pl", "b+pt", "b+pt+BR", "b+ru", "b+tr", "b+uk", "b+vi", "b+zh+Hans", "zh-rCN", "b+zh+Hant", "zh-rTW", "zh-rHK"]
+// @generated end expo-localization-supported-locales
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
-        resourceConfigurations += ["b+en", "b+de", "b+es", "b+fr", "b+gl", "b+id", "b+it", "b+ja", "b+pl", "b+pt", "b+pt+BR", "b+ru", "b+tr", "b+uk", "b+vi", "b+zh+Hans", "b+zh+Hant"]
     }
     signingConfigs {
         debug {
@@ -125,7 +127,7 @@ android {
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
             shrinkResources enableShrinkResources.toBoolean()
             minifyEnabled enableMinifyInReleaseBuilds
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             def enablePngCrunchInRelease = findProperty('android.enablePngCrunchInReleaseBuilds') ?: 'true'
             crunchPngs enablePngCrunchInRelease.toBoolean()
         }
