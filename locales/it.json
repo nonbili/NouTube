@@ -58,7 +58,7 @@
     "unsubscribe": "Annulla iscrizione",
     "reload": "Ricarica",
     "share": "Condividi",
-    "pip": "Picture in picture",
+    "pip": "Picture-in-Picture",
     "duplicateTab": "Duplica scheda",
     "close": "Chiudi",
     "tools": "Strumenti",
@@ -209,7 +209,13 @@
       "host": "Host proxy",
       "port": "Porta proxy",
       "hostPlaceholder": "es. 127.0.0.1 o proxy.esempio.com",
-      "portPlaceholder": "es. 1080"
+      "portPlaceholder": "es. 1080",
+      "username": "Nome utente",
+      "password": "Password",
+      "credentialsHint": "Facoltativo. Le modifiche vengono applicate poco dopo che smetti di digitare. Le credenziali restano su questo dispositivo e sono escluse da backup e sincronizzazione. Finché l'autenticazione è attiva, altre app su questo dispositivo possono usare il relay proxy locale.",
+      "applyFailed": "Impossibile applicare le impostazioni del proxy.",
+      "credentialsHintIos": "Opzionale. Le modifiche saranno effettive poco dopo aver smesso di digitare. Le credenziali rimangono su questo dispositivo e sono escluse dai backup e dalla sincronizzazione.",
+      "iosRequires17": "Su iOS 16, è possibile utilizzare un proxy HTTP solo per i feed. La navigazione tramite proxy, i protocolli SOCKS e l'autenticazione richiedono iOS 17 o versioni successive."
     },
     "autoHideHeader": "Nascondi e mostra la barra degli strumenti in base allo scorrimento",
     "autoHideSidebar": "Nascondi automaticamente la barra laterale e mostrala al passaggio del mouse",
@@ -259,8 +265,8 @@
     "hideMixPlaylist": "Nascondi playlist mix",
     "miniPlayer": "Mini player",
     "miniPlayerHint": "Uscendo da un video, continua a riprodurlo in un angolo della pagina.",
-    "pictureInPicture": "Picture in picture",
-    "pictureInPictureHint": "Mantieni il video in riproduzione in una finestra flottante quando esci dall’app.",
+    "pictureInPicture": "Picture-in-picture",
+    "pictureInPictureHint": "Mantieni il video in riproduzione in una finestra mobile anche quando esci dall’app.",
     "preferH264": "Preferisci H.264 (blocca VP9/AV1)",
     "showDislikes": "Mostra i \"Non mi piace\"",
     "showOriginalVideoTitle": "Mostra il titolo originale del video",
@@ -421,7 +427,11 @@
     },
     "googleLoginCookieHint": "L'accesso tramite Google spesso non funziona nella visualizzazione web. Potrebbe essere necessario inserire i cookie da un browser in cui si è effettuato l'accesso.",
     "cookieFaq": "Come iniettare i cookie",
-    "injectCookieAction": "Inietta cookie"
+    "injectCookieAction": "Inietta cookie",
+    "disableAutoplay": "Disabilita autoplay",
+    "disableAutoplayHint": "Mantieni disattivato l'interruttore Riproduzione automatica di YouTube per evitare l'avvio dei video consigliati successivi. Le code e le playlist continuano a essere riprodotte.",
+    "forceLandscape": "Forza orientamento orizzontale",
+    "forceLandscapeDescription": "Sui telefoni, mantieni l'app in modalità orizzontale anche quando la rotazione automatica è disattivata. Su tablet e dispositivi pieghevoli aperti, Android potrebbe ignorare questa impostazione."
   },
   "native": {
     "format_bestQuality": "Migliore qualità",
