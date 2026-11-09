@@ -4,21 +4,32 @@ import { uiClient } from 'main/ipc/ui'
 import { app } from 'electron'
 import { isSupportedUrl } from '@/lib/supported-url'
 
-const pendingDeeplinks: string[] = []
-
-function findLaunchUrl(args: string[]): string | undefined {
-  return args.find((arg) => arg.startsWith('noutube:') || isSupportedUrl(arg))
+export interface Deeplink {
+  url: string
+  newTab?: boolean
 }
 
-function handleLaunchUrl(url: string): void {
+const pendingDeeplinks: Deeplink[] = []
+
+const NEW_TAB_FLAGS = ['--new-tab', '-n']
+
+function findLaunchUrl(args: string[]): Deeplink | undefined {
+  const url = args.find((arg) => arg.startsWith('noutube:') || isSupportedUrl(arg))
+  if (!url) {
+    return undefined
+  }
+  return { url, newTab: args.some((arg) => NEW_TAB_FLAGS.includes(arg)) }
+}
+
+function handleLaunchUrl(link: Deeplink): void {
   if (mainWindow) {
-    void uiClient.handleDeeplink(url)
+    void uiClient.handleDeeplink(link.url, link.newTab)
   } else {
-    pendingDeeplinks.push(url)
+    pendingDeeplinks.push(link)
   }
 }
 
-export function consumePendingDeeplinks(): string[] {
+export function consumePendingDeeplinks(): Deeplink[] {
   return pendingDeeplinks.splice(0)
 }
 
@@ -36,9 +47,9 @@ export function bindDeeplink(): void {
     app.quit()
   }
 
-  const launchUrl = findLaunchUrl(process.argv)
-  if (launchUrl) {
-    pendingDeeplinks.push(launchUrl)
+  const launchLink = findLaunchUrl(process.argv)
+  if (launchLink) {
+    pendingDeeplinks.push(launchLink)
   }
 
   app.on('second-instance', (_event, commandLine) => {
@@ -48,14 +59,14 @@ export function bindDeeplink(): void {
       mainWindow.focus()
     }
 
-    const url = findLaunchUrl(commandLine)
-    if (url) {
-      handleLaunchUrl(url)
+    const link = findLaunchUrl(commandLine)
+    if (link) {
+      handleLaunchUrl(link)
     }
   })
 
   app.on('open-url', (event, url) => {
     event.preventDefault()
-    handleLaunchUrl(url)
+    handleLaunchUrl({ url })
   })
 }

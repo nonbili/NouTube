@@ -43,6 +43,6 @@ function setupChannel(): void {
 export function initUiChannel(): void {
   setupChannel()
   void mainClient.consumePendingDeeplinks().then((links) => {
-    links.forEach(handleDeeplink)
+    links.forEach((link) => handleDeeplink(link.url, link.newTab))
   })
 }

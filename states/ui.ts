@@ -123,11 +123,15 @@ export const ui$ = observable<Store>({
   webview: undefined,
 })
 
-export function updateUrl(url: string) {
+export function updateUrl(url: string, options: { newTab?: boolean } = {}) {
   if (isWeb) {
     const webview = ui$.webview.get()
     webview?.executeJavaScript?.('NouTube.pause()')
-    tabs$.updateTabUrl(unnormalizeUrl(url))
+    if (options.newTab) {
+      tabs$.openTab(unnormalizeUrl(url))
+    } else {
+      tabs$.updateTabUrl(unnormalizeUrl(url))
+    }
     return
   }
 

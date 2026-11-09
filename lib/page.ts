@@ -33,7 +33,7 @@ export function getThumbnail(url: string) {
   return id ? getVideoThumbnail(id) : undefined
 }
 
-export function openSharedUrl(url: string) {
+export function openSharedUrl(url: string, options: { newTab?: boolean } = {}) {
   if (url.startsWith('noutube:auth')) {
     onReceiveAuthUrl(url)
     return
@@ -41,7 +41,7 @@ export function openSharedUrl(url: string) {
   try {
     const fixed = fixSharingUrl(url)
     if (isSupportedUrl(fixed)) {
-      updateUrl(expandShortUrl(normalizeSupportedUrl(fixed)))
+      updateUrl(expandShortUrl(normalizeSupportedUrl(fixed)), options)
     }
   } catch (error) {
     console.error(error)
