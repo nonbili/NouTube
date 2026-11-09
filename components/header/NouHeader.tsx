@@ -359,6 +359,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
                   items={[
                     {
                       label: t('menus.duplicateTab', 'Duplicate Tab'),
+                      icon: <MaterialIcons name="content-copy" size={16} color={headerControlColor} />,
                       handler: () => tabs$.duplicateTab(index),
                     },
                     ...(tabs.length > 1
@@ -366,6 +367,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
                           {
                             label: t('menus.close', 'Close'),
                             color: 'red' as const,
+                            icon: <MaterialIcons name="close" size={16} color={isDark ? '#f87171' : '#dc2626'} />,
                             handler: () => tabs$.closeTab(index),
                           },
                         ]

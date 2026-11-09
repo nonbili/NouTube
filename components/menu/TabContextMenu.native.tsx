@@ -4,6 +4,7 @@ export interface TabMenuItem {
   label: string
   handler: () => void
   color?: string
+  icon?: ReactNode
 }
 
 // Tabs only render on web; on native this is a pass-through.

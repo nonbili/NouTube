@@ -1,4 +1,4 @@
-import { View, Pressable } from 'react-native'
+import { useColorScheme, View, Pressable } from 'react-native'
 import { memo } from 'react'
 import { Bookmark, bookmarks$, newBookmark } from '@/states/bookmarks'
 import { library$ } from '@/states/library'
@@ -30,6 +30,9 @@ export const FeedItem: React.FC<{
   onPressChannel?: (channel: Bookmark) => void
 }> = memo(({ bookmark, channel, onPressChannel: onSelectChannel }) => {
   const tw = useTwColor()
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
+  const iconColor = isDark ? tw('zinc-300') : tw('slate-600')
   const starUrl = normalizeUrl(bookmark.url)
   const starred = useValue(library$.urls).has(getBookmarkKey(starUrl))
 
@@ -70,7 +73,7 @@ export const FeedItem: React.FC<{
           items={[
             {
               label: starred ? t('menus.unstar') : t('menus.star'),
-              icon: <MaterialIcons name={starred ? 'star' : 'star-outline'} size={18} color={tw('slate-600')} />,
+              icon: <MaterialIcons name={starred ? 'star' : 'star-outline'} size={18} color={iconColor} />,
               systemImage: starred ? 'star.slash' : 'star',
               handler: () =>
                 bookmarks$.toggleBookmark(
@@ -86,7 +89,7 @@ export const FeedItem: React.FC<{
               : [
                   {
                     label: t('menus.download'),
-                    icon: <MaterialIcons name="download" size={18} color={tw('slate-600')} />,
+                    icon: <MaterialIcons name="download" size={18} color={iconColor} />,
                     systemImage: 'arrow.down.circle',
                     handler: () => {
                       ui$.toolsModalUrl.set(starUrl)
@@ -97,7 +100,7 @@ export const FeedItem: React.FC<{
                 ]),
             {
               label: t('menus.share'),
-              icon: <MaterialIcons name="share" size={18} color={tw('slate-600')} />,
+              icon: <MaterialIcons name="share" size={18} color={iconColor} />,
               systemImage: 'square.and.arrow.up',
               handler: () => share(bookmark.url),
             },

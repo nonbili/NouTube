@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Alert, View } from 'react-native'
+import { Alert, useColorScheme, View } from 'react-native'
+import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { NouText } from '../NouText'
 import { Image } from 'expo-image'
 import { useValue } from '@legendapp/state/react'
@@ -52,6 +53,9 @@ const getErrorMessage = (error: unknown) => (error instanceof Error ? error.mess
 
 export const SettingsModalTabSync = () => {
   const tw = useTwColor()
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
+  const iconColor = isDark ? tw('zinc-300') : tw('slate-600')
   const { user, userEmail, plan, accessToken } = useValue(auth$)
   const { me } = useMe()
   const planLabel = plan ? capitalize(plan) : t('sync.freePlan')
@@ -196,11 +200,37 @@ export const SettingsModalTabSync = () => {
 
   const accountMenuItems = [
     ...(isIos && viaAppStore && subscribed
-      ? [{ label: t('sync.manageIos'), handler: () => void onManageSubscriptions() }]
+      ? [
+          {
+            label: t('sync.manageIos'),
+            icon: <MaterialIcons name="credit-card" size={18} color={iconColor} />,
+            systemImage: 'creditcard',
+            handler: () => void onManageSubscriptions(),
+          },
+        ]
       : []),
-    ...(isIos ? [{ label: t('sync.restore'), handler: () => void onRestore() }] : []),
-    { label: t('sync.deleteAccount'), handler: () => void onDeleteAccount() },
-    { label: t('buttons.signOut'), handler: signOut },
+    ...(isIos
+      ? [
+          {
+            label: t('sync.restore'),
+            icon: <MaterialIcons name="restore" size={18} color={iconColor} />,
+            systemImage: 'arrow.clockwise',
+            handler: () => void onRestore(),
+          },
+        ]
+      : []),
+    {
+      label: t('sync.deleteAccount'),
+      icon: <MaterialIcons name="delete-outline" size={18} color={iconColor} />,
+      systemImage: 'trash',
+      handler: () => void onDeleteAccount(),
+    },
+    {
+      label: t('buttons.signOut'),
+      icon: <MaterialIcons name="logout" size={18} color={iconColor} />,
+      systemImage: 'rectangle.portrait.and.arrow.right',
+      handler: signOut,
+    },
   ]
 
   if (!user) {

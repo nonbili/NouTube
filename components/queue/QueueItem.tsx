@@ -1,4 +1,4 @@
-import { View, Pressable } from 'react-native'
+import { useColorScheme, View, Pressable } from 'react-native'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { Bookmark } from '@/states/bookmarks'
 import { updateUrl } from '@/states/ui'
@@ -25,6 +25,9 @@ export const QueueItem: React.FC<{ bookmark: Bookmark; playing: boolean; index: 
   total,
 }) => {
   const tw = useTwColor()
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
+  const iconColor = isDark ? tw('zinc-300') : tw('slate-600')
   const onPress = () => {
     updateUrl(bookmark.url)
   }
@@ -76,8 +79,18 @@ export const QueueItem: React.FC<{ bookmark: Bookmark; playing: boolean; index: 
           )
         }
         items={[
-          { label: t('menus.share'), handler: () => share(bookmark.url) },
-          { label: t('menus.remove'), handler: () => queue$.toggleBookmark(bookmark) },
+          {
+            label: t('menus.share'),
+            icon: <MaterialIcons name="share" size={18} color={iconColor} />,
+            systemImage: 'square.and.arrow.up',
+            handler: () => share(bookmark.url),
+          },
+          {
+            label: t('menus.remove'),
+            icon: <MaterialIcons name="delete-outline" size={18} color={iconColor} />,
+            systemImage: 'trash',
+            handler: () => queue$.toggleBookmark(bookmark),
+          },
         ]}
       />
     </View>

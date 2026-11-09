@@ -24,6 +24,7 @@ export const NouMenu: React.FC<{ trigger?: ReactNode; items: Item[]; triggerColo
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
   const insets = useSafeAreaInsets()
   const triggerRef = useRef<React.ComponentRef<typeof View>>(null)
+  const hasAnyIcon = items.some((item) => Boolean(item.icon))
   const menuWidth = 280
   const getRowHeight = (item: Item) => {
     if (item.kind === 'separator') return 9
@@ -124,7 +125,11 @@ export const NouMenu: React.FC<{ trigger?: ReactNode; items: Item[]; triggerColo
                       item.handler()
                     }}
                   >
-                    {item.icon ? <View className="shrink-0">{item.icon}</View> : null}
+                    {item.icon ? (
+                      <View className="shrink-0">{item.icon}</View>
+                    ) : hasAnyIcon ? (
+                      <View className="w-[18px] shrink-0" />
+                    ) : null}
                     <View className="flex-1 min-w-0 py-2">
                       <NouText className="text-sm text-zinc-900 dark:text-zinc-100" numberOfLines={1}>
                         {item.label}

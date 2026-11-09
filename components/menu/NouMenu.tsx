@@ -30,6 +30,7 @@ export const NouMenu: React.FC<{
   const resolvedTriggerColor = triggerColor ?? (isDark ? tw(colors.icon) : tw(colors.iconLight))
   const renderedTrigger =
     isValidElement(trigger) ? cloneElement(trigger as React.ReactElement<any>, { color: resolvedTriggerColor }) : trigger
+  const hasAnyIcon = items.some((item) => Boolean(item.icon))
 
   const menuItems = items.map((item, index) => {
     if (item.kind === 'separator') {
@@ -56,6 +57,8 @@ export const NouMenu: React.FC<{
             <div className="flex h-5 w-5 shrink-0 items-center justify-center">
               {item.icon}
             </div>
+          ) : hasAnyIcon ? (
+            <div className="h-5 w-5 shrink-0" />
           ) : null}
           <div className="min-w-0 flex-1">
             <div className="truncate text-[13px] leading-[20px] text-zinc-900 dark:text-zinc-100">{item.label}</div>

@@ -1,4 +1,5 @@
-import { View, Pressable } from 'react-native'
+import { useColorScheme, View, Pressable } from 'react-native'
+import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { updateUrl, ui$ } from '@/states/ui'
 import { NouText } from '../NouText'
 import { clsx, isWeb, isIos, nIf } from '@/lib/utils'
@@ -14,6 +15,7 @@ import { MaterialButton } from '../button/IconButtons'
 import { share } from '@/lib/share'
 import { RetryImage } from '../image/RetryImage'
 import { withResumeTime, withoutResumeTime } from '@/lib/last-playing'
+import { useTwColor } from '@/lib/theme'
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
@@ -34,6 +36,10 @@ function getHistoryUrl({ url, current, duration }: History) {
 }
 
 export const HistoryItem: React.FC<{ bookmark: History }> = ({ bookmark }) => {
+  const tw = useTwColor()
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme !== 'light'
+  const iconColor = isDark ? tw('zinc-300') : tw('slate-600')
   const historyUrl = getHistoryUrl(bookmark)
   // The saved url carries a resume time, which the library must not keep.
   const starUrl = normalizeUrl(withoutResumeTime(bookmark.url))
@@ -75,6 +81,8 @@ export const HistoryItem: React.FC<{ bookmark: History }> = ({ bookmark }) => {
           items={[
             {
               label: starred ? t('menus.unstar') : t('menus.star'),
+              icon: <MaterialIcons name={starred ? 'star' : 'star-outline'} size={18} color={iconColor} />,
+              systemImage: starred ? 'star.slash' : 'star',
               handler: () =>
                 bookmarks$.toggleBookmark(
                   newBookmark({
@@ -89,6 +97,8 @@ export const HistoryItem: React.FC<{ bookmark: History }> = ({ bookmark }) => {
               : [
                   {
                     label: t('menus.download'),
+                    icon: <MaterialIcons name="download" size={18} color={iconColor} />,
+                    systemImage: 'arrow.down.circle',
                     handler: () => {
                       ui$.toolsModalUrl.set(starUrl)
                       ui$.toolsModalOpen.set(true)
@@ -96,8 +106,18 @@ export const HistoryItem: React.FC<{ bookmark: History }> = ({ bookmark }) => {
                     },
                   },
                 ]),
-            { label: t('menus.share'), handler: () => share(historyUrl) },
-            { label: t('menus.remove'), handler: () => history$.removeHistory(bookmark) },
+            {
+              label: t('menus.share'),
+              icon: <MaterialIcons name="share" size={18} color={iconColor} />,
+              systemImage: 'square.and.arrow.up',
+              handler: () => share(historyUrl),
+            },
+            {
+              label: t('menus.remove'),
+              icon: <MaterialIcons name="delete-outline" size={18} color={iconColor} />,
+              systemImage: 'trash',
+              handler: () => history$.removeHistory(bookmark),
+            },
           ]}
         />
       </View>
