@@ -11,7 +11,7 @@
   "buildNumber": "8",
   "scripts": {
     "bundle": "bun build --target browser content/main.ts --outfile assets/scripts/main.bjs",
-    "bundle:es": "esbuild --bundle content/main.ts --minify --outfile=assets/scripts/main.bjs",
+    "bundle:es": "bun run bundle",
     "dev": "bun bundle --watch",
     "start": "expo start",
     "android": "expo run:android --variant fullDebug",
@@ -80,7 +80,6 @@
     "@types/bun": "^1.2.17",
     "@types/papaparse": "^5.3.16",
     "@types/react": "~19.3.0",
-    "esbuild": "^0.25.5",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~58.0.4",
     "ts-node": "^10.9.2",

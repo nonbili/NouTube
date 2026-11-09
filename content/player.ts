@@ -415,8 +415,10 @@ export function handleVideoPlayer(el: any) {
   el.__nouPlayerCleanup = () => {
     active = false
     media.dispose()
-    el.removeEventListener('onStateChange', onStateChange)
-    el.removeEventListener('onApiChange', onApiChange)
+    // YouTube can remove its player API before we observe the replacement.
+    // The inactive guard above already makes any remaining callbacks inert.
+    el.removeEventListener?.('onStateChange', onStateChange)
+    el.removeEventListener?.('onApiChange', onApiChange)
     if (ownsResizeListeners) {
       window.removeEventListener('resize', redrawSegments)
       document.removeEventListener('fullscreenchange', onFullscreenChange)
