@@ -1,5 +1,21 @@
-import { ConfigPlugin, withGradleProperties, withMainActivity } from '@expo/config-plugins'
+import { ConfigPlugin, withDangerousMod, withGradleProperties, withMainActivity } from '@expo/config-plugins'
 import { withAndroidManifest, withAppBuildGradle } from '@expo/config-plugins/build/plugins/android-plugins.js'
+import { readFile, writeFile } from 'node:fs/promises'
+import path from 'node:path'
+
+// Room instantiates generated databases (including WorkManager's) by reflection.
+// Preserve their names and no-argument constructors in optimized release builds.
+const ROOM_DATABASE_KEEP_RULE = '-keep class * extends androidx.room.RoomDatabase { public <init>(); }'
+
+const withRoomDatabaseKeepRule: ConfigPlugin = (config) =>
+  withDangerousMod(config, ['android', async (config) => {
+    const rulesPath = path.join(config.modRequest.platformProjectRoot, 'app/proguard-rules.pro')
+    const contents = await readFile(rulesPath, 'utf8')
+    if (!contents.includes(ROOM_DATABASE_KEEP_RULE)) {
+      await writeFile(rulesPath, `${contents}\n# Room databases are instantiated by reflection.\n${ROOM_DATABASE_KEEP_RULE}\n`)
+    }
+    return config
+  }])
 
 // React Native seeds DisplayMetricsHolder from the *application* context
 // (ReactRootView.init, ReactHostImpl.onConfigurationChanged), which always
@@ -164,6 +180,7 @@ const withPictureInPicture: ConfigPlugin = (config) => {
 }
 
 const withAndroidSigningConfig: ConfigPlugin = (config) => {
+  config = withRoomDatabaseKeepRule(config)
   config = withPictureInPicture(config)
   config = withSecondaryDisplayMetricsFix(config)
   config = withDeepLinkIntentFix(config)

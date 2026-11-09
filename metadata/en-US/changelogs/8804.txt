@@ -1,0 +1,1 @@
+- Fix a crash on startup in Android release builds

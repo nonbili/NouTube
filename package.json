@@ -6,8 +6,8 @@
   "name": "noutube",
   "private": true,
   "main": "index.js",
-  "version": "0.7.7",
-  "versionCode": 87,
+  "version": "0.7.8",
+  "versionCode": 88,
   "buildNumber": "9",
   "scripts": {
     "bundle": "bun build --target browser content/main.ts --outfile assets/scripts/main.bjs",
