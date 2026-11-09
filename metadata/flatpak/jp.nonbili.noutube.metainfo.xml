@@ -59,6 +59,17 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.3.3" date="2026-11-09">
+      <description>
+        <ul>
+          <li>Add --new-tab/-n command line flag to open links in a new tab</li>
+          <li>Open speed and quality controls as dropdowns next to the header pill</li>
+          <li>Improve data sync with row-by-row synchronization, document merging, and account handling</li>
+          <li>Add missing menu icons and align icon spacing across menus</li>
+          <li>Update translations</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.3.2" date="2026-11-05">
       <description>
         <ul>

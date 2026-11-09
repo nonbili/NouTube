@@ -73,7 +73,7 @@ export const NouMenu: React.FC<{
   return (
     <DropdownMenu.Root open={open} onOpenChange={setOpen}>
       <DropdownMenu.Trigger>
-        <div tabIndex={0} className="flex min-w-0 shrink items-center justify-center">{renderedTrigger}</div>
+        <div tabIndex={0} className="flex min-w-0 shrink cursor-pointer items-center justify-center">{renderedTrigger}</div>
       </DropdownMenu.Trigger>
       {/* The page content lives in an out-of-process <webview>, which swallows pointer
           events before they reach the host document. Without this overlay, clicking the

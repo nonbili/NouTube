@@ -32,7 +32,8 @@ const repo = 'https://github.com/nonbili/NouTube'
 const donateLinks = [
   { label: 'GitHub Sponsors', detail: 'github.com/sponsors/rnons', url: 'https://github.com/sponsors/rnons' },
   { label: 'Liberapay', detail: 'liberapay.com/rnons', url: 'https://liberapay.com/rnons' },
-  { label: 'PayPal', detail: 'paypal.me/rnons', url: 'https://paypal.me/rnons' },
+  { label: 'PayPal', detail: 'paypal.me/nonbili', url: 'https://paypal.me/nonbili' },
+  { label: 'Stripe', detail: 'donate.stripe.com', url: 'https://donate.stripe.com/cNiaEXbunbcS0oTa9P48000' },
 ]
 export const surfaceCls =
   'overflow-hidden rounded-[24px] bg-white dark:bg-zinc-900'

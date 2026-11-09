@@ -1,0 +1,5 @@
+- add --new-tab/-n command line flag to open links in a new tab
+- open speed and quality controls as dropdowns next to the header pill
+- improve data sync with row-by-row synchronization, document merging, and account handling
+- add missing menu icons and align icon spacing across menus
+- update translations
