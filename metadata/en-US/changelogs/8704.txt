@@ -1,0 +1,3 @@
+- Upgrade to Expo SDK 58
+- Improve data sync with row-by-row synchronization, document merging, and account handling
+- Add missing menu icons and align icon spacing across menus
