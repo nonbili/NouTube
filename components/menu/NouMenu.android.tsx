@@ -14,7 +14,7 @@ type Anchor = {
   height: number
 }
 
-export const NouMenu: React.FC<{ trigger?: ReactNode; items: Item[]; triggerColor?: string }> = ({ items, trigger, triggerColor }) => {
+export const NouMenu: React.FC<{ trigger?: ReactNode; items: Item[]; triggerColor?: string; side?: 'top' | 'right' | 'bottom' | 'left' }> = ({ items, trigger, triggerColor }) => {
   const tw = useTwColor()
   const [open, setOpen] = useState(false)
   const [anchor, setAnchor] = useState<Anchor | null>(null)

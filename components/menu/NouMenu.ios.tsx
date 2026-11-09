@@ -6,7 +6,7 @@ import { cloneElement, Fragment, isValidElement, ReactNode } from 'react'
 import { useColorScheme } from 'react-native'
 import { useTwColor } from '@/lib/theme'
 
-export const NouMenu: React.FC<{ trigger: ReactNode; items: Item[]; triggerColor?: string }> = ({ trigger, items, triggerColor }) => {
+export const NouMenu: React.FC<{ trigger: ReactNode; items: Item[]; triggerColor?: string; side?: 'top' | 'right' | 'bottom' | 'left' }> = ({ trigger, items, triggerColor }) => {
   const tw = useTwColor()
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'

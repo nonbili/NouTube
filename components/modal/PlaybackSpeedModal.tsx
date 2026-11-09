@@ -10,13 +10,17 @@ import { NouButton } from '../button/NouButton'
 
 import { t } from 'i18next'
 
+export const selectPlaybackRate = (rate: number) => {
+  settings$.playbackRate.set(rate)
+  ui$.webview.get()?.executeJavaScript(`window.NouTube.setPlaybackRate(${rate})`)
+}
+
 export const PlaybackSpeedModal = () => {
   const playbackSpeedModalOpen = useValue(ui$.playbackSpeedModalOpen)
   const currentRate = useValue(settings$.playbackRate)
 
   const onSelect = (rate: number) => {
-    settings$.playbackRate.set(rate)
-    ui$.webview.get()?.executeJavaScript(`window.NouTube.setPlaybackRate(${rate})`)
+    selectPlaybackRate(rate)
     ui$.playbackSpeedModalOpen.set(false)
   }
 

@@ -19,8 +19,10 @@ import { t } from 'i18next'
 import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
 import { useSleepTimerStatus } from '@/lib/sleep-timer'
 import { NouText } from '../NouText'
-import { formatPlaybackRate } from '@/lib/playback-rate'
-import { formatPlaybackQuality } from '@/lib/playback-quality'
+import { formatPlaybackRate, playbackRatesWith } from '@/lib/playback-rate'
+import { formatPlaybackQuality, playbackQualities } from '@/lib/playback-quality'
+import { selectPlaybackRate } from '../modal/PlaybackSpeedModal'
+import { selectPlaybackQuality } from '../modal/PlaybackQualityModal'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { Image } from 'expo-image'
 
@@ -255,6 +257,26 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     }
   }
 
+  // Without onPress the pill is a dropdown trigger: render a plain View so the
+  // Radix trigger stays the only focus target and keyboard activation works.
+  const renderPill = (label: string, onPress?: () => void) => {
+    const pill = (
+      <View className={toolbarPillLabelClass()}>
+        <NouText className="text-xs font-medium">{label}</NouText>
+      </View>
+    )
+    return onPress ? (
+      <Pressable onPress={onPress} className={toolbarPillPressableClass()}>
+        {pill}
+      </Pressable>
+    ) : (
+      <View className={toolbarPillPressableClass()}>{pill}</View>
+    )
+  }
+
+  const menuCheck = (checked: boolean) =>
+    checked ? <MaterialIcons name="check" size={16} color={headerControlColor} /> : undefined
+
   return (
     <Root
       style={animatedStyle}
@@ -395,25 +417,35 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
         {nIf(isWeb, <MaterialButton color={headerControlColor} name="add" onPress={() => tabs$.openTab()} />)}
         {nIf(
           showPlaybackSpeedControl,
-          <Pressable
-            onPress={() => ui$.playbackSpeedModalOpen.set(true)}
-            className={toolbarPillPressableClass()}
-          >
-            <View className={toolbarPillLabelClass()}>
-              <NouText className="text-xs font-medium">{playbackRateLabel}</NouText>
-            </View>
-          </Pressable>,
+          isWeb ? (
+            <NouMenu
+              side={isSidebarLayout ? 'right' : undefined}
+              trigger={renderPill(playbackRateLabel)}
+              items={playbackRatesWith(playbackRate).map((rate) => ({
+                label: formatPlaybackRate(rate),
+                meta: menuCheck(rate === playbackRate),
+                handler: () => selectPlaybackRate(rate),
+              }))}
+            />
+          ) : (
+            renderPill(playbackRateLabel, () => ui$.playbackSpeedModalOpen.set(true))
+          ),
         )}
         {nIf(
           showPlaybackQualityControl,
-          <Pressable
-            onPress={() => ui$.playbackQualityModalOpen.set(true)}
-            className={toolbarPillPressableClass()}
-          >
-            <View className={toolbarPillLabelClass()}>
-              <NouText className="text-xs font-medium">{playbackQualityLabel}</NouText>
-            </View>
-          </Pressable>,
+          isWeb ? (
+            <NouMenu
+              side={isSidebarLayout ? 'right' : undefined}
+              trigger={renderPill(playbackQualityLabel)}
+              items={playbackQualities.map((q) => ({
+                label: q.label,
+                meta: menuCheck(q.value === playbackQuality),
+                handler: () => selectPlaybackQuality(q.value),
+              }))}
+            />
+          ) : (
+            renderPill(playbackQualityLabel, () => ui$.playbackQualityModalOpen.set(true))
+          ),
         )}
         {nIf(
           showSleepTimerButton,

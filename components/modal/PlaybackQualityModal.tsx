@@ -10,13 +10,17 @@ import { NouButton } from '../button/NouButton'
 
 import { t } from 'i18next'
 
+export const selectPlaybackQuality = (quality: string) => {
+  settings$.playbackQuality.set(quality)
+  ui$.webview.get()?.executeJavaScript(`window.NouTube.setPlaybackQuality('${quality}')`)
+}
+
 export const PlaybackQualityModal = () => {
   const playbackQualityModalOpen = useValue(ui$.playbackQualityModalOpen)
   const currentQuality = useValue(settings$.playbackQuality)
 
   const onSelect = (quality: string) => {
-    settings$.playbackQuality.set(quality)
-    ui$.webview.get()?.executeJavaScript(`window.NouTube.setPlaybackQuality('${quality}')`)
+    selectPlaybackQuality(quality)
     ui$.playbackQualityModalOpen.set(false)
   }
 
