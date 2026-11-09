@@ -1,36 +1,30 @@
 import { syncState, when } from '@legendapp/state'
 import { Folder, folders$ } from '@/states/folders'
-import { ResourceSyncMeta, syncMeta$ } from '@/states/sync-meta'
-import { BaseSyncer } from './base'
+import { RowSyncMeta, syncMeta$ } from '@/states/sync-meta'
+import { RowSyncer } from './base'
 
-class FoldersSyncer extends BaseSyncer<Folder> {
+class FoldersSyncer extends RowSyncer<Folder> {
   NAME = 'folders'
   TABLE_NAME = 'nou_folders'
   COLUMNS = 'id,name,json,created_at,updated_at'
-  pushWhenRemoteMissing = false
 
   isPersistLoaded = () =>
     when(() => syncState(folders$).isPersistLoaded.get() && syncState(syncMeta$).isPersistLoaded.get())
 
-  getStore() {
-    const { folders, updatedAt } = folders$.get()
-    return { items: folders, updatedAt }
+  getRows() {
+    return folders$.folders.peek()
   }
 
-  setStore({ items, updatedAt }: { items: Folder[]; updatedAt: Date }) {
-    folders$.assign({ folders: items, updatedAt })
+  setRows(rows: Folder[]) {
+    folders$.assign({ folders: rows, updatedAt: new Date() })
   }
 
   getMeta() {
-    return syncMeta$.folders.get()
+    return syncMeta$.folders.peek()
   }
 
-  setMeta(meta: Partial<ResourceSyncMeta<Folder[]>>) {
+  setMeta(meta: Partial<RowSyncMeta>) {
     syncMeta$.folders.assign(meta)
-  }
-
-  hasMeaningfulLocalValue(items: Folder[]) {
-    return items.some((item) => !item.json.deleted)
   }
 }
 

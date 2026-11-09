@@ -5,7 +5,7 @@ import { blocklist$ } from '@/states/blocklist'
 import { bookmarks$ } from '@/states/bookmarks'
 import { feeds$ } from '@/states/feeds'
 import { folders$ } from '@/states/folders'
-import { settings$, getSettingsSnapshot } from '@/states/settings'
+import { settings$ } from '@/states/settings'
 import { newBookmark } from '@/states/bookmarks'
 import { getUserStylesSnapshot, userStyles$ } from '@/states/user-styles'
 import { feederLoop, refreshChannelFeed } from '@/lib/feeder'
@@ -16,6 +16,10 @@ import { bookmarksSyncer } from '@/lib/supabase/sync/bookmarks'
 import { foldersSyncer } from '@/lib/supabase/sync/folders'
 import { settingsSyncer } from '@/lib/supabase/sync/settings'
 import { userStylesSyncer } from '@/lib/supabase/sync/user-styles'
+import { syncMeta$ } from '@/states/sync-meta'
+import { accountChoice$, canSync } from '@/lib/supabase/sync/session'
+import { resolveAccountChoice } from '@/lib/supabase/sync/account'
+import { watchLocalSyncChanges } from '@/lib/supabase/sync/watch'
 import { restoreSession, signIn, signOut, watchSession } from './auth'
 import { hydrateAppState, persistAppStateOnChange, snapshotStoredState } from './hydrate'
 import { fetchFeedDirectly } from './main-client'
@@ -29,11 +33,6 @@ export const FEED_ALARM = 'noutube-feeds'
 
 let syncing = false
 let syncError: string | undefined
-
-const canSync = () => {
-  const { userId, plan } = auth$.get()
-  return Boolean(userId && plan && plan !== 'free')
-}
 
 const syncers = [bookmarksSyncer, foldersSyncer, settingsSyncer, userStylesSyncer]
 
@@ -91,43 +90,10 @@ export async function syncNow() {
  * dirty. Registering them after hydration keeps "dirty" meaning what it says.
  */
 function watchLocalChanges() {
-  const markAndSchedule = (syncer: (typeof syncers)[number]) => {
-    if (syncer.isApplyingRemote()) {
-      return
-    }
-    syncer.markDirty()
-    if (canSync()) {
-      syncer.scheduleSync()
-    }
-  }
-
-  settings$.onChange(({ value, getPrevious }) => {
-    const previous = getPrevious()
-    if (!previous) {
-      return
-    }
-    if (JSON.stringify(getSettingsSnapshot(value)) !== JSON.stringify(getSettingsSnapshot(previous))) {
-      markAndSchedule(settingsSyncer)
-    }
+  watchLocalSyncChanges({
+    requireHydrated: false,
+    onUserStylesChange: (value) => void syncUserScripts(value),
   })
-
-  userStyles$.onChange(({ value, getPrevious }) => {
-    const previous = getPrevious()
-    if (!previous) {
-      return
-    }
-    if (JSON.stringify(getUserStylesSnapshot(value)) !== JSON.stringify(getUserStylesSnapshot(previous))) {
-      markAndSchedule(userStylesSyncer)
-      void syncUserScripts(getUserStylesSnapshot(value))
-    }
-  })
-
-  bookmarks$.bookmarks.onChange(() => {
-    markAndSchedule(bookmarksSyncer)
-    void feederLoop()
-  })
-
-  folders$.folders.onChange(() => markAndSchedule(foldersSyncer))
 }
 
 function notifyStateChanged() {
@@ -143,6 +109,8 @@ function snapshot(): AppSnapshot {
     auth: { loaded: auth$.loaded.get(), userId, plan: plan || 'free' },
     syncing,
     syncError,
+    accountChoice: accountChoice$.get(),
+    switchBackup: syncMeta$.switchBackup.get(),
     userScripts: userScriptsAvailable() ? 'ready' : 'unavailable',
   }
 }
@@ -186,6 +154,9 @@ export async function handle(message: RequestMessage): Promise<unknown> {
       return snapshot()
     case 'sync-now':
       await syncNow()
+      return snapshot()
+    case 'account-choice':
+      await resolveAccountChoice(message.choice)
       return snapshot()
     case 'refresh-feeds':
       if (message.bookmarkId) {

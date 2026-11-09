@@ -5,7 +5,7 @@ import { bookmarks$ } from '@/states/bookmarks'
 import { feeds$ } from '@/states/feeds'
 import { folders$ } from '@/states/folders'
 import { getSettingsSnapshot, settings$ } from '@/states/settings'
-import { syncMeta$ } from '@/states/sync-meta'
+import { normalizeSyncMeta, syncMeta$ } from '@/states/sync-meta'
 import { getUserStylesSnapshot, userStyles$ } from '@/states/user-styles'
 import type { Bookmark } from '@/states/bookmarks'
 import { loadStoredState, saveStoredState, type StoredState } from './store'
@@ -48,7 +48,7 @@ export async function hydrateAppState() {
       feeds: stored.feeds.feeds.map((feed) => ({ id: feed.id, fetchedAt: reviveDate(feed.fetchedAt) })),
       bookmarks: stored.feeds.bookmarks.map(reviveBookmark),
     })
-    syncMeta$.assign(stored.syncMeta as never)
+    syncMeta$.set(normalizeSyncMeta(stored.syncMeta as never))
     auth$.assign({ loaded: stored.auth.loaded, userId: stored.auth.userId, plan: stored.auth.plan })
   })
 

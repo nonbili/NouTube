@@ -1,20 +1,28 @@
 import { beforeEach, describe, expect, it } from 'bun:test'
 import { auth$ } from '@/states/auth'
-import type { ResourceSyncMeta } from '@/states/sync-meta'
+import { syncMeta$, type ResourceSyncMeta } from '@/states/sync-meta'
 import { DocumentSyncer } from './document-base'
+import { mergeKeys } from './merge'
 
 interface TestValue {
   enabled: boolean
   name?: string
 }
 
-const emptyMeta = (): ResourceSyncMeta<TestValue> => ({
-  dirty: false,
-  lastSyncedRemoteUpdatedAt: undefined,
-  lastSuccessfulSyncAt: undefined,
-  lastError: undefined,
-  backup: undefined,
-})
+const emptyMeta = (): ResourceSyncMeta<TestValue> => ({ dirty: false })
+
+/** One row, written only on top of the copy a device read, as nou_put_doc does. */
+class FakeServer {
+  row: { value: TestValue; updatedAt: string } | null = null
+  clock = 0
+  writes: TestValue[] = []
+  // Runs before a write lands, as another device writing first.
+  beforeWrite?: () => void
+
+  put(value: TestValue) {
+    this.row = { value: structuredClone(value), updatedAt: `2026-11-09T00:00:${String(this.clock++).padStart(2, '0')}.000Z` }
+  }
+}
 
 class TestDocumentSyncer extends DocumentSyncer<TestValue> {
   NAME = 'test-document'
@@ -23,9 +31,10 @@ class TestDocumentSyncer extends DocumentSyncer<TestValue> {
 
   value: TestValue = { enabled: true }
   meta: ResourceSyncMeta<TestValue> = emptyMeta()
-  remote: { value: TestValue; updatedAt: string } | null = null
-  savedValues: TestValue[] = []
-  appliedValues: TestValue[] = []
+
+  constructor(private server: FakeServer) {
+    super()
+  }
 
   isPersistLoaded() {
     return Promise.resolve(true)
@@ -36,8 +45,11 @@ class TestDocumentSyncer extends DocumentSyncer<TestValue> {
   }
 
   setValue(value: TestValue) {
-    this.appliedValues.push(value)
     this.value = value
+  }
+
+  merge(base: TestValue | undefined, local: TestValue, remote: TestValue) {
+    return mergeKeys(base, local, remote)
   }
 
   hasMeaningfulLocalValue() {
@@ -52,92 +64,140 @@ class TestDocumentSyncer extends DocumentSyncer<TestValue> {
     this.meta = { ...this.meta, ...meta }
   }
 
-  fetchRemote() {
-    return Promise.resolve(this.remote)
+  async fetchRemote() {
+    return this.server.row && structuredClone(this.server.row)
   }
 
-  saveRemote(value: TestValue) {
-    this.savedValues.push(value)
-    this.remote = {
-      value,
-      updatedAt: '2026-03-16T00:00:00.000Z',
+  protected async saveRemote(_userId: string, value: TestValue, base: string | undefined) {
+    this.server.beforeWrite?.()
+    this.server.beforeWrite = undefined
+    if ((this.server.row?.updatedAt ?? undefined) !== base) {
+      return { ok: false, updatedAt: this.server.row?.updatedAt }
     }
-    return Promise.resolve(this.remote)
+    this.server.writes.push(structuredClone(value))
+    this.server.put(value)
+    return { ok: true, updatedAt: this.server.row!.updatedAt }
+  }
+
+  /** A change made here, as the store's listener sees it. */
+  edit(value: TestValue) {
+    this.value = value
+    this.markDirty()
   }
 }
 
 describe('DocumentSyncer', () => {
+  let server: FakeServer
+
   beforeEach(() => {
-    auth$.assign({
-      loaded: true,
-      userId: 'user-1',
-      user: undefined,
-      accessToken: '',
-      plan: 'pro',
-    })
+    server = new FakeServer()
+    syncMeta$.ownerUserId.set(undefined)
+    auth$.assign({ loaded: true, userId: 'user-1', user: undefined, accessToken: '', plan: 'pro' })
   })
 
-  it('pushes local value when remote row is missing', async () => {
-    const syncer = new TestDocumentSyncer()
-    syncer.value = { enabled: true, name: 'local' }
+  it('pushes the value here when the account has none', async () => {
+    const device = new TestDocumentSyncer(server)
+    device.value = { enabled: true, name: 'local' }
 
-    await syncer.syncNow()
+    await device.syncNow()
 
-    expect(syncer.savedValues).toEqual([{ enabled: true, name: 'local' }])
-    expect(syncer.appliedValues).toHaveLength(0)
-    expect(syncer.meta.dirty).toBe(false)
-    expect(syncer.meta.lastSyncedRemoteUpdatedAt).toBe('2026-03-16T00:00:00.000Z')
+    expect(server.writes).toEqual([{ enabled: true, name: 'local' }])
+    expect(device.meta.dirty).toBe(false)
+    expect(device.meta.lastSyncedRemoteUpdatedAt).toBe(server.row!.updatedAt)
+    expect(device.meta.base).toEqual({ enabled: true, name: 'local' })
   })
 
-  it('pulls newer remote value when local state is clean', async () => {
-    const syncer = new TestDocumentSyncer()
-    syncer.value = { enabled: true, name: 'local' }
-    syncer.remote = {
-      value: { enabled: false, name: 'remote' },
-      updatedAt: '2026-03-16T00:00:00.000Z',
-    }
-    syncer.meta = {
-      ...emptyMeta(),
-      lastSyncedRemoteUpdatedAt: '2026-03-15T00:00:00.000Z',
-    }
+  it('pulls a newer value when nothing changed here', async () => {
+    server.put({ enabled: false, name: 'remote' })
+    const device = new TestDocumentSyncer(server)
+    device.meta = { ...emptyMeta(), lastSyncedRemoteUpdatedAt: 'older' }
 
-    await syncer.syncNow()
+    await device.syncNow()
 
-    expect(syncer.savedValues).toHaveLength(0)
-    expect(syncer.appliedValues).toEqual([{ enabled: false, name: 'remote' }])
-    expect(syncer.value).toEqual({ enabled: false, name: 'remote' })
-    expect(syncer.meta.lastSyncedRemoteUpdatedAt).toBe('2026-03-16T00:00:00.000Z')
+    expect(server.writes).toEqual([])
+    expect(device.value).toEqual({ enabled: false, name: 'remote' })
   })
 
-  it('backs up local value before pulling divergent remote value', async () => {
-    const syncer = new TestDocumentSyncer()
-    syncer.value = { enabled: true, name: 'local' }
-    syncer.remote = {
-      value: { enabled: false, name: 'remote' },
-      updatedAt: '2026-03-16T00:00:00.000Z',
-    }
-    syncer.meta = {
-      ...emptyMeta(),
-      dirty: true,
-      lastSyncedRemoteUpdatedAt: '2026-03-15T00:00:00.000Z',
-    }
+  it('merges changes two devices made to different settings', async () => {
+    const a = new TestDocumentSyncer(server)
+    const b = new TestDocumentSyncer(server)
+    a.value = { enabled: true, name: 'start' }
+    await a.syncNow()
+    await b.syncNow()
 
-    await syncer.syncNow()
+    a.edit({ ...a.value, enabled: false })
+    b.edit({ ...b.value, name: 'renamed' })
+    await a.syncNow()
+    await b.syncNow()
+    await a.syncNow()
 
-    expect(syncer.savedValues).toHaveLength(0)
-    expect(syncer.appliedValues).toEqual([{ enabled: false, name: 'remote' }])
-    expect(syncer.meta.backup?.value).toEqual({ enabled: true, name: 'local' })
-    expect(syncer.meta.backup?.remoteUpdatedAt).toBe('2026-03-16T00:00:00.000Z')
+    expect(server.row?.value).toEqual({ enabled: false, name: 'renamed' })
+    expect(a.value).toEqual({ enabled: false, name: 'renamed' })
+    expect(b.value).toEqual({ enabled: false, name: 'renamed' })
+    expect(b.meta.backup).toBeUndefined()
+  })
+
+  it('takes the other device when both changed the same setting, and keeps a backup', async () => {
+    server.put({ enabled: true, name: 'start' })
+    const device = new TestDocumentSyncer(server)
+    await device.syncNow()
+    server.put({ enabled: true, name: 'theirs' })
+
+    device.edit({ enabled: true, name: 'mine' })
+    await device.syncNow()
+
+    expect(device.value).toEqual({ enabled: true, name: 'theirs' })
+    expect(device.meta.backup?.value).toEqual({ enabled: true, name: 'mine' })
+
+    device.restoreBackup()
+    // The store's listener takes the restored value for a change made here.
+    device.markDirty()
+    await device.syncNow()
+    expect(server.row?.value).toEqual({ enabled: true, name: 'mine' })
+  })
+
+  it('merges again when another device wrote between the read and the write', async () => {
+    server.put({ enabled: true, name: 'start' })
+    const device = new TestDocumentSyncer(server)
+    await device.syncNow()
+
+    device.edit({ enabled: false, name: 'start' })
+    server.beforeWrite = () => server.put({ enabled: true, name: 'renamed meanwhile' })
+    await device.syncNow()
+
+    expect(server.row?.value).toEqual({ enabled: false, name: 'renamed meanwhile' })
+    expect(device.value).toEqual({ enabled: false, name: 'renamed meanwhile' })
+  })
+
+  it('keeps the row as the base on a clean sync after the upgrade, so later changes merge', async () => {
+    server.put({ enabled: true, name: 'start' })
+    const a = new TestDocumentSyncer(server)
+    const b = new TestDocumentSyncer(server)
+    // Synced by the old version: in step with the row, without a base.
+    for (const device of [a, b]) {
+      device.value = { enabled: true, name: 'start' }
+      device.meta = { ...emptyMeta(), lastSyncedRemoteUpdatedAt: server.row!.updatedAt }
+    }
+    await a.syncNow()
+    await b.syncNow()
+    expect(b.meta.base).toEqual({ enabled: true, name: 'start' })
+
+    a.edit({ enabled: false, name: 'start' })
+    await a.syncNow()
+    b.edit({ enabled: true, name: 'renamed' })
+    await b.syncNow()
+
+    expect(server.row?.value).toEqual({ enabled: false, name: 'renamed' })
+    expect(b.meta.backup).toBeUndefined()
   })
 
   it('skips sync for a free user', async () => {
     auth$.plan.set('free')
-    const syncer = new TestDocumentSyncer()
+    const device = new TestDocumentSyncer(server)
 
-    await syncer.syncNow()
+    await device.syncNow()
 
-    expect(syncer.savedValues).toHaveLength(0)
-    expect(syncer.appliedValues).toHaveLength(0)
-    expect(syncer.meta).toEqual(emptyMeta())
+    expect(server.writes).toEqual([])
+    expect(device.meta).toEqual(emptyMeta())
   })
 })

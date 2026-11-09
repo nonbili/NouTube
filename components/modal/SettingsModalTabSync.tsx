@@ -17,6 +17,14 @@ import { t } from 'i18next'
 import { MaterialButton } from '../button/IconButtons'
 import { NouButton } from '../button/NouButton'
 import { useTwColor } from '@/lib/theme'
+import { accountChoice$ } from '@/lib/supabase/sync/session'
+import type { AccountChoice } from '@/lib/supabase/sync/account'
+import { settingsSyncer } from '@/lib/supabase/sync/settings'
+import { userStylesSyncer } from '@/lib/supabase/sync/user-styles'
+import { chooseAccountData } from '@/lib/hooks/useAccountChoicePrompt'
+import { syncMeta$ } from '@/states/sync-meta'
+import { saveFile } from '@/lib/file'
+import { settingsBackupFilename } from '@/lib/settings-transfer'
 
 const surfaceCls =
   'overflow-hidden rounded-[24px] bg-white dark:bg-zinc-900'
@@ -25,6 +33,12 @@ const TERMS_OF_USE_URL = 'https://www.apple.com/legal/internet-services/itunes/d
 const PRIVACY_POLICY_URL = 'https://inks.page/p/privacy'
 
 type BusyAction = 'buy' | 'restore' | 'manage'
+
+// What a merge took the other device's side of, with what this device had kept to put back.
+const mergeBackups = [
+  { key: 'settings', syncer: settingsSyncer, label: () => t('sync.backupSettings') },
+  { key: 'userStyles', syncer: userStylesSyncer, label: () => t('sync.backupUserStyles') },
+] as const
 
 const SettingsBadge: React.FC<{ label: string }> = ({ label }) => {
   return (
@@ -49,6 +63,34 @@ export const SettingsModalTabSync = () => {
   const [notice, setNotice] = useState<string>()
   const [busyAction, setBusyAction] = useState<BusyAction | null>(null)
   const restoreConflict = actionError?.startsWith('This App Store subscription is already linked to')
+  const needsAccountChoice = useValue(accountChoice$)
+  const switchBackup = useValue(syncMeta$.switchBackup)
+  const [choosing, setChoosing] = useState<AccountChoice | null>(null)
+  const backupTimes = {
+    settings: useValue(syncMeta$.settings.backup.savedAt),
+    userStyles: useValue(syncMeta$.userStyles.backup.savedAt),
+  }
+  const restorableBackups = mergeBackups.filter(({ key }) => backupTimes[key])
+
+  const onAccountChoice = async (choice: AccountChoice) => {
+    setChoosing(choice)
+    try {
+      await chooseAccountData(choice)
+    } finally {
+      setChoosing(null)
+    }
+  }
+
+  const onExportSwitchBackup = async () => {
+    if (!switchBackup) return
+    try {
+      // A fresh name each time: native saves refuse a file already in the cache.
+      await saveFile(`NouTube_bookmarks_${Date.now()}.csv`, switchBackup.bookmarksCsv)
+      await saveFile(settingsBackupFilename(), switchBackup.settingsJson)
+    } catch (error) {
+      setActionError(getErrorMessage(error))
+    }
+  }
 
   useEffect(() => {
     if (!isIos || !user) {
@@ -213,6 +255,40 @@ export const SettingsModalTabSync = () => {
         </View>
       </View>
 
+      {nIf(
+        needsAccountChoice,
+        <View>
+          <NouText className={sectionLabelCls}>{t('sync.accountChoiceTitle')}</NouText>
+          <View className={surfaceCls}>
+            <View className="px-5 py-5">
+              <NouText className="text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+                {t('sync.accountChoiceMessage')}
+              </NouText>
+              <NouText className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+                {t('sync.accountChoiceHint')}
+              </NouText>
+              <View className="mt-5 gap-3">
+                <NouButton
+                  loading={choosing === 'useAccount'}
+                  disabled={Boolean(choosing)}
+                  onPress={() => void onAccountChoice('useAccount')}
+                >
+                  {t('sync.accountChoiceUseAccount')}
+                </NouButton>
+                <NouButton
+                  variant="outline"
+                  loading={choosing === 'mergeDevice'}
+                  disabled={Boolean(choosing)}
+                  onPress={() => void onAccountChoice('mergeDevice')}
+                >
+                  {t('sync.accountChoiceMerge')}
+                </NouButton>
+              </View>
+            </View>
+          </View>
+        </View>,
+      )}
+
       <View>
         <NouText className={sectionLabelCls}>{t('sync.currentPlan')}</NouText>
         <View className={surfaceCls}>
@@ -228,6 +304,35 @@ export const SettingsModalTabSync = () => {
             )}
             {nIf(notice, <NouText className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">{notice}</NouText>)}
             {nIf(actionError, <NouText className="mt-3 text-sm text-red-500">{actionError}</NouText>)}
+            {nIf(
+              switchBackup && !needsAccountChoice,
+              <View className="mt-3 gap-2">
+                <NouButton variant="outline" onPress={() => void onExportSwitchBackup()}>
+                  {t('sync.exportSwitchBackup')}
+                </NouButton>
+                <NouText className="text-xs text-zinc-600 dark:text-zinc-500">
+                  {t('sync.exportSwitchBackupHint', {
+                    date: new Date(switchBackup?.savedAt ?? 0).toLocaleString(),
+                    interpolation: { escapeValue: false },
+                  })}
+                </NouText>
+              </View>,
+            )}
+            {nIf(
+              restorableBackups.length > 0,
+              <View className="mt-4 gap-2">
+                <NouText className="text-sm leading-6 text-zinc-600 dark:text-zinc-400">{t('sync.mergeBackupHint')}</NouText>
+                {restorableBackups.map(({ key, syncer, label }) => (
+                  <NouButton key={key} variant="outline" onPress={() => syncer.restoreBackup()}>
+                    {t('sync.restoreMergeBackup', {
+                      name: label(),
+                      date: new Date(backupTimes[key]!).toLocaleString(),
+                      interpolation: { escapeValue: false },
+                    })}
+                  </NouButton>
+                ))}
+              </View>,
+            )}
             {nIf(
               restoreConflict,
               <View className="mt-3">

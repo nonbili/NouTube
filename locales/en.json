@@ -469,7 +469,21 @@
     "expiresAt": "Renews or expires: {{value}}",
     "legalNotice": "Subscriptions renew automatically unless canceled. By subscribing, you agree to the Terms of Use (EULA) and Privacy Policy.",
     "termsOfUse": "Terms of Use (EULA)",
-    "privacyPolicy": "Privacy Policy"
+    "privacyPolicy": "Privacy Policy",
+    "accountChoiceTitle": "Data from another account",
+    "accountChoiceMessage": "The bookmarks, folders, settings and styles on this device were synced with another NouTube account. Sync is paused until you choose what to do with them.",
+    "accountChoiceUseAccount": "Use this account's data",
+    "accountChoiceMerge": "Merge this device into account",
+    "accountChoiceLater": "Later",
+    "accountChoiceHint": "Using this account's data replaces what is on this device. Merging adds what only this device has to this account. Either way, a backup of this device is kept first.",
+    "accountChoiceToast": "Sync is paused: this device has data from another account. Choose what to do in Settings › Sync.",
+    "accountChoiceFailed": "Could not switch the data to this account: {{message}}",
+    "exportSwitchBackup": "Export data from before the switch",
+    "exportSwitchBackupHint": "Saved {{date}}. Saves the bookmarks as CSV and the settings as a backup file, to import in Settings.",
+    "mergeBackupHint": "Another device changed some of the same things as this device, and its changes were kept. You can put back what this device had.",
+    "restoreMergeBackup": "Restore {{name}} from {{date}}",
+    "backupSettings": "settings",
+    "backupUserStyles": "styles and scripts"
   },
   "pageLoadError": {
     "title": "Can't load this page",

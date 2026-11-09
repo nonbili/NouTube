@@ -4,6 +4,8 @@ import type { UserStylesSnapshot } from '@/lib/user-styles'
 import type { SettingsSnapshot } from '@/states/settings'
 import type { Bookmark } from '@/states/bookmarks'
 import type { Folder } from '@/states/folders'
+import type { AccountChoice } from '@/lib/supabase/sync/account'
+import type { AccountSwitchBackup } from '@/states/sync-meta'
 import type { StoredAuth, StoredCollection, StoredFeed } from './app/store'
 
 export interface AppSnapshot {
@@ -16,6 +18,10 @@ export interface AppSnapshot {
   auth: StoredAuth
   syncing: boolean
   syncError?: string
+  // Signed in to another account than the one the data here was synced with: sync waits for a choice.
+  accountChoice: boolean
+  // What was here before the data was handed to another account, to export.
+  switchBackup?: AccountSwitchBackup
   userScripts: 'ready' | 'unavailable'
 }
 
@@ -30,6 +36,7 @@ export type RequestMessage =
   | { type: 'sign-in' }
   | { type: 'sign-out' }
   | { type: 'sync-now' }
+  | { type: 'account-choice'; choice: AccountChoice }
   | { type: 'refresh-feeds'; bookmarkId?: string }
   | { type: 'noutube:fetch-feed'; url: string }
 

@@ -2,6 +2,7 @@ import { syncState, when } from '@legendapp/state'
 import { getSettingsSnapshot, normalizeSettings, settings$, type SettingsSnapshot } from '@/states/settings'
 import { ResourceSyncMeta, syncMeta$ } from '@/states/sync-meta'
 import { DocumentSyncer } from './document-base'
+import { mergeKeys } from './merge'
 
 class SettingsSyncer extends DocumentSyncer<SettingsSnapshot> {
   NAME = 'settings'
@@ -17,6 +18,11 @@ class SettingsSyncer extends DocumentSyncer<SettingsSnapshot> {
 
   setValue(value: SettingsSnapshot) {
     settings$.assign(normalizeSettings(value))
+  }
+
+  // Each setting on its own; one both devices changed is the other device's.
+  merge(base: SettingsSnapshot | undefined, local: SettingsSnapshot, remote: SettingsSnapshot) {
+    return mergeKeys(base, local, remote)
   }
 
   hasMeaningfulLocalValue() {
