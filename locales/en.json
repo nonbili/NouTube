@@ -143,6 +143,7 @@
   },
   "feeds": {
     "notificationTitle": "New videos in your feed",
+    "communityPost": "Community post",
     "notificationSummary_one": "{{count}} new video from {{channels}} channels",
     "notificationSummary_other": "{{count}} new videos from {{channels}} channels",
     "notificationBody_one": "{{count}} new video from {{channel}}",
@@ -377,6 +378,8 @@
       }
     },
     "channelsFeed": "Channels feed",
+    "feedPosts": "Community posts in feed",
+    "feedPostsDescription": "Also check each saved channel's Posts tab. Refreshing feeds uses more data.",
     "feedNotifications": "New feed video notifications",
     "feedNotificationsDescription": "Check saved channels in the background. Delivery may be delayed by the system. Force-quitting stops checks until you reopen the app.",
     "feedNotificationsUnavailable": "Allow notifications and background activity in system settings to enable feed alerts.",

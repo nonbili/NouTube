@@ -8,6 +8,7 @@ import { settings$ } from '@/states/settings'
 import { fetchYouTubeChannelMetadata } from './youtube-channel'
 import { getFeedNotificationVideos, getLatestFeedPublishedAt, type FeedNotificationUpdate } from './feed-notification-videos'
 import { notifyFeedVideos } from './feed-notifications'
+import { extractCommunityPosts, getChannelPostsUrl } from './feed-posts'
 
 let isFeederRunning = false
 const fetchingChannelIds = new Set<string>()
@@ -62,6 +63,9 @@ export async function feederLoop() {
     for (const id of channelIds) {
       const result = await fetchChannel(id, { onNewVideos: (update) => notifications.push(update) })
       if (result === 'error' || result === 'http-error' || result === 'not-found') success = false
+      if (settings$.feedPosts.get()) {
+        await fetchChannelPosts(id)
+      }
       // Small delay between requests
       await new Promise((r) => setTimeout(r, 100))
     }
@@ -114,6 +118,13 @@ export async function refreshChannelFeed(bookmarkId: string): Promise<RefreshCha
 
     if (refreshedChannelId && refreshedChannelId !== previousChannelId) {
       result = await fetchChannel(refreshedChannelId, { force: true })
+    }
+  }
+
+  if (result === 'success' && settings$.feedPosts.get()) {
+    const channelId = bookmarks$.bookmarks.get().find((x) => x.id === bookmarkId)?.json.id
+    if (channelId) {
+      await fetchChannelPosts(channelId, { force: true })
     }
   }
 
@@ -252,5 +263,53 @@ async function fetchChannel(
     return 'error'
   } finally {
     fetchingChannelIds.delete(id)
+  }
+}
+
+// Opt-in, and tracked apart from the RSS fetch: it is a second, much larger
+// request per channel, and it must run for channels whose RSS is still fresh
+// when the setting is first turned on. A failure here never fails the feed.
+async function fetchChannelPosts(id: string, { force = false }: { force?: boolean } = {}) {
+  const feed = feeds$.feeds.get().find((x) => x.id === id)
+  if (!feed) {
+    return
+  }
+
+  if (!force && Date.now() - new Date(feed.postsFetchedAt ?? 0).valueOf() < threshold) {
+    return
+  }
+
+  const key = `posts:${id}`
+  if (fetchingChannelIds.has(key)) {
+    return
+  }
+  fetchingChannelIds.add(key)
+
+  try {
+    const response = await mainClient.fetchFeed(getChannelPostsUrl(id))
+    if (response.ok && response.body) {
+      const now = new Date()
+      feeds$.importBookmarks(
+        extractCommunityPosts(response.body, now).map((post) =>
+          newBookmark({
+            title: post.text,
+            url: post.url,
+            created_at: post.publishedAt,
+            updated_at: now,
+            json: { id, thumbnail: post.thumbnail },
+          }),
+        ),
+      )
+    } else {
+      console.warn(`Posts returned HTTP ${response.status} for channel: ${id}`)
+    }
+  } catch (e) {
+    console.error(`Failed to fetch posts for channel ${id}:`, e)
+  } finally {
+    fetchingChannelIds.delete(key)
+    const latest = feeds$.feeds.get().find((x) => x.id === id)
+    if (latest) {
+      feeds$.saveFeed({ ...latest, postsFetchedAt: new Date() })
+    }
   }
 }

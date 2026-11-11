@@ -10,6 +10,7 @@ interface Feed {
   id: string
   fetchedAt: Date
   latestPublishedAt?: Date
+  postsFetchedAt?: Date
 }
 
 interface Store {

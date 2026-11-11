@@ -13,11 +13,12 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import { share } from '@/lib/share'
 import { MaterialButton } from '../button/IconButtons'
 import { NouMenu } from '../menu/NouMenu'
-import { isIos, isWeb } from '@/lib/utils'
+import { isIos, isWeb, nIf } from '@/lib/utils'
 import { t } from 'i18next'
 import { RetryImage } from '../image/RetryImage'
 import MaterialIcons from '@react-native-vector-icons/material-icons'
 import { useTwColor } from '@/lib/theme'
+import { isPostUrl } from '@/lib/feed-posts'
 
 dayjs.extend(relativeTime)
 
@@ -35,6 +36,10 @@ export const FeedItem: React.FC<{
   const iconColor = isDark ? tw('zinc-300') : tw('slate-600')
   const starUrl = normalizeUrl(bookmark.url)
   const starred = useValue(library$.urls).has(getBookmarkKey(starUrl))
+  // A community post: text first, an image only when the post has one, and
+  // nothing to star or download.
+  const isPost = isPostUrl(bookmark.url)
+  const thumbnail = bookmark.json.thumbnail || (isPost ? undefined : getThumbnail(bookmark.url))
 
   const onPress = () => {
     updateUrl(bookmark.url)
@@ -65,13 +70,14 @@ export const FeedItem: React.FC<{
             {channel.title}
           </NouText>
         </Pressable>
+        {nIf(isPost, <MaterialIcons name="forum" size={14} color={iconColor} />)}
         <NouText className="ml-2 text-sm whitespace-nowrap text-zinc-500 dark:text-gray-400">
           {dayjs(bookmark.created_at).fromNow()}
         </NouText>
         <NouMenu
           trigger={isWeb ? <MaterialButton name="more-vert" size={20} /> : isIos ? 'ellipsis' : 'filled.MoreVert'}
           items={[
-            {
+            ...(isPost ? [] : [{
               label: starred ? t('menus.unstar') : t('menus.star'),
               icon: <MaterialIcons name={starred ? 'star' : 'star-outline'} size={18} color={iconColor} />,
               systemImage: starred ? 'star.slash' : 'star',
@@ -83,8 +89,8 @@ export const FeedItem: React.FC<{
                     json: { thumbnail: bookmark.json?.thumbnail },
                   }),
                 ),
-            },
-            ...(isIos
+            }]),
+            ...(isIos || isPost
               ? []
               : [
                   {
@@ -108,19 +114,22 @@ export const FeedItem: React.FC<{
         />
       </View>
       <View className="flex-row mb-4 overflow-hidden px-2">
-        <View className="flex-row items-center">
-          <Pressable className="w-[152px]" onPress={onPress}>
-            <RetryImage
-              source={bookmark.json.thumbnail || getThumbnail(bookmark.url)}
-              contentFit="cover"
-              placeholder={{ blurhash }}
-              style={{ height: 85.5, borderRadius: 10 }}
-            />
-          </Pressable>
-        </View>
-        <Pressable className="flex-1 ml-3" onPress={onPress}>
-          <NouText className="leading-6" numberOfLines={3} ellipsizeMode="tail">
-            {bookmark.title}
+        {nIf(
+          !!thumbnail,
+          <View className="flex-row items-center">
+            <Pressable className="w-[152px]" onPress={onPress}>
+              <RetryImage
+                source={thumbnail}
+                contentFit="cover"
+                placeholder={{ blurhash }}
+                style={{ height: 85.5, borderRadius: 10 }}
+              />
+            </Pressable>
+          </View>,
+        )}
+        <Pressable className={thumbnail ? 'flex-1 ml-3' : 'flex-1'} onPress={onPress}>
+          <NouText className="leading-6" numberOfLines={isPost ? 4 : 3} ellipsizeMode="tail">
+            {bookmark.title || (isPost ? t('feeds.communityPost') : '')}
           </NouText>
         </Pressable>
       </View>

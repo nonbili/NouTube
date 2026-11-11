@@ -29,6 +29,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { Image } from 'expo-image'
 import { gray } from '@radix-ui/colors'
 import { refreshChannelFeed } from '@/lib/feeder'
+import { isPostUrl } from '@/lib/feed-posts'
 import { showToast } from '@/lib/toast'
 import { useTwColor } from '@/lib/theme'
 
@@ -71,6 +72,7 @@ export const FeedContent: React.FC<{ showClose?: boolean; onClose?: () => void; 
   const feedState = useValue(feeds$.feeds)
   const feedItems = useValue(feeds$.bookmarks)
   const hideShorts = useValue(settings$.hideShorts)
+  const showPosts = useValue(settings$.feedPosts)
   const bookmarkModalBookmark = useValue(ui$.bookmarkModalBookmark)
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
@@ -163,7 +165,12 @@ export const FeedContent: React.FC<{ showClose?: boolean; onClose?: () => void; 
     }
   }, [activeMenu])
 
-  const managementItems = buildFeedManagementItems({ channels: channelBookmarks, feedBookmarks: feedItems, folders })
+  const managementItems = buildFeedManagementItems({
+    channels: channelBookmarks,
+    // Last video and upload frequency are about videos only.
+    feedBookmarks: feedItems.filter((bookmark) => !isPostUrl(bookmark.url)),
+    folders,
+  })
 
   const visibleManagementItems = filterFeedManagementItems({
     items: managementItems,
@@ -180,6 +187,10 @@ export const FeedContent: React.FC<{ showClose?: boolean; onClose?: () => void; 
     }
 
     if (hideShorts && getPageType(bookmark.url)?.type === 'shorts') {
+      return false
+    }
+
+    if (!showPosts && isPostUrl(bookmark.url)) {
       return false
     }
 

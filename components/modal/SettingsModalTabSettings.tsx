@@ -40,6 +40,7 @@ import {
 import { userStyles$ } from '@/states/user-styles'
 import { useTwColor } from '@/lib/theme'
 import { setFeedNotificationsEnabled } from '@/lib/feed-notifications'
+import { feederLoop } from '@/lib/feeder'
 
 const themes = [null, 'dark', 'light'] as const
 const headerPositions = ['top', 'bottom'] as const
@@ -869,6 +870,19 @@ export const SettingsAppearanceContent = () => {
               value={settings.feedsEnabled}
               onPress={() => settings$.feedsEnabled.set(!settings.feedsEnabled)}
             />
+            {nIf(
+              settings.feedsEnabled,
+              <SettingsToggleRow
+                label={t('settings.feedPosts')}
+                description={t('settings.feedPostsDescription')}
+                icon="forum"
+                value={settings.feedPosts}
+                onPress={() => {
+                  settings$.feedPosts.set(!settings.feedPosts)
+                  if (!settings.feedPosts) void feederLoop()
+                }}
+              />,
+            )}
             {nIf(
               !isWeb && settings.feedsEnabled,
               <FeedNotificationsToggle />,

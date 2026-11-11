@@ -18,6 +18,8 @@ export interface SettingsSnapshot {
   headerPosition: 'top' | 'bottom'
   feedsEnabled: boolean
   feedNotificationsEnabled: boolean
+  // Community posts are scraped from each channel's Posts tab, so they are opt-in.
+  feedPosts: boolean
   hideShorts: boolean
   hideShortsInNavbar: boolean
   hideMixPlaylist: boolean
@@ -238,6 +240,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   headerPosition: value?.headerPosition === 'bottom' ? 'bottom' : 'top',
   feedsEnabled: typeof value?.feedsEnabled === 'boolean' ? value.feedsEnabled : true,
   feedNotificationsEnabled: Boolean(value?.feedNotificationsEnabled),
+  feedPosts: Boolean(value?.feedPosts),
   hideShorts: typeof value?.hideShorts === 'boolean' ? value.hideShorts : true,
   hideShortsInNavbar: Boolean(value?.hideShortsInNavbar),
   hideMixPlaylist: Boolean(value?.hideMixPlaylist),
@@ -312,6 +315,7 @@ export const settings$ = observable<Store>({
   headerPosition: 'top',
   feedsEnabled: true,
   feedNotificationsEnabled: false,
+  feedPosts: false,
   hideShorts: true,
   hideShortsInNavbar: false,
   hideMixPlaylist: false,
