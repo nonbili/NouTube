@@ -18,7 +18,11 @@ import android.os.Looper
 import android.os.Message
 import android.media.AudioManager
 import android.provider.Settings
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ImageSpan
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.ContextMenu
 import android.view.Menu
 import android.view.GestureDetector
@@ -57,6 +61,8 @@ import java.io.ByteArrayInputStream
 import java.net.URI
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import org.json.JSONObject
+import org.json.JSONTokener
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CoroutineScope
@@ -435,6 +441,19 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
   }
 
   private fun emitLinkAction(type: String, url: String, title: String? = null) {
+    // WebView's focused-link title may be the thumbnail's duration/LIVE badge.
+    // Prefer the matching card's heading, even when that title is non-empty.
+    webView.evaluateJavascript("window.NouTube?.getVideoLinkTitle?.(${JSONObject.quote(url)})") { result ->
+      val cardTitle = runCatching { JSONTokener(result).nextValue() as? String }.getOrNull()
+      if (!cardTitle.isNullOrBlank()) {
+        emit(type, mapOf("title" to cardTitle, "url" to url))
+      } else {
+        emitFocusedLinkAction(type, url, title)
+      }
+    }
+  }
+
+  private fun emitFocusedLinkAction(type: String, url: String, title: String?) {
     if (title != null) {
       emit(type, mapOf("title" to title, "url" to url))
       return
@@ -455,23 +474,41 @@ class NouTubeView(context: Context, appContext: AppContext) : ExpoView(context, 
     webView.requestFocusNodeHref(message)
   }
 
+  private fun linkMenuLabel(label: String, icon: Int): CharSequence {
+    // Android's context-menu dialog ignores MenuItem icons. An inline drawable
+    // keeps the icon visible without replacing the system menu or its behavior.
+    val drawable = androidx.appcompat.content.res.AppCompatResources.getDrawable(context, icon)?.mutate()
+      ?: return label
+    val color = TypedValue()
+    context.theme.resolveAttribute(android.R.attr.textColorPrimary, color, true)
+    val tint = if (color.resourceId != 0) {
+      androidx.core.content.ContextCompat.getColorStateList(context, color.resourceId)?.defaultColor ?: Color.BLACK
+    } else color.data
+    drawable.setTint(tint)
+    val size = (24 * resources.displayMetrics.density).toInt()
+    drawable.setBounds(0, 0, size, size)
+    return SpannableString("   $label").apply {
+      setSpan(ImageSpan(drawable, ImageSpan.ALIGN_BOTTOM), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    }
+  }
+
   private fun addLinkContextMenuItems(menu: ContextMenu, activity: Activity, url: String, title: String? = null) {
     if (isYouTubeVideoUrl(url)) {
-      menu.add("Download").setOnMenuItemClickListener {
+      menu.add(linkMenuLabel("Download", R.drawable.link_download)).setOnMenuItemClickListener {
         emit("download", mapOf("url" to url))
         true
       }
-      menu.add("Star").setOnMenuItemClickListener {
+      menu.add(linkMenuLabel("Star", R.drawable.link_star)).setOnMenuItemClickListener {
         emitLinkAction("star", url, title)
         true
       }
-      menu.add("Add to queue").setOnMenuItemClickListener {
+      menu.add(linkMenuLabel("Add to queue", R.drawable.link_queue)).setOnMenuItemClickListener {
         emitLinkAction("add-queue", url, title)
         true
       }
     }
 
-    menu.add("Copy link").setOnMenuItemClickListener {
+    menu.add(linkMenuLabel("Copy link", R.drawable.link_copy)).setOnMenuItemClickListener {
       val clipboardManager = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
       val clipData = ClipData.newPlainText("link", url)
       clipboardManager.setPrimaryClip(clipData)

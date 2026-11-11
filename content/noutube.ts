@@ -6,6 +6,7 @@ import {
 import { playDefaultAudio, restoreLastPlaying } from './player'
 import { getPlayerFormats } from './player-formats'
 import { navigateWatch } from './split-view'
+import { getVideoLinkTitle } from './link-title'
 import { emit, isYTMusic } from './utils'
 import { createDefaultUserStylesSnapshot, type UserStylesSnapshot } from '../lib/user-styles'
 import { createDefaultBlocklistSnapshot, type BlocklistSnapshot } from '../lib/blocklist'
@@ -227,6 +228,7 @@ export function initNouTube() {
   }
 
   return {
+    getVideoLinkTitle,
     getSettings,
     setSettings,
     getUserStyles,

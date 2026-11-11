@@ -83,6 +83,7 @@
     "@types/react": "~19.3.0",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~58.0.4",
+    "linkedom": "^0.18.13",
     "ts-node": "^10.9.2",
     "typescript": "~6.0.3"
   }
