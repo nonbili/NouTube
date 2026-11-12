@@ -65,7 +65,8 @@ export const TranslationCard = () => {
   const { height, width } = Dimensions.get('window')
   const maxCardHeight = Math.min(360, height - insets.top - insets.bottom - 24)
   const top = Math.min(Math.max(request.y + 8, insets.top + 12), height - insets.bottom - maxCardHeight - 12)
-  const left = Math.min(Math.max(request.x, 12), Math.max(12, width - 332))
+  const minLeft = insets.left + 12
+  const left = Math.min(Math.max(request.x + insets.left, minLeft), Math.max(minLeft, width - insets.right - 332))
   const close = () => ui$.translation.set(null)
   const pinned = pinnedRequestId === request.id
   const translatedParagraphs = result?.text.split(/\n{2,}/).filter(Boolean) || []

@@ -60,7 +60,13 @@ function RootLayoutContent() {
   const pictureInPicture = useValue(ui$.pictureInPicture)
 
   return (
-    <>
+    <View
+      className={isDark ? 'flex-1 bg-zinc-800' : 'flex-1 bg-zinc-100'}
+      style={{
+        paddingLeft: pictureInPicture ? 0 : insets.left,
+        paddingRight: pictureInPicture ? 0 : insets.right,
+      }}
+    >
       <StatusBar style={isDark ? 'light' : 'dark'} />
       {nIf(
         !pictureInPicture,
@@ -71,7 +77,7 @@ function RootLayoutContent() {
         !pictureInPicture,
         <View className={isDark ? 'bg-zinc-800' : 'bg-zinc-100'} style={{ height: insets.bottom }} />,
       )}
-    </>
+    </View>
   )
 }
 
