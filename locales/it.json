@@ -163,7 +163,7 @@
     "emptyBodyNoChannels": "Gli aggiornamenti dei canali YouTube preferiti compariranno qui.",
     "emptyTitleFolder": "Nessun aggiornamento in {{folder}}",
     "emptyTitleChannel": "Nessun aggiornamento da {{channel}}",
-    "emptyBodyFiltered": "Al momento non ci sono video recenti qui. Controlla più tardi oppure passa a Tutte.",
+    "emptyBodyFiltered": "Al momento non ci sono video recenti. Riprova più tardi oppure passa alla visualizzazione \"Tutti\".",
     "emptyActionFetchNow": "Aggiorna ora",
     "fetchToastSuccess": "Feed aggiornato",
     "fetchToastRunning": "Aggiornamento già in corso",
@@ -178,7 +178,8 @@
     "notificationSummary_one": "{{count}} nuovo video da {{channels}} canali",
     "notificationSummary_other": "{{count}} nuovi video da {{channels}} canali",
     "notificationBody_one": "{{count}} nuovo video da {{channel}}",
-    "notificationBody_other": "{{count}} nuovi video da {{channel}}"
+    "notificationBody_other": "{{count}} nuovi video da {{channel}}",
+    "communityPost": "Post della community"
   },
   "settings": {
     "label": "Impostazioni",
@@ -431,7 +432,9 @@
     "disableAutoplay": "Disabilita autoplay",
     "disableAutoplayHint": "Mantieni disattivato l'interruttore Riproduzione automatica di YouTube per evitare l'avvio dei video consigliati successivi. Le code e le playlist continuano a essere riprodotte.",
     "forceLandscape": "Forza orientamento orizzontale",
-    "forceLandscapeDescription": "Sui telefoni, mantieni l'app in modalità orizzontale anche quando la rotazione automatica è disattivata. Su tablet e dispositivi pieghevoli aperti, Android potrebbe ignorare questa impostazione."
+    "forceLandscapeDescription": "Sui telefoni, mantieni l'app in modalità orizzontale anche quando la rotazione automatica è disattivata. Su tablet e dispositivi pieghevoli aperti, Android potrebbe ignorare questa impostazione.",
+    "feedPosts": "Post della community nel feed",
+    "feedPostsDescription": "Controlla anche la scheda Post di ciascun canale salvato. L'aggiornamento dei feed consuma più dati."
   },
   "native": {
     "format_bestQuality": "Migliore qualità",
@@ -466,7 +469,21 @@
     "signOutSwitch": "Disconnettiti e cambia account",
     "expiresAt": "Si rinnova o scade: {{value}}",
     "termsOfUse": "Termini di utilizzo (EULA)",
-    "privacyPolicy": "Politica sulla riservatezza"
+    "privacyPolicy": "Politica sulla riservatezza",
+    "accountChoiceTitle": "Dati provenienti da un altro account",
+    "accountChoiceMessage": "I segnalibri, le cartelle, le impostazioni e gli stili di questo dispositivo sono stati sincronizzati con un altro account NouTube. La sincronizzazione è in pausa finché non scegli cosa farne.",
+    "accountChoiceUseAccount": "Usa i dati di questo account",
+    "accountChoiceMerge": "Unisci questo dispositivo nell'account",
+    "accountChoiceLater": "Dopo",
+    "accountChoiceHint": "L'utilizzo dei dati di questo account sostituisce quelli presenti su questo dispositivo. L'unione aggiunge a questo account solo i dati presenti su questo dispositivo. In entrambi i casi, viene prima creato un backup di questo dispositivo.",
+    "accountChoiceToast": "La sincronizzazione è in pausa: questo dispositivo contiene dati di un altro account. Scegli cosa fare in Impostazioni › Sincronizzazione.",
+    "accountChoiceFailed": "Impossibile trasferire i dati a questo account: {{message}}",
+    "exportSwitchBackup": "Esporta i dati precedenti al cambio",
+    "exportSwitchBackupHint": "Salvato il {{date}}. Salva i segnalibri come file CSV e le impostazioni come file di backup, da importare in Impostazioni.",
+    "mergeBackupHint": "Un altro dispositivo ha modificato alcune delle stesse impostazioni di questo dispositivo e le modifiche sono state mantenute. Puoi ripristinare le impostazioni predefinite di questo dispositivo.",
+    "restoreMergeBackup": "Ripristina {{name}} da {{date}}",
+    "backupSettings": "impostazioni",
+    "backupUserStyles": "stili e script"
   },
   "pageLoadError": {
     "title": "Impossibile caricare questa pagina",

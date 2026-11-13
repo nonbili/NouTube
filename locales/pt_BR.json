@@ -352,7 +352,9 @@
     "disableAutoplay": "Desativar reprodução automática",
     "disableAutoplayHint": "Mantenha a opção de reprodução automática do YouTube desativada para evitar que vídeos recomendados sejam reproduzidos na sequência. Filas e playlists continuarão sendo reproduzidas.",
     "forceLandscape": "Forçar orientação para o modo paisagem",
-    "forceLandscapeDescription": "Mantenha o aplicativo na orientação para o modo paisagem em celulares, mesmo quando a rotação automática estiver desativada. O Android pode ignorar essa configuração em tablets e dispositivos dobráveis quando estiverem abertos."
+    "forceLandscapeDescription": "Mantenha o aplicativo na orientação para o modo paisagem em celulares, mesmo quando a rotação automática estiver desativada. O Android pode ignorar essa configuração em tablets e dispositivos dobráveis quando estiverem abertos.",
+    "feedPosts": "Postagens da comunidade no feed",
+    "feedPostsDescription": "Verifique também a aba “Postagens” de cada canal salvo. Atualizar os feeds consome mais dados."
   },
   "sync": {
     "label": "Sincronizar",
@@ -375,7 +377,21 @@
     "expiresAt": "Renova ou expira: {{value}}",
     "legalNotice": "As assinaturas são renovadas automaticamente, a menos que sejam canceladas. Ao assinar, você concorda com os Termos de Uso (EULA) e com a Política de Privacidade.",
     "termsOfUse": "Termos de Uso (EULA)",
-    "privacyPolicy": "Política de Privacidade"
+    "privacyPolicy": "Política de Privacidade",
+    "accountChoiceTitle": "Dados de outra conta",
+    "accountChoiceMessage": "Favoritos, pastas, configurações e css neste dispositivo foram sincronizados com outra conta NouTube. A sincronização está pausada até que você escolha o que fazer com eles.",
+    "accountChoiceUseAccount": "Usar dados desta conta",
+    "accountChoiceMerge": "Vincular este dispositivo à conta",
+    "accountChoiceLater": "Depois",
+    "accountChoiceHint": "Usar os dados desta conta substitui o que está neste dispositivo. A mesclagem adiciona a esta conta o que existe apenas neste dispositivo. Em ambos os casos, é feito primeiro um backup deste dispositivo.",
+    "accountChoiceToast": "A sincronização está pausada: este dispositivo contém dados de outra conta. Escolha o que fazer em \"Configurações › Sincronização\".",
+    "accountChoiceFailed": "Não foi possível transferir os dados para esta conta: {{message}}",
+    "exportSwitchBackup": "Exportar dados anteriores à mudança",
+    "exportSwitchBackupHint": "Salvo em {{date}}. Salva os favoritos como CSV e as configurações como um arquivo de backup, para importar em “Configurações”.",
+    "mergeBackupHint": "Outro dispositivo alterou alguns dos mesmos itens que este dispositivo, e essas alterações foram mantidas. Você pode restaurar o que este dispositivo continha.",
+    "restoreMergeBackup": "Restaurar {{name}} a partir de {{date}}",
+    "backupSettings": "configurações",
+    "backupUserStyles": "CSS e scripts"
   },
   "changelog": {
     "label": "Histórico de atualização",
@@ -427,7 +443,8 @@
     "notificationSummary_one": "{{count}} novo vídeo de {{channels}} canais",
     "notificationSummary_other": "{{count}} novos vídeos de {{channels}} canais",
     "notificationBody_one": "{{count}} novo vídeo de {{channel}}",
-    "notificationBody_other": "{{count}} novos vídeos de {{channel}}"
+    "notificationBody_other": "{{count}} novos vídeos de {{channel}}",
+    "communityPost": "Postagem da comunidade"
   },
   "sleepTimer": {
     "hint": "Pause a reprodução após uma duração predefinida ou um valor em minutos definido por você.",

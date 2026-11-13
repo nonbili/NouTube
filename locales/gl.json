@@ -212,7 +212,13 @@
       "host": "Servidor proxy",
       "port": "Porto do proxy",
       "hostPlaceholder": "ex. 127.0.0.1 ou proxy.exemplo.com",
-      "portPlaceholder": "ex. 1080"
+      "portPlaceholder": "ex. 1080",
+      "username": "Nome de usuario",
+      "password": "Contrasinal",
+      "credentialsHint": "Opcional. Os cambios aplícanse pouco despois de deixar de escribir. As credenciais permanecen neste dispositivo e exclúense das copias de seguridade e da sincronización. Mentres a autenticación estea activada, outras aplicacións deste dispositivo poden usar o relé de proxy local.",
+      "applyFailed": "Non se puido aplicar a configuración do proxy.",
+      "credentialsHintIos": "Opcional. Os cambios aplicaranse pouco despois de deixar de escribir. As credenciais permanecen neste dispositivo e quedan excluídas das copias de seguridade e da sincronización.",
+      "iosRequires17": "No iOS 16, pódese utilizar un proxy HTTP só para as fontes. O uso de proxy para a navegación, SOCKS e a autenticación require iOS 17 ou posterior."
     },
     "discord": {
       "label": "Discord",
@@ -424,7 +430,11 @@
     "preferencesComments": "Comentarios",
     "sidebar": "Barra lateral",
     "preferencesYouTubeHint": "Preferencias de YouTube",
-    "preferencesNouTubeHint": "Preferencias de Noutube"
+    "preferencesNouTubeHint": "Preferencias de Noutube",
+    "disableAutoplay": "Desactivar a reprodución automática",
+    "disableAutoplayHint": "Mantén desactivada a opción de reprodución automática de YouTube para evitar que se reproduzan os seguintes vídeos recomendados. As colas e as listas de reprodución seguirán reproducíndose.",
+    "forceLandscape": "Forzar a orientación horizontal",
+    "forceLandscapeDescription": "Mantén a aplicación en orientación horizontal nos teléfonos, mesmo cando a rotación automática estea desactivada. É posible que Android ignore isto nas tabletas e nos dispositivos pregables despregados."
   },
   "native": {
     "format_bestQuality": "Mellor calidade",
@@ -459,7 +469,21 @@
     "expiresAt": "Renova ou caduca: {{value}}",
     "legalNotice": "As subscricións renóvanse automaticamente, a menos que se cancelen. Ao subscribirte, aceptas as Condicións de uso (EULA) e a Política de privacidade.",
     "termsOfUse": "Condicións de uso (EULA)",
-    "privacyPolicy": "Política de privacidade"
+    "privacyPolicy": "Política de privacidade",
+    "accountChoiceTitle": "Datos doutra conta",
+    "accountChoiceMessage": "Os marcadores, os cartafoles, a configuración e os estilos deste dispositivo sincronizáronse con outra conta de NouTube. A sincronización está en pausa ata que elixas que facer con eles.",
+    "accountChoiceUseAccount": "Usa os datos desta conta",
+    "accountChoiceMerge": "Incorporar este dispositivo á conta",
+    "accountChoiceLater": "Máis tarde",
+    "accountChoiceHint": "Usar os datos desta conta substitúe o que hai neste dispositivo. A fusión engade a esta conta o que só se atopa neste dispositivo. En ambos os casos, primeiro realízase unha copia de seguridade deste dispositivo.",
+    "accountChoiceToast": "A sincronización está en pausa: este dispositivo ten datos doutra conta. Escolle que facer en Configuración › Sincronización.",
+    "accountChoiceFailed": "Non foi posible cambiar os datos a esta conta: {{message}}",
+    "exportSwitchBackup": "Exportar datos anteriores ao cambio",
+    "exportSwitchBackupHint": "Gardado o {{date}}. Garda os marcadores en formato CSV e a configuración nun ficheiro de copia de seguridade, para importalos en Configuración.",
+    "mergeBackupHint": "Outro dispositivo modificou algúns dos mesmos elementos que este, e os seus cambios mantivéronse. Podes restaurar o que tiña este dispositivo.",
+    "restoreMergeBackup": "Restaurar {{name}} do {{date}}",
+    "backupSettings": "configuración",
+    "backupUserStyles": "estilos e scripts"
   },
   "pageLoadError": {
     "title": "Non se pode cargar esta páxina",
