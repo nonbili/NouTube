@@ -171,7 +171,8 @@
     "notificationSummary_one": "{{count}} nowy film z {{channels}} kanałów",
     "notificationSummary_other": "{{count}} nowych filmów z {{channels}} kanałów",
     "notificationBody_one": "{{count}} nowy film z {{channel}}",
-    "notificationBody_other": "{{count}} nowy film z {{channel}}"
+    "notificationBody_other": "{{count}} nowy film z {{channel}}",
+    "communityPost": "Post społeczności"
   },
   "settings": {
     "label": "Ustawienia",
@@ -437,7 +438,9 @@
     "disableAutoplay": "Wyłącz automatyczne odtwarzanie",
     "disableAutoplayHint": "Pozostaw funkcję automatycznego odtwarzania w YouTube wyłączoną, aby zatrzymać odtwarzanie kolejnych polecanych filmów. Kolejki i playlisty będą nadal odtwarzane.",
     "forceLandscape": "Wymuś tryb poziomy",
-    "forceLandscapeDescription": "Utrzymuj aplikację w orientacji poziomej na telefonach, nawet gdy automatyczne obracanie jest wyłączone. System Android może zignorować to ustawienie na tabletach i rozłożonych urządzeniach składanych."
+    "forceLandscapeDescription": "Utrzymuj aplikację w orientacji poziomej na telefonach, nawet gdy automatyczne obracanie jest wyłączone. System Android może zignorować to ustawienie na tabletach i rozłożonych urządzeniach składanych.",
+    "feedPosts": "Posty społeczności na kanale",
+    "feedPostsDescription": "Sprawdzaj także zakładkę Posty każdego zapisanego kanału. Odświeżanie kanałów zużywa więcej danych."
   },
   "native": {
     "format_bestQuality": "Najlepsza jakość",
@@ -472,7 +475,21 @@
     "expiresAt": "Odnowienie lub wygaśnięcie: {{value}}",
     "legalNotice": "Subskrypcje odnawiają się automatycznie, chyba że zostaną anulowane. Dokonując subskrypcji, akceptujesz Warunki użytkowania (EULA) oraz Politykę prywatności.",
     "termsOfUse": "Warunki użytkowania (EULA)",
-    "privacyPolicy": "Polityka prywatności"
+    "privacyPolicy": "Polityka prywatności",
+    "accountChoiceTitle": "Dane z innego konta",
+    "accountChoiceMessage": "Zakładki, foldery, ustawienia i style na tym urządzeniu były synchronizowane z innym kontem NouTube. Synchronizacja jest wstrzymana do czasu podjęcia decyzji, co z nimi zrobić.",
+    "accountChoiceUseAccount": "Użyj danych tego konta",
+    "accountChoiceMerge": "Scal dane z tego urządzenia z kontem",
+    "accountChoiceLater": "Później",
+    "accountChoiceHint": "Użycie danych tego konta zastąpi zawartość zapisaną na tym urządzeniu. Scalenie doda do tego konta elementy znajdujące się wyłącznie na tym urządzeniu. W obu przypadkach najpierw zostanie utworzona kopia zapasowa danych z tego urządzenia.",
+    "accountChoiceToast": "Synchronizacja jest wstrzymana: na tym urządzeniu znajdują się dane z innego konta. Wybierz dalsze działanie w sekcji Ustawienia › Synchronizacja.",
+    "accountChoiceFailed": "Nie udało się przełączyć danych na to konto: {{message}}",
+    "exportSwitchBackup": "Eksportuj dane sprzed przełączenia",
+    "exportSwitchBackupHint": "Zapisano {{date}}. Zapisuje zakładki w formacie CSV, a ustawienia jako plik kopii zapasowej do zaimportowania w Ustawieniach.",
+    "mergeBackupHint": "Inne urządzenie zmieniło niektóre z tych samych elementów co to urządzenie i to jego zmiany zostały zachowane. Możesz przywrócić poprzednią zawartość z tego urządzenia.",
+    "restoreMergeBackup": "Przywróć: {{name}} z dnia {{date}}",
+    "backupSettings": "ustawienia",
+    "backupUserStyles": "style i skrypty"
   },
   "bookmarks": {
     "removed": "Usunięto zakładkę",
