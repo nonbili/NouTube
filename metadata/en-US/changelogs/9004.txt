@@ -1,0 +1,2 @@
+- Speed up video startup
+- Update Polish translation
