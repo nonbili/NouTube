@@ -8,6 +8,7 @@ import {
   transformReelResponse,
   transformSearchResponse,
 } from '@/lib/intercept'
+import { transformWatchResponseStream } from '@/lib/watch-response-stream'
 
 const adsBlocked = () => window.NouTube?.getSettings?.()?.blockAds !== false
 
@@ -106,6 +107,17 @@ export function intercept() {
     }
     if (res.status > 200 || !match) {
       return res
+    }
+
+    if (match[1] === 'get_watch' && res.body) {
+      const headers = new Headers(res.headers)
+      // The body is decoded by fetch and may change length during filtering.
+      headers.delete('content-length')
+      headers.delete('content-encoding')
+      return new Response(
+        transformWatchResponseStream(res.body, (text) => transformGetWatchResponse(text, options)),
+        { status: res.status, statusText: res.statusText, headers },
+      )
     }
 
     const text = await res.text()

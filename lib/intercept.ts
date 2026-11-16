@@ -22,10 +22,9 @@ const blocksAds = (options: TransformOptions) => options.blockAds !== false
 
 export function transformGetWatchResponse(text: string, options: TransformOptions = {}) {
   const data = JSON.parse(text)
-  if (blocksAds(options)) {
-    stripAdKeys(data[0].playerResponse)
+  for (const entry of data) {
+    if (entry.playerResponse) filterPlayerResponse(entry.playerResponse, options)
   }
-  applyPlayerResponseOriginalTitle(data[0].playerResponse, options)
   rewriteOriginalTitles(data, options)
   return JSON.stringify(data)
 }

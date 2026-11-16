@@ -7,6 +7,7 @@ import {
   transformReelResponse,
   transformSearchResponse,
 } from 'noutube/lib/intercept'
+import { transformWatchResponseStream } from 'noutube/lib/watch-response-stream'
 import { createDefaultBlocklistSnapshot, normalizeBlocklist, type BlocklistSnapshot } from 'noutube/lib/blocklist'
 
 let currentBlocklist = createDefaultBlocklistSnapshot()
@@ -190,7 +191,6 @@ export function interceptHttpRequest() {
     }
 
     const match = target?.match
-    const text = await res.text()
     const headers = new Headers(res.headers)
     headers.delete('content-length')
     headers.delete('content-encoding')
@@ -199,6 +199,15 @@ export function interceptHttpRequest() {
       status: res.status,
       headers,
     }
+    if (!isHtml && match?.[1] === 'get_watch' && res.body) {
+      const options = transformOptions
+      return new Response(
+        transformWatchResponseStream(res.body, (text) => transformGetWatchResponse(text, options)),
+        responseInit,
+      )
+    }
+
+    const text = await res.text()
     try {
       if (isHtml) {
         return new Response(transformHtml(text), responseInit)
