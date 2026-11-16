@@ -1,4 +1,5 @@
 import { intercept } from './intercept'
+import { installNoAdWatchLinks } from './no-ad-request'
 import { installH264ify } from './h264ify'
 import { installClickbaitThumbnails } from './clickbait'
 import { injectCSS } from './css'
@@ -37,6 +38,7 @@ try {
   }
 
   window.NouTube = initNouTube()
+  if ((window as any).NouTubeAndroidAdRequests) installNoAdWatchLinks()
   ;(window.NouTube as any).setMuted = setMuted
   ;(window.NouTube as any).setNativeMini = setNativeMini
   ;(window.NouTube as any).navigateWatch = navigateWatch

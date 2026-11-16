@@ -16,6 +16,7 @@ import { SIGN_IN_FAQ_URL } from '@/lib/help'
 import { NouLink } from '../link/NouLink'
 import { settings$ } from '@/states/settings'
 import { isPlayerForeground, isSplitWatchEnabled } from '@/lib/split-view'
+import { watchLoadUrl } from '@/lib/watch-load-url'
 
 // accounts.youtube.com is part of Google's sign-in flow, not a page to land on.
 const isYouTubePage = (url: string) => {
@@ -128,7 +129,7 @@ export const CookieModal = () => {
         // The player webview only ever holds a video, so send it back to its own.
         const playerUrl = inPlayer ? ui$.playerUrl.get() : ''
         const home = settings$.home.get() === 'yt-music' ? 'https://music.youtube.com' : 'https://m.youtube.com'
-        webview.loadUrl(playerUrl || home)
+        webview.loadUrl(watchLoadUrl(playerUrl || home))
         const arrived = await Promise.race([
           when(() => isYouTubePage(pageUrl$.get())).then(() => true),
           new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 15000)),

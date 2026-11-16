@@ -109,7 +109,7 @@ describe('hidePlayer', () => {
 
     expect(ui$.playerMode.get()).toBe('mini')
     expect(player.scripts.some((script) => script.includes('pause'))).toBe(false)
-    expect(player.loaded).toEqual(['https://m.youtube.com/watch?v=abc123'])
+    expect(player.loaded).toEqual(['https://m.youtube.com/watch?v=abc123&pp=oAEBogYBLg'])
   })
 })
 
@@ -172,7 +172,7 @@ describe('openInPlayer', () => {
     expect(player.loaded).toEqual([])
 
     setPlayerWebview(player)
-    expect(player.loaded).toEqual(['https://m.youtube.com/watch?v=early12345'])
+    expect(player.loaded).toEqual(['https://m.youtube.com/watch?v=early12345&pp=oAEBogYBLg'])
   })
 
   it('empties the kept-warm webview onto the warm home page when the video is closed', () => {
@@ -210,7 +210,7 @@ describe('player warmup', () => {
     const player = fakePlayer()
     setPlayerWebview(player)
     warmPlayerWebview()
-    expect(player.loaded).toEqual(['https://m.youtube.com/watch?v=early12345'])
+    expect(player.loaded).toEqual(['https://m.youtube.com/watch?v=early12345&pp=oAEBogYBLg'])
   })
 
   it('uses the preloaded router for the first video', async () => {
@@ -256,7 +256,7 @@ describe('player warmup', () => {
     openInPlayer('https://m.youtube.com/watch?v=first12345')
     await Promise.resolve()
     expect(player.loaded).toEqual([
-      'https://m.youtube.com/', 'https://m.youtube.com/watch?v=first12345',
+      'https://m.youtube.com/', 'https://m.youtube.com/watch?v=first12345&pp=oAEBogYBLg',
     ])
   })
 
@@ -272,7 +272,7 @@ describe('player warmup', () => {
     warmPlayerWebview()
     openInPlayer('https://m.youtube.com/watch?v=first12345')
     await new Promise((resolve) => setTimeout(resolve, 120))
-    expect(player.loaded).toEqual(['https://m.youtube.com/watch?v=first12345'])
+    expect(player.loaded).toEqual(['https://m.youtube.com/watch?v=first12345&pp=oAEBogYBLg'])
   })
 })
 
@@ -349,7 +349,7 @@ describe('loading into a player whose native view is not up yet', () => {
     openInPlayer('https://m.youtube.com/watch?v=abc123')
     expect(player.loaded).toEqual([])
     await settle()
-    expect(player.loaded).toEqual(['https://m.youtube.com/watch?v=abc123'])
+    expect(player.loaded).toEqual(['https://m.youtube.com/watch?v=abc123&pp=oAEBogYBLg'])
   })
 
   it('drops a retry for a video that has since been closed', async () => {

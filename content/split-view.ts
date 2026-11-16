@@ -2,6 +2,7 @@ import { emit } from './utils'
 import { isWatchUrl } from '../lib/split-watch-url'
 import { installSplitPlayerWindow } from './split-player-window'
 import { findSplitLink } from './split-link'
+import { noAdWatchUrl } from '../lib/no-ad-request'
 
 // Page half of the split watch view (see lib/split-view.ts). Two webviews are
 // live at once and each one only handles the pages it owns, so every link that
@@ -164,6 +165,10 @@ export function navigateWatch(url: string) {
   }
   try {
     const target = new URL(url, location.href)
+    if ((window as any).NouTubeAndroidAdRequests) {
+      const adFree = noAdWatchUrl(target.href, window.NouTube?.getSettings?.()?.blockAds !== false)
+      if (adFree) target.href = adFree
+    }
     // The router only takes same-origin links: a www.youtube.com link on
     // m.youtube.com would be a full cold load of the watch page instead.
     if (isWatch(target)) {

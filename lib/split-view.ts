@@ -4,6 +4,7 @@ import { settings$ } from '@/states/settings'
 import { isAndroid } from './utils'
 import { isWatchUrl } from './split-watch-url'
 import { retryNativeViewCall } from './native-view-call'
+import { watchLoadUrl } from './watch-load-url'
 
 export { isWatchUrl } from './split-watch-url'
 
@@ -158,7 +159,7 @@ export function openInBrowse(url: string) {
  * replaced webview has made it stale. */
 function loadPlayerUrl(webview: any, url: string, token: number, startScript?: string) {
   retryNativeViewCall(
-    () => (startScript ? webview.loadUrl?.(url, startScript) : webview.loadUrl?.(url)),
+    () => (startScript ? webview.loadUrl?.(watchLoadUrl(url), startScript) : webview.loadUrl?.(watchLoadUrl(url))),
     () => token !== playerLoadToken || playerWebview !== webview,
   )
 }

@@ -4,6 +4,7 @@ import { ui$, updateUrl } from '@/states/ui'
 import { tabs$, type Tab } from '@/states/tabs'
 import { queue$ } from '@/states/queue'
 import { settings$ } from '@/states/settings'
+import { watchLoadUrl } from '@/lib/watch-load-url'
 import { bookmarks$, newBookmark } from '@/states/bookmarks'
 import { createLogger } from '@/lib/log'
 import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
@@ -455,6 +456,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const userStylesState = useValue(userStyles$)
   const userScriptsOnStart = buildUserScriptSources(getUserStylesSnapshot(userStylesState))
   const preludeJs =
+    `window.NouTubeAndroidAdRequests = ${isAndroid};` +
     `window.NouTubeInitialSettings = ${JSON.stringify(contentSettings)};` +
     `window.NouTubeHideShorts = ${hideShorts ? 'true' : 'false'};` +
     `window.NouTubePreferH264 = ${preferH264 ? 'true' : 'false'};` +
@@ -876,10 +878,10 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         try {
           const location = await webview.executeJavaScript('document.location.href')
           if (location == 'about:blank') {
-            webview.loadUrl(browseUrl)
+            webview.loadUrl(watchLoadUrl(browseUrl))
           }
         } catch (e) {
-          webview.loadUrl(browseUrl)
+          webview.loadUrl(watchLoadUrl(browseUrl))
         }
       })()
     }
@@ -908,7 +910,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       openInBrowse(value)
       return
     }
-    nativeRef.current?.loadUrl(value)
+    nativeRef.current?.loadUrl(watchLoadUrl(value))
   })
 
   // The player webview is mounted for the whole session once the split is on,
@@ -977,7 +979,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       closePlayer()
       setPlayerWebview(null)
       // Reload even if no video was opened, removing the page's split handlers.
-      nativeRef.current?.loadUrl(url || 'https://m.youtube.com/')
+      nativeRef.current?.loadUrl(watchLoadUrl(url || 'https://m.youtube.com/'))
       return
     }
     const url = ui$.pageUrl.get() || ui$.browsePageUrl.get()
@@ -1259,7 +1261,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
                     const url = (loadError?.canReload && loadError.url) || fallback
                     setLoadError(errored, null)
                     const view = playerFull ? playerRef.current : nativeRef.current
-                    view?.loadUrl(url)
+                    view?.loadUrl(watchLoadUrl(url))
                   }}
                 />
               </View>,
