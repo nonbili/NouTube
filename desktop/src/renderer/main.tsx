@@ -11,7 +11,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useValue } from '@legendapp/state/react'
 import { settings$ } from '@/states/settings'
 import { Appearance } from 'react-native'
-import { initializeDesktopTabsForStartup } from '@/states/tabs'
+import { initializeDesktopTabsForStartup, tabs$ } from '@/states/tabs'
+import { ui$ } from '@/states/ui'
+import { bookmarks$ } from '@/states/bookmarks'
+import { history$ } from '@/states/history'
+import { feeds$ } from '@/states/feeds'
+import { folders$ } from '@/states/folders'
+import { blocklist$ } from '@/states/blocklist'
+import { userStyles$ } from '@/states/user-styles'
 import { setDynamicLoadingEnabled } from '@react-native-vector-icons/common'
 
 // Vite emits font imports as URLs rather than React Native asset registry IDs.
@@ -95,5 +102,8 @@ export function Root(): ReactElement {
 }
 
 void initializeDesktopTabsForStartup().then(() => {
+  if (typeof window !== 'undefined') {
+    ;(window as any).__noutube = { ui$, settings$, tabs$, bookmarks$, history$, feeds$, folders$, blocklist$, userStyles$ }
+  }
   createRoot(document.getElementById('root')!).render(<Root />)
 })

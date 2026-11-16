@@ -169,7 +169,7 @@
     "filterDropdownPlaceholder": "Filter folders and channels",
     "filterDropdownEmpty": "No folders or channels match.",
     "emptyTitleNoChannels": "No starred channels",
-    "emptyBodyNoChannels": "Updates from starred YouTube channels will show up here.",
+    "emptyBodyNoChannels": "Updates from starred channels will show up here.",
     "emptyTitleFolder": "No updates in {{folder}}",
     "emptyTitleChannel": "No updates from {{channel}}",
     "emptyBodyFiltered": "There are no recent videos here right now. Check back later or switch to All.",
@@ -280,17 +280,17 @@
     "pictureInPictureHint": "Keep the video playing in a floating window when you leave the app.",
     "preferH264": "Prefer H.264 (block VP9/AV1)",
     "disableAutoplay": "Disable autoplay",
-    "disableAutoplayHint": "Keep YouTube's Autoplay toggle off to stop recommended next videos. Queues and playlists continue playing.",
+    "disableAutoplayHint": "Keep Autoplay toggle off to stop recommended next videos. Queues and playlists continue playing.",
     "showDislikes": "Show dislikes",
     "showOriginalVideoTitle": "Show original video title",
     "systemCaptionStyle": {
       "label": "Use system caption style",
-      "hint": "Applies Android's caption color, background and text size to YouTube captions.",
+      "hint": "Applies Android's caption color, background and text size to video captions.",
       "openSystemSettings": "System caption settings"
     },
     "blockAds": {
       "label": "Block ads",
-      "hint": "Turn off to let YouTube ads through and support creators."
+      "hint": "Turn off to let video ads through and support creators."
     },
     "clickbaitThumbnail": {
       "label": "Avoid clickbait thumbnails",
@@ -300,7 +300,7 @@
     },
     "blocklist": {
       "label": "Blocklist",
-      "hint": "Hide YouTube videos by channel or title keyword.",
+      "hint": "Hide videos by channel or title keyword.",
       "channels": "Channels",
       "keywords": "Keywords",
       "channelPlaceholder": "Channel name, handle, or URL",
@@ -432,11 +432,11 @@
     "googleLoginCookieHint": "Google sign-in often doesn't work in the webview. You may need to inject cookies from a browser where you're signed in.",
     "cookieFaq": "How to inject cookies",
     "injectCookieAction": "Inject cookie",
-    "groupYouTube": "YouTube",
+    "groupYouTube": "Player & Content",
     "groupNouTube": "NouTube",
     "preferencesComments": "Comments",
     "sidebar": "Sidebar",
-    "preferencesYouTubeHint": "YouTube preferences",
+    "preferencesYouTubeHint": "Distraction and content preferences",
     "preferencesNouTubeHint": "NouTube preferences"
   },
   "native": {

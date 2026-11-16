@@ -17,6 +17,14 @@ FEATURES = [
     ('04-distractions', 'Cut the\ndistractions.', 'Hide Shorts and recommended videos.'),
     ('05-blocklist', 'Choose what\ngets through.', 'Filter channels and title keywords.'),
 ]
+WINDOWS_FEATURES = [
+    ('01-feeds', 'Your channels. No login.', 'New uploads in one personal feed without account tracking.'),
+    ('02-distractions', 'Cut the distractions.', 'Hide Shorts, home feed, recommendations, and intrusive ads.'),
+    ('03-blocklist', 'Choose what gets through.', 'Filter channels and title keywords with custom match rules.'),
+    ('04-library', 'Organize your favorites.', 'Manage playlists and custom folders stored locally on your PC.'),
+    ('05-history', 'Privacy-first history.', 'Local watch history saved only on your device, never tracked.'),
+    ('06-controls', 'Playback, your way.', 'Fine-grained speed controls, 4K quality selection, and sleep timer.'),
+]
 PLATFORMS = {
     'android': {
         'size': (1080, 1920),
@@ -33,6 +41,11 @@ PLATFORMS = {
         'size': (1320, 2868),
         'directory': REPO / 'fastlane/metadata/ios/en-US',
         'extra': ('06-import', 'Bring your\nfavorites.', 'Import YouTube subscriptions and playlists.'),
+    },
+    'windows': {
+        'size': (1920, 1080),
+        'directory': REPO / 'mstore/promo',
+        'features': WINDOWS_FEATURES,
     },
 }
 
@@ -60,6 +73,50 @@ def render(platform, config, index, feature):
     if not source.is_file():
         raise FileNotFoundError(source)
     width, height = config['size']
+
+    if platform == 'windows':
+        image = background(width, height)
+        draw = ImageDraw.Draw(image)
+        left = 80
+        icon_size = 48
+        icon = Image.open(REPO / 'assets/images/icon.png').convert('RGBA')
+        icon = icon.resize((icon_size, icon_size), Image.Resampling.LANCZOS)
+        icon_mask = Image.new('L', icon.size)
+        ImageDraw.Draw(icon_mask).rounded_rectangle((0, 0, icon_size, icon_size), radius=icon_size*.24, fill=255)
+        image.paste(icon, (left, 36), icon_mask)
+        draw.text((left + icon_size + 14, 46), 'NouTube for Windows', font=font(26, True), fill='#8adcec')
+
+        draw.text((left, 96), title, font=font(44, True), fill='white')
+        subtitle_font = font(22)
+        while draw.textlength(subtitle, font=subtitle_font) > width - left*2:
+            subtitle_font = font(subtitle_font.size - 1)
+        draw.text((left, 154), subtitle, font=subtitle_font, fill='#c2d2e1')
+
+        screen_width = width - 2*left
+        screen_top = 205
+        capture = Image.open(source).convert('RGB')
+        screen_height = round(screen_width * capture.height / capture.width)
+        capture = capture.resize((screen_width, screen_height), Image.Resampling.LANCZOS)
+        radius = 20
+        shadow = Image.new('RGBA', (width, max(height, screen_top + screen_height + 80)))
+        ImageDraw.Draw(shadow).rounded_rectangle(
+            (left-8, screen_top+14, left+screen_width+8, screen_top+screen_height+20),
+            radius=radius+8, fill=(0, 0, 0, 170),
+        )
+        shadow = shadow.filter(ImageFilter.GaussianBlur(20))
+        image = Image.alpha_composite(image, shadow.crop((0, 0, width, height)))
+        panel = Image.new('RGBA', (screen_width+6, screen_height+6), '#375265')
+        panel.paste(capture, (3, 3))
+        mask = Image.new('L', panel.size)
+        ImageDraw.Draw(mask).rounded_rectangle((0, 0, panel.width-1, panel.height-1), radius=radius, fill=255)
+        image.paste(panel, (left-3, screen_top-3), mask)
+        image = image.convert('RGB')
+        directory = config['directory']
+        directory.mkdir(parents=True, exist_ok=True)
+        output = directory / f'{name}.png'
+        image.save(output, optimize=True)
+        return output
+
     scale = width / 1320
     left = round(84*scale) if platform == 'ios' else 60
     image = background(width, height)
@@ -112,7 +169,7 @@ def render(platform, config, index, feature):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--platform', choices=['all', 'android', 'ios', 'ipad'], default='all')
+    parser.add_argument('--platform', choices=['all', 'android', 'ios', 'ipad', 'windows'], default='all')
     args = parser.parse_args()
     manifest = []
     galleries = []
@@ -134,9 +191,9 @@ def main():
         sheet.save(ROOT / f'{platform}-preview.jpg', quality=94, subsampling=0)
         cards = ''.join(f'<a href="../../../{output.relative_to(REPO)}"><img src="../../../{output.relative_to(REPO)}" alt="{platform} screenshot {i}"></a>'
                         for i, output in enumerate(outputs, 1))
-        galleries.append(f'<section><h2>{dict(ios="iPhone", ipad="iPad", android="Android")[platform]}</h2><div class="gallery">{cards}</div></section>')
+        galleries.append(f'<section><h2>{dict(ios="iPhone", ipad="iPad", android="Android", windows="Windows (Microsoft Store)")[platform]}</h2><div class="gallery">{cards}</div></section>')
     (ROOT / 'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n')
-    (ROOT / 'preview.html').write_text('''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NouTube store screenshots</title><style>body{margin:0;padding:40px;background:#07131d;color:white;font:16px system-ui}h1{margin:0 0 12px}p{color:#a9c3d4}section{margin:40px 0}.gallery{display:grid;grid-template-columns:repeat(6,minmax(160px,1fr));gap:16px;overflow:auto}.gallery img{display:block;width:100%;border:1px solid #274052;border-radius:12px}a{color:inherit}@media(max-width:900px){body{padding:20px}.gallery{grid-template-columns:repeat(3,minmax(140px,1fr))}}</style><h1>NouTube store screenshots</h1><p>Actual Android, iPhone, and iPad captures. Click a screenshot to view the full-resolution export.</p>''' + ''.join(galleries) + '</html>')
+    (ROOT / 'preview.html').write_text('''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NouTube store screenshots</title><style>body{margin:0;padding:40px;background:#07131d;color:white;font:16px system-ui}h1{margin:0 0 12px}p{color:#a9c3d4}section{margin:40px 0}.gallery{display:grid;grid-template-columns:repeat(6,minmax(160px,1fr));gap:16px;overflow:auto}.gallery img{display:block;width:100%;border:1px solid #274052;border-radius:12px}a{color:inherit}@media(max-width:900px){body{padding:20px}.gallery{grid-template-columns:repeat(3,minmax(140px,1fr))}}</style><h1>NouTube store screenshots</h1><p>Actual Android, iPhone, iPad, and Windows desktop captures. Click a screenshot to view the full-resolution export.</p>''' + ''.join(galleries) + '</html>')
     print(f'Rendered {len(manifest)} store screenshots.')
 
 
