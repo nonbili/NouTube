@@ -1,0 +1,5 @@
+- Support selecting a download folder
+- Add opt-in community posts to the feed reader
+- Reduce video startup delay by streaming filtered watch responses
+- Respect landscape navigation bar safe-area insets
+- Fix video titles and icons in long-press menus
