@@ -6,6 +6,7 @@ type PackageInfo = {
   version: string
   versionCode: number
   buildNumber: string
+  iosVersion?: string
 }
 
 export const repoRoot = resolve(import.meta.dir, '..')

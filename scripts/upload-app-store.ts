@@ -15,6 +15,7 @@ import {
 
 const [ipaArg] = Bun.argv.slice(2)
 const pkg = await packageInfo()
+const iosVersion = pkg.iosVersion ?? pkg.version
 const ipaPath = ipaArg ?? process.env.IPA_PATH ?? resolve(repoRoot, 'ios/build/NouTube.ipa')
 const appIdentifier = process.env.IOS_APP_IDENTIFIER ?? 'jp.nonbili.noutube'
 const changelogSource = process.env.IOS_CHANGELOG_SOURCE
@@ -23,7 +24,7 @@ const releaseNotesPath = process.env.IOS_RELEASE_NOTES_PATH
   ?? resolve(repoRoot, 'fastlane/metadata/ios/en-US/release_notes.txt')
 const skipBinaryUpload = envFlag('IOS_SKIP_BINARY_UPLOAD', false)
 const skipBuild = envFlag('SKIP_BUILD', skipBinaryUpload)
-const submitForReview = envFlag('IOS_SUBMIT_FOR_REVIEW', true)
+const submitForReview = envFlag('IOS_SUBMIT_FOR_REVIEW', false)
 const rejectIfPossible = envFlag('IOS_REJECT_IF_POSSIBLE', submitForReview)
 const automaticRelease = envFlag('IOS_AUTOMATIC_RELEASE', true)
 
@@ -71,17 +72,19 @@ if (!skipBinaryUpload && skipBuild) {
 }
 
 if (skipBinaryUpload && submitForReview) {
-  console.log(`Submitting existing App Store Connect build ${pkg.version} (${pkg.buildNumber}) for ${appIdentifier}...`)
+  console.log(`Submitting existing App Store Connect build ${iosVersion} (${pkg.buildNumber}) for ${appIdentifier}...`)
 } else if (submitForReview) {
   console.log(`Uploading ${ipaPath} to App Store Connect and submitting for review for ${appIdentifier}...`)
+} else if (skipBinaryUpload) {
+  console.log(`Distributing existing TestFlight build ${iosVersion} (${pkg.buildNumber}) for ${appIdentifier}...`)
 } else {
-  console.log(`Uploading ${ipaPath} to App Store Connect for ${appIdentifier}...`)
+  console.log(`Uploading ${ipaPath} to TestFlight for ${appIdentifier}...`)
 }
 
 await run(['bundle', 'exec', 'fastlane', 'ios', 'upload_ipa'], {
   env: {
     IOS_APP_IDENTIFIER: appIdentifier,
-    IOS_APP_VERSION: pkg.version,
+    IOS_APP_VERSION: iosVersion,
     IOS_BUILD_NUMBER: pkg.buildNumber,
     IPA_PATH: ipaPath,
     IOS_RELEASE_NOTES_PATH: releaseNotesPath,

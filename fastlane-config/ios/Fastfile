@@ -81,6 +81,32 @@ platform :ios do
 
     UI.user_error!("IPA not found: #{ipa_path}") if !skip_binary_upload && !File.exist?(ipa_path)
 
+    unless submit_for_review
+      # TestFlight-only release: keep the external group on the already
+      # approved version so new builds skip a full beta review.
+      groups = (ENV["IOS_TESTFLIGHT_GROUPS"] || "NouTube Test").split(",").map(&:strip).reject(&:empty?)
+      testflight_options = {
+        api_key: api_key,
+        app_identifier: app_identifier,
+        changelog: release_notes.to_s.empty? ? nil : release_notes,
+        distribute_external: !groups.empty?,
+        groups: groups.empty? ? nil : groups,
+        notify_external_testers: true,
+        uses_non_exempt_encryption: ENV["IOS_USES_ENCRYPTION"] == "1"
+      }
+
+      if skip_binary_upload
+        testflight_options[:distribute_only] = true
+        testflight_options[:app_version] = app_version
+        testflight_options[:build_number] = build_number
+      else
+        testflight_options[:ipa] = ipa_path
+      end
+
+      upload_to_testflight(testflight_options)
+      next
+    end
+
     upload_options = {
       force: true,
       api_key: api_key,
