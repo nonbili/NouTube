@@ -17,6 +17,7 @@ import { feederLoop } from '@/lib/feeder'
 import { listenFeedNotifications } from '@/lib/feed-notifications'
 import { FeedModal } from '../modal/FeedModal'
 import { UrlModal } from '../modal/UrlModal'
+import { ShortcutsModal } from '../modal/ShortcutsModal'
 import { CookieModal } from '../modal/CookieModal'
 import { UserAgentModal } from '../modal/UserAgentModal'
 import { SleepTimerModal } from '../modal/SleepTimerModal'
@@ -129,6 +130,7 @@ export const MainPage: React.FC<{ contentJs: string }> = ({ contentJs }) => {
           <PlaybackQualityModal />
           <ToolsModal />
           <ShareModal />
+          {nIf(isWeb, <ShortcutsModal />)}
           {nIf(!isWeb, <TranslationCard />)}
           <UndoToast />
           <Toast />

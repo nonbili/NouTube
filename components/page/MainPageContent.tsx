@@ -31,10 +31,10 @@ import { describeDownloadError } from '@/lib/download-error'
 import { t } from 'i18next'
 import { downloads$ } from '@/states/downloads'
 import { resolveUserAgent } from '@/lib/useragent'
-import { handleShortcuts } from '@/desktop/src/renderer/lib/shortcuts'
 import { retryNativeViewCall } from '@/lib/native-view-call'
 import { openPastedUrl } from '@/lib/paste-url'
 import { usePasteUrl } from '@/lib/hooks/usePasteUrl'
+import { useWebviewFocusReturn } from '@/lib/hooks/useWebviewFocusReturn'
 import { history$ } from '@/states/history'
 import { buildUserScriptSources, userScriptsInvalidationSource } from '@/lib/user-styles'
 import { getUserStylesSnapshot, userStyles$ } from '@/states/user-styles'
@@ -253,10 +253,10 @@ const DesktopTabView: React.FC<{
         ui$.webview.set(ObservableHint.opaque(webview))
       }
       // Bridged on the webview we just injected into, so background tabs get
-      // the keyboard and paste listeners too.
+      // the paste listener too.
       executeQuietly(
         webview,
-        `window.isAndroid = false;\n${buildPrelude()}\n${contentJs}\n;window.NouTube?.bridgeShortcuts?.()`,
+        `window.isAndroid = false;\n${buildPrelude()}\n${contentJs}\n;window.NouTube?.bridgePaste?.()`,
       )
       // One call per script: a malformed script must not take the others, or
       // the content bundle above, down with it.
@@ -293,11 +293,6 @@ const DesktopTabView: React.FC<{
     const onTitle = (e: { title: string }) => {
       tabs$.setTabMeta({ title: e.title || webview.getTitle() }, index)
     }
-    const onInput = ((e: Electron.Event & { input: Electron.Input }) => {
-      if (e.input.type === 'keyDown') {
-        handleShortcuts(e.input)
-      }
-    }) as unknown as (e: Event) => void
 
     webview.addEventListener('dom-ready', onDomReady)
     webview.addEventListener('did-start-loading', onStartLoading)
@@ -310,7 +305,6 @@ const DesktopTabView: React.FC<{
     webview.addEventListener('ipc-message', onIpcMessage)
     webview.addEventListener('page-favicon-updated', onFavicon)
     webview.addEventListener('page-title-updated', onTitle)
-    webview.addEventListener('before-input-event', onInput)
 
     return () => {
       webview.removeEventListener('dom-ready', onDomReady)
@@ -324,7 +318,6 @@ const DesktopTabView: React.FC<{
       webview.removeEventListener('ipc-message', onIpcMessage)
       webview.removeEventListener('page-favicon-updated', onFavicon)
       webview.removeEventListener('page-title-updated', onTitle)
-      webview.removeEventListener('before-input-event', onInput)
     }
   }, [
     buildPrelude,
@@ -383,6 +376,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const pageUrl = useValue(ui$.pageUrl)
   const embedVideoId = useValue(ui$.embedVideoId)
   usePasteUrl()
+  useWebviewFocusReturn()
   const tabs = useValue(tabs$.tabs)
   const activeTabIndex = useValue(tabs$.activeTabIndex)
   const activePageUrl = useValue(tabs$.activePageUrl)
@@ -798,9 +792,6 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
         case 'download':
           ui$.toolsModalUrl.set(data.url)
           ui$.toolsModalOpen.set(true)
-          break
-        case 'keyup':
-          handleShortcuts(data)
           break
         case 'paste':
           openPastedUrl(data)

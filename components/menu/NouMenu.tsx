@@ -1,6 +1,6 @@
 import { colors } from '@/lib/colors'
 import { DropdownMenu } from '@radix-ui/themes'
-import { cloneElement, isValidElement, ReactNode, useState } from 'react'
+import { cloneElement, isValidElement, ReactNode, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useColorScheme } from 'react-native'
 import { useTwColor } from '@/lib/theme'
@@ -27,6 +27,21 @@ export const NouMenu: React.FC<{
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   const [open, setOpen] = useState(false)
+  const triggerRef = useRef<HTMLDivElement>(null)
+  // Run the chosen item's handler only after the menu has closed and given
+  // focus back. Run earlier, whatever it opens (e.g. a modal with an
+  // autofocused input) loses focus to the menu's focus trap and then to the trigger.
+  const pendingHandlerRef = useRef<(() => void) | null>(null)
+  const onCloseAutoFocus = (event: Event) => {
+    const handler = pendingHandlerRef.current
+    pendingHandlerRef.current = null
+    if (!handler) {
+      return
+    }
+    event.preventDefault()
+    triggerRef.current?.focus()
+    handler()
+  }
   const resolvedTriggerColor = triggerColor ?? (isDark ? tw(colors.icon) : tw(colors.iconLight))
   const renderedTrigger =
     isValidElement(trigger) ? cloneElement(trigger as React.ReactElement<any>, { color: resolvedTriggerColor }) : trigger
@@ -48,7 +63,9 @@ export const NouMenu: React.FC<{
     return (
       <DropdownMenu.Item
         key={index}
-        onClick={item.handler}
+        onSelect={() => {
+          pendingHandlerRef.current = item.handler
+        }}
         disabled={item.disabled}
         className="min-w-[160px] max-w-[320px] px-3 py-2"
       >
@@ -73,7 +90,7 @@ export const NouMenu: React.FC<{
   return (
     <DropdownMenu.Root open={open} onOpenChange={setOpen}>
       <DropdownMenu.Trigger>
-        <div tabIndex={0} className="flex min-w-0 shrink cursor-pointer items-center justify-center">{renderedTrigger}</div>
+        <div ref={triggerRef} tabIndex={0} className="flex min-w-0 shrink cursor-pointer items-center justify-center">{renderedTrigger}</div>
       </DropdownMenu.Trigger>
       {/* The page content lives in an out-of-process <webview>, which swallows pointer
           events before they reach the host document. Without this overlay, clicking the
@@ -85,7 +102,12 @@ export const NouMenu: React.FC<{
             document.body,
           )
         : null}
-      <DropdownMenu.Content side={side} variant="soft" className="z-50 max-h-[70vh] overflow-auto rounded-xl border border-zinc-300/70 dark:border-zinc-800/80 shadow-xl shadow-zinc-900/15 dark:shadow-black/40">
+      <DropdownMenu.Content
+        side={side}
+        onCloseAutoFocus={onCloseAutoFocus}
+        variant="soft"
+        className="z-50 max-h-[70vh] overflow-auto rounded-xl border border-zinc-300/70 dark:border-zinc-800/80 shadow-xl shadow-zinc-900/15 dark:shadow-black/40"
+      >
         {menuItems}
       </DropdownMenu.Content>
     </DropdownMenu.Root>

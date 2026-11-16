@@ -512,5 +512,20 @@
     "openYouTube": "Open YouTube",
     "openYouTubeMusic": "Open YouTube Music",
     "saveCurrentPage": "Save current page"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "hint": "Letter shortcuts are ignored while typing in a text field.",
+    "newTab": "New tab",
+    "reopenClosedTab": "Reopen closed tab",
+    "closeTab": "Close tab",
+    "selectTab": "Switch to tab 1-9",
+    "library": "Library",
+    "history": "History",
+    "openUrl": "Open URL",
+    "download": "Download",
+    "settings": "Settings",
+    "shortcuts": "Keyboard shortcuts",
+    "closeModal": "Close dialog or panel"
   }
 }

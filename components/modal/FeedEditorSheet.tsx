@@ -21,6 +21,7 @@ import { ui$ } from '@/states/ui'
 import { clsx, isWeb } from '@/lib/utils'
 import { NouText } from '../NouText'
 import { NouButton } from '../button/NouButton'
+import { useModal } from '@/lib/hooks/useModal'
 
 const NO_FOLDER_ID = '__no_folder__'
 const NEW_FOLDER_ID = '__new__'
@@ -47,20 +48,7 @@ export const FeedEditorSheet: React.FC<{
     translateY.setValue(0)
   }, [bookmark, translateY])
 
-  useEffect(() => {
-    if (!bookmark || !isDesktop) {
-      return
-    }
-
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose()
-      }
-    }
-
-    window.addEventListener('keyup', handleKeyUp)
-    return () => window.removeEventListener('keyup', handleKeyUp)
-  }, [bookmark, isDesktop, onClose])
+  useModal(onClose, Boolean(bookmark) && isDesktop)
 
   const panResponder = useMemo(
     () =>

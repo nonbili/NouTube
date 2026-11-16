@@ -7,11 +7,13 @@ import { showConfirm } from '@/lib/confirm'
 import { bookmarks$, newBookmark } from '@/states/bookmarks'
 import { showToast } from '@/lib/toast'
 import { t } from 'i18next'
+import { runShortcut } from '../lib/shortcuts'
 
 const interfaces = {
   handleDeeplink,
   downloadProgress,
   openInAppTab: (url: string) => tabs$.openTab(url),
+  runShortcut,
   star: (url: string, title?: string) => {
     bookmarks$.addBookmark(newBookmark({ url, title }))
     showToast(`Saved to bookmarks`)

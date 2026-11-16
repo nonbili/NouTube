@@ -1123,6 +1123,14 @@ export const SettingsToolsContent = () => {
     <View>
       <SettingsSection label={t('settings.tools')}>
         <View className={surfaceCls}>
+          {nIf(
+            isWeb,
+            <SettingsActionRow
+              label={t('shortcuts.title')}
+              icon="keyboard"
+              onPress={() => ui$.shortcutsModalOpen.set(true)}
+            />,
+          )}
           {sleepTimerSupported ? (
             <SettingsActionRow
               label={t('sleepTimer.label')}

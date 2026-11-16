@@ -8,6 +8,8 @@ import { BaseModal } from './BaseModal'
 import { ui$ } from '@/states/ui'
 import { SettingsTree, type SettingsTreeHandle } from './SettingsTree'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useModalFocusReturn } from '@/lib/hooks/useWebviewFocusReturn'
+import { useModal } from '@/lib/hooks/useModal'
 
 export const SettingsModal = () => {
   const settingsModalOpen = useValue(ui$.settingsModalOpen)
@@ -16,6 +18,7 @@ export const SettingsModal = () => {
   const userAgentModalOpen = useValue(ui$.userAgentModalOpen)
   const { width } = useWindowDimensions()
   const tree = useRef<SettingsTreeHandle>(null)
+  useModalFocusReturn(settingsModalOpen)
 
   const isNarrowNative = !isWeb && width < 768
   const appVersion = isWeb ? desktopVersion : version
@@ -73,23 +76,9 @@ export const SettingsModal = () => {
     return () => subscription.remove()
   }, [handleBack, settingsModalOpen])
 
-  useEffect(() => {
-    if (!settingsModalOpen || !isWeb || !window.addEventListener) {
-      return
-    }
-
-    const onKeyUp = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') {
-        return
-      }
-      handleBack()
-      e.preventDefault()
-      e.stopImmediatePropagation?.()
-    }
-
-    window.addEventListener('keyup', onKeyUp, true)
-    return () => window.removeEventListener('keyup', onKeyUp, true)
-  }, [handleBack, settingsModalOpen])
+  // Child modals (Open URL, cookies...) sit above this on the Escape stack and
+  // close themselves first.
+  useModal(handleBack, settingsModalOpen && isWeb)
 
   if (!settingsModalOpen) {
     return null

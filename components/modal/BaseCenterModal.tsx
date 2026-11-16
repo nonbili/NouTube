@@ -3,6 +3,7 @@ import { ReactNode, useEffect, useState } from 'react'
 import { Keyboard, KeyboardAvoidingView, Modal, Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useModal } from '@/lib/hooks/useModal'
+import { useModalFocusReturn } from '@/lib/hooks/useWebviewFocusReturn'
 
 export const BaseCenterModal: React.FC<{
   className?: string
@@ -22,6 +23,7 @@ export const BaseCenterModal: React.FC<{
   useEscape = true,
 }) => {
   useModal(onClose, useEscape)
+  useModalFocusReturn()
   const insets = useSafeAreaInsets()
   const [keyboardVisible, setKeyboardVisible] = useState(false)
 

@@ -54,6 +54,7 @@ interface Store {
   playbackSpeedModalOpen: boolean
   playbackQualityModalOpen: boolean
   urlModalOpen: boolean
+  shortcutsModalOpen: boolean
   urlModalUrl: string
   cookieModalOpen: boolean
   // Session only: the sign-in banner comes back on the next launch.
@@ -109,6 +110,7 @@ export const ui$ = observable<Store>({
   playbackSpeedModalOpen: false,
   playbackQualityModalOpen: false,
   urlModalOpen: false,
+  shortcutsModalOpen: false,
   urlModalUrl: '',
   cookieModalOpen: false,
   googleLoginNoticeDismissed: false,

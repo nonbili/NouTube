@@ -2,6 +2,8 @@ import { clsx, isIos, isWeb } from '@/lib/utils'
 import { ReactNode } from 'react'
 import { KeyboardAvoidingView, Modal, Pressable, View } from 'react-native'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
+import { useModalFocusReturn } from '@/lib/hooks/useWebviewFocusReturn'
+import { useModal } from '@/lib/hooks/useModal'
 
 export const BaseModal: React.FC<{
   className?: string
@@ -10,6 +12,8 @@ export const BaseModal: React.FC<{
   onRequestClose?: () => void
   useNativeModal?: boolean
 }> = ({ className, children, onClose, onRequestClose, useNativeModal = !isWeb }) => {
+  useModal(onRequestClose || onClose, isWeb)
+  useModalFocusReturn()
   const inner = isWeb ? (
     children
   ) : (
