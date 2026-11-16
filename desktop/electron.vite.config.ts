@@ -17,6 +17,18 @@ const expoFontBrowserContext = (): Plugin => ({
   },
 })
 
+// expo-modules-core ships ts-declarations/global.js compiled from a type-only
+// file: it imports names its siblings never export, which breaks esbuild/Rollup.
+// It is only imported for side effects, so replace it with an empty module.
+const expoTsDeclarationsGlobal = /expo-modules-core[\\/]build[\\/]ts-declarations[\\/]global\.js$/
+const expoModulesCoreTypeStub = (): Plugin => ({
+  name: 'expo-modules-core-type-stub',
+  enforce: 'pre',
+  load(id) {
+    return expoTsDeclarationsGlobal.test(id) ? 'export {}' : null
+  },
+})
+
 // react-native-css-interop declares `"sideEffects": false`, so Rollup drops the
 // `require("./components")` inside wrapJSX that registers View/Text/etc. into
 // interopComponents. Without it, production builds silently discard className.
@@ -62,7 +74,20 @@ export default defineConfig({
         '@react-native/assets-registry/registry': 'react-native-web/asset-registry',
       },
     },
+    optimizeDeps: {
+      esbuildOptions: {
+        plugins: [
+          {
+            name: 'expo-modules-core-type-stub',
+            setup(build) {
+              build.onLoad({ filter: expoTsDeclarationsGlobal }, () => ({ contents: 'export {}', loader: 'js' }))
+            },
+          },
+        ],
+      },
+    },
     plugins: [
+      expoModulesCoreTypeStub(),
       expoFontBrowserContext(),
       keepCssInteropSideEffects(),
       react({

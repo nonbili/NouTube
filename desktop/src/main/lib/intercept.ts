@@ -8,6 +8,8 @@ import {
   transformSearchResponse,
 } from 'noutube/lib/intercept'
 import { transformWatchResponseStream } from 'noutube/lib/watch-response-stream'
+import { transformHtmlStream } from './html-stream'
+import { noAdPlayerRequestBody, noAdWatchUrl } from './no-ad-request'
 import { createDefaultBlocklistSnapshot, normalizeBlocklist, type BlocklistSnapshot } from 'noutube/lib/blocklist'
 
 let currentBlocklist = createDefaultBlocklistSnapshot()
@@ -23,86 +25,16 @@ export function setInterceptionBlockAds(enabled: boolean) {
   transformOptions = { blockAds: enabled !== false }
 }
 
-function findJsonBounds(text: string, startIndex: number) {
-  let braceCount = 0
-  let inString = false
-  let stringChar = ''
-  let escaped = false
-  const jsonStart = text.indexOf('{', startIndex)
-  if (jsonStart === -1) return null
-
-  for (let i = jsonStart; i < text.length; i++) {
-    const char = text[i]
-    if (escaped) {
-      escaped = false
-      continue
-    }
-    if (char === '\\') {
-      escaped = true
-      continue
-    }
-    if (inString) {
-      if (char === stringChar) {
-        inString = false
-      }
-      continue
-    }
-    if (char === '"' || char === "'" || char === '`') {
-      inString = true
-      stringChar = char
-      continue
-    }
-    if (char === '{') {
-      braceCount++
-    } else if (char === '}') {
-      braceCount--
-      if (braceCount === 0) {
-        return { start: jsonStart, end: i + 1 }
-      }
-    }
-  }
-  return null
-}
-
-// JSON.stringify happily emits `<`, which would end the inline <script> early.
-// YouTube itself escapes these, so mirror that.
-function escapeForScriptTag(json: string) {
-  return json.replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
-}
-
-function transformEmbeddedJson(html: string, key: string, transform: (json: string) => string) {
-  let index = html.indexOf(`var ${key} =`)
-  if (index === -1) {
-    index = html.indexOf(`${key} =`)
-    if (index === -1) {
-      return html
-    }
-  }
-
-  const bounds = findJsonBounds(html, index)
-  if (!bounds) {
-    return html
-  }
-
-  try {
-    const transformed = escapeForScriptTag(transform(html.slice(bounds.start, bounds.end)))
-    return html.slice(0, bounds.start) + transformed + html.slice(bounds.end)
-  } catch (e) {
-    console.error(`Failed to transform ${key} inside HTML:`, e)
-    return html
-  }
-}
-
-function transformHtml(html: string) {
-  // ytInitialData carries the server-rendered feed (home, subscriptions, watch
-  // sidebar), which is where feed ads and blocklisted items come from on first
-  // paint; continuations go through /youtubei/v1/browse below.
-  const withoutAds = transformEmbeddedJson(html, 'ytInitialData', (json) =>
-    transformBrowseResponse(json, currentBlocklist, transformOptions),
-  )
-  return transformEmbeddedJson(withoutAds, 'ytInitialPlayerResponse', (json) =>
-    transformPlayerResponse(json, undefined, transformOptions),
-  )
+// ytInitialData carries the server-rendered feed (home, subscriptions, watch
+// sidebar), which is where feed ads and blocklisted items come from on first
+// paint; continuations go through /youtubei/v1/browse below.
+function transformHtml(body: ReadableStream<Uint8Array>) {
+  const options = transformOptions
+  const blocklist = currentBlocklist
+  return transformHtmlStream(body, {
+    ytInitialData: (json) => transformBrowseResponse(json, blocklist, options),
+    ytInitialPlayerResponse: (json) => transformPlayerResponse(json, undefined, options),
+  })
 }
 
 function isYouTubeHost(url: string) {
@@ -136,6 +68,31 @@ function isDocumentRequest(req: Request) {
     return false
   }
   return (req.headers.get('accept') || '').includes('text/html')
+}
+
+async function requestWithoutAds(req: Request, endpoint: string | undefined, isDocument: boolean) {
+  try {
+    if (isDocument) {
+      const url = noAdWatchUrl(req.url)
+      return url ? new Request(url, req) : req
+    }
+    if (req.method === 'POST' && (endpoint === 'player' || endpoint === 'get_watch')) {
+      const body = noAdPlayerRequestBody(
+        endpoint,
+        new Uint8Array(await req.clone().arrayBuffer()),
+        req.headers.get('content-encoding'),
+      )
+      if (body) {
+        const headers = new Headers(req.headers)
+        headers.delete('content-encoding')
+        headers.delete('content-length')
+        return new Request(req.url, { method: req.method, headers, body })
+      }
+    }
+  } catch (e) {
+    console.error(`Failed to request ${req.url} without ads:`, e)
+  }
+  return req
 }
 
 export function interceptHttpRequest() {
@@ -177,7 +134,8 @@ export function interceptHttpRequest() {
 
     let res: Response
     try {
-      res = await ses.fetch(req, {
+      const upstream = transformOptions.blockAds ? await requestWithoutAds(req, target?.match?.[1], isDocument) : req
+      res = await ses.fetch(upstream, {
         bypassCustomProtocolHandlers: true,
       })
     } catch (e) {
@@ -199,7 +157,10 @@ export function interceptHttpRequest() {
       status: res.status,
       headers,
     }
-    if (!isHtml && match?.[1] === 'get_watch' && res.body) {
+    if (isHtml && res.body) {
+      return new Response(transformHtml(res.body), responseInit)
+    }
+    if (match?.[1] === 'get_watch' && res.body) {
       const options = transformOptions
       return new Response(
         transformWatchResponseStream(res.body, (text) => transformGetWatchResponse(text, options)),
@@ -209,10 +170,6 @@ export function interceptHttpRequest() {
 
     const text = await res.text()
     try {
-      if (isHtml) {
-        return new Response(transformHtml(text), responseInit)
-      }
-
       if (match) {
         switch (match[1]) {
           case 'browse':
