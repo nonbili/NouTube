@@ -34,6 +34,8 @@ export const ToolsModal = () => {
   const [parsedTitle, setParsedTitle] = useState('')
   const [loadedUrl, setLoadedUrl] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+  const [folderError, setFolderError] = useState('')
+  const [isPickingFolder, setIsPickingFolder] = useState(false)
   const [showAllFormats, setShowAllFormats] = useState(false)
   const activeDownloads = useValue(downloads$)
   const loadingUrlRef = useRef('')
@@ -42,6 +44,14 @@ export const ToolsModal = () => {
   const scrollToDownloadsRef = useRef(false)
   const isDark = useColorScheme() !== 'light'
   const effectiveDownloadPath = downloadPath || resolvedDownloadsPath
+  const downloadFolderLabel = (() => {
+    if (!isAndroid || !effectiveDownloadPath.startsWith('content://')) return effectiveDownloadPath
+    try {
+      return decodeURIComponent(effectiveDownloadPath.split('/tree/')[1]?.split('/')[0] || effectiveDownloadPath)
+    } catch {
+      return effectiveDownloadPath
+    }
+  })()
 
   const onClose = () => {
     ui$.toolsModalOpen.set(false)
@@ -183,21 +193,41 @@ export const ToolsModal = () => {
         </View>
 
         {nIf(
-          !isAndroid && (phase === 'idle' || phase === 'choosing'),
+          phase === 'idle' || phase === 'choosing' || phase === 'error',
           <View className="gap-1">
             <NouText className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">{t('modals.folder')}</NouText>
             <Pressable
               className="flex-row items-center gap-2 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-2 active:bg-zinc-100 dark:active:bg-zinc-800"
+              disabled={isPickingFolder}
               onPress={async () => {
-                const picked = await mainClient.selectFolder()
-                if (picked) settings$.downloadPath.set(picked)
+                setFolderError('')
+                setIsPickingFolder(true)
+                try {
+                  const picked = await mainClient.selectFolder()
+                  if (picked) settings$.downloadPath.set(picked)
+                } catch {
+                  setFolderError(t('modals.failedToSelectFolder'))
+                } finally {
+                  setIsPickingFolder(false)
+                }
               }}
             >
               <NouText className="flex-1 text-sm text-zinc-700 dark:text-zinc-300" numberOfLines={1}>
-                {effectiveDownloadPath || t('modals.downloadsFolder')}
+                {downloadFolderLabel || t('modals.downloadsFolder')}
               </NouText>
               <NouText className="text-xs text-zinc-400 dark:text-zinc-500">{t('buttons.browse')}</NouText>
             </Pressable>
+            {nIf(isAndroid && !!downloadPath,
+              <Pressable onPress={() => {
+                settings$.downloadPath.set('')
+                setFolderError('')
+              }}>
+                <NouText className="text-sm text-zinc-500 dark:text-zinc-400">{t('modals.useDownloadsFolder')}</NouText>
+              </Pressable>,
+            )}
+            {nIf(!!folderError,
+              <NouText className="text-sm text-red-500">{folderError}</NouText>,
+            )}
           </View>,
         )}
 

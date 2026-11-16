@@ -1,4 +1,7 @@
 import NouTubeViewModule from '@/modules/nou-tube-view'
+import { StorageAccessFramework } from 'expo-file-system/legacy'
+import { isAndroid } from './utils'
+import { settings$ } from '@/states/settings'
 import type { UpdateCheckResult } from '../desktop/src/main/lib/auto-update'
 
 export type FormatOption = {
@@ -76,7 +79,12 @@ export const mainClient: MainClient = {
     }
   },
   async selectFolder() {
-    return null
+    if (!isAndroid) return null
+    const currentPath = settings$.downloadPath.peek()
+    const result = await StorageAccessFramework.requestDirectoryPermissionsAsync(
+      currentPath.startsWith('content://') ? currentPath : null,
+    )
+    return result.granted ? result.directoryUri : null
   },
   async openFolder() {},
   async openFile(filePath) {

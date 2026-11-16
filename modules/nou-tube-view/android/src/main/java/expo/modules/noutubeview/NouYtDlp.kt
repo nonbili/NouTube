@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
+import android.provider.DocumentsContract
 import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.MimeTypeMap
@@ -293,6 +294,14 @@ internal class NouYtDlp(private val context: Context) {
     useCookies: Boolean,
     onProgress: (progress: Float, etaInSeconds: Long, line: String?) -> Unit,
   ): DownloadResult {
+    val destination = if (outputDir.startsWith("content://")) Uri.parse(outputDir) else null
+    if (destination != null) {
+      val hasAccess = DocumentsContract.isTreeUri(destination) &&
+        context.contentResolver.persistedUriPermissions.any { it.uri == destination && it.isWritePermission }
+      if (!hasAccess) {
+        throw Exception("Download folder access was lost. Select the folder again or use Downloads.")
+      }
+    }
     ensureInitialized()
 
     val tempDir = File(context.cacheDir, "yt-dlp-download-${System.currentTimeMillis()}").apply { mkdirs() }
@@ -330,7 +339,7 @@ internal class NouYtDlp(private val context: Context) {
         ?.filter { it.isFile }
         ?.maxByOrNull { it.lastModified() }
         ?: throw Exception("Download completed but no output file was produced")
-      val savedUri = publishToDownloads(outputFile)
+      val savedUri = if (destination != null) publishToFolder(outputFile, destination) else publishToDownloads(outputFile)
 
       return DownloadResult(
         lastLine = lastLine,
@@ -448,6 +457,24 @@ internal class NouYtDlp(private val context: Context) {
       YoutubeDL::class.java.methods.firstOrNull { method ->
         method.name in candidateNames && method.parameterTypes.any { isUpdateChannelParameter(it, updateChannel) }
       }
+    }
+  }
+
+  private fun publishToFolder(sourceFile: File, treeUri: Uri): Uri {
+    val resolver = context.contentResolver
+    val parentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, DocumentsContract.getTreeDocumentId(treeUri))
+    val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(sourceFile.extension.lowercase())
+      ?: "application/octet-stream"
+    val uri = DocumentsContract.createDocument(resolver, parentUri, mimeType, sourceFile.name)
+      ?: throw Exception("Failed to create file in download folder. Select the folder again or use Downloads.")
+    try {
+      resolver.openOutputStream(uri, "w")?.use { output ->
+        sourceFile.inputStream().use { input -> input.copyTo(output) }
+      } ?: throw Exception("Failed to open download folder output stream")
+      return uri
+    } catch (e: Exception) {
+      runCatching { DocumentsContract.deleteDocument(resolver, uri) }
+      throw e
     }
   }
 
