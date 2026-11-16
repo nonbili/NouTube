@@ -113,6 +113,22 @@ const executeQuietly = (webview: WebviewTag | null, script: string) => {
   } catch {}
 }
 
+/* Keeps a background tab's video paused until the tab is first shown, so
+ * restoring several watch pages at startup does not play them all at once.
+ * Media events do not bubble, hence the capture listener on the document. */
+const holdPlaybackSource = `(() => {
+  window._nou_holdPlayback = true
+  const pause = (video) => { try { video.pause() } catch {} }
+  if (!window._nou_holdPlaybackInstalled) {
+    window._nou_holdPlaybackInstalled = true
+    document.addEventListener('play', (e) => {
+      if (window._nou_holdPlayback && e.target instanceof HTMLMediaElement) pause(e.target)
+    }, true)
+  }
+  document.querySelectorAll('video, audio').forEach((video) => { if (!video.paused) pause(video) })
+})()`
+const releasePlaybackSource = 'window._nou_holdPlayback = false'
+
 /* Tells the page which half of the split watch view it is, so it can hand over
  * the links the other half owns (see content/split-view.ts). */
 const splitRolePrelude = (enabled: boolean, role: 'browse' | 'player', mini = false) =>
@@ -165,6 +181,10 @@ const DesktopTabView: React.FC<{
   const readyRef = useRef(false)
   const initialUrlRef = useRef(tab.pageUrl || tab.url)
   const lastRequestedUrlRef = useRef(tab.url)
+  // Set for a tab mounted in the background (every inactive tab on restore)
+  // and cleared the first time it is shown; a tab switched away from keeps
+  // playing as before.
+  const holdPlaybackRef = useRef(!isActive)
   const hideShorts = useValue(settings$.hideShorts)
   const preferH264 = useValue(settings$.preferH264)
   const clickbaitThumbnail = useValue(settings$.clickbaitThumbnail)
@@ -219,6 +239,12 @@ const DesktopTabView: React.FC<{
     if (!isActive || !webviewRef.current) {
       return
     }
+    if (holdPlaybackRef.current) {
+      holdPlaybackRef.current = false
+      if (readyRef.current) {
+        executeQuietly(webviewRef.current, releasePlaybackSource)
+      }
+    }
     ui$.webview.set(ObservableHint.opaque(webviewRef.current))
     ui$.pageUrl.set(tab.pageUrl || tab.url)
     refreshCanGoBack()
@@ -251,6 +277,9 @@ const DesktopTabView: React.FC<{
       readyRef.current = true
       if (isActive) {
         ui$.webview.set(ObservableHint.opaque(webview))
+      }
+      if (holdPlaybackRef.current) {
+        executeQuietly(webview, holdPlaybackSource)
       }
       // Bridged on the webview we just injected into, so background tabs get
       // the paste listener too.
