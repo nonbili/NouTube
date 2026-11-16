@@ -12,6 +12,7 @@ import contextMenu from 'electron-context-menu'
 import { getUserAgent } from '@/lib/useragent'
 import { isSupportedUrl, normalizeSupportedUrl } from '@/lib/supported-url'
 import { uiClient } from './ipc/ui'
+import { resolveVideoLinkTitle } from './lib/link-title'
 
 app.userAgentFallback = getUserAgent(process.platform)
 
@@ -105,8 +106,9 @@ function createWindow(): void {
         {
           label: 'Star',
           visible: Boolean(params.linkURL) && isSupportedUrl(url),
-          click: () => {
-            void uiClient.star(normalizeSupportedUrl(url), params.linkText)
+          click: async () => {
+            const title = await resolveVideoLinkTitle(wc, url, params.linkText)
+            void uiClient.star(normalizeSupportedUrl(url), title)
           },
         },
         {
