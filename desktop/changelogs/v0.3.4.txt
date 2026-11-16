@@ -1,0 +1,6 @@
+- keep restored background tabs paused until first shown
+- keep focus in webview, close modals with Escape, and handle shortcuts in main process
+- speed up video startup with streamed HTML filtering
+- add opt-in community posts to the feed reader
+- fix video titles when starring thumbnail links
+- update Polish translation

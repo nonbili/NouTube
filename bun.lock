@@ -75,7 +75,7 @@
     },
     "desktop": {
       "name": "noutube-desktop",
-      "version": "0.3.2",
+      "version": "0.3.4",
       "dependencies": {
         "@electron-toolkit/preload": "^3.0.2",
         "@electron-toolkit/utils": "^4.0.0",
