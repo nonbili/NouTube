@@ -337,6 +337,9 @@
         },
         "hideEndScreens": {
           "label": "Hide end screens"
+        },
+        "hideComments": {
+          "label": "Hide comments"
         }
       },
       "custom": {
