@@ -113,6 +113,11 @@ const executeQuietly = (webview: WebviewTag | null, script: string) => {
   } catch {}
 }
 
+// WebKit throws on localStorage while the webview is still on about:blank,
+// which must not keep the settings from reaching a page that is already up.
+const settingsSyncScript = (value: string) =>
+  `try { localStorage.setItem('nou:settings', '${value}') } catch {} window.NouTube?.setSettings?.(${value})`
+
 /* Keeps a background tab's video paused until the tab is first shown, so
  * restoring several watch pages at startup does not play them all at once.
  * Media events do not bubble, hence the capture listener on the document. */
@@ -215,10 +220,7 @@ const DesktopTabView: React.FC<{
     if (!readyRef.current) return
     const settings = getContentSettingsSnapshot()
     const value = JSON.stringify(settings)
-    executeQuietly(
-      webviewRef.current,
-      `localStorage.setItem('nou:settings', '${value}'); window.NouTube?.setSettings?.(${value})`,
-    )
+    executeQuietly(webviewRef.current, settingsSyncScript(value))
   }, [])
 
   const toggleShorts = useCallback((hide?: boolean) => {
@@ -556,7 +558,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   const toggleShorts = useCallback(
     (hide?: boolean) => {
       for (const ref of nativeViews()) {
-        ref.executeJavaScript(hide ? 'NouTube.hideShorts()' : 'NouTube.showShorts()')
+        executeQuietly(ref, hide ? 'window.NouTube?.hideShorts?.()' : 'window.NouTube?.showShorts?.()')
       }
     },
     [nativeViews],
@@ -566,10 +568,10 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     const snapshot = getUserStylesSnapshot()
     const value = JSON.stringify(snapshot)
     for (const ref of nativeViews()) {
-      ref.executeJavaScript(`window.NouTube.setUserStyles(${value})`)
-      ref.executeJavaScript(userScriptsInvalidationSource)
+      executeQuietly(ref, `window.NouTube?.setUserStyles?.(${value})`)
+      executeQuietly(ref, userScriptsInvalidationSource)
       for (const source of buildUserScriptSources(snapshot)) {
-        ref.executeJavaScript(source)
+        executeQuietly(ref, source)
       }
     }
   }, [nativeViews])
@@ -578,7 +580,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     const snapshot = getBlocklistSnapshot()
     const value = JSON.stringify(snapshot)
     for (const ref of nativeViews()) {
-      ref.executeJavaScript(`window.NouTube?.setBlocklist?.(${value})`)
+      executeQuietly(ref, `window.NouTube?.setBlocklist?.(${value})`)
     }
     if (isWeb) {
       void mainClient.setBlocklist(snapshot)
@@ -589,9 +591,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
     const settings = getContentSettingsSnapshot()
     const value = JSON.stringify(settings)
     for (const ref of nativeViews()) {
-      ref.executeJavaScript(
-        `localStorage.setItem('nou:settings', '${value}'); window.NouTube?.setSettings?.(${value})`,
-      )
+      executeQuietly(ref, settingsSyncScript(value))
     }
     if (isWeb) {
       // Electron strips ads in the main process rather than in the page (see
