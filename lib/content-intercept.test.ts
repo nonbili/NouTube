@@ -23,7 +23,7 @@ it('filters XHR before early listeners read it, supports JSON and reuse, and pre
   const globals = ['window', 'location', 'XMLHttpRequest'] as const
   const saved = globals.map((key) => Object.getOwnPropertyDescriptor(globalThis, key))
   const originalFetch = globalThis.fetch
-  const win: any = { NouTubeAndroidAdRequests: true, NouTube: { getSettings: () => ({ blockAds: true }), shortsHidden: true } }
+  const win: any = { NouTubeNoAdRequests: true, NouTube: { getSettings: () => ({ blockAds: true }), shortsHidden: true } }
   try {
     Object.assign(globalThis, { window: win, location: { origin: 'https://m.youtube.com' }, XMLHttpRequest: FakeXHR })
     intercept()
@@ -64,14 +64,14 @@ it('filters XHR before early listeners read it, supports JSON and reuse, and pre
     expect(JSON.parse(xhr.sent).params).toBe('keep')
     xhr.complete({ adPlacements: [{}] })
     expect(observed.adPlacements).toHaveLength(1)
-    // The legacy isAndroid flag also covers iOS; only the explicit gate may
-    // enable Android's request changes there.
+    // Only the explicit gate enables the request changes, not the legacy
+    // isAndroid flag (which is also set on iOS).
     win.NouTube.getSettings = () => ({ blockAds: true })
     win.isAndroid = true
-    win.NouTubeAndroidAdRequests = false
+    win.NouTubeNoAdRequests = false
     xhr.open('POST', '/youtubei/v1/player')
-    xhr.send('{"params":"ios-original"}')
-    expect(JSON.parse(xhr.sent).params).toBe('ios-original')
+    xhr.send('{"params":"original"}')
+    expect(JSON.parse(xhr.sent).params).toBe('original')
   } finally {
     globals.forEach((key, i) => {
       if (saved[i]) Object.defineProperty(globalThis, key, saved[i]!)

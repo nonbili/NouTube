@@ -38,7 +38,7 @@ try {
   }
 
   window.NouTube = initNouTube()
-  if ((window as any).NouTubeAndroidAdRequests) installNoAdWatchLinks()
+  if ((window as any).NouTubeNoAdRequests) installNoAdWatchLinks()
   ;(window.NouTube as any).setMuted = setMuted
   ;(window.NouTube as any).setNativeMini = setNativeMini
   ;(window.NouTube as any).navigateWatch = navigateWatch

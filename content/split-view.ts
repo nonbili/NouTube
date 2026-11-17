@@ -165,7 +165,7 @@ export function navigateWatch(url: string) {
   }
   try {
     const target = new URL(url, location.href)
-    if ((window as any).NouTubeAndroidAdRequests) {
+    if ((window as any).NouTubeNoAdRequests) {
       const adFree = noAdWatchUrl(target.href, window.NouTube?.getSettings?.()?.blockAds !== false)
       if (adFree) target.href = adFree
     }

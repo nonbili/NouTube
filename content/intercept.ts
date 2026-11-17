@@ -95,7 +95,7 @@ export function intercept() {
   window.fetch = async (...args) => {
     const request = args[0]
     const url = request instanceof Request ? request.url : request.toString()
-    let res = await winFetch(...((window as any).NouTubeAndroidAdRequests && adsBlocked() ? await noAdFetchArgs(args) : args))
+    let res = await winFetch(...((window as any).NouTubeNoAdRequests && adsBlocked() ? await noAdFetchArgs(args) : args))
     // Relative to the page, as fetch itself resolves it: without a base a relative
     // url throws here and turns a response that arrived fine into a rejection.
     const match = new URL(url, location.origin).pathname.match(RE_INTERCEPT)
@@ -151,7 +151,7 @@ export function intercept() {
   const playerEndpoints = new WeakMap<XMLHttpRequest, string>()
   XMLHttpRequest.prototype.send = function (body) {
     const endpoint = playerEndpoints.get(this)
-    const rewritten = (window as any).NouTubeAndroidAdRequests && adsBlocked() && endpoint ? noAdRequestBody(endpoint, body) : null
+    const rewritten = (window as any).NouTubeNoAdRequests && adsBlocked() && endpoint ? noAdRequestBody(endpoint, body) : null
     return xhrSend.call(this, (rewritten ?? body) as XMLHttpRequestBodyInit)
   }
   XMLHttpRequest.prototype.open = function (...args: any[]) {
