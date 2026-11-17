@@ -153,6 +153,7 @@ export const builtinUserStyleDefinitions: BuiltinUserStyleDefinition[] = [
     id: 'hide-comments',
     labelKey: 'settings.userStyles.builtin.hideComments.label',
     css: css`
+      yt-video-metadata-carousel-view-model,
       ytd-comments#comments,
       ytm-comments-entry-point-header-renderer,
       ytm-comment-section-renderer,
