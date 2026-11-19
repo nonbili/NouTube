@@ -213,6 +213,27 @@ const cssContentMobile = css`
   }
 `
 
+const cssAndroidDesktopWatch = css`
+  /* #444: YouTube's desktop watch column can enforce a 427px minimum on a
+   * phone, centering the oversized column and clipping its left edge. */
+  @media (max-width: 460px) {
+    ytd-watch-flexy[is-single-column] #primary.ytd-watch-flexy {
+      box-sizing: border-box;
+      min-width: 0 !important;
+      max-width: calc(100% - var(--ytd-watch-flexy-horizontal-page-margin, 16px)) !important;
+    }
+
+    ytd-watch-flexy[is-single-column] ytd-watch-metadata #description {
+      min-width: 0 !important;
+    }
+
+    ytd-app #masthead-container,
+    ytd-app #masthead {
+      max-width: 100vw !important;
+    }
+  }
+`
+
 // Shared by the Android and desktop fullscreen control panels.
 const cssFullscreenPanel = css`
   /*
@@ -673,11 +694,13 @@ export const getCoreCss = () => {
   // Electron webview and the browser extension both render the plain web
   // player, so they share the same fullscreen button and panel rules.
   const isApp = Boolean(window.NouTubeI)
+  const isAndroid = window.isAndroid && !window.NouTubeIOS
   const blockAds = window.NouTube?.getSettings?.()?.blockAds !== false
   return (
     (blockAds ? cssContentAds : '') +
     cssContent +
     (isApp ? cssContentMobile : cssContentDesktop) +
+    (isAndroid ? cssAndroidDesktopWatch : '') +
     cssFullscreenPanel
   )
 }
