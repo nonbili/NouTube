@@ -25,9 +25,10 @@ const fullscreenCss = `
     height: 100% !important;
     object-fit: contain !important;
   }
+  /* Keep the playback row and its scrubber above YouTube's related-video row. */
   .${fullscreenClass} #player-control-overlay:has(ytm-fullscreen-related-videos-entry-point-view-model button)
-    .fullscreen-icon {
-    translate: 0 -48px;
+    :is(player-bottom-controls, yt-progress-bar.watch-page-progress-bar) {
+    translate: 0 -64px;
   }
 `
 

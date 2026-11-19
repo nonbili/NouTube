@@ -79,7 +79,7 @@ const cssContentMobile = css`
     display: none;
   }
 
-  #player-container-id:fullscreen #_nou_fullscreen_title {
+  #player-container-id:is(:fullscreen, ._nou_ios_fullscreen) #_nou_fullscreen_title {
     display: block;
     position: absolute;
     top: 14px;
@@ -96,6 +96,11 @@ const cssContentMobile = css`
     pointer-events: none;
   }
 
+  #player-container-id._nou_ios_fullscreen #_nou_fullscreen_title {
+    left: max(24px, env(safe-area-inset-left));
+    right: calc(192px + env(safe-area-inset-right));
+  }
+
   /*
    * Newer YouTube ships its own fullscreen title inside
    * player-fullscreen-top-controls, but keeps the whole host visibility:hidden
@@ -104,7 +109,7 @@ const cssContentMobile = css`
    * Scoped to .fadein because the controls hide by flipping visibility, and a
    * title forced visible would stay burned over the video.
    */
-  #player-container-id:fullscreen
+  #player-container-id:is(:fullscreen, ._nou_ios_fullscreen)
     #player-control-overlay.fadein
     .ytwPlayerFullscreenTopControlsFullscreenControlsVideoTitle {
     visibility: visible;
@@ -123,7 +128,7 @@ const cssContentMobile = css`
     margin-right: 140px;
   }
 
-  #player-container-id:fullscreen
+  #player-container-id:is(:fullscreen, ._nou_ios_fullscreen)
     #player-control-overlay:has(player-fullscreen-top-controls)
     #_nou_fullscreen_title {
     display: none;
