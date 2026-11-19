@@ -4,6 +4,7 @@ interface NouTubeI {
   onMessage: (payload: string) => void
   notify: (title: string, author: string, seconds: number, thumbnail: string) => void
   notifyProgress: (playing: boolean, pos: number) => void
+  setYouTubeFullscreen?: (active: boolean, landscape?: boolean) => void
   // Added in app 0.6.8; guard before calling so older shells keep working.
   // They take window.NouTubeToken, which only the main frame is given.
   setBrightness?: (token: string, value: number) => void

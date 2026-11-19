@@ -34,6 +34,63 @@ private final class WeakScriptMessageHandler: NSObject, WKScriptMessageHandler {
   }
 }
 
+// Present the same WebView so the page, player, and playback position survive.
+private final class PlayerFullscreenController: UIViewController {
+  private let webView: WKWebView
+  private weak var container: UIView?
+  private var restorePortrait = false
+
+  init(webView: WKWebView, container: UIView) {
+    self.webView = webView
+    self.container = container
+    super.init(nibName: nil, bundle: nil)
+    modalPresentationStyle = .overFullScreen
+    modalPresentationCapturesStatusBarAppearance = true
+  }
+
+  required init?(coder: NSCoder) { nil }
+
+  override var prefersStatusBarHidden: Bool { true }
+  override var prefersHomeIndicatorAutoHidden: Bool { true }
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    view.backgroundColor = .black
+    view.addSubview(webView)
+  }
+
+  override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+    if webView.superview === view {
+      webView.frame = view.bounds
+    }
+  }
+
+  func rotateToLandscape() {
+    if #available(iOS 16.0, *), let scene = view.window?.windowScene,
+      scene.interfaceOrientation.isPortrait {
+      restorePortrait = true
+      scene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape))
+    }
+  }
+
+  func restoreWebView() {
+    guard let container else { return }
+    container.addSubview(webView)
+    webView.frame = container.bounds
+  }
+
+  func close() {
+    let scene = viewIfLoaded?.window?.windowScene
+    restoreWebView()
+    dismiss(animated: false) { [restorePortrait] in
+      if #available(iOS 16.0, *), restorePortrait, let scene, scene.interfaceOrientation.isLandscape {
+        scene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
+      }
+    }
+  }
+}
+
 public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler,
   UIScrollViewDelegate {
   let onLoad = EventDispatcher()
@@ -59,6 +116,7 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
   private var proxyRetryURL: URL?
   private var lastBrightness = UIScreen.main.brightness
   private var pipWakeFrames: Int?
+  private var fullscreenController: PlayerFullscreenController?
   private let refreshControl = UIRefreshControl()
 
   public required init(appContext: AppContext? = nil) {
@@ -66,6 +124,9 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
 
     let configuration = WKWebViewConfiguration()
     configuration.allowsInlineMediaPlayback = true
+    if #available(iOS 16.0, *), UIDevice.current.userInterfaceIdiom == .phone {
+      configuration.preferences.isElementFullscreenEnabled = true
+    }
     configuration.allowsPictureInPictureMediaPlayback = true
     configuration.mediaTypesRequiringUserActionForPlayback = []
     NouProxy.shared.applyToWebViews()
@@ -151,6 +212,37 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
     appStateObservers.forEach(NotificationCenter.default.removeObserver)
     urlObservation?.invalidate()
     webView.configuration.userContentController.removeScriptMessageHandler(forName: "nouTube")
+  }
+
+  public override func didMoveToWindow() {
+    super.didMoveToWindow()
+    if window == nil { setYouTubeFullscreen(false) }
+  }
+
+  private func setYouTubeFullscreen(_ active: Bool, landscape: Bool = false) {
+    if !active {
+      guard let controller = fullscreenController else { return }
+      fullscreenController = nil
+      controller.close()
+      return
+    }
+
+    guard fullscreenController == nil else { return }
+    guard window?.windowScene?.activationState == .foregroundActive,
+      var presenter = window?.rootViewController else {
+      webView.evaluateJavaScript("void document.exitFullscreen?.()", completionHandler: nil)
+      return
+    }
+    while let presented = presenter.presentedViewController { presenter = presented }
+    guard !presenter.isBeingDismissed, !presenter.isBeingPresented else {
+      webView.evaluateJavaScript("void document.exitFullscreen?.()", completionHandler: nil)
+      return
+    }
+    let controller = PlayerFullscreenController(webView: webView, container: self)
+    fullscreenController = controller
+    presenter.present(controller, animated: false) { [weak controller] in
+      if landscape { controller?.rotateToLandscape() }
+    }
   }
 
   // MARK: - props
@@ -291,6 +383,11 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
           post('notifyProgress', { playing: playing, pos: pos, frames: nouPipFrames() })
         }
       }
+      if (\(UIDevice.current.userInterfaceIdiom == .phone)) {
+        window.NouTubeI.setYouTubeFullscreen = function (active, landscape) {
+          post('youtubeFullscreen', { active: active === true, landscape: landscape === true })
+        }
+      }
 
       // The page holds several <video> elements at once (the watch player, the
       // feed previews, the miniplayer), and the pinned one is not necessarily
@@ -356,6 +453,14 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
   ) {
     guard let dict = message.body as? [String: Any], let name = dict["name"] as? String else { return }
     switch name {
+    case "youtubeFullscreen":
+      guard UIDevice.current.userInterfaceIdiom == .phone, message.frameInfo.isMainFrame,
+        let body = dict["body"] as? [String: Bool], let active = body["active"] else { return }
+      if active {
+        guard let url = webView.url, url.path == "/watch",
+          ["m.youtube.com", "www.youtube.com"].contains(url.host ?? "") else { return }
+      }
+      setYouTubeFullscreen(active, landscape: body["landscape"] == true)
     case "message":
       guard let payload = dict["body"] as? String else { return }
       onMessage(["payload": payload])
@@ -452,7 +557,12 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
   }
 
   public func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+    setYouTubeFullscreen(false)
     emitUrlIfChanged()
+  }
+
+  public func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+    setYouTubeFullscreen(false)
   }
 
   public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {

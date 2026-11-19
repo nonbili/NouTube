@@ -15,12 +15,15 @@ import { installCommentTranslateButtons } from './translate'
 import { interceptClipboard } from './clipboard'
 import { installWatchNavigation } from './watch-nav'
 import { installFullscreenControls } from './fullscreen-controls'
+import { installIOSFullscreen } from './ios-fullscreen'
 import { installSystemCaptionStyle } from './captions'
 import { installEncodedAuthorNameFix } from './author-names'
 import { guardMediaSessionHandlers, installBackgroundGuard } from './background-guard'
 import { installSplitView, navigateWatch, setMuted, setNativeMini } from './split-view'
 
 try {
+  installIOSFullscreen()
+
   if ((window as any).NouTubePreferH264) {
     installH264ify()
   }
