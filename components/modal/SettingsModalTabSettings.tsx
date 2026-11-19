@@ -134,6 +134,7 @@ const distractionFreeStyleRows: { id: BuiltinUserStyleId; icon: MaterialIconsIco
   { id: 'hide-mix-playlist', icon: 'playlist-play' },
   { id: 'hide-community-posts', icon: 'forum' },
   { id: 'hide-ask-button', icon: 'auto-awesome' },
+  { id: 'hide-comments', icon: 'comments-disabled' },
 ]
 
 const distractionFreeStyleDefinitions = distractionFreeStyleRows.map((row) => ({

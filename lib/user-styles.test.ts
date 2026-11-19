@@ -22,6 +22,7 @@ describe('user styles', () => {
           'hide-home-feed': { enabled: false },
           'hide-related-videos': { enabled: false },
           'hide-end-screens': { enabled: false },
+          'hide-comments': { enabled: false },
         },
       }),
     )
@@ -36,9 +37,12 @@ describe('user styles', () => {
     expect(snapshot.builtins['hide-home-feed'].enabled).toBe(false)
     expect(snapshot.builtins['hide-related-videos'].enabled).toBe(false)
     expect(snapshot.builtins['hide-end-screens'].enabled).toBe(false)
+    expect(snapshot.builtins['hide-comments'].enabled).toBe(false)
 
     const css = getEnabledUserStyleCss('m.youtube.com', snapshot)
     expect(css).not.toContain('ytp-endscreen-content')
+    expect(css).not.toContain('yt-video-metadata-carousel-view-model')
+    expect(css).not.toContain('ytd-comments#comments')
   })
 
   it('includes the distraction-free builtins when enabled', () => {
@@ -47,6 +51,7 @@ describe('user styles', () => {
         'hide-home-feed': { enabled: true },
         'hide-related-videos': { enabled: true },
         'hide-end-screens': { enabled: true },
+        'hide-comments': { enabled: true },
       } as any,
     })
 
@@ -55,6 +60,8 @@ describe('user styles', () => {
     expect(css).toContain("[tab-identifier='FEwhat_to_watch']")
     expect(css).toContain('ytd-watch-next-secondary-results-renderer')
     expect(css).toContain('.ytp-endscreen-content')
+    expect(css).toContain('yt-video-metadata-carousel-view-model')
+    expect(css).toContain('ytd-comments#comments')
   })
 
   it('filters out invalid custom styles', () => {

@@ -8,6 +8,7 @@ export const builtinUserStyleIds = [
   'hide-home-feed',
   'hide-related-videos',
   'hide-end-screens',
+  'hide-comments',
 ] as const
 
 export type BuiltinUserStyleId = (typeof builtinUserStyleIds)[number]
@@ -148,6 +149,20 @@ export const builtinUserStyleDefinitions: BuiltinUserStyleDefinition[] = [
       }
     `,
   },
+  {
+    id: 'hide-comments',
+    labelKey: 'settings.userStyles.builtin.hideComments.label',
+    css: css`
+      yt-video-metadata-carousel-view-model,
+      ytd-comments#comments,
+      ytm-comments-entry-point-header-renderer,
+      ytm-comment-section-renderer,
+      #comment-teaser,
+      ytm-engagement-panel-section-list-renderer[target-id="engagement-panel-comments-section"] {
+        display: none !important;
+      }
+    `,
+  },
 ]
 
 export const builtinUserStyleDefinitionById = builtinUserStyleDefinitions.reduce(
@@ -166,6 +181,7 @@ export const createDefaultBuiltinUserStyles = (): Record<BuiltinUserStyleId, Bui
   'hide-home-feed': { enabled: false },
   'hide-related-videos': { enabled: false },
   'hide-end-screens': { enabled: false },
+  'hide-comments': { enabled: false },
 })
 
 export const createDefaultUserStylesSnapshot = (): UserStylesSnapshot => ({
