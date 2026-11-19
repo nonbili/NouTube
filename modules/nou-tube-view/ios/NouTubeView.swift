@@ -66,6 +66,9 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
 
     let configuration = WKWebViewConfiguration()
     configuration.allowsInlineMediaPlayback = true
+    // Where WebKit supports element fullscreen (e.g. iPad), the content script
+    // can keep YouTube's controls and seek gestures instead of opening AVKit.
+    configuration.preferences.isElementFullscreenEnabled = true
     configuration.allowsPictureInPictureMediaPlayback = true
     configuration.mediaTypesRequiringUserActionForPlayback = []
     NouProxy.shared.applyToWebViews()
@@ -214,6 +217,7 @@ public final class NouTubeView: ExpoView, WKNavigationDelegate, WKUIDelegate, WK
   private var bridgeScript: String {
     """
     window.NouTubeToken = '\(bridgeToken)';
+    window.NouTubeIOS = true;
     if (window.NouTubeBackground === undefined) { window.NouTubeBackground = false; }
     (function () {
       // WKWebView flips the page to hidden the moment the app leaves the

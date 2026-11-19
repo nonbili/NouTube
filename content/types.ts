@@ -19,6 +19,7 @@ declare global {
   interface Window {
     _lact: number
     isAndroid: boolean
+    NouTubeIOS?: boolean
     NouTubeInitialSettings?: Record<string, unknown>
     NouTubeHideShorts?: boolean
     // False on shells without yt-dlp (iOS); undefined means downloads are fine.
