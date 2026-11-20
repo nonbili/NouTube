@@ -91,5 +91,7 @@ describe('buildFormatOptionsFromPlayer', () => {
     expect(options?.map((opt) => opt.label)).toEqual(['Audio AAC', 'Audio Opus'])
     expect(options?.[0].formatId).toBe('140/bestaudio/best')
     expect(options?.[0].description).toBe('M4A · 128 kbps · ~3 MB')
+    expect(options?.[1].formatId).toBe('opus:251/bestaudio[acodec^=opus]')
+    expect(options?.[1].description).toBe('OPUS · 160 kbps · ~3 MB')
   })
 })

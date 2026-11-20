@@ -267,19 +267,22 @@ internal class NouYtDlp(private val context: Context) {
 
     for (format in bestPerAudioCodec.values) {
       val abr = format.audioBitrate().toInt()
+      val codec = codecLabel(format.optString("acodec"))
+      val isOpus = codec == "Opus"
+      val sourceId = format.optString("format_id")
       val description = listOf(
-        format.optString("ext").uppercase(),
+        if (isOpus) "OPUS" else format.optString("ext").uppercase(),
         if (abr > 0) "$abr kbps" else "",
         formatSize(format),
       ).filter { it.isNotBlank() }.joinToString(" · ")
       options.add(
         mapOf(
-          "formatId" to format.optString("format_id"),
-          "label" to "Audio ${codecLabel(format.optString("acodec"))}",
+          "formatId" to if (isOpus) "opus:$sourceId" else sourceId,
+          "label" to "Audio $codec",
           "description" to description,
           "advanced" to true,
           "kind" to "audio",
-          "codec" to codecLabel(format.optString("acodec")),
+          "codec" to codec,
         ),
       )
     }
@@ -308,14 +311,15 @@ internal class NouYtDlp(private val context: Context) {
     val cookiesFile = if (useCookies) writeCookiesFile() else null
     val request = YoutubeDLRequest(url)
     val isMp3 = formatId == "bestaudio-mp3"
-    request.addOption("-f", if (isMp3) "bestaudio/best" else formatId)
+    val isOpus = formatId.startsWith("opus:")
+    request.addOption("-f", if (isMp3) "bestaudio/best" else formatId.removePrefix("opus:"))
     // The format id is part of the name so downloads of several formats of the same video stay
     // tellable apart instead of landing as "title", "title (1)", "title (2)" in Downloads.
     request.addOption("-o", "${tempDir.absolutePath}/%(title)s [%(format_id)s].%(ext)s")
     request.addOption("--no-playlist")
     cookiesFile?.let { request.addOption("--cookies", it.absolutePath) }
     NouProxy.ytDlpUrl()?.let { request.addOption("--proxy", it) }
-    // Exact-format-id picks (the full format list) can be VP9/AV1/Opus, which do not always
+    // Exact-format-id picks can be VP9/AV1, which do not always
     // fit in mp4 — let yt-dlp choose the container for those.
     val isCuratedFormat = formatId.startsWith("bestvideo") || formatId.startsWith("bestaudio")
     if (isMp3) {
@@ -323,6 +327,10 @@ internal class NouYtDlp(private val context: Context) {
       request.addOption("--audio-format", "mp3")
       request.addOption("--add-metadata")
       request.addOption("--embed-thumbnail")
+    } else if (isOpus) {
+      // yt-dlp copies the existing Opus stream into an Ogg container.
+      request.addOption("--extract-audio")
+      request.addOption("--audio-format", "opus")
     } else if (isCuratedFormat) {
       request.addOption("--merge-output-format", "mp4")
     }
