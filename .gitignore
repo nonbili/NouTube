@@ -33,6 +33,7 @@ expo-env.d.ts
 
 /android
 /ios
+/modules/nou-tube-view/ios/vendor/
 assets/scripts/
 modules/*/android/build/
 

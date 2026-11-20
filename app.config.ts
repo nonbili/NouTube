@@ -27,7 +27,7 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
       supportsTablet: true,
       bundleIdentifier: 'jp.nonbili.noutube',
       appleTeamId: 'NXW8RMPV8L',
-      // Pinned so new builds stay on the same TestFlight version and skip beta review.
+      // Pinned so new builds stay on the same TestFlight version; review may still be required.
       version: iosVersion,
       buildNumber,
       infoPlist: {

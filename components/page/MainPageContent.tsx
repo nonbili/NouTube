@@ -535,7 +535,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
       if (payload.done) {
         if (payload.error) {
           console.error('download error', payload)
-          const { messageKey, detail } = describeDownloadError(payload.line || '')
+          const { messageKey, detail } = describeDownloadError(payload.line || '', isIos)
           downloads$[payload.url].assign({
             phase: 'error',
             errorMsg: messageKey ? t(messageKey) : detail || t('modals.downloadFailed'),

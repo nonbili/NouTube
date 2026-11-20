@@ -5,6 +5,7 @@ import { colors } from '@/lib/colors'
 import { NouMenu } from '../menu/NouMenu'
 import { TabContextMenu } from '../menu/TabContextMenu'
 import { clsx, isAndroid, isIos, isWeb, nIf } from '@/lib/utils'
+import NouTubeViewModule from '@/modules/nou-tube-view'
 import { ui$, updateUrl } from '@/states/ui'
 import { bookmarks$ } from '@/states/bookmarks'
 import { getPageType, getVideoId } from '@/lib/page'
@@ -449,7 +450,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           />,
         )}
         {nIf(
-          !isIos && (pageType?.type === 'watch' || hasDownloads),
+          (!isIos || 'downloadVideo' in NouTubeViewModule) && (pageType?.type === 'watch' || hasDownloads),
           <MaterialButton
             name="download"
             color={isDownloading ? tw('blue-400') : headerControlColor}
@@ -589,7 +590,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
               systemImage: 'square.and.arrow.up',
               handler: () => void onShare(),
             },
-            ...(isIos
+            ...(isIos && !('downloadVideo' in NouTubeViewModule)
               ? []
               : [
                   {

@@ -27,6 +27,12 @@ describe('describeDownloadError', () => {
     expect(describeDownloadError('ERROR: [youtube] abc: Requested format is not available').messageKey).toBe(
       'modals.downloadErrorFormat',
     )
+    expect(describeDownloadError('ERROR: [youtube] abc: Requested format is not available', true).messageKey).toBe(
+      'modals.downloadErrorFormatIos',
+    )
+    expect(
+      describeDownloadError('ERROR: [youtube] abc: Sign in to confirm you are not a bot', true).messageKey,
+    ).toBe('modals.downloadErrorSignInIos')
   })
 
   test('maps network failures', () => {

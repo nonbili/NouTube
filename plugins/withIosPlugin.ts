@@ -1,6 +1,7 @@
 import {
   ConfigPlugin,
   withEntitlementsPlist,
+  withXcodeProject,
   withPodfile,
 } from '@expo/config-plugins'
 
@@ -45,7 +46,23 @@ const withoutPushEntitlement: ConfigPlugin = (config) =>
     return config
   })
 
+const withYtDlpBuildPhase: ConfigPlugin = (config) =>
+  withXcodeProject(config, (config) => {
+    const project = config.modResults
+    const target = project.getFirstTarget()
+    const name = 'Embed bundled yt-dlp runtime'
+    const phases = target.firstTarget.buildPhases
+    const existing = phases.findIndex((phase: { comment: string }) => phase.comment === name)
+    if (existing === -1) {
+      project.addBuildPhase([], 'PBXShellScriptBuildPhase', name, target.uuid, {
+        shellPath: '/bin/bash',
+        shellScript: 'bash "$PROJECT_DIR/../scripts/embed-ios-ytdlp.sh"',
+      })
+    }
+    return config
+  })
+
 const withIosPlugin: ConfigPlugin = (config) =>
-  withoutPushEntitlement(withPodDeploymentTarget(config))
+  withYtDlpBuildPhase(withoutPushEntitlement(withPodDeploymentTarget(config)))
 
 export default withIosPlugin
