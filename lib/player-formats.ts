@@ -190,15 +190,17 @@ const buildAdvancedOptions = (videoFormats: RawFormat[], audioFormats: RawFormat
   }
 
   for (const f of bestPerAudioCodec.values()) {
+    const codec = codecLabel(f.acodec)
+    const isOpus = codec === 'Opus'
     options.push({
-      formatId: `${f.formatId}/bestaudio/best`,
-      label: `Audio ${codecLabel(f.acodec)}`,
-      description: [f.ext.toUpperCase(), f.abr ? `${f.abr} kbps` : '', formatSize(f.filesize)]
+      formatId: isOpus ? `opus:${f.formatId}/bestaudio[acodec^=opus]` : `${f.formatId}/bestaudio/best`,
+      label: `Audio ${codec}`,
+      description: [isOpus ? 'OPUS' : f.ext.toUpperCase(), f.abr ? `${f.abr} kbps` : '', formatSize(f.filesize)]
         .filter(Boolean)
         .join(' · '),
       advanced: true,
       kind: 'audio',
-      codec: codecLabel(f.acodec),
+      codec,
     })
   }
 

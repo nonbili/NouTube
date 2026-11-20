@@ -114,7 +114,8 @@ const interfaces = {
     // yt-dlp skip the download as already-downloaded and nothing new is saved.
     const outputTemplate = `${outputDir}/%(title)s [%(format_id)s].%(ext)s`
     const isMp3 = formatId === 'bestaudio-mp3'
-    // Exact-format-id picks (the full format list) can be VP9/AV1/Opus, which do not always
+    const isOpus = formatId.startsWith('opus:')
+    // Exact-format-id picks can be VP9/AV1, which do not always
     // fit in mp4 — let yt-dlp choose the container for those.
     const isCuratedFormat = formatId.startsWith('bestvideo') || formatId.startsWith('bestaudio')
     return withCookiesArgs(useCookies, (cookiesArgs) => {
@@ -123,15 +124,17 @@ const interfaces = {
         ...cookiesArgs,
         url,
         '-f',
-        isMp3 ? 'bestaudio/best' : formatId,
+        isMp3 ? 'bestaudio/best' : isOpus ? formatId.slice('opus:'.length) : formatId,
         '-o',
         outputTemplate,
         '--no-playlist',
         ...(isMp3
           ? ['--extract-audio', '--audio-format', 'mp3', '--add-metadata', '--embed-thumbnail']
-          : isCuratedFormat
-            ? ['--merge-output-format', 'mp4']
-            : []),
+          : isOpus
+            ? ['--extract-audio', '--audio-format', 'opus']
+            : isCuratedFormat
+              ? ['--merge-output-format', 'mp4']
+              : []),
       ]
       return new Promise<void>((resolve, reject) => {
         const proc = spawn(binary, args)
@@ -427,13 +430,17 @@ function buildAdvancedOptions(formats: any[], audioFormats: any[]): FormatOption
 
   for (const f of bestPerAudioCodec.values()) {
     const abr = Math.round(f.abr || f.tbr || 0)
+    const codec = codecLabel(f.acodec)
+    const isOpus = codec === 'Opus'
     options.push({
-      formatId: f.format_id,
-      label: `Audio ${codecLabel(f.acodec)}`,
-      description: [f.ext?.toUpperCase(), abr ? `${abr} kbps` : '', formatSize(f)].filter(Boolean).join(' · '),
+      formatId: isOpus ? `opus:${f.format_id}` : f.format_id,
+      label: `Audio ${codec}`,
+      description: [isOpus ? 'OPUS' : f.ext?.toUpperCase(), abr ? `${abr} kbps` : '', formatSize(f)]
+        .filter(Boolean)
+        .join(' · '),
       advanced: true,
       kind: 'audio',
-      codec: codecLabel(f.acodec),
+      codec,
     })
   }
 
