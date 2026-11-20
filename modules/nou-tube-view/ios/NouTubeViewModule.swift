@@ -3,9 +3,7 @@ import MediaAccessibility
 import MediaPlayer
 import UIKit
 
-// Features that only exist on the Android shell (yt-dlp downloads, the Takeout
-// zip import, on-device translation) throw rather than answer wrongly; the JS
-// side already guards each of them.
+// Features without an iOS implementation throw rather than answer wrongly.
 private func iosUnsupported(_ what: String) -> Exception {
   NouUnsupportedException(what)
 }
@@ -20,6 +18,30 @@ public final class NouTubeViewModule: Module {
   private var sleepTimer: Timer?
   private var sleepTimerEndsAt: Date?
   private var localeStrings: [String: String] = [:]
+  private let downloadQueue = DispatchQueue(label: "jp.nonbili.noutube.download")
+
+  private func downloadsDirectory() throws -> URL {
+    let caches = try FileManager.default.url(for: .cachesDirectory, in: .userDomainMask,
+                                             appropriateFor: nil, create: true)
+    return caches.appendingPathComponent("Downloads", isDirectory: true)
+  }
+
+  private func pruneStagedDownloads() {
+    guard let directory = try? downloadsDirectory(),
+          let entries = try? FileManager.default.contentsOfDirectory(
+            at: directory, includingPropertiesForKeys: [.contentModificationDateKey]
+          )
+    else { return }
+    let cutoff = Date().addingTimeInterval(-24 * 60 * 60)
+    for entry in entries {
+      let name = entry.lastPathComponent
+      let isTemp = name.hasPrefix(".nou-") || name.hasSuffix(".part")
+      let modified = (try? entry.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
+      if isTemp || modified < cutoff {
+        try? FileManager.default.removeItem(at: entry)
+      }
+    }
+  }
 
   public func definition() -> ModuleDefinition {
     Name("NouTubeView")
@@ -28,6 +50,7 @@ public final class NouTubeViewModule: Module {
 
     OnCreate {
       NouNowPlaying.shared.activateAudioSession()
+      self.pruneStagedDownloads()
     }
 
     OnDestroy {
@@ -80,14 +103,32 @@ public final class NouTubeViewModule: Module {
     }
 
     AsyncFunction("getDownloadsPath") {
-      FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.path ?? ""
+      (try? self.downloadsDirectory().path) ?? ""
     }
 
-    // listFormats, downloadVideo, updateYtDlp, openFile and
-    // extractTakeoutCsvFiles are deliberately absent: yt-dlp and the Takeout
-    // zip import are Android-only, and the JS side reads a missing native
-    // function as "unsupported here" rather than as an error (see
-    // lib/main-client.native.ts).
+    AsyncFunction("downloadVideo") { (url: String, _: String, _: String, _: Bool, promise: Promise) in
+      do {
+        let directory = try self.downloadsDirectory()
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let proxy = try NouProxy.shared.snapshot().ytDlpProxyURL()
+        let file = try NouPythonDownload.download(url: url, directory: directory.path, proxy: proxy) { progress, line in
+          self.sendEvent("downloadProgress", [
+            "url": url,
+            "line": line,
+            "progress": progress,
+            "done": false,
+          ])
+        }
+        self.sendEvent("downloadProgress", ["url": url, "line": "", "done": true, "filePath": file])
+        promise.resolve(nil)
+      } catch {
+        let message = error.localizedDescription
+        self.sendEvent("downloadProgress", ["url": url, "line": message, "done": true, "error": true])
+        promise.reject("ERR_YTDLP", message)
+      }
+    }.runOnQueue(downloadQueue)
+
+    // Format selection and yt-dlp self-updates are not supported on iOS.
 
     AsyncFunction("translateText") { (_: String, _: String) throws -> [String: Any] in
       throw iosUnsupported("translation")

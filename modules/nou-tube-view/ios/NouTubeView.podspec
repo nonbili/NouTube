@@ -12,5 +12,11 @@ Pod::Spec.new do |s|
 
   s.dependency 'ExpoModulesCore'
 
-  s.source_files = "**/*.{h,m,mm,swift,hpp,cpp}"
+  s.source_files = '*.{h,m,mm,swift,hpp,cpp}'
+  vendor_framework = File.join(__dir__, 'vendor/Python.xcframework')
+  unless File.directory?(vendor_framework)
+    prepare_script = File.expand_path('../../../scripts/prepare-ios-ytdlp.sh', __dir__)
+    system('bash', prepare_script) || raise('Failed to prepare iOS yt-dlp runtime')
+  end
+  s.vendored_frameworks = 'vendor/Python.xcframework'
 end

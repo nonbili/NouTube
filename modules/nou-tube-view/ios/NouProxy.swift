@@ -57,6 +57,19 @@ internal struct NouProxySettings: Equatable, Sendable {
     }
     return [proxy]
   }
+
+  func ytDlpProxyURL() throws -> String? {
+    try validate()
+    guard enabled else { return nil }
+    var components = URLComponents()
+    components.scheme = type == "socks" ? "socks5h" : "http"
+    components.host = host.contains(":") && !host.hasPrefix("[") ? "[\(host)]" : host
+    components.port = Int(port)
+    if !username.isEmpty { components.user = username }
+    if !password.isEmpty { components.password = password }
+    guard let url = components.string else { throw NouProxyError.invalidEndpoint }
+    return url
+  }
 }
 
 internal final class NouProxy: @unchecked Sendable {

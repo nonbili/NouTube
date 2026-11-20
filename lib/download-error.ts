@@ -25,8 +25,12 @@ const errorDetail = (output: string) => {
   return (errorLine ?? lines.filter((line) => !line.startsWith('WARNING:')).pop() ?? '').replace(/^ERROR:\s*/, '')
 }
 
-export const describeDownloadError = (output: string): { messageKey?: string; detail: string } => {
+export const describeDownloadError = (output: string, isIos = false): { messageKey?: string; detail: string } => {
   const detail = errorDetail(output)
   const matched = ERROR_PATTERNS.find(([pattern]) => pattern.test(detail || output))
-  return { messageKey: matched?.[1], detail }
+  let messageKey = matched?.[1]
+  if (isIos && (messageKey === 'modals.downloadErrorSignIn' || messageKey === 'modals.downloadErrorFormat')) {
+    messageKey = `${messageKey}Ios`
+  }
+  return { messageKey, detail }
 }
