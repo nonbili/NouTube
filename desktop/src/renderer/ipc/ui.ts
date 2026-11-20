@@ -8,12 +8,32 @@ import { bookmarks$, newBookmark } from '@/states/bookmarks'
 import { showToast } from '@/lib/toast'
 import { t } from 'i18next'
 import { runShortcut } from '../lib/shortcuts'
+import { navigateHistory } from '@/lib/history-navigation'
+import type { HistoryDirection } from '@/lib/desktop-shortcuts'
+import { ui$ } from '@/states/ui'
+
+function getWebContentsId(webview: { getWebContentsId?: () => number } | undefined): number | undefined {
+  try {
+    return webview?.getWebContentsId?.()
+  } catch {
+    // webview not attached yet
+    return undefined
+  }
+}
 
 const interfaces = {
   handleDeeplink,
   downloadProgress,
   openInAppTab: (url: string) => tabs$.openTab(url),
   runShortcut,
+  navigateHistory: (direction: HistoryDirection, webContentsId?: number) => {
+    const webview = ui$.webview.get()
+    if (webContentsId !== undefined && getWebContentsId(webview) !== webContentsId) {
+      // The press came from a tab that is no longer the active one.
+      return
+    }
+    navigateHistory(webview, direction)
+  },
   star: (url: string, title?: string) => {
     bookmarks$.addBookmark(newBookmark({ url, title }))
     showToast(`Saved to bookmarks`)

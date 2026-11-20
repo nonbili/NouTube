@@ -88,3 +88,49 @@ export function formatShortcut(definition: ShortcutDefinition, platform: string)
   parts.push(definition.label)
   return parts.join(mac ? '' : '+')
 }
+
+export type HistoryDirection = 'back' | 'forward'
+
+/*
+ * Mouse side buttons, as reported by MouseEvent.button: 3 is Back, 4 is
+ * Forward. Browsers navigate on them, Electron leaves it to the app.
+ */
+export function getMouseHistoryDirection(button: number): HistoryDirection | null {
+  if (button === 3) {
+    return 'back'
+  }
+  if (button === 4) {
+    return 'forward'
+  }
+  return null
+}
+
+export function isHistoryDirection(value: unknown): value is HistoryDirection {
+  return value === 'back' || value === 'forward'
+}
+
+/* BrowserWindow 'app-command' (Windows and Linux): mouse side buttons and Back/Forward keys. */
+export function getAppCommandHistoryDirection(command: string): HistoryDirection | null {
+  if (command === 'browser-backward') {
+    return 'back'
+  }
+  if (command === 'browser-forward') {
+    return 'forward'
+  }
+  return null
+}
+
+/*
+ * One press can be reported twice, as an 'app-command' and as a DOM mouseup.
+ * Returns a filter that lets a direction through at most once per `windowMs`.
+ */
+export function createHistoryNavigationGate(windowMs = 100): (direction: HistoryDirection, now: number) => boolean {
+  let last: { direction: HistoryDirection; time: number } | null = null
+  return (direction: HistoryDirection, now: number): boolean => {
+    if (last && last.direction === direction && now - last.time < windowMs) {
+      return false
+    }
+    last = { direction, time: now }
+    return true
+  }
+}
