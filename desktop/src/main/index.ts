@@ -13,7 +13,7 @@ import { getUserAgent } from '@/lib/useragent'
 import { isSupportedUrl, normalizeSupportedUrl } from '@/lib/supported-url'
 import { uiClient } from './ipc/ui'
 import { resolveVideoLinkTitle } from './lib/link-title'
-import { watchAppCommands, watchShortcuts } from './lib/shortcuts'
+import { watchShortcuts } from './lib/shortcuts'
 
 app.userAgentFallback = getUserAgent(process.platform)
 
@@ -137,7 +137,6 @@ function createWindow(): void {
   // @ts-expect-error electron-context-menu types mismatch
   contextMenu.default({ ...getContextMenuOptions(mainWindow.webContents), window: mainWindow.webContents })
   watchShortcuts(mainWindow.webContents)
-  watchAppCommands(mainWindow)
   mainWindow.webContents.on('did-attach-webview', (e, wc) => {
     watchShortcuts(wc)
     // @ts-expect-error electron-context-menu types mismatch

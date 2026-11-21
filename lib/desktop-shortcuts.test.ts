@@ -1,13 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import {
-  desktopShortcuts,
-  createHistoryNavigationGate,
-  formatShortcut,
-  getAppCommandHistoryDirection,
-  getMouseHistoryDirection,
-  isHistoryDirection,
-  matchShortcut,
-} from './desktop-shortcuts'
+import { desktopShortcuts, formatShortcut, getMouseHistoryDirection, matchShortcut } from './desktop-shortcuts'
 
 const ctrl = (key: string, extra: object = {}) => ({ key, control: true, ...extra })
 
@@ -59,46 +51,16 @@ describe('formatShortcut', () => {
 })
 
 describe('getMouseHistoryDirection', () => {
-  it('maps the mouse side buttons to back and forward', () => {
-    expect(getMouseHistoryDirection(3)).toBe('back')
-    expect(getMouseHistoryDirection(4)).toBe('forward')
+  it('navigates once when a side button is pressed and released', () => {
+    for (const button of ['back', 'forward']) {
+      expect(getMouseHistoryDirection({ type: 'mouseDown', button })).toBeNull()
+      expect(getMouseHistoryDirection({ type: 'mouseUp', button })).toBe(button)
+    }
   })
 
   it('ignores the other buttons', () => {
-    for (const button of [0, 1, 2, 5]) {
-      expect(getMouseHistoryDirection(button)).toBeNull()
+    for (const button of ['left', 'middle', 'right', 'none', undefined]) {
+      expect(getMouseHistoryDirection({ type: 'mouseUp', button })).toBeNull()
     }
-  })
-})
-
-describe('isHistoryDirection', () => {
-  it('accepts only back and forward', () => {
-    expect(isHistoryDirection('back')).toBe(true)
-    expect(isHistoryDirection('forward')).toBe(true)
-    expect(isHistoryDirection('reload')).toBe(false)
-    expect(isHistoryDirection(undefined)).toBe(false)
-  })
-})
-
-describe('getAppCommandHistoryDirection', () => {
-  it('maps browser app commands to back and forward', () => {
-    expect(getAppCommandHistoryDirection('browser-backward')).toBe('back')
-    expect(getAppCommandHistoryDirection('browser-forward')).toBe('forward')
-    expect(getAppCommandHistoryDirection('media-play-pause')).toBeNull()
-  })
-})
-
-describe('createHistoryNavigationGate', () => {
-  it('drops the same direction reported twice for one press', () => {
-    const gate = createHistoryNavigationGate(300)
-    expect(gate('back', 1000)).toBe(true)
-    expect(gate('back', 1100)).toBe(false)
-    expect(gate('back', 1400)).toBe(true)
-  })
-
-  it('lets a different direction through right away', () => {
-    const gate = createHistoryNavigationGate(300)
-    expect(gate('back', 1000)).toBe(true)
-    expect(gate('forward', 1050)).toBe(true)
   })
 })

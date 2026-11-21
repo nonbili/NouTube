@@ -1,7 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { getMouseHistoryDirection } from 'noutube/lib/desktop-shortcuts'
-import { EDITING_CHANNEL, NAVIGATE_CHANNEL } from '../main/ipc/constants'
+import { EDITING_CHANNEL } from '../main/ipc/constants'
 
 // Custom APIs for renderer
 // const api = {}
@@ -43,20 +42,4 @@ if (process.isMainFrame) {
   }
   window.addEventListener('focusin', report, true)
   window.addEventListener('focusout', () => setTimeout(report, 0), true)
-}
-
-// Mouse Back/Forward buttons: browsers navigate on them, Electron does not.
-// Ask the main process to navigate the active tab, like the header buttons.
-if (process.isMainFrame) {
-  window.addEventListener(
-    'mouseup',
-    (event) => {
-      const direction = getMouseHistoryDirection(event.button)
-      if (direction) {
-        event.preventDefault()
-        ipcRenderer.send(NAVIGATE_CHANNEL, direction)
-      }
-    },
-    true,
-  )
 }
