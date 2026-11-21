@@ -52,7 +52,7 @@ describe('formatShortcut', () => {
 
 describe('getMouseHistoryDirection', () => {
   it('navigates once when a side button is pressed and released', () => {
-    for (const button of ['back', 'forward']) {
+    for (const button of ['back', 'forward'] as const) {
       expect(getMouseHistoryDirection({ type: 'mouseDown', button })).toBeNull()
       expect(getMouseHistoryDirection({ type: 'mouseUp', button })).toBe(button)
     }
