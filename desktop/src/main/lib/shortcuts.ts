@@ -1,5 +1,5 @@
 import { ipcMain, type WebContents } from 'electron'
-import { matchShortcut } from 'noutube/lib/desktop-shortcuts'
+import { getMouseHistoryDirection, matchShortcut } from 'noutube/lib/desktop-shortcuts'
 import { EDITING_CHANNEL } from 'main/ipc/constants.js'
 import { uiClient } from 'main/ipc/ui.js'
 
@@ -11,13 +11,28 @@ ipcMain.on(EDITING_CHANNEL, (event, value: boolean) => {
 })
 
 /*
- * Catch app shortcuts in `wc` (the app window or a tab's webview) on keydown,
- * before the page sees them, and run them in the renderer. Works on any page,
- * including load errors where the content script never runs.
+ * Catch app shortcuts in the window and each tab's webview before the page sees them.
  */
 export function watchShortcuts(wc: WebContents) {
+  const webContentsId = wc.getType() === 'webview' ? wc.id : undefined
+
+  wc.on('before-mouse-event', (event, mouse) => {
+    const direction = getMouseHistoryDirection(mouse)
+    if (direction) {
+      event.preventDefault()
+      void uiClient.navigateHistory(direction, webContentsId)
+    }
+  })
+
   wc.on('before-input-event', (event, input) => {
     if (input.type !== 'keyDown') {
+      return
+    }
+    if (input.key === 'BrowserBack' || input.key === 'BrowserForward') {
+      event.preventDefault()
+      if (!input.isAutoRepeat) {
+        void uiClient.navigateHistory(input.key === 'BrowserBack' ? 'back' : 'forward', webContentsId)
+      }
       return
     }
     const match = matchShortcut(input, process.platform)

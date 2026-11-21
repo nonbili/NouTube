@@ -34,7 +34,7 @@ import { useHeaderAnimation } from './header-animation'
 import { toolbarPillLabelClass, toolbarPillPressableClass } from './toolbar-classes'
 import { useActivePageUrl } from '@/lib/hooks/useActivePageUrl'
 import { toggleDesktopMode, useDesktopMode } from '@/lib/hooks/useDesktopMode'
-import { handleSplitBack } from '@/lib/split-view'
+import { navigateHistory } from '@/lib/history-navigation'
 import { togglePictureInPicture } from '@/lib/picture-in-picture'
 import { useTwColor } from '@/lib/theme'
 
@@ -153,26 +153,9 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     updateUrl(isYTMusic ? 'https://music.youtube.com/' : isWeb ? 'https://www.youtube.com/' : 'https://m.youtube.com/')
   }
 
-  const goBack = () => {
-    if (handleSplitBack()) {
-      return
-    }
-    const webview = getNoutube()
-    if (typeof webview?.goBack === 'function') {
-      webview.goBack()
-    } else {
-      webview?.executeJavaScript?.('history.back()')
-    }
-  }
+  const goBack = () => navigateHistory(getNoutube(), 'back')
 
-  const goForward = () => {
-    const webview = getNoutube()
-    if (typeof webview?.goForward === 'function') {
-      webview.goForward()
-    } else {
-      webview?.executeJavaScript?.('history.forward()')
-    }
-  }
+  const goForward = () => navigateHistory(getNoutube(), 'forward')
 
   const reloadPage = () => {
     const webview = getNoutube()

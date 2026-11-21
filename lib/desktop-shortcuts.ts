@@ -88,3 +88,13 @@ export function formatShortcut(definition: ShortcutDefinition, platform: string)
   parts.push(definition.label)
   return parts.join(mac ? '' : '+')
 }
+
+export type HistoryDirection = 'back' | 'forward'
+
+export function getMouseHistoryDirection(input: { type: string; button?: string }): HistoryDirection | null {
+  // Electron reports these values at runtime even when its typings omit them.
+  if (input.type === 'mouseUp' && (input.button === 'back' || input.button === 'forward')) {
+    return input.button
+  }
+  return null
+}

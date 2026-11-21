@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { desktopShortcuts, formatShortcut, matchShortcut } from './desktop-shortcuts'
+import { desktopShortcuts, formatShortcut, getMouseHistoryDirection, matchShortcut } from './desktop-shortcuts'
 
 const ctrl = (key: string, extra: object = {}) => ({ key, control: true, ...extra })
 
@@ -47,5 +47,20 @@ describe('formatShortcut', () => {
   it('formats per platform', () => {
     expect(formatShortcut(reopen, 'linux')).toBe('Ctrl+Shift+T')
     expect(formatShortcut(reopen, 'darwin')).toBe('⌘⇧T')
+  })
+})
+
+describe('getMouseHistoryDirection', () => {
+  it('navigates once when a side button is pressed and released', () => {
+    for (const button of ['back', 'forward'] as const) {
+      expect(getMouseHistoryDirection({ type: 'mouseDown', button })).toBeNull()
+      expect(getMouseHistoryDirection({ type: 'mouseUp', button })).toBe(button)
+    }
+  })
+
+  it('ignores the other buttons', () => {
+    for (const button of ['left', 'middle', 'right', 'none', undefined]) {
+      expect(getMouseHistoryDirection({ type: 'mouseUp', button })).toBeNull()
+    }
   })
 })
