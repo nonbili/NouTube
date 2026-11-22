@@ -295,7 +295,8 @@ class NouTubeViewModule : Module() {
           "error" to false,
           "filePath" to result.savedPath
         ))
-      } catch (e: Exception) {
+      } catch (e: Throwable) {
+        // Errors too: without this terminal event the download stays on "Starting..." forever.
         sendEvent("downloadProgress", mapOf(
           "url" to url,
           "progress" to 0f,

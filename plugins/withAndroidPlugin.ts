@@ -3,17 +3,37 @@ import { withAndroidManifest, withAppBuildGradle } from '@expo/config-plugins/bu
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-// Room instantiates generated databases (including WorkManager's) by reflection.
-// Preserve their names and no-argument constructors in optimized release builds.
-const ROOM_DATABASE_KEEP_RULE = '-keep class * extends androidx.room.RoomDatabase { public <init>(); }'
+// Classes that are only reached by reflection, so optimized release builds must keep them as-is.
+const KEEP_RULES: { comment: string; rule: string }[] = [
+  {
+    // Including WorkManager's generated database.
+    comment: 'Room databases are instantiated by reflection.',
+    rule: '-keep class * extends androidx.room.RoomDatabase { public <init>(); }',
+  },
+  {
+    // YoutubeDL.init unzips the bundled Python with commons-compress, whose ExtraFieldUtils
+    // instantiates every registered extra field class; R8 made one of them abstract, so the
+    // init failed and downloads hung on "Starting...".
+    comment: 'commons-compress instantiates zip extra fields by reflection.',
+    rule: '-keep class org.apache.commons.compress.archivers.zip.** { *; }',
+  },
+  {
+    // NouYtDlp.update looks up updateYoutubeDL and the UpdateChannel class by name.
+    comment: 'youtubedl-android is looked up by reflection.',
+    rule: '-keep class com.yausername.** { *; }',
+  },
+]
 
-const withRoomDatabaseKeepRule: ConfigPlugin = (config) =>
+const withKeepRules: ConfigPlugin = (config) =>
   withDangerousMod(config, ['android', async (config) => {
     const rulesPath = path.join(config.modRequest.platformProjectRoot, 'app/proguard-rules.pro')
-    const contents = await readFile(rulesPath, 'utf8')
-    if (!contents.includes(ROOM_DATABASE_KEEP_RULE)) {
-      await writeFile(rulesPath, `${contents}\n# Room databases are instantiated by reflection.\n${ROOM_DATABASE_KEEP_RULE}\n`)
+    let contents = await readFile(rulesPath, 'utf8')
+    for (const { comment, rule } of KEEP_RULES) {
+      if (!contents.includes(rule)) {
+        contents = `${contents}\n# ${comment}\n${rule}\n`
+      }
     }
+    await writeFile(rulesPath, contents)
     return config
   }])
 
@@ -180,7 +200,7 @@ const withPictureInPicture: ConfigPlugin = (config) => {
 }
 
 const withAndroidSigningConfig: ConfigPlugin = (config) => {
-  config = withRoomDatabaseKeepRule(config)
+  config = withKeepRules(config)
   config = withPictureInPicture(config)
   config = withSecondaryDisplayMetricsFix(config)
   config = withDeepLinkIntentFix(config)

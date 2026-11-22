@@ -44,7 +44,8 @@ internal class NouYtDlp(private val context: Context) {
       try {
         YoutubeDL.getInstance().init(context)
         youtubeDLInitialized = true
-      } catch (e: Exception) {
+      } catch (e: Throwable) {
+        // R8 or native loading failures surface as Errors, which must not escape uncaught.
         Log.e("NouTubeView", "Failed to initialize YoutubeDL", e)
         throw Exception("Failed to initialize YoutubeDL: ${e.message}")
       }
@@ -58,7 +59,8 @@ internal class NouYtDlp(private val context: Context) {
       try {
         FFmpeg.getInstance().init(context)
         ffmpegInitialized = true
-      } catch (e: Exception) {
+      } catch (e: Throwable) {
+        // R8 or native loading failures surface as Errors, which must not escape uncaught.
         Log.e("NouTubeView", "Failed to initialize FFmpeg", e)
         throw Exception("Failed to initialize FFmpeg: ${e.message}")
       }
