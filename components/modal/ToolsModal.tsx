@@ -8,7 +8,7 @@ import { NouText } from '../NouText'
 import { NouButton } from '../button/NouButton'
 import { NouSwitch } from '../switch/NouSwitch'
 import { mainClient } from '@/lib/main-client'
-import { downloads$ } from '@/states/downloads'
+import { downloads$, failDownload } from '@/states/downloads'
 import { t } from 'i18next'
 import type { FormatOption } from '@/lib/main-client'
 import { findPinnedFormats, togglePinnedFormat } from '@/lib/download-format'
@@ -150,14 +150,9 @@ export const ToolsModal = () => {
     }
 
     mainClient.downloadVideo(targetUrl, formatId, effectiveDownloadPath, !isIos && useCookies).catch((err) => {
-      // Native failures normally arrive via downloadProgress. Handle a bridge
-      // rejection as well so the iOS prototype doesn't get stuck in progress.
-      if (isIos && downloads$[targetUrl].phase.peek() === 'downloading') {
-        downloads$[targetUrl].assign({
-          phase: 'error',
-          errorMsg: err instanceof Error ? err.message : t('modals.downloadFailed'),
-        })
-      }
+      // Setup and bridge failures can reject before any progress event arrives.
+      // Keep a more detailed error already reported by the downloader.
+      failDownload(targetUrl, err instanceof Error ? err.message : t('modals.downloadFailed'))
     })
   }
 

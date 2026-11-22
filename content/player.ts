@@ -394,21 +394,25 @@ export function handleVideoPlayer(el: any) {
         }
       }
 
+      applySavedPlaybackRate(el)
+      applySavedPlaybackQuality(el)
+
       clearSkipSegments()
       skipSegments = { videoId: '', segments: [] }
       if (isSponsorBlockEnabled()) {
-        const nextSkipSegments = await getSkipSegments(videoId)
-        // A previous request may finish after the user has navigated to a new
-        // video. Never let that stale response replace or paint the new video.
-        if (!isCurrent() || curVideoId !== videoId) {
-          return
+        try {
+          const nextSkipSegments = await getSkipSegments(videoId)
+          // A previous request may finish after the user has navigated to a new
+          // video. Never let that stale response replace or paint the new video.
+          if (!isCurrent() || curVideoId !== videoId) {
+            return
+          }
+          skipSegments = nextSkipSegments
+          renderSkipSegments(videoId, nextSkipSegments.segments, duration)
+        } catch (error) {
+          log('failed to load SponsorBlock segments', error)
         }
-        skipSegments = nextSkipSegments
-        renderSkipSegments(videoId, nextSkipSegments.segments, duration)
       }
-
-      applySavedPlaybackRate(el)
-      applySavedPlaybackQuality(el)
     }
   }
   el.addEventListener('onStateChange', onStateChange)

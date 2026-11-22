@@ -179,6 +179,10 @@ const interfaces = {
         }
         proc.stdout.on('data', onData)
         proc.stderr.on('data', onData)
+        proc.once('error', (error) => {
+          lastLine = `Failed to run yt-dlp: ${error.message}`
+          reject(new Error(lastLine))
+        })
         proc.on('close', (code) => {
           const tail = buffer.trim()
           // Final update with the last line if any, and done=true. A failure reports everything
