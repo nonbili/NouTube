@@ -4,6 +4,7 @@ import { cloneElement, isValidElement, ReactNode, useRef, useState } from 'react
 import { createPortal } from 'react-dom'
 import { useColorScheme } from 'react-native'
 import { useTwColor } from '@/lib/theme'
+import type { PinnableMenuItemId } from '@/lib/toolbar-pins'
 
 export interface Item {
   label: string
@@ -15,6 +16,9 @@ export interface Item {
   kind?: 'item' | 'label' | 'separator'
   meta?: ReactNode
   metaLabel?: string
+  // Android: a long press drags the entry onto the toolbar, shown there with pinIcon (a MaterialIcons name).
+  pinId?: PinnableMenuItemId
+  pinIcon?: string
 }
 
 export const NouMenu: React.FC<{

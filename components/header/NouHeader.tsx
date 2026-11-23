@@ -15,7 +15,7 @@ import { share } from '@/lib/share'
 import { MaterialButton, MaterialCommunityButton } from '../button/IconButtons'
 import { library$ } from '@/states/library'
 import { getBookmarkKey, normalizeUrl } from '@/lib/url'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { t } from 'i18next'
 import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
 import { useSleepTimerStatus } from '@/lib/sleep-timer'
@@ -35,6 +35,9 @@ import { useHeaderAnimation } from './header-animation'
 import { toolbarPillLabelClass, toolbarPillPressableClass } from './toolbar-classes'
 import { useActivePageUrl } from '@/lib/hooks/useActivePageUrl'
 import { toggleDesktopMode, useDesktopMode } from '@/lib/hooks/useDesktopMode'
+import type { Item } from '../menu/NouMenu'
+import { registerToolbar, type ViewRef } from './toolbar-drag'
+import { PinnedToolbarButton } from './PinnedToolbarButton'
 import { navigateHistory } from '@/lib/history-navigation'
 import { togglePictureInPicture } from '@/lib/picture-in-picture'
 import { useTwColor } from '@/lib/theme'
@@ -95,6 +98,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const showSleepTimerButtonInHeader = useValue(settings$.showSleepTimerButtonInHeader)
   const showLibraryButtonInHeader = useValue(settings$.showLibraryButtonInHeader)
   const showStarButtonInHeader = useValue(settings$.showStarButtonInHeader)
+  const pinnedMenuItems = useValue(settings$.pinnedMenuItems)
   const { width, height: windowHeight } = useWindowDimensions()
   const headerHeight = useValue(ui$.headerHeight)
   const headerShown = useValue(ui$.headerShown)
@@ -225,7 +229,8 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     Number(pageType?.type === 'watch' || hasDownloads) +
     Number(showPictureInPictureButton) +
     Number(showStarButton) +
-    Number(pinnedScripts.length > 0)
+    Number(pinnedScripts.length > 0) +
+    (isAndroid ? pinnedMenuItems.length : 0)
   const compactToolbar = leadingToolbarItemCount + trailingToolbarItemCount > 6
   const hideableHeader = autoHideHeader || hideToolbarWhenScrolled || (isAndroid && doubleTapToToggleHeader)
 
@@ -258,11 +263,143 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     )
   }
 
+  const menuItems: Item[] = [
+    {
+      label: isYTMusic ? 'YouTube' : 'YouTube Music',
+      pinId: 'switch-home',
+      pinIcon: isYTMusic ? 'video-library' : 'library-music',
+      icon: <MaterialIcons name={isYTMusic ? 'video-library' : 'library-music'} size={18} color={headerControlColor} />,
+      systemImage: isYTMusic ? 'play.rectangle.stack' : 'music.note.house',
+      handler: onToggleHome,
+    },
+    {
+      label: t('modals.history'),
+      pinId: 'history',
+      pinIcon: 'history',
+      icon: <MaterialIcons name="history" size={18} color={headerControlColor} />,
+      systemImage: 'clock.arrow.circlepath',
+      handler: () => ui$.historyModalOpen.set(true),
+    },
+    {
+      label: t('menus.reload'),
+      pinId: 'reload',
+      pinIcon: 'refresh',
+      icon: <MaterialIcons name="refresh" size={18} color={headerControlColor} />,
+      systemImage: 'arrow.clockwise',
+      handler: reloadPage,
+    },
+    ...(isWeb && (pageType?.type === 'watch' || pageType?.type === 'shorts')
+      ? [
+          {
+            label: t('menus.pip'),
+            icon: <MaterialIcons name="picture-in-picture-alt" size={18} color={headerControlColor} />,
+            systemImage: 'pip',
+            handler: () => {
+              getNoutube()?.executeJavaScript?.(
+                `(() => {
+                  const video = document.querySelector('video');
+                  if (video) {
+                    if (document.pictureInPictureElement) {
+                      document.exitPictureInPicture().catch(console.error);
+                    } else {
+                      video.requestPictureInPicture().catch(console.error);
+                    }
+                  }
+                })()`,
+                true,
+              )
+            },
+          },
+        ]
+      : []),
+    ...(!isWeb
+      ? [
+          {
+            label: t('menus.desktop'),
+            pinId: 'desktop-mode' as const,
+            pinIcon: 'desktop-windows',
+            icon: <MaterialIcons name="desktop-windows" size={18} color={headerControlColor} />,
+            systemImage: 'desktopcomputer',
+            metaLabel: desktopMode ? t('menus.on') : t('menus.off'),
+            meta: (
+              <View
+                className={clsx(
+                  'rounded-full px-2 py-1',
+                  desktopMode
+                    ? 'bg-indigo-500/20 border border-indigo-400/40'
+                    : 'bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700',
+                )}
+              >
+                <NouText
+                  className={clsx(
+                    'text-[11px] font-medium',
+                    desktopMode ? 'text-indigo-200' : 'text-zinc-400',
+                  )}
+                >
+                  {desktopMode ? t('menus.on') : t('menus.off')}
+                </NouText>
+              </View>
+            ),
+            handler: () => toggleDesktopMode(isYTMusic),
+          },
+        ]
+      : []),
+    {
+      label: 'Open URL',
+      pinId: 'open-url',
+      pinIcon: 'link',
+      icon: <MaterialIcons name="link" size={18} color={headerControlColor} />,
+      systemImage: 'link',
+      handler: () => ui$.urlModalOpen.set(true),
+    },
+    {
+      label: t('menus.share'),
+      pinId: 'share',
+      pinIcon: 'share',
+      icon: <MaterialIcons name="share" size={18} color={headerControlColor} />,
+      systemImage: 'square.and.arrow.up',
+      handler: () => void onShare(),
+    },
+    ...(isIos && !('downloadVideo' in NouTubeViewModule)
+      ? []
+      : [
+          {
+            label: t('menus.tools', 'Tools'),
+            pinId: 'tools' as const,
+            pinIcon: 'download',
+            icon: <MaterialIcons name="download" size={18} color={headerControlColor} />,
+            systemImage: 'arrow.down.circle',
+            handler: () => {
+              ui$.toolsModalOpen.set(true)
+            },
+          },
+        ]),
+    {
+      label: t('settings.label'),
+      pinId: 'settings',
+      pinIcon: 'settings',
+      icon: <MaterialIcons name="settings" size={18} color={headerControlColor} />,
+      systemImage: 'gearshape',
+      handler: () => ui$.settingsModalOpen.set(true),
+    },
+  ]
+
+  const headerRef = useRef<ViewRef>(null)
+  const pinsRef = useRef<ViewRef>(null)
+  const trailingGap = compactToolbar ? 4 : 8
+  useEffect(() => {
+    if (isAndroid) {
+      // MaterialButton is 44 wide; the row spaces pins like the rest of the toolbar.
+      registerToolbar(headerRef, pinsRef, 44 + trailingGap)
+    }
+  }, [trailingGap])
+
   const menuCheck = (checked: boolean) =>
     checked ? <MaterialIcons name="check" size={16} color={headerControlColor} /> : undefined
 
   return (
     <Root
+      ref={headerRef}
       style={animatedStyle}
       onLayout={(e) => ui$.headerHeight.set(e.nativeEvent.layout.height)}
       className={clsx(
@@ -501,115 +638,30 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
             }))}
           />,
         )}
+        <View ref={pinsRef} collapsable={false} className="flex-row items-center" style={{ gap: trailingGap }}>
+          {isAndroid
+            ? pinnedMenuItems.map((id, index) => {
+                const item = menuItems.find((menuItem) => menuItem.pinId === id)
+                return item ? (
+                  <PinnedToolbarButton
+                    key={id}
+                    id={id}
+                    index={index}
+                    icon={item.pinIcon || 'more-horiz'}
+                    label={item.label}
+                    color={id === 'desktop-mode' && desktopMode ? tw('indigo-400') : headerControlColor}
+                    onPress={item.handler}
+                  />
+                ) : null
+              })
+            : null}
         <NouMenu
           trigger={
             isWeb ? <MaterialButton color={headerControlColor} name="more-vert" /> : isIos ? 'ellipsis' : 'filled.MoreVert'
           }
-          items={[
-            {
-              label: isYTMusic ? 'YouTube' : 'YouTube Music',
-              icon: <MaterialIcons name={isYTMusic ? 'video-library' : 'library-music'} size={18} color={headerControlColor} />,
-              systemImage: isYTMusic ? 'play.rectangle.stack' : 'music.note.house',
-              handler: onToggleHome,
-            },
-            {
-              label: t('modals.history'),
-              icon: <MaterialIcons name="history" size={18} color={headerControlColor} />,
-              systemImage: 'clock.arrow.circlepath',
-              handler: () => ui$.historyModalOpen.set(true),
-            },
-            {
-              label: t('menus.reload'),
-              icon: <MaterialIcons name="refresh" size={18} color={headerControlColor} />,
-              systemImage: 'arrow.clockwise',
-              handler: reloadPage,
-            },
-            ...(isWeb && (pageType?.type === 'watch' || pageType?.type === 'shorts')
-              ? [
-                  {
-                    label: t('menus.pip'),
-                    icon: <MaterialIcons name="picture-in-picture-alt" size={18} color={headerControlColor} />,
-                    systemImage: 'pip',
-                    handler: () => {
-                      getNoutube()?.executeJavaScript?.(
-                        `(() => {
-                          const video = document.querySelector('video');
-                          if (video) {
-                            if (document.pictureInPictureElement) {
-                              document.exitPictureInPicture().catch(console.error);
-                            } else {
-                              video.requestPictureInPicture().catch(console.error);
-                            }
-                          }
-                        })()`,
-                        true,
-                      )
-                    },
-                  },
-                ]
-              : []),
-            ...(!isWeb
-              ? [
-                  {
-                    label: t('menus.desktop'),
-                    icon: <MaterialIcons name="desktop-windows" size={18} color={headerControlColor} />,
-                    systemImage: 'desktopcomputer',
-                    metaLabel: desktopMode ? t('menus.on') : t('menus.off'),
-                    meta: (
-                      <View
-                        className={clsx(
-                          'rounded-full px-2 py-1',
-                          desktopMode
-                            ? 'bg-indigo-500/20 border border-indigo-400/40'
-                            : 'bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700',
-                        )}
-                      >
-                        <NouText
-                          className={clsx(
-                            'text-[11px] font-medium',
-                            desktopMode ? 'text-indigo-200' : 'text-zinc-400',
-                          )}
-                        >
-                          {desktopMode ? t('menus.on') : t('menus.off')}
-                        </NouText>
-                      </View>
-                    ),
-                    handler: () => toggleDesktopMode(isYTMusic),
-                  },
-                ]
-              : []),
-            {
-              label: 'Open URL',
-              icon: <MaterialIcons name="link" size={18} color={headerControlColor} />,
-              systemImage: 'link',
-              handler: () => ui$.urlModalOpen.set(true),
-            },
-            {
-              label: t('menus.share'),
-              icon: <MaterialIcons name="share" size={18} color={headerControlColor} />,
-              systemImage: 'square.and.arrow.up',
-              handler: () => void onShare(),
-            },
-            ...(isIos && !('downloadVideo' in NouTubeViewModule)
-              ? []
-              : [
-                  {
-                    label: t('menus.tools', 'Tools'),
-                    icon: <MaterialIcons name="download" size={18} color={headerControlColor} />,
-                    systemImage: 'arrow.down.circle',
-                    handler: () => {
-                      ui$.toolsModalOpen.set(true)
-                    },
-                  },
-                ]),
-            {
-              label: t('settings.label'),
-              icon: <MaterialIcons name="settings" size={18} color={headerControlColor} />,
-              systemImage: 'gearshape',
-              handler: () => ui$.settingsModalOpen.set(true),
-            },
-          ]}
+          items={menuItems}
         />
+        </View>
       </View>
     </Root>
   )

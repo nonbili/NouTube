@@ -4,6 +4,7 @@ import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv'
 import { isWeb } from '@/lib/utils'
 import { normalizeI18nLanguage, type SupportedI18nLanguage } from '@/lib/i18n'
 import type { DownloadPreset } from '@/lib/download-format'
+import { sanitizePinnedMenuItems, type PinnableMenuItemId } from '@/lib/toolbar-pins'
 
 export interface SettingsSnapshot {
   language: SupportedI18nLanguage | null
@@ -54,6 +55,8 @@ export interface SettingsSnapshot {
   showSleepTimerButtonInHeader: boolean
   showLibraryButtonInHeader: boolean
   showStarButtonInHeader: boolean
+  // Overflow menu entries dragged onto the toolbar (Android), in toolbar order.
+  pinnedMenuItems: PinnableMenuItemId[]
   showMediaNotificationPrevButton: boolean
   showMediaNotificationNextButton: boolean
   showMediaNotificationRewindButton: boolean
@@ -145,6 +148,7 @@ export const normalizeSettings = <T extends Partial<SettingsSnapshot> | undefine
   if (typeof data.showStarButtonInHeader !== 'boolean') {
     data.showStarButtonInHeader = true
   }
+  data.pinnedMenuItems = sanitizePinnedMenuItems(data.pinnedMenuItems)
   if (typeof data.showMediaNotificationPrevButton !== 'boolean') {
     data.showMediaNotificationPrevButton = true
   }
@@ -276,6 +280,7 @@ export const getSettingsSnapshot = (value: Partial<Store> | undefined = settings
   showLibraryButtonInHeader:
     typeof value?.showLibraryButtonInHeader === 'boolean' ? value.showLibraryButtonInHeader : true,
   showStarButtonInHeader: typeof value?.showStarButtonInHeader === 'boolean' ? value.showStarButtonInHeader : true,
+  pinnedMenuItems: sanitizePinnedMenuItems(value?.pinnedMenuItems),
   showMediaNotificationPrevButton:
     typeof value?.showMediaNotificationPrevButton === 'boolean' ? value.showMediaNotificationPrevButton : true,
   showMediaNotificationNextButton:
@@ -348,6 +353,7 @@ export const settings$ = observable<Store>({
   showSleepTimerButtonInHeader: false,
   showLibraryButtonInHeader: true,
   showStarButtonInHeader: true,
+  pinnedMenuItems: [],
   showMediaNotificationPrevButton: true,
   showMediaNotificationNextButton: true,
   showMediaNotificationRewindButton: true,

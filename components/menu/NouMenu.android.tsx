@@ -1,11 +1,13 @@
 import { colors } from '@/lib/colors'
 import type { Item } from './NouMenu'
-import { cloneElement, isValidElement, ReactNode, useRef, useState } from 'react'
+import { cloneElement, isValidElement, ReactNode, useRef, useState, type ComponentProps } from 'react'
 import { Modal, Pressable, ScrollView, useColorScheme, useWindowDimensions, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { NouText } from '../NouText'
 import { MaterialButton } from '../button/IconButtons'
+import type MaterialIcons from '@react-native-vector-icons/material-icons'
 import { useTwColor } from '@/lib/theme'
+import { endToolbarDrag, moveToolbarDrag, startToolbarDrag, ToolbarDropOverlay, useLongPressDrag } from '../header/toolbar-drag'
 
 type Anchor = {
   x: number
@@ -18,6 +20,7 @@ export const NouMenu: React.FC<{ trigger?: ReactNode; items: Item[]; triggerColo
   const tw = useTwColor()
   const [open, setOpen] = useState(false)
   const [anchor, setAnchor] = useState<Anchor | null>(null)
+  const [dragging, setDragging] = useState(false)
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   const resolvedTriggerColor = triggerColor ?? (isDark ? tw(colors.icon) : tw(colors.iconLight))
@@ -40,7 +43,10 @@ export const NouMenu: React.FC<{ trigger?: ReactNode; items: Item[]; triggerColo
     })
   }
 
-  const closeMenu = () => setOpen(false)
+  const closeMenu = () => {
+    setDragging(false)
+    setOpen(false)
+  }
 
   const horizontalPadding = 8
   const verticalPadding = 8
@@ -88,6 +94,7 @@ export const NouMenu: React.FC<{ trigger?: ReactNode; items: Item[]; triggerColo
               top,
               left,
               width: menuWidth,
+              opacity: dragging ? 0.35 : 1,
               maxHeight: maxMenuHeight,
               backgroundColor: isDark ? tw(colors.bg) : tw('slate-50'),
               shadowColor: '#000',
@@ -97,7 +104,7 @@ export const NouMenu: React.FC<{ trigger?: ReactNode; items: Item[]; triggerColo
               elevation: isDark ? 20 : 12,
             }}
           >
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false} scrollEnabled={!dragging}>
               {items.map((item, index) => {
                 if (item.kind === 'separator') {
                   return <View key={index} className="mx-3 my-1 h-px bg-zinc-300 dark:bg-zinc-700" />
@@ -113,18 +120,8 @@ export const NouMenu: React.FC<{ trigger?: ReactNode; items: Item[]; triggerColo
                   )
                 }
 
-                return (
-                  <Pressable
-                    key={index}
-                    className="px-4 flex-row items-center gap-3"
-                    style={{ minHeight: getRowHeight(item) }}
-                    android_ripple={{ color: isDark ? tw(colors.underlay) : tw('gray-200') }}
-                    disabled={item.disabled}
-                    onPress={() => {
-                      closeMenu()
-                      item.handler()
-                    }}
-                  >
+                const content = (
+                  <>
                     {item.icon ? (
                       <View className="shrink-0">{item.icon}</View>
                     ) : hasAnyIcon ? (
@@ -145,13 +142,98 @@ export const NouMenu: React.FC<{ trigger?: ReactNode; items: Item[]; triggerColo
                     ) : item.metaLabel ? (
                       <NouText className="shrink-0 text-xs text-zinc-600 dark:text-zinc-500">{item.metaLabel}</NouText>
                     ) : null}
+                  </>
+                )
+
+                if (item.pinId && !item.disabled) {
+                  return (
+                    <PinnableRow
+                      key={index}
+                      item={item}
+                      minHeight={getRowHeight(item)}
+                      pressedColor={isDark ? tw(colors.underlay) : tw('gray-200')}
+                      onTap={() => {
+                        closeMenu()
+                        item.handler()
+                      }}
+                      onDragStateChange={setDragging}
+                      onPinned={closeMenu}
+                    >
+                      {content}
+                    </PinnableRow>
+                  )
+                }
+
+                return (
+                  <Pressable
+                    key={index}
+                    className="px-4 flex-row items-center gap-3"
+                    style={{ minHeight: getRowHeight(item) }}
+                    android_ripple={{ color: isDark ? tw(colors.underlay) : tw('gray-200') }}
+                    disabled={item.disabled}
+                    onPress={() => {
+                      closeMenu()
+                      item.handler()
+                    }}
+                  >
+                    {content}
                   </Pressable>
                 )
               })}
             </ScrollView>
           </View>
+          <ToolbarDropOverlay source="menu" />
         </View>
       </Modal>
     </>
+  )
+}
+
+const PinnableRow: React.FC<{
+  item: Item
+  minHeight: number
+  pressedColor: string
+  children: ReactNode
+  onTap: () => void
+  onDragStateChange: (dragging: boolean) => void
+  onPinned: () => void
+}> = ({ item, minHeight, pressedColor, children, onTap, onDragStateChange, onPinned }) => {
+  const { ref, panHandlers, pressed } = useLongPressDrag({
+    onTap,
+    onDragStart: (point) => {
+      onDragStateChange(true)
+      startToolbarDrag(
+        {
+          id: item.pinId!,
+          icon: (item.pinIcon || 'more-horiz') as ComponentProps<typeof MaterialIcons>['name'],
+          source: 'menu',
+        },
+        point,
+      )
+    },
+    onDragMove: moveToolbarDrag,
+    onDragEnd: (point) => {
+      onDragStateChange(false)
+      if (endToolbarDrag(point) === 'pinned') {
+        onPinned()
+      }
+    },
+  })
+
+  return (
+    <View
+      ref={ref}
+      collapsable={false}
+      className="px-4 flex-row items-center gap-3"
+      style={{ minHeight, backgroundColor: pressed ? pressedColor : undefined }}
+      accessibilityRole="menuitem"
+      accessibilityLabel={item.label}
+      accessible
+      accessibilityActions={[{ name: 'activate' }]}
+      onAccessibilityAction={(event) => event.nativeEvent.actionName === 'activate' && onTap()}
+      {...panHandlers}
+    >
+      {children}
+    </View>
   )
 }

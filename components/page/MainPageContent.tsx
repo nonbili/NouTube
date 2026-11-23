@@ -18,6 +18,7 @@ import { showToast } from '@/lib/toast'
 import { clsx, isAndroid, isIos, isWeb, nIf } from '@/lib/utils'
 import type { WebviewTag } from 'electron'
 import { NouHeader } from '../header/NouHeader'
+import { ToolbarDropOverlay } from '../header/toolbar-drag'
 import { WebviewContainer } from './webview-container'
 import { PageLoadError } from './PageLoadError'
 import { syncSupabase } from '@/lib/supabase/sync'
@@ -1300,6 +1301,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
           />,
         )}
       </View>
+      {nIf(isAndroid, <ToolbarDropOverlay source="toolbar" />)}
     </>
   )
 }
