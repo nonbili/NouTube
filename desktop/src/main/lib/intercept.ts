@@ -98,20 +98,6 @@ async function requestWithoutAds(req: Request, endpoint: string | undefined, isD
 export function interceptHttpRequest() {
   const ses = session.fromPartition('persist:webview')
 
-  ses.setCertificateVerifyProc((request, callback) => {
-    if (
-      request.hostname.endsWith('.youtube.com') ||
-      request.hostname.endsWith('.googlevideo.com') ||
-      request.hostname.endsWith('.ytimg.com') ||
-      request.hostname.endsWith('.ggpht.com') ||
-      request.hostname === 'youtube.com'
-    ) {
-      callback(0)
-    } else {
-      callback(-3)
-    }
-  })
-
   if (ses.protocol.isProtocolHandled('https')) {
     return
   }

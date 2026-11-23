@@ -13,7 +13,9 @@ it('streams filtered get_watch player data through the Electron protocol handler
   mock.module('electron', () => ({
     net: {},
     session: { fromPartition: () => ({
-      setCertificateVerifyProc() {},
+      setCertificateVerifyProc() {
+        throw new Error('YouTube interception must use the default certificate verifier')
+      },
       protocol: {
         isProtocolHandled: () => false,
         handle(_scheme: string, callback: typeof handler) { handler = callback },
