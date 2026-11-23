@@ -53,6 +53,22 @@ describe('getNextQueueUrl for media Next', () => {
     expect(getNextQueueUrl('https://music.youtube.com/watch?v=h_D3VFfhvs4&list=RDAMVMh_D3VFfhvs4')).toBeUndefined()
   })
 
+  it('leaves YouTube Music to its own queue after an unrelated song', () => {
+    const song = 'https://music.youtube.com/watch?v=h_D3VFfhvs4&list=RDAMVMh_D3VFfhvs4'
+    expect(getNextQueueUrl(song)).toBeUndefined()
+    queue$.markPlaying(first)
+    expect(getNextQueueUrl(song)).toBeUndefined()
+  })
+
+  it('leaves YouTube Music to its own queue when the player names a www.youtube.com url', () => {
+    expect(getNextQueueUrl('https://www.youtube.com/watch?v=h_D3VFfhvs4', { ytMusic: true })).toBeUndefined()
+  })
+
+  it('still advances within the queue on YouTube Music', () => {
+    const musicFirst = 'https://music.youtube.com/watch?v=YE7VzlLtp-4'
+    expect(getNextQueueUrl(musicFirst)).toBe(second)
+  })
+
   it('allows the player fallback when the queue is exhausted or empty', () => {
     expect(getNextQueueUrl(second)).toBeUndefined()
     queue$.bookmarks.set([])

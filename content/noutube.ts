@@ -149,7 +149,9 @@ function next() {
     // The page url stops naming the playing video once the user browses
     // away with the mini player, so prefer the player's own.
     const videoUrl = getPlayer()?.getVideoUrl?.() || ''
-    emit('playback-next', { url: videoUrl.includes('v=') ? videoUrl : document.location.href })
+    const url = videoUrl.includes('v=') ? videoUrl : document.location.href
+    // The YouTube Music player names its videos with www.youtube.com urls.
+    emit('playback-next', isYTMusic ? { url, ytMusic: true } : { url })
   } else {
     skipToNext()
   }

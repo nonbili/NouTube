@@ -27,8 +27,14 @@ export function usePlayingQueueIndex() {
  * of restarting from the top: the last queue video that was opened, or the
  * entry after it when that one already played to the end.
  * Set resumeUnrelated to false to advance only within the current queue.
+ * YouTube Music keeps its own queue, so an unrelated song there never resumes
+ * this one. Pass ytMusic when pageUrl does not tell, as the player's own urls
+ * point at www.youtube.com even on YouTube Music.
  */
-export function getNextQueueUrl(pageUrl: string, { resumeUnrelated = true } = {}): string | undefined {
+export function getNextQueueUrl(
+  pageUrl: string,
+  { resumeUnrelated = true, ytMusic = isYTMusicUrl(pageUrl) } = {},
+): string | undefined {
   const bookmarks = queue$.bookmarks.get()
   const videoId = getVideoId(pageUrl)
   if (!videoId || !bookmarks.length) return
@@ -37,7 +43,7 @@ export function getNextQueueUrl(pageUrl: string, { resumeUnrelated = true } = {}
   if (index >= 0) {
     return bookmarks[index + 1]?.url
   }
-  if (!resumeUnrelated) return
+  if (!resumeUnrelated || ytMusic) return
 
   const lastPlayedId = getVideoId(queue$.lastPlayedUrl.get())
   const lastPlayedIndex = lastPlayedId ? bookmarks.findIndex((x) => getVideoId(x.url) == lastPlayedId) : -1
@@ -46,6 +52,14 @@ export function getNextQueueUrl(pageUrl: string, { resumeUnrelated = true } = {}
     return bookmarks[0].url
   }
   return queue$.lastPlayedEnded.get() ? bookmarks[lastPlayedIndex + 1]?.url : bookmarks[lastPlayedIndex].url
+}
+
+function isYTMusicUrl(url: string) {
+  try {
+    return new URL(url).host == 'music.youtube.com'
+  } catch {
+    return false
+  }
 }
 
 // The video the page url pointed at last, so that url tweaks YouTube makes

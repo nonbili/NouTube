@@ -797,6 +797,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
             trackQueueEnded(endedUrl)
             const nextUrl = getNextQueueUrl(endedUrl, {
               resumeUnrelated: manualNext || !settings$.disableAutoplay.get(),
+              ...(manualNext && data?.ytMusic === true ? { ytMusic: true } : {}),
             })
             if (nextUrl) {
               if (isWeb) {
