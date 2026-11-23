@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { bindPlayerMedia, readPlayerProgress } from '../content/player-progress'
+import { bindPlayerMedia, isPreviewPlayback, readPlayerProgress } from '../content/player-progress'
 
 const video = () => new EventTarget() as HTMLVideoElement
 const response = (id: string) => ({
@@ -117,5 +117,38 @@ describe('player media lifecycle', () => {
     binding.sync()
     media.dispatchEvent(new Event('timeupdate'))
     expect({ progress, playState, rate }).toEqual({ progress: 0, playState: 0, rate: 0 })
+  })
+})
+
+describe('isPreviewPlayback', () => {
+  const at = (host: string, path: string) => {
+    const url = new URL(`https://${host}${path}`)
+    return { host: url.host, pathname: url.pathname, search: url.search }
+  }
+
+  it('treats playback off a video page on m.youtube.com as a preview', () => {
+    expect(isPreviewPlayback(at('m.youtube.com', '/'), 'A')).toBe(true)
+    expect(isPreviewPlayback(at('m.youtube.com', '/results?search_query=a'), 'A')).toBe(true)
+    expect(isPreviewPlayback(at('m.youtube.com', '/@channel'), 'A')).toBe(true)
+    expect(isPreviewPlayback(at('m.youtube.com', '/'), undefined)).toBe(true)
+  })
+
+  it('accepts the video a mobile video page is for', () => {
+    expect(isPreviewPlayback(at('m.youtube.com', '/watch?v=A&list=L'), 'A')).toBe(false)
+    expect(isPreviewPlayback(at('m.youtube.com', '/shorts/A'), 'A')).toBe(false)
+    expect(isPreviewPlayback(at('m.youtube.com', '/live/A'), 'A')).toBe(false)
+    expect(isPreviewPlayback(at('m.youtube.com', '/embed/A'), 'A')).toBe(false)
+    expect(isPreviewPlayback(at('m.youtube.com', '/clip/Ugkx'), 'A')).toBe(false)
+  })
+
+  it('rejects a preview still loaded after navigating to another video', () => {
+    expect(isPreviewPlayback(at('m.youtube.com', '/watch?v=B'), 'A')).toBe(true)
+    expect(isPreviewPlayback(at('m.youtube.com', '/watch'), 'A')).toBe(true)
+  })
+
+  it('leaves other sites alone', () => {
+    expect(isPreviewPlayback(at('www.youtube.com', '/'), 'A')).toBe(false)
+    expect(isPreviewPlayback(at('music.youtube.com', '/'), 'A')).toBe(false)
+    expect(isPreviewPlayback(at('www.youtube.com', '/watch?v=B'), 'A')).toBe(false)
   })
 })

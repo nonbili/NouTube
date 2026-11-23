@@ -6,7 +6,7 @@ import { clearSkipSegments, getSkipSegments, isSponsorBlockEnabled, renderSkipSe
 import { playbackRates } from '../lib/playback-rate'
 import { applyCaptionFontScale } from './captions'
 import { applyAutoplayPolicy } from './autoplay'
-import { bindPlayerMedia, readPlayerProgress } from './player-progress'
+import { bindPlayerMedia, isPreviewPlayback, readPlayerProgress } from './player-progress'
 
 export let player: any
 let curVideoId = ''
@@ -217,7 +217,10 @@ export function handleVideoPlayer(el: any) {
   // Everything the save needs is read in one go, so a throttled call can never
   // pair one video's position with another's url: the trailing call replays the
   // snapshot it was given instead of re-reading the player as it is by then.
-  const getProgress = (currentTime: number) => isCurrent() ? readPlayerProgress(el, currentTime) : undefined
+  const getProgress = (currentTime: number) => {
+    const progress = isCurrent() ? readPlayerProgress(el, currentTime) : undefined
+    return progress && !isPreviewPlayback(document.location, progress.videoId) ? progress : undefined
+  }
 
   const saveProgress = throttle((progress: NonNullable<ReturnType<typeof getProgress>>) => {
     if (!isCurrent() || el.getPlayerResponse?.()?.videoDetails?.videoId !== progress.videoId) return
@@ -259,6 +262,21 @@ export function handleVideoPlayer(el: any) {
       })
     }
   }, 5000)
+  // Previews must not drive the media notification or SponsorBlock either.
+  const isPreview = () => isPreviewPlayback(document.location, el.getPlayerResponse?.()?.videoDetails?.videoId)
+  // What the native media session was last told. Leaving a playing video for
+  // a feed page still owes it the pause, but previews after that stay silent.
+  let reportedPlaying = false
+  const reportPlayState = (currentTime: number) => {
+    if (isPreview()) {
+      if (reportedPlaying) window.NouTubeI?.notifyProgress(false, currentTime)
+      reportedPlaying = false
+      return false
+    }
+    reportedPlaying = isPlaying()
+    window.NouTubeI?.notifyProgress(reportedPlaying, currentTime)
+    return true
+  }
   const notifyProgress = throttle(() => {
     if (!isCurrent()) return
     if (!el.getCurrentTime) {
@@ -266,7 +284,13 @@ export function handleVideoPlayer(el: any) {
       return
     }
     const currentTime = el.getCurrentTime()
-    window.NouTubeI?.notifyProgress(isPlaying(), currentTime)
+    if (!reportPlayState(currentTime)) return
+    // YouTube can turn a playing preview into the watch page without another
+    // state change, so the per-video setup it skipped runs from here instead.
+    const videoId = el.getPlayerResponse?.()?.videoDetails?.videoId
+    if (document.location.host == 'm.youtube.com' && videoId && curVideoId != videoId) {
+      void onStateChange(el.getPlayerState?.())
+    }
     emitPlayback()
     const progress = getProgress(currentTime)
     if (progress) {
@@ -292,8 +316,7 @@ export function handleVideoPlayer(el: any) {
   // media notification then show what the video is not doing. The state itself
   // is cheap, so play and pause send it straight out.
   const notifyPlayState = () => {
-    if (!isCurrent()) return
-    window.NouTubeI?.notifyProgress(isPlaying(), el.getCurrentTime?.() ?? 0)
+    if (!isCurrent() || !reportPlayState(el.getCurrentTime?.() ?? 0)) return
     emitPlayback()
     emitPlayback.flush()
   }
@@ -357,13 +380,22 @@ export function handleVideoPlayer(el: any) {
       hideLiveChat()
       return
     }
+    // A feed preview is not what the user is watching: its end must not clear
+    // the resume point or advance the queue, and it must not be unmuted or take
+    // over the media notification.
+    if (isPreviewPlayback(document.location, videoDetails.videoId)) {
+      if (document.location.pathname == '/') {
+        el.pauseVideo()
+      }
+      // Forget the last watched video, so opening it again after a preview
+      // sets it up afresh -- unmuted, with its own segments and controls.
+      curVideoId = ''
+      clearSkipSegments()
+      return
+    }
     if (state == 0 && !isYTMusic) {
       nouStorage.removeItem(keys.playing)
       emit('playback-end')
-    }
-    if (document.location.host == 'm.youtube.com' && document.location.pathname == '/') {
-      el.pauseVideo()
-      return
     }
     const { title: _title, author, thumbnail, lengthSeconds, videoId } = videoDetails
     renderFullscreenTitle(_title)

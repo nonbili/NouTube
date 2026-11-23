@@ -8,6 +8,21 @@ export interface PlayerProgress {
   duration: number
 }
 
+// m.youtube.com has a single player, and outside a video page it only plays
+// the muted previews in Home and Search -- videos the user scrolled past, not
+// ones they watched. A preview can also still be loaded for a moment after the
+// page moves on to the video that was tapped, so on a video page the player
+// must be playing that page's video.
+export function isPreviewPlayback(location: { host: string; pathname: string; search: string }, videoId?: string) {
+  // A clip page names the clip, not the video, so it cannot be checked.
+  if (location.host !== 'm.youtube.com' || location.pathname.startsWith('/clip/')) return false
+  const pageVideoId =
+    location.pathname === '/watch'
+      ? new URLSearchParams(location.search).get('v')
+      : location.pathname.match(/^\/(?:shorts|live|embed)\/([^/]+)/)?.[1]
+  return !pageVideoId || pageVideoId !== videoId
+}
+
 // Read from one player instance. During a transition YouTube can briefly
 // expose the old response and the new URL; wait for their identities to agree.
 export function readPlayerProgress(player: any, current: number): PlayerProgress | undefined {
