@@ -97,6 +97,7 @@ platform :ios do
 
       if skip_binary_upload
         testflight_options[:distribute_only] = true
+        testflight_options[:app_platform] = "ios"
         testflight_options[:app_version] = app_version
         testflight_options[:build_number] = build_number
       else

@@ -17,6 +17,9 @@ fetch https://files.pythonhosted.org/packages/7f/3d/16ea7d5638cf585991f2c5705e80
 fetch https://files.pythonhosted.org/packages/32/d1/a3652fe2c19134d0d15922177821d863cbd7e842d53a21bbe7e8e3a1b5ac/certifi-2026.10.23-py3-none-any.whl certifi.whl e9b54de76e530bb6cf0ccd036787103acb58fd42ba930ea8bf948ddbaa2f61d1
 
 tar -xzf "$stage/python.tar.gz" -C "$stage" Python.xcframework
+# BeeWare marks each extension-module framework as an app (APPL), which makes
+# altool mistake e.g. _socket.framework for the app on TestFlight upload.
+plutil -replace CFBundlePackageType -string FMWK "$stage/Python.xcframework/build/iOS-dylib-Info-template.plist"
 unzip -q "$stage/yt-dlp.whl" -d "$stage/app_packages"
 unzip -q "$stage/certifi.whl" -d "$stage/app_packages"
 rsync -a --delete "$stage/Python.xcframework/" "$vendor/Python.xcframework/"
