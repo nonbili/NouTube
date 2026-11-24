@@ -92,7 +92,9 @@
     "sharePageUrl": "URL da página",
     "shareVideoUrl": "URL do vídeo",
     "unpinFormat": "Desafixar formato padrão",
-    "shareIncludePosition": "Incluir posição atual"
+    "shareIncludePosition": "Incluir posição atual",
+    "useDownloadsFolder": "Usar a pasta Downloads",
+    "failedToSelectFolder": "Não foi possível selecionar uma pasta. Tente novamente."
   },
   "settings": {
     "label": "Configurações",
@@ -182,6 +184,9 @@
         },
         "hideEndScreens": {
           "label": "Ocultar cartões finais"
+        },
+        "hideComments": {
+          "label": "Ocultar comentários"
         }
       },
       "scripts": {
@@ -518,5 +523,20 @@
     "openYouTube": "Ir para o YouTube",
     "openYouTubeMusic": "Ir para o YouTube Music",
     "saveCurrentPage": "Salvar página atual"
+  },
+  "shortcuts": {
+    "title": "Atalhos do teclado",
+    "hint": "Atalhos do teclado são ignorados ao digitar em um campo de texto.",
+    "newTab": "Nova aba",
+    "reopenClosedTab": "Reabrir aba fechada",
+    "closeTab": "Fechar aba",
+    "selectTab": "Mudar para a aba 1-9",
+    "library": "Biblioteca",
+    "history": "Histórico",
+    "openUrl": "Abrir URL",
+    "download": "Download",
+    "settings": "Configurações",
+    "shortcuts": "Atalhos do teclado",
+    "closeModal": "Fechar diálogo ou painel"
   }
 }

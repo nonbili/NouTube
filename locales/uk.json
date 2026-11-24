@@ -102,7 +102,11 @@
     "showFewerFormats": "Показати менше форматів",
     "pinnedFormat": "Закріплене",
     "pinFormat": "Закріпити як стандартний формат",
-    "unpinFormat": "Відкріпити стандартний формат"
+    "unpinFormat": "Відкріпити стандартний формат",
+    "useDownloadsFolder": "Обрати теку завантажень",
+    "failedToSelectFolder": "Не вдалось обрати теку. Спробуйте ще раз.",
+    "exportDownload": "Експорт",
+    "downloadErrorSignInIos": "YouTube запитує авторизацію для доступу до цього відео, не підтримується на iOS."
   },
   "update": {
     "check": "Перевірити оновлення",
@@ -171,7 +175,8 @@
     "notificationSummary_one": "{{count}} нове відео з {{channels}} каналів",
     "notificationSummary_other": "{{count}} нових відео з {{channels}} каналів",
     "notificationBody_one": "{{count}} нове відео з {{channel}}",
-    "notificationBody_other": "{{count}} нові відео з {{channel}}"
+    "notificationBody_other": "{{count}} нові відео з {{channel}}",
+    "communityPost": "Пост спільноти"
   },
   "settings": {
     "label": "Налаштування",
@@ -259,7 +264,16 @@
         "hideCommunityPosts": {
           "label": "Приховати пости спільноти"
         },
-        "label": "Вбудовані стилі"
+        "label": "Вбудовані стилі",
+        "hideAskButton": {
+          "label": "Приховати кнопку Спитати Gemini"
+        },
+        "hideRelatedVideos": {
+          "label": "Приховати схожі відео"
+        },
+        "hideComments": {
+          "label": "Приховати коментарі"
+        }
       },
       "custom": {
         "label": "Особисті стилі",
@@ -362,7 +376,22 @@
     },
     "showSleepTimerButtonInHeader": "Показувати кнопку Таймер сну на панелі",
     "showLibraryButtonInHeader": "Показувати кнопку Бібіліотека на панелі",
-    "mediaNotificationButtons": "Кнопка медіа сповіщень"
+    "mediaNotificationButtons": "Кнопка медіа сповіщень",
+    "showMediaNotificationPrevButton": "Показувати кнопку Попередне",
+    "showMediaNotificationNextButton": "Показувати кнопку Наступне",
+    "showMediaNotificationRewindButton": "Показувати кнопку Перемотка",
+    "showMediaNotificationForwardButton": "Показувати кнопку Вперед",
+    "showMediaNotificationSpeedButton": "Показувати кнопку Швидкість відтворення",
+    "showMediaNotificationCloseButton": "Показувати кнопку Закрити",
+    "mediaNotificationButtonsHint": "Android показує максимум чотири кнопки поряд з кнопкою відтворення, у вказаному порядку. Ви увімкнули {{selected}}.",
+    "pictureInPicture": "Картинка в картинці",
+    "pictureInPictureHint": "Відео продовжиться у вільному вікні, коли застосунок працюватиме фоново.",
+    "disableAutoplay": "Вимкнути автовідтворення",
+    "blockAds": {
+      "label": "Блокувати рекламу",
+      "hint": "Вимкніть щоб дозволити YouTube показ реклами, для підтримки авторів."
+    },
+    "feedPosts": "Пости спільноти в стрічці"
   },
   "native": {
     "download_complete": "Завантаження завершено",
