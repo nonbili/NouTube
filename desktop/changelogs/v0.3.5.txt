@@ -1,0 +1,6 @@
+- add Windows taskbar playback controls
+- support mouse back/forward buttons
+- add a Hide comments setting
+- save Opus audio downloads as .opus
+- restore TLS checks and handle download and playback failures
+- update Italian, Polish, Portuguese, Russian and Ukrainian translations
