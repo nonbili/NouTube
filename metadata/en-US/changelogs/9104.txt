@@ -1,0 +1,10 @@
+- Add swipe up/down gestures to toggle player fullscreen
+- Add a Hide comments setting for YouTube videos
+- Customize and reorder toolbar buttons in Settings
+- Add bundled yt-dlp video download support on iOS and speed up iOS video startup
+- Save Opus audio downloads as .opus
+- Fit YouTube desktop watch pages to narrow screens on Android
+- Keep feed previews out of watch history and prevent YouTube Music media next from advancing the app queue
+- Fix yt-dlp initialization on Android, restore TLS checks, and handle download and playback failures
+- Keep YouTube controls in fullscreen on iPad
+- Update Ukrainian translation
