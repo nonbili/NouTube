@@ -109,7 +109,13 @@
     "playbackQuality": "Qualità di riproduzione",
     "sharePageUrl": "URL della pagina",
     "shareVideoUrl": "URL del video",
-    "shareIncludePosition": "Includi la posizione attuale"
+    "shareIncludePosition": "Includi la posizione attuale",
+    "useDownloadsFolder": "Usa cartella Download",
+    "failedToSelectFolder": "Impossibile selezionare una cartella. Riprova.",
+    "downloadIosHint": "Scarica un singolo file MP4, se disponibile. Scarica solo i video per i quali hai l'autorizzazione al salvataggio.",
+    "exportDownload": "Esporta",
+    "downloadErrorSignInIos": "YouTube richiede una sessione con accesso effettuato per questo video, funzionalità non supportata su iOS.",
+    "downloadErrorFormatIos": "Per questo video non è disponibile alcun formato MP4 progressivo compatibile."
   },
   "update": {
     "check": "Controlla aggiornamenti",
@@ -323,6 +329,9 @@
         },
         "hideEndScreens": {
           "label": "Nascondi le schermate finali"
+        },
+        "hideComments": {
+          "label": "Nascondi commenti"
         }
       },
       "custom": {
@@ -510,5 +519,20 @@
   },
   "history": {
     "cleared": "Cronologia ripulita"
+  },
+  "shortcuts": {
+    "title": "Scorciatoie da tastiera",
+    "hint": "Le scorciatoie da tastiera vengono ignorate durante la digitazione in un campo di testo.",
+    "newTab": "Nuova scheda",
+    "reopenClosedTab": "Riapri scheda chiusa",
+    "closeTab": "Chiudi scheda",
+    "selectTab": "Passa alla scheda 1-9",
+    "library": "Libreria",
+    "history": "Cronologia",
+    "openUrl": "Apri URL",
+    "download": "Download",
+    "settings": "Impostazioni",
+    "shortcuts": "Scorciatoie da tastiera",
+    "closeModal": "Chiudi finestra di dialogo o pannello"
   }
 }
