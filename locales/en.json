@@ -250,6 +250,11 @@
       "forward": "Forward",
       "home": "Home",
       "switchHome": "YouTube / YouTube Music",
+      "speed": "Playback speed",
+      "quality": "Video quality",
+      "sleepTimer": "Sleep timer",
+      "queue": "Queue",
+      "scripts": "Pinned scripts",
       "moveUp": "Move up",
       "moveDown": "Move down"
     },

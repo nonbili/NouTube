@@ -3,6 +3,7 @@ import { getSettingsSnapshot, normalizeSettings, settings$, type SettingsSnapsho
 import { ResourceSyncMeta, syncMeta$ } from '@/states/sync-meta'
 import { DocumentSyncer } from './document-base'
 import { mergeKeys } from './merge'
+import { mergeToolbarButtonOrder } from '@/lib/toolbar-buttons'
 
 class SettingsSyncer extends DocumentSyncer<SettingsSnapshot> {
   NAME = 'settings'
@@ -17,14 +18,18 @@ class SettingsSyncer extends DocumentSyncer<SettingsSnapshot> {
   }
 
   setValue(value: SettingsSnapshot, replace = false) {
-    // A document written by a version of the app that predates the toolbar order lacks it: keep
-    // this device's rather than resetting it, unless another account's settings replace these.
+    // A document written by a version of the app that predates the toolbar settings lacks them:
+    // keep this device's rather than resetting them, unless another account's settings replace these.
     const local = replace ? undefined : settings$.peek()
     settings$.assign(
       normalizeSettings({
         ...value,
-        toolbarButtonOrder: value.toolbarButtonOrder ?? local?.toolbarButtonOrder,
+        toolbarButtonOrder: local
+          ? mergeToolbarButtonOrder(value.toolbarButtonOrder ?? local.toolbarButtonOrder, local.toolbarButtonOrder)
+          : value.toolbarButtonOrder,
         toolbarMenuButtons: value.toolbarMenuButtons ?? local?.toolbarMenuButtons,
+        showQueueButtonInHeader: value.showQueueButtonInHeader ?? local?.showQueueButtonInHeader,
+        showScriptsButtonInHeader: value.showScriptsButtonInHeader ?? local?.showScriptsButtonInHeader,
       }),
     )
   }

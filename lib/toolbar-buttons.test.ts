@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'bun:test'
 import {
   defaultToolbarButtonOrder,
+  isPlaybackToolbarButton,
+  mergeToolbarButtonOrder,
   moveItem,
   sanitizeToolbarButtonOrder,
   sanitizeToolbarMenuButtons,
@@ -17,6 +19,23 @@ describe('sanitizeToolbarButtonOrder', () => {
     expect(order.slice(0, 2)).toEqual(['share', 'history'])
     expect(order).toHaveLength(defaultToolbarButtonOrder.length)
     expect(new Set(order)).toEqual(new Set(defaultToolbarButtonOrder))
+  })
+})
+
+describe('mergeToolbarButtonOrder', () => {
+  const local = sanitizeToolbarButtonOrder(['queue', 'share', 'speed', 'history'])
+
+  it('puts ids an older app dropped back after their local neighbours', () => {
+    // An older app knows every id but the playback ones, and moved history first.
+    const legacy = local.filter((id) => !isPlaybackToolbarButton(id) && id !== 'history')
+    const order = mergeToolbarButtonOrder(['history', ...legacy], local)
+    expect(order.slice(0, 4)).toEqual(['queue', 'history', 'share', 'speed'])
+    expect(new Set(order)).toEqual(new Set(defaultToolbarButtonOrder))
+  })
+
+  it('takes a complete order as it is', () => {
+    const incoming = [...defaultToolbarButtonOrder].reverse()
+    expect(mergeToolbarButtonOrder(incoming, local)).toEqual(incoming)
   })
 })
 

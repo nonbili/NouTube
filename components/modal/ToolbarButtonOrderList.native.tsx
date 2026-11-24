@@ -30,9 +30,14 @@ const buttonIcon: Record<ToolbarButtonId, MaterialIconsIconName> = {
   share: 'share',
   tools: 'download',
   settings: 'settings',
+  speed: 'speed',
+  quality: 'high-quality',
+  'sleep-timer': 'bedtime',
+  queue: 'playlist-play',
+  scripts: 'extension',
 }
 
-// Built-in buttons keep their own settings; the feed button follows the feed feature.
+// Built-in and playback buttons keep their own settings; the feed button follows the feed feature.
 const builtinSettingKey = {
   library: 'showLibraryButtonInHeader',
   feed: 'feedsEnabled',
@@ -41,6 +46,11 @@ const builtinSettingKey = {
   reload: 'showReloadButtonInHeader',
   home: 'showHomeButtonInHeader',
   history: 'showHistoryButtonInHeader',
+  speed: 'showPlaybackSpeedControl',
+  quality: 'showPlaybackQualityControl',
+  'sleep-timer': 'showSleepTimerButtonInHeader',
+  queue: 'showQueueButtonInHeader',
+  scripts: 'showScriptsButtonInHeader',
 } as const
 
 const toggleButton = (id: ToolbarButtonId) => {

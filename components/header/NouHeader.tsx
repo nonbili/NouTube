@@ -15,7 +15,7 @@ import { share } from '@/lib/share'
 import { MaterialButton, MaterialCommunityButton } from '../button/IconButtons'
 import { library$ } from '@/states/library'
 import { getBookmarkKey, normalizeUrl } from '@/lib/url'
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { t } from 'i18next'
 import { hasSleepTimerNativeSupport } from '@/lib/sleep-timer-native'
 import { useSleepTimerStatus } from '@/lib/sleep-timer'
@@ -33,9 +33,17 @@ import { buildUserScriptExecutionSource } from '@/lib/user-styles'
 import { userStyles$ } from '@/states/user-styles'
 import { useHeaderAnimation } from './header-animation'
 import { toolbarPillLabelClass, toolbarPillPressableClass } from './toolbar-classes'
+import { ScrollFade } from './ScrollFade'
 import { useActivePageUrl } from '@/lib/hooks/useActivePageUrl'
 import { toggleDesktopMode, useDesktopMode } from '@/lib/hooks/useDesktopMode'
-import { defaultToolbarButtonOrder, getToolbarButtonLabel, type ToolbarButtonId } from '@/lib/toolbar-buttons'
+import {
+  defaultToolbarButtonOrder,
+  getToolbarButtonLabel,
+  isPlaybackToolbarButton,
+  playbackToolbarButtons,
+  type PlaybackToolbarButtonId,
+  type ToolbarButtonId,
+} from '@/lib/toolbar-buttons'
 import { navigateHistory } from '@/lib/history-navigation'
 import { togglePictureInPicture } from '@/lib/picture-in-picture'
 import { useTwColor } from '@/lib/theme'
@@ -96,6 +104,8 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const showSleepTimerButtonInHeader = useValue(settings$.showSleepTimerButtonInHeader)
   const showLibraryButtonInHeader = useValue(settings$.showLibraryButtonInHeader)
   const showStarButtonInHeader = useValue(settings$.showStarButtonInHeader)
+  const showQueueButtonInHeader = useValue(settings$.showQueueButtonInHeader)
+  const showScriptsButtonInHeader = useValue(settings$.showScriptsButtonInHeader)
   const toolbarButtonOrder = useValue(settings$.toolbarButtonOrder)
   const toolbarMenuButtons = useValue(settings$.toolbarMenuButtons)
   const { width, height: windowHeight } = useWindowDimensions()
@@ -121,6 +131,9 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const { active: sleepTimerActive } = useSleepTimerStatus(sleepTimerSupported)
   const [canGoBack, setCanGoBack] = useState(false)
   const [canGoForward, setCanGoForward] = useState(false)
+  // Which ends of the leading buttons are scrolled out of view.
+  const [leadingOverflow, setLeadingOverflow] = useState({ start: false, end: false })
+  const leadingScroll = useRef({ x: 0, view: 0, content: 0 })
   const isHorizontal = width > windowHeight
   // The vertical sidebar layout is desktop-only; on native a landscape window
   // keeps the horizontal toolbar, so it must keep hiding on scroll too.
@@ -209,9 +222,26 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     .map((script) => ({ ...script, js: script.js.trim() }))
   const showSleepTimerButton = sleepTimerSupported && (sleepTimerActive || showSleepTimerButtonInHeader)
   const showStarButton = Boolean(pageType?.canStar) && showStarButtonInHeader
+  // Only Android has switches for these, so only Android hides them.
+  const showQueueButton = !isYTMusic && queueSize > 0 && (!isAndroid || showQueueButtonInHeader)
+  const showScriptsButton = pinnedScripts.length > 0 && (!isAndroid || showScriptsButtonInHeader)
   const showMenuButton = (id: ToolbarButtonId) => isAndroid && (toolbarMenuButtons as string[]).includes(id)
+  // A Tools button the user placed takes over the download button, so there is only one.
+  const showDownloadButton =
+    !showMenuButton('tools') &&
+    (!isIos || 'downloadVideo' in NouTubeViewModule) &&
+    (pageType?.type === 'watch' || hasDownloads)
+  const openDownload = () => {
+    if (pageType?.type === 'watch') {
+      ui$.toolsModalUrl.set(activePageUrl)
+    }
+    ui$.toolsModalOpen.set(true)
+  }
   // Leading buttons by id; the web build has its own back/forward/reload group.
-  const leadingButtons: Record<ToolbarButtonId, { icon: MaterialIconsIconName; color?: string; onPress: () => void } | null> = {
+  const leadingButtons: Record<
+    Exclude<ToolbarButtonId, PlaybackToolbarButtonId>,
+    { icon: MaterialIconsIconName; color?: string; onPress: () => void } | null
+  > = {
     library: showLibraryButtonInHeader
       ? { icon: isYTMusic ? 'library-music' : 'video-library', onPress: () => ui$.libraryModalOpen.set(true) }
       : null,
@@ -233,24 +263,33 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
       : null,
     'open-url': showMenuButton('open-url') ? { icon: 'link', onPress: () => ui$.urlModalOpen.set(true) } : null,
     share: showMenuButton('share') ? { icon: 'share', onPress: () => void onShare() } : null,
-    tools: showMenuButton('tools') ? { icon: 'download', onPress: () => ui$.toolsModalOpen.set(true) } : null,
+    tools: showMenuButton('tools')
+      ? { icon: 'download', color: isDownloading ? tw('blue-400') : undefined, onPress: openDownload }
+      : null,
     settings: showMenuButton('settings') ? { icon: 'settings', onPress: () => ui$.settingsModalOpen.set(true) } : null,
   }
+  const playbackButtonShown: Record<PlaybackToolbarButtonId, boolean> = {
+    speed: showPlaybackSpeedControl,
+    quality: showPlaybackQualityControl,
+    'sleep-timer': showSleepTimerButton,
+    queue: showQueueButton,
+    scripts: showScriptsButton,
+  }
+  // Android shows the playback controls among the leading buttons; elsewhere they stay by the ⋮ menu.
+  const isShown = (id: ToolbarButtonId) =>
+    isPlaybackToolbarButton(id) ? playbackButtonShown[id] : Boolean(leadingButtons[id])
   const leadingButtonIds = (isAndroid ? toolbarButtonOrder : defaultToolbarButtonOrder).filter(
-    (id) => leadingButtons[id],
+    (id) => isShown(id) && (isAndroid || !isPlaybackToolbarButton(id)),
   )
+  const trailingPlaybackButtonIds = isAndroid ? [] : playbackToolbarButtons.filter(isShown)
   const leadingToolbarItemCount = leadingButtonIds.length + Number(isWeb) * (2 + Number(showReloadButtonInHeader))
   const trailingToolbarItemCount =
     1 +
     Number(isWeb) +
-    Number(showPlaybackSpeedControl) +
-    Number(showPlaybackQualityControl) +
-    Number(showSleepTimerButton) +
-    Number(!isYTMusic && queueSize > 0) +
-    Number(pageType?.type === 'watch' || hasDownloads) +
+    trailingPlaybackButtonIds.length +
+    Number(showDownloadButton) +
     Number(showPictureInPictureButton) +
-    Number(showStarButton) +
-    Number(pinnedScripts.length > 0)
+    Number(showStarButton)
   const compactToolbar = leadingToolbarItemCount + trailingToolbarItemCount > 6
   const hideableHeader = autoHideHeader || hideToolbarWhenScrolled || (isAndroid && doubleTapToToggleHeader)
 
@@ -283,8 +322,84 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     )
   }
 
+  const updateLeadingOverflow = (next: Partial<typeof leadingScroll.current>) => {
+    const scroll = Object.assign(leadingScroll.current, next)
+    const start = scroll.x > 1
+    const end = scroll.x + scroll.view < scroll.content - 1
+    setLeadingOverflow((prev) => (prev.start === start && prev.end === end ? prev : { start, end }))
+  }
+  const leadingHorizontal = !isWeb || !isHorizontal
+  const headerBackground = tw(isDark ? 'zinc-800' : 'zinc-100')
+
   const menuCheck = (checked: boolean) =>
     checked ? <MaterialIcons name="check" size={16} color={headerControlColor} /> : undefined
+
+  const playbackButtons: Record<PlaybackToolbarButtonId, () => React.ReactNode> = {
+    speed: () =>
+      isWeb ? (
+        <NouMenu
+          side={isSidebarLayout ? 'right' : undefined}
+          trigger={renderPill(playbackRateLabel)}
+          items={playbackRatesWith(playbackRate).map((rate) => ({
+            label: formatPlaybackRate(rate),
+            meta: menuCheck(rate === playbackRate),
+            handler: () => selectPlaybackRate(rate),
+          }))}
+        />
+      ) : (
+        renderPill(playbackRateLabel, () => ui$.playbackSpeedModalOpen.set(true))
+      ),
+    quality: () =>
+      isWeb ? (
+        <NouMenu
+          side={isSidebarLayout ? 'right' : undefined}
+          trigger={renderPill(playbackQualityLabel)}
+          items={playbackQualities.map((q) => ({
+            label: q.label,
+            meta: menuCheck(q.value === playbackQuality),
+            handler: () => selectPlaybackQuality(q.value),
+          }))}
+        />
+      ) : (
+        renderPill(playbackQualityLabel, () => ui$.playbackQualityModalOpen.set(true))
+      ),
+    'sleep-timer': () => (
+      <MaterialButton
+        name="bedtime"
+        color={sleepTimerActive ? tw('blue-400') : headerControlColor}
+        accessibilityRole="button"
+        accessibilityLabel={getToolbarButtonLabel('sleep-timer')}
+        onPress={() => ui$.sleepTimerModalOpen.set(true)}
+      />
+    ),
+    queue: () => (
+      <MaterialButton
+        color={headerControlColor}
+        name="playlist-play"
+        accessibilityRole="button"
+        accessibilityLabel={getToolbarButtonLabel('queue')}
+        onPress={() => ui$.queueModalOpen.set(!ui$.queueModalOpen.get())}
+      />
+    ),
+    scripts: () =>
+      pinnedScripts.length === 1 ? (
+        <MaterialCommunityButton
+          color={headerControlColor}
+          name="puzzle-outline"
+          onPress={() => runPinnedScript(pinnedScripts[0])}
+        />
+      ) : (
+        <NouMenu
+          trigger={<MaterialCommunityButton color={headerControlColor} name="puzzle-outline" />}
+          items={pinnedScripts.map((script) => ({
+            label: script.name,
+            icon: <MaterialIcons name="code" size={18} color={headerControlColor} />,
+            systemImage: 'chevron.left.forwardslash.chevron.right',
+            handler: () => runPinnedScript(script),
+          }))}
+        />
+      ),
+  }
 
   return (
     <Root
@@ -303,13 +418,27 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     >
       <View className={clsx('flex-1 min-w-0', isWeb && 'lg:flex-none lg:w-full')}>
         <ScrollView
-          horizontal={!isWeb || !isHorizontal}
+          horizontal={leadingHorizontal}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
+          scrollEventThrottle={32}
+          onScroll={(e) => updateLeadingOverflow({ x: e.nativeEvent.contentOffset.x })}
+          // The throttle can drop the last scroll event at an edge.
+          onScrollEndDrag={(e) => updateLeadingOverflow({ x: e.nativeEvent.contentOffset.x })}
+          onMomentumScrollEnd={(e) => updateLeadingOverflow({ x: e.nativeEvent.contentOffset.x })}
+          onLayout={(e) => updateLeadingOverflow({ view: e.nativeEvent.layout.width })}
+          onContentSizeChange={(content) => updateLeadingOverflow({ content })}
           className={clsx('min-w-0', isWeb && 'lg:w-full')}
-          contentContainerClassName={clsx('flex-row', isWeb && 'lg:flex-col', compactToolbar ? 'gap-0' : 'gap-1')}
+          contentContainerClassName={clsx(
+            'flex-row items-center',
+            isWeb && 'lg:flex-col',
+            compactToolbar ? 'gap-0' : 'gap-1',
+          )}
         >
           {leadingButtonIds.map((id) => {
+            if (isPlaybackToolbarButton(id)) {
+              return <Fragment key={id}>{playbackButtons[id]()}</Fragment>
+            }
             const button = leadingButtons[id]!
             return (
               <MaterialButton
@@ -344,6 +473,13 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
             </>,
           )}
         </ScrollView>
+        {nIf(
+          leadingHorizontal,
+          <>
+            <ScrollFade side="left" color={headerBackground} visible={leadingOverflow.start} />
+            <ScrollFade side="right" color={headerBackground} visible={leadingOverflow.end} />
+          </>,
+        )}
       </View>
       {nIf(
         isWeb,
@@ -421,65 +557,17 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
         )}
       >
         {nIf(isWeb, <MaterialButton color={headerControlColor} name="add" onPress={() => tabs$.openTab()} />)}
+        {trailingPlaybackButtonIds
+          .filter((id) => id !== 'scripts')
+          .map((id) => (
+            <Fragment key={id}>{playbackButtons[id]()}</Fragment>
+          ))}
         {nIf(
-          showPlaybackSpeedControl,
-          isWeb ? (
-            <NouMenu
-              side={isSidebarLayout ? 'right' : undefined}
-              trigger={renderPill(playbackRateLabel)}
-              items={playbackRatesWith(playbackRate).map((rate) => ({
-                label: formatPlaybackRate(rate),
-                meta: menuCheck(rate === playbackRate),
-                handler: () => selectPlaybackRate(rate),
-              }))}
-            />
-          ) : (
-            renderPill(playbackRateLabel, () => ui$.playbackSpeedModalOpen.set(true))
-          ),
-        )}
-        {nIf(
-          showPlaybackQualityControl,
-          isWeb ? (
-            <NouMenu
-              side={isSidebarLayout ? 'right' : undefined}
-              trigger={renderPill(playbackQualityLabel)}
-              items={playbackQualities.map((q) => ({
-                label: q.label,
-                meta: menuCheck(q.value === playbackQuality),
-                handler: () => selectPlaybackQuality(q.value),
-              }))}
-            />
-          ) : (
-            renderPill(playbackQualityLabel, () => ui$.playbackQualityModalOpen.set(true))
-          ),
-        )}
-        {nIf(
-          showSleepTimerButton,
-          <MaterialButton
-            name="bedtime"
-            color={sleepTimerActive ? tw('blue-400') : headerControlColor}
-            onPress={() => ui$.sleepTimerModalOpen.set(true)}
-          />,
-        )}
-        {nIf(
-          !isYTMusic && queueSize > 0,
-          <MaterialButton
-            color={headerControlColor}
-            name="playlist-play"
-            onPress={() => ui$.queueModalOpen.set(!ui$.queueModalOpen.get())}
-          />,
-        )}
-        {nIf(
-          (!isIos || 'downloadVideo' in NouTubeViewModule) && (pageType?.type === 'watch' || hasDownloads),
+          showDownloadButton,
           <MaterialButton
             name="download"
             color={isDownloading ? tw('blue-400') : headerControlColor}
-            onPress={() => {
-              if (pageType?.type === 'watch') {
-                ui$.toolsModalUrl.set(activePageUrl)
-              }
-              ui$.toolsModalOpen.set(true)
-            }}
+            onPress={openDownload}
           />,
         )}
         {nIf(
@@ -501,26 +589,7 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
             onPress={onToggleStar}
           />,
         )}
-        {nIf(
-          pinnedScripts.length === 1,
-          <MaterialCommunityButton
-            color={headerControlColor}
-            name="puzzle-outline"
-            onPress={() => runPinnedScript(pinnedScripts[0])}
-          />,
-        )}
-        {nIf(
-          pinnedScripts.length > 1,
-          <NouMenu
-            trigger={<MaterialCommunityButton color={headerControlColor} name="puzzle-outline" />}
-            items={pinnedScripts.map((script) => ({
-              label: script.name,
-              icon: <MaterialIcons name="code" size={18} color={headerControlColor} />,
-              systemImage: 'chevron.left.forwardslash.chevron.right',
-              handler: () => runPinnedScript(script),
-            }))}
-          />,
-        )}
+        {nIf(trailingPlaybackButtonIds.includes('scripts'), playbackButtons.scripts())}
         <NouMenu
           trigger={
             isWeb ? <MaterialButton color={headerControlColor} name="more-vert" /> : isIos ? 'ellipsis' : 'filled.MoreVert'
@@ -538,6 +607,17 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
               systemImage: 'clock.arrow.circlepath',
               handler: () => ui$.historyModalOpen.set(true),
             },
+            // With its toolbar button switched off, the queue is still reachable here.
+            ...(!isYTMusic && queueSize > 0 && !showQueueButton
+              ? [
+                  {
+                    label: t('settings.toolbarButton.queue'),
+                    icon: <MaterialIcons name="playlist-play" size={18} color={headerControlColor} />,
+                    systemImage: 'list.bullet',
+                    handler: () => ui$.queueModalOpen.set(true),
+                  },
+                ]
+              : []),
             {
               label: t('menus.reload'),
               icon: <MaterialIcons name="refresh" size={18} color={headerControlColor} />,

@@ -868,6 +868,7 @@ export const SettingsAppearanceContent = () => {
               icon="star-outline"
               value={settings.showStarButtonInHeader}
               onPress={() => settings$.showStarButtonInHeader.set(!settings.showStarButtonInHeader)}
+              isLast={isAndroid && !settings.feedsEnabled}
             />
             {nIf(
               !isAndroid,
@@ -899,10 +900,7 @@ export const SettingsAppearanceContent = () => {
                 }}
               />,
             )}
-            {nIf(
-              !isWeb && settings.feedsEnabled,
-              <FeedNotificationsToggle />,
-            )}
+            {nIf(!isWeb && settings.feedsEnabled, <FeedNotificationsToggle isLast={isAndroid} />)}
             {nIf(
               isIos,
               <>
@@ -937,28 +935,23 @@ export const SettingsAppearanceContent = () => {
                 />
               </>,
             )}
-            <SettingsToggleRow
-              label="Show playback speed control"
-              icon="speed"
-              value={settings.showPlaybackSpeedControl}
-              onPress={() => settings$.showPlaybackSpeedControl.set(!settings.showPlaybackSpeedControl)}
-            />
-            <SettingsToggleRow
-              label="Show video quality control"
-              icon="high-quality"
-              value={settings.showPlaybackQualityControl}
-              onPress={() => settings$.showPlaybackQualityControl.set(!settings.showPlaybackQualityControl)}
-              isLast={!hasSleepTimerNativeSupport()}
-            />
             {nIf(
-              hasSleepTimerNativeSupport(),
-              <SettingsToggleRow
-                label={t('settings.showSleepTimerButtonInHeader')}
-                icon="bedtime"
-                value={settings.showSleepTimerButtonInHeader}
-                onPress={() => settings$.showSleepTimerButtonInHeader.set(!settings.showSleepTimerButtonInHeader)}
-                isLast
-              />,
+              !isAndroid,
+              <>
+                <SettingsToggleRow
+                  label="Show playback speed control"
+                  icon="speed"
+                  value={settings.showPlaybackSpeedControl}
+                  onPress={() => settings$.showPlaybackSpeedControl.set(!settings.showPlaybackSpeedControl)}
+                />
+                <SettingsToggleRow
+                  label="Show video quality control"
+                  icon="high-quality"
+                  value={settings.showPlaybackQualityControl}
+                  onPress={() => settings$.showPlaybackQualityControl.set(!settings.showPlaybackQualityControl)}
+                  isLast
+                />
+              </>,
             )}
           </View>
         </SettingsSection>
@@ -1394,7 +1387,7 @@ export const SettingsTransferContent: React.FC<{
   )
 }
 
-const FeedNotificationsToggle = () => {
+const FeedNotificationsToggle: React.FC<{ isLast?: boolean }> = ({ isLast }) => {
   const enabled = useValue(settings$.feedNotificationsEnabled)
   const [busy, setBusy] = useState(false)
   const toggle = async () => {
@@ -1416,6 +1409,7 @@ const FeedNotificationsToggle = () => {
       icon="notifications-none"
       value={enabled}
       onPress={() => void toggle()}
+      isLast={isLast}
     />
   )
 }
