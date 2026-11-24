@@ -41,6 +41,7 @@ import { userStyles$ } from '@/states/user-styles'
 import { useTwColor } from '@/lib/theme'
 import { setFeedNotificationsEnabled } from '@/lib/feed-notifications'
 import { feederLoop } from '@/lib/feeder'
+import { ToolbarButtonOrderList } from './ToolbarButtonOrderList'
 
 const themes = [null, 'dark', 'light'] as const
 const headerPositions = ['top', 'bottom'] as const
@@ -846,31 +847,45 @@ export const SettingsAppearanceContent = () => {
 
       <View className={!isWeb ? 'mt-8' : undefined}>
         <SettingsSection label={t('settings.toolbarButtons')}>
+          {nIf(
+            isAndroid,
+            <View className={clsx(surfaceCls, 'mb-3')}>
+              <ToolbarButtonOrderList />
+            </View>,
+          )}
           <View className={surfaceCls}>
-            <SettingsToggleRow
-              label={t('settings.showLibraryButtonInHeader')}
-              icon="video-library"
-              value={settings.showLibraryButtonInHeader}
-              onPress={() => settings$.showLibraryButtonInHeader.set(!settings.showLibraryButtonInHeader)}
-            />
+            {nIf(
+              !isAndroid,
+              <SettingsToggleRow
+                label={t('settings.showLibraryButtonInHeader')}
+                icon="video-library"
+                value={settings.showLibraryButtonInHeader}
+                onPress={() => settings$.showLibraryButtonInHeader.set(!settings.showLibraryButtonInHeader)}
+              />,
+            )}
             <SettingsToggleRow
               label={t('settings.showStarButtonInHeader')}
               icon="star-outline"
               value={settings.showStarButtonInHeader}
               onPress={() => settings$.showStarButtonInHeader.set(!settings.showStarButtonInHeader)}
             />
-            <SettingsToggleRow
-              label={t('settings.showHomeButtonInHeader')}
-              icon="home"
-              value={settings.showHomeButtonInHeader}
-              onPress={() => settings$.showHomeButtonInHeader.set(!settings.showHomeButtonInHeader)}
-            />
-            <SettingsToggleRow
-              label={t('settings.channelsFeed')}
-              icon="rss-feed"
-              value={settings.feedsEnabled}
-              onPress={() => settings$.feedsEnabled.set(!settings.feedsEnabled)}
-            />
+            {nIf(
+              !isAndroid,
+              <>
+                <SettingsToggleRow
+                  label={t('settings.showHomeButtonInHeader')}
+                  icon="home"
+                  value={settings.showHomeButtonInHeader}
+                  onPress={() => settings$.showHomeButtonInHeader.set(!settings.showHomeButtonInHeader)}
+                />
+                <SettingsToggleRow
+                  label={t('settings.channelsFeed')}
+                  icon="rss-feed"
+                  value={settings.feedsEnabled}
+                  onPress={() => settings$.feedsEnabled.set(!settings.feedsEnabled)}
+                />
+              </>,
+            )}
             {nIf(
               settings.feedsEnabled,
               <SettingsToggleRow
@@ -889,7 +904,7 @@ export const SettingsAppearanceContent = () => {
               <FeedNotificationsToggle />,
             )}
             {nIf(
-              !isWeb,
+              isIos,
               <>
                 <SettingsToggleRow
                   label={t('settings.showBackButtonInHeader')}
@@ -905,18 +920,23 @@ export const SettingsAppearanceContent = () => {
                 />
               </>,
             )}
-            <SettingsToggleRow
-              label={t('settings.showReloadButtonInHeader')}
-              icon="refresh"
-              value={settings.showReloadButtonInHeader}
-              onPress={() => settings$.showReloadButtonInHeader.set(!settings.showReloadButtonInHeader)}
-            />
-            <SettingsToggleRow
-              label={t('settings.showHistoryButtonInHeader')}
-              icon="history"
-              value={settings.showHistoryButtonInHeader}
-              onPress={() => settings$.showHistoryButtonInHeader.set(!settings.showHistoryButtonInHeader)}
-            />
+            {nIf(
+              !isAndroid,
+              <>
+                <SettingsToggleRow
+                  label={t('settings.showReloadButtonInHeader')}
+                  icon="refresh"
+                  value={settings.showReloadButtonInHeader}
+                  onPress={() => settings$.showReloadButtonInHeader.set(!settings.showReloadButtonInHeader)}
+                />
+                <SettingsToggleRow
+                  label={t('settings.showHistoryButtonInHeader')}
+                  icon="history"
+                  value={settings.showHistoryButtonInHeader}
+                  onPress={() => settings$.showHistoryButtonInHeader.set(!settings.showHistoryButtonInHeader)}
+                />
+              </>,
+            )}
             <SettingsToggleRow
               label="Show playback speed control"
               icon="speed"

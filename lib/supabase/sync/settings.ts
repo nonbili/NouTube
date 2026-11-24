@@ -16,8 +16,17 @@ class SettingsSyncer extends DocumentSyncer<SettingsSnapshot> {
     return getSettingsSnapshot()
   }
 
-  setValue(value: SettingsSnapshot) {
-    settings$.assign(normalizeSettings(value))
+  setValue(value: SettingsSnapshot, replace = false) {
+    // A document written by a version of the app that predates the toolbar order lacks it: keep
+    // this device's rather than resetting it, unless another account's settings replace these.
+    const local = replace ? undefined : settings$.peek()
+    settings$.assign(
+      normalizeSettings({
+        ...value,
+        toolbarButtonOrder: value.toolbarButtonOrder ?? local?.toolbarButtonOrder,
+        toolbarMenuButtons: value.toolbarMenuButtons ?? local?.toolbarMenuButtons,
+      }),
+    )
   }
 
   // Each setting on its own; one both devices changed is the other device's.

@@ -34,7 +34,7 @@ const resetRowMeta = (pendingIds: string[] = []) => ({ ...emptyRowMeta(), pendin
 
 /** The account's document in place of this device's; without one, this device's is pushed to it. */
 const replaceDocument = <T>(syncer: DocumentSyncer<T>, remote: RemoteDocument<T> | null) => {
-  if (remote) syncer.applyRemote(remote.value)
+  if (remote) syncer.applyRemote(remote.value, true)
   syncer.setMeta({
     dirty: !remote,
     lastError: undefined,
@@ -48,7 +48,7 @@ const replaceDocument = <T>(syncer: DocumentSyncer<T>, remote: RemoteDocument<T>
 const keepAccountDocument = <T>(syncer: DocumentSyncer<T>, remote: RemoteDocument<T> | null) => {
   if (remote) {
     syncer.setMeta({ backup: { value: syncer.getValue(), savedAt: Date.now(), remoteUpdatedAt: remote.updatedAt } })
-    syncer.applyRemote(remote.value)
+    syncer.applyRemote(remote.value, true)
   }
   syncer.setMeta({
     dirty: !remote,

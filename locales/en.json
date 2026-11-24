@@ -244,6 +244,15 @@
       "bottom": "Bottom"
     },
     "toolbarButtons": "Toolbar buttons",
+    "toolbarButton": {
+      "library": "Library",
+      "back": "Back",
+      "forward": "Forward",
+      "home": "Home",
+      "switchHome": "YouTube / YouTube Music",
+      "moveUp": "Move up",
+      "moveDown": "Move down"
+    },
     "showHomeButtonInHeader": "Show Home button in toolbar",
     "showBackButtonInHeader": "Show Back button in toolbar",
     "showForwardButtonInHeader": "Show Forward button in toolbar",

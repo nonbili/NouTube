@@ -28,7 +28,8 @@ export abstract class DocumentSyncer<T> {
 
   abstract isPersistLoaded(): Promise<boolean>
   abstract getValue(): T
-  abstract setValue(value: T): void
+  /** `replace`: the value comes from another account's document taking the place of this device's. */
+  abstract setValue(value: T, replace?: boolean): void
   abstract hasMeaningfulLocalValue(value: T): boolean
   abstract getMeta(): ResourceSyncMeta<T>
   abstract setMeta(meta: Partial<ResourceSyncMeta<T>>): void
@@ -118,10 +119,10 @@ export abstract class DocumentSyncer<T> {
   }
 
   /** Puts a value pulled from the server in place, without taking it for a change made here. */
-  applyRemote(value: T) {
+  applyRemote(value: T, replace = false) {
     this.applyingRemote = true
     try {
-      this.setValue(cloneValue(value))
+      this.setValue(cloneValue(value), replace)
     } finally {
       this.applyingRemote = false
     }

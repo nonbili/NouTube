@@ -24,7 +24,7 @@ import { formatPlaybackRate, playbackRatesWith } from '@/lib/playback-rate'
 import { formatPlaybackQuality, playbackQualities } from '@/lib/playback-quality'
 import { selectPlaybackRate } from '../modal/PlaybackSpeedModal'
 import { selectPlaybackQuality } from '../modal/PlaybackQualityModal'
-import MaterialIcons from '@react-native-vector-icons/material-icons'
+import MaterialIcons, { type MaterialIconsIconName } from '@react-native-vector-icons/material-icons'
 import { Image } from 'expo-image'
 
 import { downloads$ } from '@/states/downloads'
@@ -35,6 +35,7 @@ import { useHeaderAnimation } from './header-animation'
 import { toolbarPillLabelClass, toolbarPillPressableClass } from './toolbar-classes'
 import { useActivePageUrl } from '@/lib/hooks/useActivePageUrl'
 import { toggleDesktopMode, useDesktopMode } from '@/lib/hooks/useDesktopMode'
+import { defaultToolbarButtonOrder, getToolbarButtonLabel, type ToolbarButtonId } from '@/lib/toolbar-buttons'
 import { navigateHistory } from '@/lib/history-navigation'
 import { togglePictureInPicture } from '@/lib/picture-in-picture'
 import { useTwColor } from '@/lib/theme'
@@ -95,6 +96,8 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
   const showSleepTimerButtonInHeader = useValue(settings$.showSleepTimerButtonInHeader)
   const showLibraryButtonInHeader = useValue(settings$.showLibraryButtonInHeader)
   const showStarButtonInHeader = useValue(settings$.showStarButtonInHeader)
+  const toolbarButtonOrder = useValue(settings$.toolbarButtonOrder)
+  const toolbarMenuButtons = useValue(settings$.toolbarMenuButtons)
   const { width, height: windowHeight } = useWindowDimensions()
   const headerHeight = useValue(ui$.headerHeight)
   const headerShown = useValue(ui$.headerShown)
@@ -206,15 +209,37 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
     .map((script) => ({ ...script, js: script.js.trim() }))
   const showSleepTimerButton = sleepTimerSupported && (sleepTimerActive || showSleepTimerButtonInHeader)
   const showStarButton = Boolean(pageType?.canStar) && showStarButtonInHeader
-  const leadingToolbarItemCount =
-    Number(showLibraryButtonInHeader) +
-    Number(!isYTMusic && feedsEnabled) +
-    Number(showHomeButtonInHeader) +
-    Number(!isWeb && showBackButtonInHeader) +
-    Number(!isWeb && showForwardButtonInHeader) +
-    Number(showReloadButtonInHeader) +
-    Number(showHistoryButtonInHeader) +
-    Number(isWeb) * 2
+  const showMenuButton = (id: ToolbarButtonId) => isAndroid && (toolbarMenuButtons as string[]).includes(id)
+  // Leading buttons by id; the web build has its own back/forward/reload group.
+  const leadingButtons: Record<ToolbarButtonId, { icon: MaterialIconsIconName; color?: string; onPress: () => void } | null> = {
+    library: showLibraryButtonInHeader
+      ? { icon: isYTMusic ? 'library-music' : 'video-library', onPress: () => ui$.libraryModalOpen.set(true) }
+      : null,
+    feed: !isYTMusic && feedsEnabled ? { icon: 'rss-feed', onPress: () => ui$.feedModalOpen.set(true) } : null,
+    back: !isWeb && showBackButtonInHeader ? { icon: 'arrow-back', onPress: goBack } : null,
+    forward: !isWeb && showForwardButtonInHeader ? { icon: 'arrow-forward', onPress: goForward } : null,
+    reload: !isWeb && showReloadButtonInHeader ? { icon: 'refresh', onPress: reloadPage } : null,
+    home: showHomeButtonInHeader ? { icon: 'home', onPress: onOpenHome } : null,
+    history: showHistoryButtonInHeader ? { icon: 'history', onPress: () => ui$.historyModalOpen.set(true) } : null,
+    'switch-home': showMenuButton('switch-home')
+      ? { icon: isYTMusic ? 'video-library' : 'library-music', onPress: onToggleHome }
+      : null,
+    'desktop-mode': showMenuButton('desktop-mode')
+      ? {
+          icon: 'desktop-windows',
+          color: desktopMode ? tw('indigo-400') : undefined,
+          onPress: () => toggleDesktopMode(isYTMusic),
+        }
+      : null,
+    'open-url': showMenuButton('open-url') ? { icon: 'link', onPress: () => ui$.urlModalOpen.set(true) } : null,
+    share: showMenuButton('share') ? { icon: 'share', onPress: () => void onShare() } : null,
+    tools: showMenuButton('tools') ? { icon: 'download', onPress: () => ui$.toolsModalOpen.set(true) } : null,
+    settings: showMenuButton('settings') ? { icon: 'settings', onPress: () => ui$.settingsModalOpen.set(true) } : null,
+  }
+  const leadingButtonIds = (isAndroid ? toolbarButtonOrder : defaultToolbarButtonOrder).filter(
+    (id) => leadingButtons[id],
+  )
+  const leadingToolbarItemCount = leadingButtonIds.length + Number(isWeb) * (2 + Number(showReloadButtonInHeader))
   const trailingToolbarItemCount =
     1 +
     Number(isWeb) +
@@ -284,26 +309,21 @@ export const NouHeader: React.FC<{ getNoutube: () => any }> = ({ getNoutube }) =
           className={clsx('min-w-0', isWeb && 'lg:w-full')}
           contentContainerClassName={clsx('flex-row', isWeb && 'lg:flex-col', compactToolbar ? 'gap-0' : 'gap-1')}
         >
-          {nIf(
-            showLibraryButtonInHeader,
-            <MaterialButton
-              color={headerControlColor}
-              name={isYTMusic ? 'library-music' : 'video-library'}
-              onPress={() => ui$.libraryModalOpen.set(true)}
-            />,
-          )}
-          {nIf(
-            !isYTMusic && feedsEnabled,
-            <MaterialButton color={headerControlColor} name="rss-feed" onPress={() => ui$.feedModalOpen.set(true)} />,
-          )}
-          {nIf(!isWeb && showBackButtonInHeader, <MaterialButton color={headerControlColor} name="arrow-back" onPress={goBack} />)}
-          {nIf(!isWeb && showForwardButtonInHeader, <MaterialButton color={headerControlColor} name="arrow-forward" onPress={goForward} />)}
-          {nIf(!isWeb && showReloadButtonInHeader, <MaterialButton color={headerControlColor} name="refresh" onPress={reloadPage} />)}
-          {nIf(showHomeButtonInHeader, <MaterialButton color={headerControlColor} name="home" onPress={onOpenHome} />)}
-          {nIf(
-            showHistoryButtonInHeader,
-            <MaterialButton color={headerControlColor} name="history" onPress={() => ui$.historyModalOpen.set(true)} />,
-          )}
+          {leadingButtonIds.map((id) => {
+            const button = leadingButtons[id]!
+            return (
+              <MaterialButton
+                key={id}
+                color={button.color ?? headerControlColor}
+                name={button.icon}
+                onPress={button.onPress}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  id === 'switch-home' ? (isYTMusic ? 'YouTube' : 'YouTube Music') : getToolbarButtonLabel(id)
+                }
+              />
+            )
+          })}
           {nIf(
             isWeb,
             <>

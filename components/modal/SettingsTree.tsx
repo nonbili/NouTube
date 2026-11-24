@@ -27,6 +27,7 @@ import { SettingsUserStylesContent } from './SettingsUserStylesContent'
 import { SettingsBlocklistContent } from './SettingsBlocklistContent'
 import { useTwColor } from '@/lib/theme'
 import { FAQ_URL } from '@/lib/help'
+import { SettingsScrollContext, useSettingsScrollView } from './settings-scroll'
 
 const repo = 'https://github.com/nonbili/NouTube'
 const donateLinks = [
@@ -166,6 +167,7 @@ export const SettingsTree = forwardRef<
   const colorScheme = useColorScheme()
   const isDark = colorScheme !== 'light'
   const [pageStack, setPageStack] = useState<SettingsPage[]>(['home'])
+  const { scroller, scrollViewProps } = useSettingsScrollView()
   const [importingList, setImportingList] = useState(false)
   const [importingTakeout, setImportingTakeout] = useState(false)
   const [updateSupported, setUpdateSupported] = useState(false)
@@ -479,12 +481,14 @@ export const SettingsTree = forwardRef<
         </View>
       </View>
 
-      <ScrollView className="flex-1">
-        <View className={clsx('px-4 py-5', isWeb && 'mx-auto w-full max-w-3xl')}>
-          {renderPage()}
-          <View className="h-16" />
-        </View>
-      </ScrollView>
+      <SettingsScrollContext.Provider value={scroller}>
+        <ScrollView className="flex-1" {...scrollViewProps}>
+          <View className={clsx('px-4 py-5', isWeb && 'mx-auto w-full max-w-3xl')}>
+            {renderPage()}
+            <View className="h-16" />
+          </View>
+        </ScrollView>
+      </SettingsScrollContext.Provider>
     </View>
   )
 })
