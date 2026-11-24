@@ -21,11 +21,16 @@ const expoFontBrowserContext = (): Plugin => ({
 // file: it imports names its siblings never export, which breaks esbuild/Rollup.
 // It is only imported for side effects, so replace it with an empty module.
 const expoTsDeclarationsGlobal = /expo-modules-core[\\/]build[\\/]ts-declarations[\\/]global\.js$/
+// react-native-svg 15.16 imports TurboModuleRegistry from 'react-native' in this
+// native-only Fabric module, which react-native-web does not export.
+const rnSvgNativeSoundModule = /react-native-svg[\\/]lib[\\/]module[\\/]fabric[\\/]NativeSvgSoundModule\.js$/
 const expoModulesCoreTypeStub = (): Plugin => ({
   name: 'expo-modules-core-type-stub',
   enforce: 'pre',
   load(id) {
-    return expoTsDeclarationsGlobal.test(id) ? 'export {}' : null
+    if (expoTsDeclarationsGlobal.test(id)) return 'export {}'
+    if (rnSvgNativeSoundModule.test(id)) return 'export default null'
+    return null
   },
 })
 
@@ -81,6 +86,7 @@ export default defineConfig({
             name: 'expo-modules-core-type-stub',
             setup(build) {
               build.onLoad({ filter: expoTsDeclarationsGlobal }, () => ({ contents: 'export {}', loader: 'js' }))
+              build.onLoad({ filter: rnSvgNativeSoundModule }, () => ({ contents: 'export default null', loader: 'js' }))
             },
           },
         ],

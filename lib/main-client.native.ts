@@ -3,6 +3,7 @@ import { StorageAccessFramework } from 'expo-file-system/legacy'
 import { isAndroid } from './utils'
 import { settings$ } from '@/states/settings'
 import type { UpdateCheckResult } from '../desktop/src/main/lib/auto-update'
+import type { TaskbarControlsState } from './taskbar-controls'
 
 export type FormatOption = {
   formatId: string
@@ -38,6 +39,7 @@ export interface MainClient {
   discordLogin(): Promise<{ loggedIn: boolean }>
   discordLogout(): Promise<void> | void
   getDiscordStatus(): Promise<{ loggedIn: boolean }> | { loggedIn: boolean }
+  setTaskbarControls(state: TaskbarControlsState): Promise<void> | void
 }
 
 type NouTubeDownloadClient = {
@@ -135,4 +137,5 @@ export const mainClient: MainClient = {
   async getDiscordStatus() {
     return nativeModule.getDiscordStatus?.() ?? { loggedIn: false }
   },
+  async setTaskbarControls() {},
 }

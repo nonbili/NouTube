@@ -13,6 +13,7 @@ import {
   setDiscordPlayback,
   setDiscordPresence,
 } from 'main/lib/discord.js'
+import { setTaskbarControls } from 'main/lib/thumbar.js'
 import { ipcMain, session, app, shell, dialog, net } from 'electron'
 import { spawn, exec } from 'child_process'
 import fs from 'fs/promises'
@@ -216,6 +217,7 @@ const interfaces = {
   getDiscordStatus,
   setDiscordPresence,
   setDiscordPlayback,
+  setTaskbarControls,
   setCookie: async (cookie: string) => {
     const ses = session.fromPartition('persist:webview')
     const items = cookie.split(';').map((x) => x.trim())

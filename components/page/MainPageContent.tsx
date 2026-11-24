@@ -11,7 +11,7 @@ import { EmbedVideoModal } from '@/components/modal/EmbedVideoModal'
 import NouTubeViewModule, { NouTubeView } from '@/modules/nou-tube-view'
 import { AppState, StyleSheet, View } from 'react-native'
 import { setPageUrl } from '@/lib/page'
-import { getNextQueueUrl, trackQueueEnded, trackQueuePlaying } from '@/lib/queue'
+import { advanceQueue, trackQueuePlaying } from '@/lib/queue'
 import { getLastPlaying } from '@/lib/last-playing'
 import { normalizeUrl } from '@/lib/url'
 import { showToast } from '@/lib/toast'
@@ -26,6 +26,7 @@ import { auth$ } from '@/states/auth'
 import { useMe } from '@/lib/hooks/useMe'
 import { ObservableHint } from '@legendapp/state'
 import { mainClient } from '@/lib/main-client'
+import { taskbarControls } from '@/lib/taskbar-controls'
 import { onDownloadProgress } from '@/lib/download-progress'
 import { describeDownloadError } from '@/lib/download-error'
 import { t } from 'i18next'
@@ -238,6 +239,14 @@ const DesktopTabView: React.FC<{
   }, [index])
 
   useEffect(() => {
+    taskbarControls.registerTabWebview(tab.id, webviewRef.current)
+    taskbarControls.setTabUrl(tab.id, initialUrlRef.current)
+    return () => {
+      taskbarControls.removeTab(tab.id)
+    }
+  }, [tab.id])
+
+  useEffect(() => {
     if (!isActive || !webviewRef.current) {
       return
     }
@@ -315,9 +324,23 @@ const DesktopTabView: React.FC<{
       }
       refreshCanGoBack()
     }
-    const onIpcMessage = (e: { channel: string; args: any[] }) =>
+    const onDidNavigate = (e: { url: string }) => {
+      onNavigate(e)
+      taskbarControls.setTabUrl(tab.id, e.url, { resetPlayback: true })
+    }
+    const onDidNavigateInPage = (e: { url: string }) => {
+      onNavigate(e)
+      taskbarControls.setTabUrl(tab.id, e.url)
+    }
+    const onIpcMessage = (e: { channel: string; args: any[] }) => {
+      // Play and pause flush this right away, so it is enough to track the
+      // state; the webview's media-paused also fires for feed previews.
+      if (e.channel === 'playback') {
+        taskbarControls.reportTabPlayback(tab.id, Boolean(e.args[0]?.playing), Boolean(e.args[0]?.videoId))
+      }
       // Tabs play independently, so the Discord presence has to know which one this came from.
       onMessage(e.channel, e.channel === 'playback' ? { ...e.args[0], source: tab.id } : e.args[0])
+    }
     const onFavicon = (e: { favicons: string[] }) => {
       tabs$.setTabMeta({ title: webview.getTitle(), icon: e.favicons.at(-1) }, index)
     }
@@ -331,8 +354,8 @@ const DesktopTabView: React.FC<{
     webview.addEventListener('did-finish-load', onStopLoading)
     webview.addEventListener('did-fail-load', onStopLoading)
     webview.addEventListener('did-fail-provisional-load', onStopLoading)
-    webview.addEventListener('did-navigate', onNavigate)
-    webview.addEventListener('did-navigate-in-page', onNavigate)
+    webview.addEventListener('did-navigate', onDidNavigate)
+    webview.addEventListener('did-navigate-in-page', onDidNavigateInPage)
     webview.addEventListener('ipc-message', onIpcMessage)
     webview.addEventListener('page-favicon-updated', onFavicon)
     webview.addEventListener('page-title-updated', onTitle)
@@ -344,8 +367,8 @@ const DesktopTabView: React.FC<{
       webview.removeEventListener('did-finish-load', onStopLoading)
       webview.removeEventListener('did-fail-load', onStopLoading)
       webview.removeEventListener('did-fail-provisional-load', onStopLoading)
-      webview.removeEventListener('did-navigate', onNavigate)
-      webview.removeEventListener('did-navigate-in-page', onNavigate)
+      webview.removeEventListener('did-navigate', onDidNavigate)
+      webview.removeEventListener('did-navigate-in-page', onDidNavigateInPage)
       webview.removeEventListener('ipc-message', onIpcMessage)
       webview.removeEventListener('page-favicon-updated', onFavicon)
       webview.removeEventListener('page-title-updated', onTitle)
@@ -361,6 +384,7 @@ const DesktopTabView: React.FC<{
     syncBlocklistToWebview,
     syncSettingsToWebview,
     syncUserStylesToWebview,
+    tab.id,
     toggleShorts,
   ])
 
@@ -410,7 +434,13 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
   useWebviewFocusReturn()
   const tabs = useValue(tabs$.tabs)
   const activeTabIndex = useValue(tabs$.activeTabIndex)
+  const activeTabId = tabs[activeTabIndex]?.id
   const activePageUrl = useValue(tabs$.activePageUrl)
+  useEffect(() => {
+    if (isWeb) {
+      taskbarControls.setActiveTab(activeTabId)
+    }
+  }, [activeTabId])
   const currentPageUrl = isWeb ? activePageUrl : pageUrl
   const nativeRef = useRef<typeof NouTubeViewModule>(null)
   const playerRef = useRef<typeof NouTubeViewModule>(null)
@@ -792,13 +822,7 @@ export const MainPageContent: React.FC<{ contentJs: string }> = ({ contentJs }) 
                 : currentPageUrl
           const hasPlaylistParam = endedUrl.includes('list=')
           if (manualNext || !hasPlaylistParam) {
-            // Skipping counts as finished too, or the resume point would pull
-            // every later skip back to the queue video that was skipped.
-            trackQueueEnded(endedUrl)
-            const nextUrl = getNextQueueUrl(endedUrl, {
-              resumeUnrelated: manualNext || !settings$.disableAutoplay.get(),
-              ...(manualNext && data?.ytMusic === true ? { ytMusic: true } : {}),
-            })
+            const nextUrl = advanceQueue(endedUrl, { manual: manualNext, ytMusic: data?.ytMusic === true })
             if (nextUrl) {
               if (isWeb) {
                 tabs$.updateTabUrl(nextUrl)

@@ -1,4 +1,5 @@
 import { ui$ } from '@/states/ui'
+import { settings$ } from '@/states/settings'
 import { getVideoId } from './page'
 import { queue$ } from '@/states/queue'
 import { useValue } from '@legendapp/state/react'
@@ -52,6 +53,24 @@ export function getNextQueueUrl(
     return bookmarks[0].url
   }
   return queue$.lastPlayedEnded.get() ? bookmarks[lastPlayedIndex + 1]?.url : bookmarks[lastPlayedIndex].url
+}
+
+/**
+ * Marks `endedUrl` finished and returns the queue url to open next, if any.
+ *
+ * `manual` is a press of next -- from the page, the media controls or the
+ * taskbar -- which always moves on to the queue, while a video that just ended
+ * only does so when autoplay is on. `ytMusic` is for the player urls YouTube
+ * Music hands out, which point at www.youtube.com.
+ */
+export function advanceQueue(endedUrl: string, { manual = false, ytMusic = false } = {}): string | undefined {
+  // Skipping counts as finished too, or the resume point would pull every
+  // later skip back to the queue video that was skipped.
+  trackQueueEnded(endedUrl)
+  return getNextQueueUrl(endedUrl, {
+    resumeUnrelated: manual || !settings$.disableAutoplay.get(),
+    ...(manual && ytMusic ? { ytMusic: true } : {}),
+  })
 }
 
 function isYTMusicUrl(url: string) {

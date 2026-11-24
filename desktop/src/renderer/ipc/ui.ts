@@ -10,6 +10,7 @@ import { t } from 'i18next'
 import { runShortcut } from '../lib/shortcuts'
 import { navigateHistory } from '@/lib/history-navigation'
 import type { HistoryDirection } from '@/lib/desktop-shortcuts'
+import { taskbarControls, type TaskbarControlAction } from '@/lib/taskbar-controls'
 import { ui$ } from '@/states/ui'
 
 function getWebContentsId(webview: { getWebContentsId?: () => number } | undefined): number | undefined {
@@ -26,6 +27,7 @@ const interfaces = {
   downloadProgress,
   openInAppTab: (url: string) => tabs$.openTab(url),
   runShortcut,
+  taskbarControl: (action: TaskbarControlAction) => taskbarControls.runAction(action),
   navigateHistory: (direction: HistoryDirection, webContentsId?: number) => {
     const webview = ui$.webview.get()
     if (webContentsId !== undefined && getWebContentsId(webview) !== webContentsId) {

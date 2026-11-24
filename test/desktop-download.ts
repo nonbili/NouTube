@@ -22,6 +22,7 @@ mock.module('main/lib/proxy.js', () => ({ applyProxy() {}, getProxyUrl: () => nu
 mock.module('main/lib/discord.js', () => ({
   discordLogin() {}, discordLogout() {}, getDiscordStatus() {}, setDiscordPlayback() {}, setDiscordPresence() {},
 }))
+mock.module('main/lib/thumbar.js', () => ({ setTaskbarControls() {} }))
 mock.module('main/lib/auto-update.js', () => ({
   isUpdateSupported: false, checkForUpdate() {}, quitAndInstall() {},
 }))

@@ -548,5 +548,11 @@
     "settings": "Settings",
     "shortcuts": "Keyboard shortcuts",
     "closeModal": "Close dialog or panel"
+  },
+  "taskbar": {
+    "previous": "Previous",
+    "play": "Play",
+    "pause": "Pause",
+    "next": "Next"
   }
 }

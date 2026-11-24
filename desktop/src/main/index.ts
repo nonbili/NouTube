@@ -14,6 +14,7 @@ import { isSupportedUrl, normalizeSupportedUrl } from '@/lib/supported-url'
 import { uiClient } from './ipc/ui'
 import { resolveVideoLinkTitle } from './lib/link-title'
 import { watchShortcuts } from './lib/shortcuts'
+import { initThumbar } from './lib/thumbar'
 
 app.userAgentFallback = getUserAgent(process.platform)
 
@@ -45,6 +46,7 @@ function createWindow(): void {
     },
   })
   setMainWindow(mainWindow)
+  initThumbar(mainWindow)
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
