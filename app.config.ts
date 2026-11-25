@@ -34,6 +34,8 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
         // The player keeps going with the screen off and on the lock screen.
         UIBackgroundModes: ['audio'],
         NSMicrophoneUsageDescription: 'Voice search on YouTube uses the microphone.',
+        // The webview's long-press "Save to Photos" on an image; without this key iOS kills the app.
+        NSPhotoLibraryAddUsageDescription: 'Images you choose to save from YouTube are added to your photo library.',
         // Only standard HTTPS, so builds skip the export compliance prompt.
         ITSAppUsesNonExemptEncryption: false,
       },
